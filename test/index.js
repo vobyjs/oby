@@ -264,6 +264,21 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports disposing of it', t => {
+
+      const a = oby ( 1 );
+      const b = oby ( 2 );
+      const c = oby.computed ( () => a () + b () );
+
+      c.dispose ();
+
+      a ( 3 );
+      b ( 7 );
+
+      t.is ( c (), 3 );
+
+    });
+
     it ( 'supports dynamic dependencies', t => {
 
       const a = oby ( 1 );

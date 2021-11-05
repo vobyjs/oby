@@ -1,7 +1,8 @@
 
 /* IMPORT */
 
-import {IContext} from './types';
+import Observable from './observable';
+import {IListener} from './types';
 
 /* MAIN */
 
@@ -9,26 +10,51 @@ class Context {
 
   /* VARIABLES */
 
-  private contexts: Set<IContext> = new Set ();
-  private current: IContext | undefined = undefined;
+  private links: WeakMap<IListener, Set<Observable>> = new WeakMap ();
+  private listeners: Set<IListener> = new Set ();
+  private current: IListener | undefined = undefined;
 
   /* API */
 
-  get = (): IContext | undefined => {
+  link = ( observable: Observable ): void => {
 
-    return this.current;
+    const listener = this.current;
+
+    if ( !listener ) return;
+
+    observable.on ( listener );
+
+    const links = this.links.get ( listener ) || new Set ();
+
+    links.add ( observable );
+
+    this.links.set ( listener, links );
 
   }
 
-  with = ( context: IContext, fn: () => void ): void => {
+  unlink = ( listener: IListener ): void => {
 
-    if ( this.contexts.has ( context ) ) throw Error ( 'Circular computation detected' );
+    const links = this.links.get ( listener );
+
+    if ( !links ) return;
+
+    for ( const observable of links ) {
+
+      observable.off ( listener );
+
+    }
+
+  }
+
+  with = ( listener: IListener, fn: () => void ): void => {
+
+    if ( this.listeners.has ( listener ) ) throw Error ( 'Circular computation detected' );
 
     const prev = this.current;
 
-    this.contexts.add ( context );
+    this.listeners.add ( listener );
 
-    this.current = context;
+    this.current = listener;
 
     try {
 
@@ -36,7 +62,7 @@ class Context {
 
     } finally {
 
-      this.contexts.delete ( context );
+      this.listeners.delete ( listener );
 
       this.current = prev;
 

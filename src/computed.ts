@@ -9,10 +9,11 @@ import {IObservable} from './types';
 
 const computed = <T> ( fn: () => T ): IObservable<T> => {
 
-  const computation = () => Context.with ( computation, () => observable.set ( fn () ) );
-  const observable = oby<T> ();
+  const listener = () => Context.with ( listener, () => observable.set ( fn () ) );
+  const disposer = () => Context.unlink ( listener );
+  const observable = oby<T> ( undefined, disposer );
 
-  computation ();
+  listener ();
 
   return observable as IObservable<T>; //TSC
 

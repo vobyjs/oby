@@ -102,6 +102,12 @@ b ( 10 );
 
 c (); // => 12
 
+c.dispose (); // Call the disposer function, which stops the reactivity
+
+b ( 20 );
+
+c (); // => 12, same value as before, it's no longer reactive
+
 // "from" library method, for encapsulating dynamic stuff in an Observable
 
 const oClick = oby.from ( observable => {

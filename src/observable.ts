@@ -8,7 +8,7 @@ import {IDisposer, IListener} from './types';
 
 /* MAIN */
 
-class Observable<T> extends Callable {
+class Observable<T = unknown> extends Callable {
 
   /* VARIABLES */
 
@@ -44,13 +44,7 @@ class Observable<T> extends Callable {
 
   get (): T {
 
-    const context = Context.get ();
-
-    if ( context ) {
-
-      this.on ( context );
-
-    }
+    Context.link ( this );
 
     return this.value;
 

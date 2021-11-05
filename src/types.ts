@@ -1,8 +1,6 @@
 
 /* MAIN */
 
-type IContext<TI = unknown> = IListener<TI>;
-
 type IDisposer = () => void;
 
 type IListener<TI = unknown> = ( value: TI, valuePrev: TI | undefined ) => void;
@@ -23,4 +21,4 @@ type IObservable<T = unknown> = IObservableAbstract<T, T>;
 
 /* EXPORT */
 
-export {IContext, IDisposer, IListener, IObservableWithoutInitial, IObservable};
+export {IDisposer, IListener, IObservableWithoutInitial, IObservable};
