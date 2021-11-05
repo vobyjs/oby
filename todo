@@ -1,0 +1,3 @@
+
+☐ "sample" method, for getting without automatically listening to the observable
+☐ "transaction" method, for setting multiple times while triggering only once, at the end of the transition

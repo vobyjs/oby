@@ -1,0 +1,39 @@
+{
+  "name": "oby",
+  "description": "A tiny Observable implementation.",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rimraf dist",
+    "compile": "tsc --skipLibCheck",
+    "compile:watch": "tsc --skipLibCheck --watch",
+    "test": "fava",
+    "test:watch": "fava -w",
+    "prepublishOnly": "npm run clean && npm run compile && npm run test"
+  },
+  "bugs": {
+    "url": "https://github.com/fabiospampinato/oby/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Fabio Spampinato",
+    "email": "spampinabio@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fabiospampinato/oby.git"
+  },
+  "keywords": [
+    "observable",
+    "tiny",
+    "small",
+    "fast"
+  ],
+  "devDependencies": {
+    "call-spy": "^2.0.2",
+    "fava": "^0.0.4",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.4.4"
+  }
+}
