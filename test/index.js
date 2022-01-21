@@ -39,6 +39,14 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'has a "sample" method, for getting', t => {
+
+      const o = oby ( 123 );
+
+      t.is ( o.sample (), 123 );
+
+    });
+
     it ( 'has a "set" method, for setting', t => {
 
       const o = oby ();
@@ -264,6 +272,21 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'does not update the observable if potential dependencies are only sampled', t => {
+
+      const a = oby ( 1 );
+      const b = oby ( 2 );
+      const c = oby.computed ( () => a.sample () + b.sample () );
+
+      t.is ( c (), 3 );
+
+      a ( 3 );
+      b ( 7 );
+
+      t.is ( c (), 3 );
+
+    });
+
     it ( 'supports disposing of it', t => {
 
       const a = oby ( 1 );
@@ -309,7 +332,7 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'oby.from', it => {
+  describe ( 'from', it => {
 
     it ( 'makes an observable passed immediately to the function', t => {
 

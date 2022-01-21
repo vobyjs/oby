@@ -50,6 +50,12 @@ class Observable<T = unknown> extends Callable {
 
   }
 
+  sample (): T {
+
+    return this.value;
+
+  }
+
   set ( value: T ): T {
 
     const valuePrev = this.value;

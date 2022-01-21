@@ -49,6 +49,10 @@ disposable.dispose (); // Call the disposer function, future calls to #dispose w
 
 o.get (); // => 1
 
+// "sample" method for explicit getting, without causing the sampled observable to be automatically linked as a dependency of the "computed" observable (read below)
+
+o.sample (); // => 1
+
 // "set" method for explicit setting
 
 o.set ( 2 ); // => 2
