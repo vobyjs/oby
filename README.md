@@ -19,6 +19,7 @@ type Observable<T> = {
   (): T,
   ( value: Exclude<T, Function> | (( valuePrev: T ) => T) ): T,
   get (): T,
+  sample (): T,
   set ( value: T ): T,
   on ( listener: (( value: T, valuePrev: T | undefined ) => void), immediate?: boolean ): void,
   off ( listener: (( value: T, valuePrev: T | undefined ) => void) ): void,

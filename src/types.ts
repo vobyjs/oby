@@ -9,6 +9,7 @@ type IObservableAbstract<T = unknown, TI = unknown> = {
   (): TI,
   ( value: Exclude<T, Function> | (( valuePrev: TI ) => T) ): T,
   get (): TI,
+  sample (): TI,
   set ( value: T ): T,
   on ( listener: IListener<TI>, immediate?: boolean ): void,
   off ( listener: IListener<TI> ): void,
