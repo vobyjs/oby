@@ -1,7 +1,7 @@
 {
   "name": "oby",
   "description": "A tiny Observable implementation.",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
