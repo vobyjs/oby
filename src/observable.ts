@@ -1,14 +1,13 @@
 
 /* IMPORT */
 
-import Callable from './callable';
-import {NOOP} from './constants';
+import {NOOP, SYMBOL} from './constants';
 import Context from './context';
-import {IDisposer, IListener} from './types';
+import {IObservable, IDisposer, IListener} from './types';
 
 /* MAIN */
 
-class Observable<T = unknown> extends Callable {
+class Observable<T = unknown> {
 
   /* VARIABLES */
 
@@ -20,19 +19,38 @@ class Observable<T = unknown> extends Callable {
 
   constructor ( value: T, disposer: IDisposer = NOOP ) {
 
-    super ();
-
     this.disposer = disposer;
     this.listeners = new Set ();
     this.value = value;
 
   }
 
+  /* STATIC API */
+
+  static callable <T = unknown> ( value: T, disposer: IDisposer = NOOP ): IObservable<T> {
+
+    const observable = new Observable ( value, disposer );
+
+    const callable = observable.call.bind ( observable );
+
+    callable.get = observable.get.bind ( observable );
+    callable.sample = observable.sample.bind ( observable );
+    callable.set = observable.set.bind ( observable );
+    callable.on = observable.on.bind ( observable );
+    callable.off = observable.off.bind ( observable );
+    callable.computed = observable.computed.bind ( observable );
+    callable.dispose = observable.dispose.bind ( observable );
+    callable[SYMBOL] = true;
+
+    return callable;
+
+  }
+
   /* API */
 
-  __call__ (): T;
-  __call__ ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] ): T;
-  __call__ ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] | [] ): T {
+  call (): T;
+  call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] ): T;
+  call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] | [] ): T {
 
     if ( !args.length ) return this.get ();
 
@@ -92,11 +110,11 @@ class Observable<T = unknown> extends Callable {
 
   }
 
-  computed <U> ( fn: ( value: T ) => U ): Observable<U> {
+  computed <U> ( fn: ( value: T ) => U ): IObservable<U> {
 
     const listener = ( value: T ) => observable.set ( fn ( value ) );
     const disposer = () => this.off ( listener );
-    const observable = new Observable<U> ( fn ( this.value ), disposer );
+    const observable = Observable.callable<U> ( fn ( this.value ), disposer );
 
     this.on ( listener );
 

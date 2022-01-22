@@ -14,7 +14,7 @@ function observable <T> ( value: undefined, disposer?: IDisposer ): IObservableW
 function observable <T> ( value: T, disposer?: IDisposer ): IObservable<T>;
 function observable <T> ( value?: T, disposer?: IDisposer ): IObservableWithoutInitial<T> | IObservable<T> {
 
-  return new Observable ( value, disposer ) as any; //TSC
+  return Observable.callable ( value, disposer ) as any; //TSC
 
 }
 

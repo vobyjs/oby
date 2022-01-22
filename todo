@@ -1,5 +1,4 @@
 
-☐ "sample" method, for getting without automatically listening to the observable
 ☐ "transaction" method, for setting multiple times while triggering only once, at the end of the transition
 ☐ "isListening" method, both global and for an observable
 ☐ maybe better circular detection, maybe the limit shouldn't be 1 circularity but 10 or something
