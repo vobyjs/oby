@@ -12,7 +12,7 @@ npm install --save oby
 
 ## Usage
 
-An Obserable is a function that works both as a getter and as a setter, with some extra methods attached to it, it has the following interface:
+An Observable is a function that works both as a getter and as a setter, with some extra methods attached to it, it has the following interface:
 
 ```ts
 type Observable<T> = {
