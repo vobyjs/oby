@@ -23,6 +23,7 @@ type Observable<T> = {
   set ( value: T ): T,
   on ( listener: (( value: T, valuePrev: T | undefined ) => void), immediate?: boolean ): void,
   off ( listener: (( value: T, valuePrev: T | undefined ) => void) ): void,
+  computed <U> ( fn: (( value: T ) => U) ): Observable<U>,
   dispose (): void
 };
 ```
@@ -90,6 +91,16 @@ o (); // => 4
 
 o ( 5 ); // => 5
 o ( prev => prev + 1 ); // => 6
+
+// "computed" method, for making an Observable out of the current Observable, this assumes that the function only depends on the current Observable and is therefor strictly less powerful than the "computed" library method, but by having that assumption it's also slightly faster
+
+const double = o.computed ( value => value * value );
+
+double (); // => 36
+
+o ( 10 );
+
+double (); // => 100
 
 // "computed" library method, for making an Observable out of other Observables
 

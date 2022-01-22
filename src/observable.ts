@@ -92,6 +92,18 @@ class Observable<T = unknown> extends Callable {
 
   }
 
+  computed <U> ( fn: ( value: T ) => U ): Observable<U> {
+
+    const listener = ( value: T ) => observable.set ( fn ( value ) );
+    const disposer = () => this.off ( listener );
+    const observable = new Observable<U> ( fn ( this.value ), disposer );
+
+    this.on ( listener );
+
+    return observable;
+
+  }
+
   dispose (): void {
 
     this.disposer ();

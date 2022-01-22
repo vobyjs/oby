@@ -105,6 +105,25 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'has a "computed" method, for making an observable out of the current observable ', t => {
+
+      const o = oby ( 5 );
+      const double = o.computed ( value => value * value );
+
+      t.is ( double (), 25 );
+
+      o ( 10 );
+
+      t.is ( double (), 100 );
+
+      double.dispose ();
+
+      o ( 100 );
+
+      t.is ( double (), 100 );
+
+    });
+
     it ( 'has a "dispose" method, for cleaning up', t => {
 
       const o = oby ();
