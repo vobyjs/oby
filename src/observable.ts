@@ -51,7 +51,7 @@ class Observable<T = unknown> {
 
   }
 
-  /* API */
+  /* PRIVATE API */
 
   private call (): T;
   private call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] ): T;
@@ -65,7 +65,9 @@ class Observable<T = unknown> {
 
   }
 
-  get (): T {
+  /* PUBLIC API */
+
+  public get (): T {
 
     Context.link ( this );
 
@@ -73,13 +75,13 @@ class Observable<T = unknown> {
 
   }
 
-  sample (): T {
+  public sample (): T {
 
     return this.value;
 
   }
 
-  set ( value: T ): T {
+  public set ( value: T ): T {
 
     const valuePrev = this.value;
 
@@ -97,7 +99,7 @@ class Observable<T = unknown> {
 
   }
 
-  on ( listener: IListener<T>, immediate: boolean = false ): void {
+  public on ( listener: IListener<T>, immediate: boolean = false ): void {
 
     this.listeners.add ( listener );
 
@@ -109,13 +111,13 @@ class Observable<T = unknown> {
 
   }
 
-  off ( listener: IListener<T> ): void {
+  public off ( listener: IListener<T> ): void {
 
     this.listeners.delete ( listener );
 
   }
 
-  computed <U> ( fn: ( value: T ) => U ): Observable<U> {
+  public computed <U> ( fn: ( value: T ) => U ): Observable<U> {
 
     const listener = ( value: T ) => observable.set ( fn ( value ) );
     const disposer = () => this.off ( listener );
@@ -127,7 +129,7 @@ class Observable<T = unknown> {
 
   }
 
-  dispose (): void {
+  public dispose (): void {
 
     if ( !this.disposer ) return;
 
