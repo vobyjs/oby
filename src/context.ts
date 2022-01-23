@@ -10,7 +10,7 @@ class Context {
 
   /* VARIABLES */
 
-  private links: WeakMap<IListener, Set<Observable>> = new WeakMap ();
+  private links: WeakMap<IListener, Observable[]> = new WeakMap ();
   private listeners: Set<IListener> = new Set ();
   private current: IListener | undefined = undefined;
 
@@ -24,11 +24,25 @@ class Context {
 
     observable.on ( listener );
 
-    const links = this.links.get ( listener ) || new Set ();
+    let links = this.links.get ( listener );
 
-    links.add ( observable );
+    const hadLinks = !!links;
 
-    this.links.set ( listener, links );
+    links = links || [];
+
+    const index = links.indexOf ( observable );
+
+    if ( index < 0 ) {
+
+      links.push ( observable );
+
+    }
+
+    if ( !hadLinks ) {
+
+      this.links.set ( listener, links );
+
+    }
 
   }
 
@@ -38,11 +52,11 @@ class Context {
 
     if ( !links ) return;
 
-    links.forEach ( observable => {
+    for ( let i = 0, l = links.length; i < l; i++ ) {
 
-      observable.off ( listener );
+      links[i].off ( listener );
 
-    });
+    }
 
   }
 
