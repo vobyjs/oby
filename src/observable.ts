@@ -30,7 +30,11 @@ class Observable<T = unknown> {
 
   static callable <T = unknown> ( value: T, disposer?: IDisposer ): IObservable<T> {
 
-    const observable = new Observable ( value, disposer );
+    return Observable.toCallable ( new Observable ( value, disposer ) );
+
+  }
+
+  static toCallable <T = unknown> ( observable: Observable<T> ): IObservable<T> {
 
     const callable = observable.call.bind ( observable );
 
@@ -39,7 +43,7 @@ class Observable<T = unknown> {
     callable.set = observable.set.bind ( observable );
     callable.on = observable.on.bind ( observable );
     callable.off = observable.off.bind ( observable );
-    callable.computed = observable.computed.bind ( observable );
+    callable.computed = fn => Observable.toCallable ( observable.computed ( fn ) );
     callable.dispose = observable.dispose.bind ( observable );
     callable[SYMBOL] = true;
 
@@ -111,11 +115,11 @@ class Observable<T = unknown> {
 
   }
 
-  computed <U> ( fn: ( value: T ) => U ): IObservable<U> {
+  computed <U> ( fn: ( value: T ) => U ): Observable<U> {
 
     const listener = ( value: T ) => observable.set ( fn ( value ) );
     const disposer = () => this.off ( listener );
-    const observable = Observable.callable<U> ( fn ( this.value ), disposer );
+    const observable = new Observable<U> ( fn ( this.value ), disposer );
 
     this.on ( listener );
 
