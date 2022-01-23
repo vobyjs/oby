@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {NOOP, SYMBOL} from './constants';
+import {SYMBOL} from './constants';
 import Context from './context';
 import {IObservable, IDisposer, IListener} from './types';
 
@@ -11,13 +11,13 @@ class Observable<T = unknown> {
 
   /* VARIABLES */
 
-  private disposer: IDisposer;
+  private disposer: IDisposer | undefined;
   private listeners: Set<IListener<T>>;
   private value: T;
 
   /* CONSTRUCTOR */
 
-  constructor ( value: T, disposer: IDisposer = NOOP ) {
+  constructor ( value: T, disposer?: IDisposer ) {
 
     this.disposer = disposer;
     this.listeners = new Set ();
@@ -28,7 +28,7 @@ class Observable<T = unknown> {
 
   /* STATIC API */
 
-  static callable <T = unknown> ( value: T, disposer: IDisposer = NOOP ): IObservable<T> {
+  static callable <T = unknown> ( value: T, disposer?: IDisposer ): IObservable<T> {
 
     const observable = new Observable ( value, disposer );
 
@@ -125,9 +125,11 @@ class Observable<T = unknown> {
 
   dispose (): void {
 
+    if ( !this.disposer ) return;
+
     this.disposer ();
 
-    this.disposer = NOOP;
+    this.disposer = undefined;
 
   }
 
