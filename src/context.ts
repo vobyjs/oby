@@ -38,11 +38,11 @@ class Context {
 
     if ( !links ) return;
 
-    for ( const observable of links ) {
+    links.forEach ( observable => {
 
       observable.off ( listener );
 
-    }
+    });
 
   }
 

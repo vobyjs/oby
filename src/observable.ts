@@ -83,11 +83,11 @@ class Observable<T = unknown> {
 
     this.value = value;
 
-    for ( const listener of this.listeners ) {
+    this.listeners.forEach ( listener => {
 
       listener ( this.value, valuePrev );
 
-    }
+    });
 
     return this.value;
 
