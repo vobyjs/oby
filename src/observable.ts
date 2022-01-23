@@ -49,9 +49,9 @@ class Observable<T = unknown> {
 
   /* API */
 
-  call (): T;
-  call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] ): T;
-  call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] | [] ): T {
+  private call (): T;
+  private call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] ): T;
+  private call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] | [] ): T {
 
     if ( !args.length ) return this.get ();
 
