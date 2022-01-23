@@ -4,6 +4,7 @@
 const {default: spy} = require ( 'call-spy' );
 const {describe} = require ( 'fava' );
 const {default: oby} = require ( '../dist' );
+const {default: Observable} = require ( '../dist/observable' );
 
 /* MAIN */
 
@@ -400,6 +401,14 @@ describe ( 'oby', () => {
       t.false ( oby.is () );
       t.false ( oby.is ( {} ) );
       t.false ( oby.is ( [] ) );
+
+    });
+
+    it ( 'supports the Observable class too', t => {
+
+      t.true ( oby.is ( new Observable () ) );
+      t.true ( oby.is ( new Observable ( 123 ) ) );
+      t.true ( oby.is ( new Observable ( false ) ) );
 
     });
 

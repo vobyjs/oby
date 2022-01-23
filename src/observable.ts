@@ -22,6 +22,7 @@ class Observable<T = unknown> {
     this.disposer = disposer;
     this.listeners = new Set ();
     this.value = value;
+    this[SYMBOL] = true;
 
   }
 

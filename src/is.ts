@@ -8,7 +8,7 @@ import {IObservableWithoutInitial, IObservable} from './types';
 
 const is = ( value: unknown ): value is IObservableWithoutInitial | IObservable => {
 
-  return !!value && Object.prototype.hasOwnProperty.call ( value, SYMBOL );
+  return !!value && Object.hasOwnProperty.call ( value, SYMBOL );
 
 };
 
