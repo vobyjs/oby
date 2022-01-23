@@ -12,7 +12,7 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   private disposer: IDisposer | undefined;
-  private listeners: IListener<T>[];
+  private listeners: IListener<T>[] | undefined;
   private value: T;
 
   /* CONSTRUCTOR */
@@ -20,7 +20,7 @@ class Observable<T = unknown> {
   constructor ( value: T, disposer?: IDisposer ) {
 
     this.disposer = disposer;
-    this.listeners = [];
+    this.listeners = undefined;
     this.value = value;
     this[SYMBOL] = true;
 
@@ -91,9 +91,13 @@ class Observable<T = unknown> {
 
     const listeners = this.listeners;
 
-    for ( let i = 0, l = listeners.length; i < l; i++ ) {
+    if ( listeners ) {
 
-      listeners[i]( this.value, valuePrev );
+      for ( let i = 0, l = listeners.length; i < l; i++ ) {
+
+        listeners[i]( this.value, valuePrev );
+
+      }
 
     }
 
@@ -102,6 +106,8 @@ class Observable<T = unknown> {
   }
 
   public on ( listener: IListener<T>, immediate: boolean = false ): void {
+
+    this.listeners || ( this.listeners = [] );
 
     const index = this.listeners.indexOf ( listener );
 
@@ -120,6 +126,8 @@ class Observable<T = unknown> {
   }
 
   public off ( listener: IListener<T> ): void {
+
+    if ( !this.listeners ) return;
 
     const index = this.listeners.indexOf ( listener );
 
