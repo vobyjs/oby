@@ -23,7 +23,7 @@ type Observable<T> = {
   set ( value: T ): T,
   on ( listener: (( value: T, valuePrev: T | undefined ) => void), immediate?: boolean ): void,
   off ( listener: (( value: T, valuePrev: T | undefined ) => void) ): void,
-  computed <U> ( fn: (( value: T ) => U) ): Observable<U>,
+  computed <U> ( fn: (( value: T ) => U), dependencies?: Observable[] ): Observable<U>,
   dispose (): void
 };
 ```

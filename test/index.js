@@ -106,7 +106,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'has a "computed" method, for making an observable out of the current observable ', t => {
+    it ( 'has a "computed" method, for making an observable out of the current observable', t => {
 
       const o = oby ( 5 );
       const double = o.computed ( value => value * value );
@@ -122,6 +122,19 @@ describe ( 'oby', () => {
       o ( 100 );
 
       t.is ( double (), 100 );
+
+    });
+
+    it ( 'has a "computed" method, with support for manually listing dependencies', t => {
+
+      const a = oby ( 1 );
+      const b = oby ( 2 );
+      const c = a.computed ( a => a + b (), [b] );
+
+      a ( 3 );
+      b ( 7 );
+
+      t.is ( c (), 10 );
 
     });
 

@@ -101,13 +101,23 @@ class Observable<T = unknown> {
 
   }
 
-  computed <U> ( fn: ( value: T ) => U ): IObservable<U> {
+  computed <U> ( fn: ( value: T ) => U, dependencies?: (IObservable | Observable)[] ): IObservable<U> {
 
     const listener = () => observable.set ( fn ( this.value ) );
     const disposer = () => this.off ( listener );
     const observable = oby ( fn ( this.value ), disposer );
 
     this.on ( listener );
+
+    if ( dependencies ) {
+
+      for ( let i = 0, l = dependencies.length; i < l; i++ ) {
+
+        dependencies[i].on ( listener );
+
+      }
+
+    }
 
     return observable;
 
