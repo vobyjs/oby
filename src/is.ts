@@ -6,9 +6,9 @@ import {IObservableWithoutInitial, IObservable} from './types';
 
 /* MAIN */
 
-const is = ( value: any ): value is IObservableWithoutInitial | IObservable => {
+const is = ( value: unknown ): value is IObservableWithoutInitial | IObservable => {
 
-  return value != null && !!value[SYMBOL];
+  return typeof value === 'function' && !!value[SYMBOL];
 
 };
 
