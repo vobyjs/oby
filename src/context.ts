@@ -11,7 +11,7 @@ class Context {
   /* VARIABLES */
 
   private links: WeakMap<IListener, Observable[]> = new WeakMap ();
-  private listeners: IListener[] = [];
+  private listeners: Set<IListener> = new Set ();
   private current: IListener | undefined = undefined;
 
   /* API */
@@ -62,13 +62,11 @@ class Context {
 
   with = ( listener: IListener, fn: () => void ): void => {
 
-    if ( this.listeners.includes ( listener ) ) throw Error ( 'Circular computation detected' );
+    if ( this.listeners.has ( listener ) ) throw Error ( 'Circular computation detected' );
 
     const prev = this.current;
 
-    const index = this.listeners.length;
-
-    this.listeners[index] = listener;
+    this.listeners.add ( listener );
 
     this.current = listener;
 
@@ -78,7 +76,7 @@ class Context {
 
     } finally {
 
-      this.listeners.splice ( index, 1 );
+      this.listeners.delete ( listener );
 
       this.current = prev;
 

@@ -12,7 +12,7 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   private disposer: IDisposer | undefined;
-  private listeners: IListener<T>[] | undefined;
+  private listeners: Set<IListener<T>> | undefined;
   private value: T;
 
   /* CONSTRUCTOR */
@@ -67,11 +67,11 @@ class Observable<T = unknown> {
 
     if ( listeners ) {
 
-      for ( let i = 0, l = listeners.length; i < l; i++ ) {
+      listeners.forEach ( listener => {
 
-        listeners[i]( this.value, valuePrev );
+        listener ( this.value, valuePrev );
 
-      }
+      });
 
     }
 
@@ -81,15 +81,9 @@ class Observable<T = unknown> {
 
   on ( listener: IListener<T>, immediate: boolean = false ): void {
 
-    this.listeners || ( this.listeners = [] );
+    this.listeners || ( this.listeners = new Set () );
 
-    const index = this.listeners.indexOf ( listener );
-
-    if ( index < 0 ) {
-
-      this.listeners.push ( listener );
-
-    }
+    this.listeners.add ( listener );
 
     if ( immediate ) {
 
@@ -103,11 +97,7 @@ class Observable<T = unknown> {
 
     if ( !this.listeners ) return;
 
-    const index = this.listeners.indexOf ( listener );
-
-    if ( index < 0 ) return;
-
-    this.listeners = this.listeners.filter ( ( _, i ) => i !== index );
+    this.listeners.delete ( listener );
 
   }
 
