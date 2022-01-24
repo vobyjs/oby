@@ -103,7 +103,7 @@ class Observable<T = unknown> {
 
   computed <U> ( fn: ( value: T ) => U ): IObservable<U> {
 
-    const listener = ( value: T ) => observable.set ( fn ( value ) );
+    const listener = () => observable.set ( fn ( this.value ) );
     const disposer = () => this.off ( listener );
     const observable = oby ( fn ( this.value ), disposer );
 
