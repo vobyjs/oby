@@ -404,14 +404,6 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports the Observable class too', t => {
-
-      t.true ( oby.is ( new Observable () ) );
-      t.true ( oby.is ( new Observable ( 123 ) ) );
-      t.true ( oby.is ( new Observable ( false ) ) );
-
-    });
-
   });
 
 });

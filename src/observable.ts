@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL} from './constants';
+import oby from '.';
 import Context from './context';
 import {IObservable, IDisposer, IListener} from './types';
 
@@ -22,40 +22,14 @@ class Observable<T = unknown> {
     this.disposer = disposer;
     this.listeners = undefined;
     this.value = value;
-    this[SYMBOL] = true;
 
   }
 
-  /* STATIC API */
+  /* API */
 
-  static callable <T = unknown> ( value: T, disposer?: IDisposer ): IObservable<T> {
-
-    return Observable.toCallable ( new Observable ( value, disposer ) );
-
-  }
-
-  static toCallable <T = unknown> ( observable: Observable<T> ): IObservable<T> {
-
-    const callable = observable.call.bind ( observable );
-
-    callable.get = observable.get.bind ( observable );
-    callable.sample = observable.sample.bind ( observable );
-    callable.set = observable.set.bind ( observable );
-    callable.on = observable.on.bind ( observable );
-    callable.off = observable.off.bind ( observable );
-    callable.computed = fn => Observable.toCallable ( observable.computed ( fn ) );
-    callable.dispose = observable.dispose.bind ( observable );
-    callable[SYMBOL] = true;
-
-    return callable;
-
-  }
-
-  /* PRIVATE API */
-
-  private call (): T;
-  private call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] ): T;
-  private call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] | [] ): T {
+  call (): T;
+  call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] ): T;
+  call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] | [] ): T {
 
     if ( !args.length ) return this.get ();
 
@@ -65,9 +39,7 @@ class Observable<T = unknown> {
 
   }
 
-  /* PUBLIC API */
-
-  public get (): T {
+  get (): T {
 
     Context.link ( this );
 
@@ -75,13 +47,13 @@ class Observable<T = unknown> {
 
   }
 
-  public sample (): T {
+  sample (): T {
 
     return this.value;
 
   }
 
-  public set ( value: T ): T {
+  set ( value: T ): T {
 
     const valuePrev = this.value;
 
@@ -105,7 +77,7 @@ class Observable<T = unknown> {
 
   }
 
-  public on ( listener: IListener<T>, immediate: boolean = false ): void {
+  on ( listener: IListener<T>, immediate: boolean = false ): void {
 
     this.listeners || ( this.listeners = [] );
 
@@ -125,7 +97,7 @@ class Observable<T = unknown> {
 
   }
 
-  public off ( listener: IListener<T> ): void {
+  off ( listener: IListener<T> ): void {
 
     if ( !this.listeners ) return;
 
@@ -137,11 +109,11 @@ class Observable<T = unknown> {
 
   }
 
-  public computed <U> ( fn: ( value: T ) => U ): Observable<U> {
+  computed <U> ( fn: ( value: T ) => U ): IObservable<U> {
 
     const listener = ( value: T ) => observable.set ( fn ( value ) );
     const disposer = () => this.off ( listener );
-    const observable = new Observable<U> ( fn ( this.value ), disposer );
+    const observable = oby ( fn ( this.value ), disposer );
 
     this.on ( listener );
 
@@ -149,7 +121,7 @@ class Observable<T = unknown> {
 
   }
 
-  public dispose (): void {
+  dispose (): void {
 
     if ( !this.disposer ) return;
 

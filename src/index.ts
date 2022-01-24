@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import callable from './callable';
 import computed from './computed';
 import from from './from';
 import is from './is';
@@ -14,7 +15,7 @@ function observable <T> ( value: undefined, disposer?: IDisposer ): IObservableW
 function observable <T> ( value: T, disposer?: IDisposer ): IObservable<T>;
 function observable <T> ( value?: T, disposer?: IDisposer ): IObservableWithoutInitial<T> | IObservable<T> {
 
-  return Observable.callable ( value, disposer ) as any; //TSC
+  return callable ( new Observable ( value, disposer ) ) as any; //TSC
 
 }
 

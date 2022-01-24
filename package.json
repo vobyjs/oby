@@ -8,6 +8,7 @@
     "clean": "rimraf dist",
     "compile": "tsc --skipLibCheck",
     "compile:watch": "tsc --skipLibCheck --watch",
+    "memory": "node tasks/memory.js",
     "test": "fava",
     "test:watch": "fava -w",
     "prepublishOnly": "npm run clean && npm run compile && npm run test"
