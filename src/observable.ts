@@ -3,7 +3,7 @@
 
 import oby from '.';
 import Context from './context';
-import {IObservable, IDisposer, IListener} from './types';
+import {IObservable, IFN, IDisposer, IListener} from './types';
 
 /* MAIN */
 
@@ -28,14 +28,16 @@ class Observable<T = unknown> {
   /* API */
 
   call (): T;
-  call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] ): T;
-  call ( ...args: [Exclude<T, Function> | (( valuePrev: T ) => T)] | [] ): T {
+  call ( ...args: (T extends IFN ? [(( valuePrev: T ) => T)] : [T | (( valuePrev: T ) => T)]) ): T;
+  call ( ...args: (T extends IFN ? [(( valuePrev: T ) => T)] | [] : [T | (( valuePrev: T ) => T)] | []) ): T {
 
     if ( !args.length ) return this.get ();
 
-    if ( typeof args[0] === 'function' ) return this.set ( ( args[0] as any )( this.value ) ); //TSC
+    const valueOrSetter = args[0];
 
-    return this.set ( args[0] );
+    if ( typeof valueOrSetter === 'function' ) return this.set ( ( valueOrSetter as any )( this.value ) ); //TSC
+
+    return this.set ( valueOrSetter );
 
   }
 

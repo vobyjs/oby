@@ -3,6 +3,8 @@
 
 type IDisposer = () => void;
 
+type IFN<A extends unknown[] = unknown[], R extends unknown = unknown> = ( ...args: A ) => R;
+
 type IListener<TI = unknown> = ( value: TI, valuePrev: TI | undefined ) => void;
 
 type IObservableAbstract<T = unknown, TI = unknown> = {
@@ -23,4 +25,4 @@ type IObservable<T = unknown> = IObservableAbstract<T, T>;
 
 /* EXPORT */
 
-export {IDisposer, IListener, IObservableWithoutInitial, IObservable};
+export {IDisposer, IFN, IListener, IObservableWithoutInitial, IObservable};
