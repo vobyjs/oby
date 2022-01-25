@@ -70,6 +70,41 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'has an "emit" method, for calling listeners manually', t => {
+
+      const o = oby ( 123 );
+
+      const [fn, result] = spy ( () => {} );
+
+      o.on ( fn );
+
+      o.emit ();
+
+      t.is ( result.calls, 1 );
+      t.deepEqual ( result.arguments, [123, undefined] );
+
+      o.emit ();
+
+      t.is ( result.calls, 2 );
+      t.deepEqual ( result.arguments, [123, undefined] );
+
+    });
+
+    it ( 'has an "emit" method, with support for manually passing the previous value', t => {
+
+      const o = oby ( 123 );
+
+      const [fn, result] = spy ( () => {} );
+
+      o.on ( fn );
+
+      o.emit ( 321 );
+
+      t.is ( result.calls, 1 );
+      t.deepEqual ( result.arguments, [123, 321] );
+
+    });
+
     it ( 'has an "on" method, for subscribing', t => {
 
       const valueOld = {};

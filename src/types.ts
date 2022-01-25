@@ -13,6 +13,7 @@ type IObservableAbstract<T = unknown, TI = unknown> = {
   get (): TI,
   sample (): TI,
   set ( value: T ): T,
+  emit ( valuePrev?: T | undefined ): void,
   on ( listener: IListener<TI>, immediate?: boolean ): void,
   off ( listener: IListener<TI> ): void,
   computed <U> ( fn: (( value: TI ) => U), dependencies?: IObservableAbstract[] ): IObservableAbstract<U, U>,

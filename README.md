@@ -21,6 +21,7 @@ type Observable<T> = {
   get (): T,
   sample (): T,
   set ( value: T ): T,
+  emit ( valuePrev?: T | undefined ): void,
   on ( listener: (( value: T, valuePrev: T | undefined ) => void), immediate?: boolean ): void,
   off ( listener: (( value: T, valuePrev: T | undefined ) => void) ): void,
   computed <U> ( fn: (( value: T ) => U), dependencies?: Observable[] ): Observable<U>,
@@ -82,6 +83,10 @@ o.set ( 4 ); // No subscribers are actually called, because they unsubscribed al
 // Subscribing immediately
 
 o.on ( subscriber, true ); // Subscribing for later updates, but also called immediately
+
+// "emit" method for calling listeners manually
+
+o.emit ();
 
 // Implicit, convenient, getter
 

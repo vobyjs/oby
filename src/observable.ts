@@ -63,19 +63,21 @@ class Observable<T = unknown> {
 
     this.value = value;
 
-    const listeners = this.listeners;
-
-    if ( listeners ) {
-
-      listeners.forEach ( listener => {
-
-        listener ( this.value, valuePrev );
-
-      });
-
-    }
+    this.emit ( valuePrev );
 
     return this.value;
+
+  }
+
+  emit ( valuePrev?: T ): void {
+
+    if ( !this.listeners ) return;
+
+    this.listeners.forEach ( listener => {
+
+      listener ( this.value, valuePrev );
+
+    });
 
   }
 
