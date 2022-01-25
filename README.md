@@ -115,6 +115,20 @@ o ( 10 );
 
 double (); // => 100
 
+// "batch" library method, for ensuring no listeners are called while inside it, and calling listeners after the batch exits only once even if the observable got updated multiple times
+
+oby.batch ( () => {
+
+  o ( 100 );
+  o ( 200 );
+  o ( 300 );
+
+  // "subscriber" still not called here
+
+});
+
+// "subscriber" called now, once, with [300, 10] as arguments
+
 // "computed" library method, for making an Observable out of other Observables
 
 const a = oby ( 1 );

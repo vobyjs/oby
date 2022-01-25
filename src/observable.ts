@@ -3,6 +3,7 @@
 
 import {get, set} from 'path-prop';
 import oby from '.';
+import batch from './batch';
 import Context from './context';
 import {GetPath, GetPathValue, IObservable, IFN, IDisposer, IListener} from './types';
 
@@ -92,11 +93,19 @@ class Observable<T = unknown> {
 
     if ( !this.listeners ) return;
 
-    this.listeners.forEach ( listener => {
+    if ( batch.queue.isActive () ) {
 
-      listener ( this.value, valuePrev );
+      batch.queue.push ( this, valuePrev );
 
-    });
+    } else {
+
+      this.listeners.forEach ( listener => {
+
+        listener ( this.value, valuePrev );
+
+      });
+
+    }
 
   }
 

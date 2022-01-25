@@ -1,6 +1,4 @@
 
 ☐ "root" method, for disposing of children computation
-☐ "transaction" method, for setting multiple times while triggering only once, at the end of the transition
-☐ "computed" method: add support for an optional list of other dependencies
 ☐ "comparator" option
 ☐ maybe better circular detection, maybe the limit shouldn't be 1 circularity but 10 or something

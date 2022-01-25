@@ -340,6 +340,106 @@ describe ( 'oby', () => {
 
   });
 
+  describe ( 'batch', it => {
+
+    it ( 'stops event propagation inside itself', t => {
+
+      const o = oby ( 1 );
+
+      const [fn, result] = spy ( () => {} );
+
+      o.on ( fn );
+
+      oby.batch ( () => {
+
+        o ( 2 );
+
+        t.is ( o (), 2 );
+        t.is ( result.calls, 0 );
+
+      });
+
+      t.is ( o (), 2 );
+      t.is ( result.calls, 1 );
+      t.deepEqual ( result.arguments, [2, 1] );
+
+    });
+
+    it ( 'coalesces multiple events for the same observable together', t => {
+
+      const o = oby ( 1 );
+
+      const [fn, result] = spy ( () => {} );
+
+      o.on ( fn );
+
+      oby.batch ( () => {
+
+        o ( 2 );
+        o ( 3 );
+        o ( 4 );
+        o ( 5 );
+
+        t.is ( o (), 5 );
+        t.is ( result.calls, 0 );
+
+      });
+
+      t.is ( o (), 5 );
+      t.is ( result.calls, 1 );
+      t.deepEqual ( result.arguments, [5, 1] );
+
+    });
+
+    it ( 'supports being nested', t => {
+
+      const o = oby ( 1 );
+
+      const [fn, result] = spy ( () => {} );
+
+      o.on ( fn );
+
+      oby.batch ( () => {
+
+        o ( 2 );
+
+        t.is ( o (), 2 );
+        t.is ( result.calls, 0 );
+
+        oby.batch ( () => {
+
+          o ( 3 );
+
+          t.is ( o (), 3 );
+          t.is ( result.calls, 0 );
+
+          oby.batch ( () => {
+
+            o ( 4 );
+
+            t.is ( o (), 4 );
+            t.is ( result.calls, 0 );
+
+          });
+
+          t.is ( o (), 4 );
+          t.is ( result.calls, 0 );
+
+        });
+
+        t.is ( o (), 4 );
+        t.is ( result.calls, 0 );
+
+      });
+
+      t.is ( o (), 4 );
+      t.is ( result.calls, 1 );
+      t.deepEqual ( result.arguments, [4, 1] );
+
+    });
+
+  });
+
   describe ( 'computed', it => {
 
     it ( 'makes an observable with the return of the function', t => {
