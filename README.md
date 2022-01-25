@@ -21,6 +21,7 @@ type Observable<T> = {
   get (): T,
   sample (): T,
   set ( value: T ): T,
+  update <V> ( path: string, value: V ): V,
   emit ( valuePrev?: T | undefined ): void,
   on ( listener: (( value: T, valuePrev: T | undefined ) => void), immediate?: boolean ): void,
   off ( listener: (( value: T, valuePrev: T | undefined ) => void) ): void,
@@ -59,6 +60,13 @@ o.sample (); // => 1
 // "set" method for explicit setting
 
 o.set ( 2 ); // => 2
+
+// "update" method for explicitly setting at a path, mutating the value and triggering listeners
+
+const obj = o ( { foo: { bar: 123 }, baz: '' } );
+
+o.update ( 'baz', 'asd' );
+o.update ( 'foo.bar', 321 );
 
 // "on" method for subscribing to updates
 

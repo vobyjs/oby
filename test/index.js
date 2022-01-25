@@ -70,6 +70,32 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'has an "update" method, for mutating the value at a path and triggering listeners', t => {
+
+      const value = { foo: { bar: 123 }, baz: '123' };
+      const o = oby ( value );
+
+      const [fn, result] = spy ( () => {} );
+
+      o.on ( fn );
+
+      o.update ( 'baz', '321' );
+
+      t.is ( result.calls, 1 );
+      t.deepEqual ( result.arguments, [{ foo: { bar: 123 }, baz: '321' }, { foo: { bar: 123 }, baz: '123' }] );
+
+      o.update ( 'baz', '999' );
+
+      t.is ( result.calls, 2 );
+      t.deepEqual ( result.arguments, [{ foo: { bar: 123 }, baz: '999' }, { foo: { bar: 123 }, baz: '321' }] );
+
+      o.update ( 'foo.bar', 321 );
+
+      t.is ( result.calls, 3 );
+      t.deepEqual ( result.arguments, [{ foo: { bar: 321 }, baz: '999' }, { foo: { bar: 123 }, baz: '999' }] );
+
+    });
+
     it ( 'has an "emit" method, for calling listeners manually', t => {
 
       const o = oby ( 123 );

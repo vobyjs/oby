@@ -31,6 +31,9 @@
     "small",
     "fast"
   ],
+  "dependencies": {
+    "path-prop": "^1.1.3"
+  },
   "devDependencies": {
     "call-spy": "^2.0.2",
     "fava": "^0.0.4",

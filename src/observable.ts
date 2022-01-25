@@ -1,9 +1,10 @@
 
 /* IMPORT */
 
+import {get, set} from 'path-prop';
 import oby from '.';
 import Context from './context';
-import {IObservable, IFN, IDisposer, IListener} from './types';
+import {GetPath, GetPathValue, IObservable, IFN, IDisposer, IListener} from './types';
 
 /* MAIN */
 
@@ -43,7 +44,7 @@ class Observable<T = unknown> {
 
   get (): T {
 
-    Context.link ( this );
+    Context.link ( this as any ); //TSC
 
     return this.value;
 
@@ -66,6 +67,24 @@ class Observable<T = unknown> {
     this.emit ( valuePrev );
 
     return this.value;
+
+  }
+
+  update <P extends GetPath<T>> ( path: P, value: GetPathValue<T, P> ): GetPathValue<T, P> { //FIXME: This only works for JSON-serializable values, as we can't clone other values yet
+
+    if ( typeof path !== 'string' ) throw new Error ( 'path must be a string' );
+
+    const valuePrev = get ( this.value, path );
+
+    if ( Object.is ( value, valuePrev ) ) return valuePrev;
+
+    const valueClone = JSON.parse ( JSON.stringify ( this.value ) );
+
+    set ( valueClone, path, value );
+
+    this.set ( valueClone );
+
+    return value;
 
   }
 
