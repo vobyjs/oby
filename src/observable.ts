@@ -1,7 +1,8 @@
 
 /* IMPORT */
 
-import {get, set} from 'path-prop';
+import get from 'path-prop/dist/get';
+import set from 'path-prop/dist/set';
 import oby from '.';
 import batch from './batch';
 import Context from './context';
