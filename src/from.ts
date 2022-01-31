@@ -1,19 +1,19 @@
 
 /* IMPORT */
 
+import observable from '.';
 import Effect from './effect';
-import Obserable from './observable';
 import {FromFunction, ObservableCallableWithoutInitial, ObservableOptions} from './types';
 
 /* MAIN */
 
 const from = <T> ( fn: FromFunction<T>, options?: ObservableOptions<T, T | undefined> ): ObservableCallableWithoutInitial<T> => {
 
-  const observable = Obserable.wrap<T> ( undefined, options );
+  const value = observable<T> ( undefined, options );
 
-  Effect.wrap ( () => fn ( observable ) );
+  Effect.wrap ( () => fn ( value ) );
 
-  return observable;
+  return value;
 
 };
 

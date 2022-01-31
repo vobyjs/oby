@@ -2,7 +2,6 @@
 /* IMPORT */
 
 import Batch from './batch';
-import callable from './callable';
 import Computed from './computed';
 import Context from './context';
 import Observer from './observer';
@@ -238,15 +237,6 @@ class Observable<T = unknown> {
   static compare <T> ( value: T, valuePrev?: T, comparator: ComparatorFunction<T, T | undefined> = Object.is ): boolean {
 
     return comparator ( value, valuePrev );
-
-  }
-
-  static wrap <T> (): ObservableCallableWithoutInitial<T>;
-  static wrap <T> ( value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableCallableWithoutInitial<T>;
-  static wrap <T> ( value: T, options?: ObservableOptions<T, T> ): ObservableCallable<T>;
-  static wrap <T> ( value?: T, options?: ObservableOptions<T, T | undefined> ) {
-
-    return callable ( new Observable ( value, options ) );
 
   }
 
