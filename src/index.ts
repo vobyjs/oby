@@ -6,6 +6,7 @@ import Computed from './computed';
 import Context from './context';
 import Effect from './effect';
 import from from './from';
+import get from './get';
 import is from './is';
 import Observable from './observable';
 
@@ -18,6 +19,7 @@ observable.cleanup = Context.registerCleanup;
 observable.computed = Computed.wrap;
 observable.effect = Effect.wrap;
 observable.from = from;
+observable.get = get;
 observable.is = is;
 observable.root = Context.wrapVoid;
 observable.sample = Context.wrapWithout;

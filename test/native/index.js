@@ -1319,6 +1319,70 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'get', it => {
+
+    it ( 'creates a dependency in a computed', t => {
+
+      const o = $(1);
+
+      let calls = 0;
+
+      $.computed ( () => {
+        calls += 1;
+        $.get ( o );
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 2 );
+
+      t.is ( calls, 2 );
+
+      o ( 3 );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'creates a dependency in an effect', t => {
+
+      const o = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        $.get ( o );
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 2 );
+
+      t.is ( calls, 2 );
+
+      o ( 3 );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'gets the value out of an observable', t => {
+
+      const o = $(123);
+
+      t.is ( $.get ( o ), 123 );
+
+    });
+
+    it ( 'gets the value out of a non-observable', t => {
+
+      t.is ( $.get ( 123 ), 123 );
+
+    });
+
+  });
+
   describe ( 'is', it => {
 
     it ( 'checks if a value is an observable', t => {
