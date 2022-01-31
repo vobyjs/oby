@@ -8,6 +8,18 @@ A tiny Observable implementation, the brilliant primitive you need to build a po
 npm install --save oby
 ```
 
+## APIs
+
+- [`$()`](#usage)
+- [`$.computed`](#computed)
+- [`$.cleanup`](#cleanup)
+- [`$.effect`](#effect)
+- [`$.batch`](#batch)
+- [`$.root`](#root)
+- [`$.from`](#from)
+- [`$.sample`](#sample)
+- [`$.is`](#is)
+
 ## Usage
 
 ### `$()`
