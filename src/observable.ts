@@ -25,9 +25,13 @@ class Observable<T = unknown> {
 
     this.value = value;
 
-    if ( options?.comparator ) {
+    if ( options ) {
 
-      this.comparator = options.comparator;
+      if ( options.comparator ) {
+
+        this.comparator = options.comparator;
+
+      }
 
     }
 
@@ -220,7 +224,7 @@ class Observable<T = unknown> {
     const observable = Computed.wrap ( () => {
 
       this.get ();
-      dependencies?.forEach ( observable => observable () );
+      if ( dependencies ) dependencies.forEach ( observable => observable () );
 
       return Context.wrapWithout ( () => fn ( this.value ) );
 
