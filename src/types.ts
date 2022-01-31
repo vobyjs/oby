@@ -1,58 +1,43 @@
 
-/* HELPERS */
-
-//URL: https://github.com/sindresorhus/type-fest/pull/158
-
-type PathImpl<T, Key extends keyof T> =
-  Key extends string
-  ? T[Key] extends Record<string, any>
-    ? | `${Key}.${PathImpl<T[Key], Exclude<keyof T[Key], keyof any[]>> & string}`
-      | `${Key}.${Exclude<keyof T[Key], keyof any[]> & string}`
-    : never
-  : never;
-
-type PathImpl2<T> = PathImpl<T, keyof T> | keyof T;
-
-type GetPath<T> = PathImpl2<T> extends string | keyof T ? PathImpl2<T> : keyof T;
-
-type GetPathValue<T, P extends GetPath<T>> =
-  P extends `${infer Key}.${infer Rest}`
-  ? Key extends keyof T
-    ? Rest extends GetPath<T[Key]>
-      ? GetPathValue<T[Key], Rest>
-      : never
-    : never
-  : P extends keyof T
-    ? T[P]
-    : never;
-
 /* MAIN */
 
-type IDisposer = () => void;
+type BatchFunction = () => void;
 
-type IFN<A extends unknown[] = unknown[], R extends unknown = unknown> = ( ...args: A ) => R;
+type CleanupFunction = () => void;
 
-type IListener<TI = unknown> = ( value: TI, valuePrev: TI | undefined ) => void;
+type ComparatorFunction<T = unknown, TI = unknown> = ( value: T, valuePrev: T | TI ) => boolean;
 
-type IObservableAbstract<T = unknown, TI = unknown> = {
-  (): TI,
-  ( value: Exclude<T, Function> | (( valuePrev: TI ) => T) ): T,
-  get (): TI,
-  sample (): TI,
+type ComputedFunction<T = unknown, TI = unknown> = ( valuePrev: T | TI ) => T;
+
+type ContextFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
+
+type DisposeFunction = () => void;
+
+type EffectFunction = () => CleanupFunction | void;
+
+type FromFunction<T = unknown> = ( observable: ObservableCallableWithoutInitial<T> ) => CleanupFunction | void;
+
+type UpdateFunction<T> = ( value: T ) => T | void;
+
+type ObservableCallableAbstract<T = unknown, TI = unknown> = {
+  (): T | TI,
+  ( value: T ): T,
+  get (): T | TI,
+  sample (): T | TI,
   set ( value: T ): T,
-  update <P extends GetPath<T>> ( path: P, value: GetPathValue<T, P> ): GetPathValue<T, P>,
-  emit ( valuePrev?: T | undefined ): void,
-  on ( listener: IListener<TI>, immediate?: boolean ): void,
-  off ( listener: IListener<TI> ): void,
-  computed <U> ( fn: (( value: TI ) => U), dependencies?: IObservableAbstract[] ): IObservableAbstract<U, U>,
-  dispose (): void
+  update ( fn: ( value: T | TI ) => T | void ): T,
+  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>,
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>
 };
 
-type IObservableWithoutInitial<T = unknown> = IObservableAbstract<T, T | undefined>;
+type ObservableCallableWithoutInitial<T = unknown> = ObservableCallableAbstract<T, T | undefined>;
 
-type IObservable<T = unknown> = IObservableAbstract<T, T>;
+type ObservableCallable<T = unknown> = ObservableCallableAbstract<T, T>;
+
+type ObservableOptions<T = unknown, TI = unknown> = {
+  comparator?: ComparatorFunction<T, TI>
+};
 
 /* EXPORT */
 
-export {GetPath, GetPathValue};
-export {IDisposer, IFN, IListener, IObservableWithoutInitial, IObservable};
+export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, ContextFunction, DisposeFunction, EffectFunction, FromFunction, UpdateFunction, ObservableCallableAbstract, ObservableCallableWithoutInitial, ObservableCallable, ObservableOptions};

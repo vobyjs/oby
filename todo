@@ -1,4 +1,0 @@
-
-☐ "root" method, for disposing of children computation
-☐ "comparator" option
-☐ maybe better circular detection, maybe the limit shouldn't be 1 circularity but 10 or something

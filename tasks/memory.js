@@ -1,8 +1,7 @@
 
 /* IMPORT */
 
-const {default: oby, default: observable} = require ( '../dist' );
-const {default: Observable} = require ( '../dist/observable' );
+const {default: $} = require ( '../dist' );
 
 /* MAIN */
 
@@ -10,14 +9,16 @@ const observables = [];
 
 console.time ( 'create' );
 
-for ( let i = 0, l = 50000; i < l; i++ ) {
-
-  const observable = oby ( Math.random () ); // Callable
-  // const observable = new Observable ( Math.random () ); // Class-only
-
-  observables.push ( observable );
-
-}
+$.root ( () => {
+  for ( let i = 0, l = 50000; i < l; i++ ) {
+    // $.effect ( () => { // Effect, should be more memory efficient as it returns nothing
+    $.computed ( () => { // Computed, should be less memory efficient as it returns an observable
+      const observable = $( Math.random () );
+      observables.push ( observable );
+      observable ();
+    });
+  }
+});
 
 console.timeEnd ( 'create' );
 

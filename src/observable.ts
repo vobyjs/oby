@@ -1,12 +1,13 @@
 
 /* IMPORT */
 
-import get from 'path-prop/dist/get';
-import set from 'path-prop/dist/set';
-import oby from '.';
-import batch from './batch';
+import Batch from './batch';
+import callable from './callable';
+import Computed from './computed';
 import Context from './context';
-import {GetPath, GetPathValue, IObservable, IFN, IDisposer, IListener} from './types';
+import Observer from './observer';
+import {cloneDeep, isArray, isPrimitive, isSet, isUndefined} from './utils';
+import {ComparatorFunction, UpdateFunction, ObservableCallableWithoutInitial, ObservableCallable, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -14,39 +15,118 @@ class Observable<T = unknown> {
 
   /* VARIABLES */
 
-  private disposer: IDisposer | undefined;
-  private listeners: Set<IListener<T>> | undefined;
   private value: T;
+  private observers?: Set<Observer> | Observer;
+  private comparator?: ComparatorFunction<T, T>;
+  private parent?: Computed<T, T>;
 
   /* CONSTRUCTOR */
 
-  constructor ( value: T, disposer?: IDisposer ) {
+  constructor ( value: T, options?: ObservableOptions<T, T>, parent?: Computed<T, T> ) {
 
-    this.disposer = disposer;
-    this.listeners = undefined;
     this.value = value;
+
+    if ( options?.comparator ) {
+
+      this.comparator = options.comparator;
+
+    }
+
+    if ( parent ) {
+
+      this.parent = parent;
+
+    }
+
+  }
+
+  /* REGISTRATION API */
+
+  hasObserver ( observer: Observer ): boolean {
+
+    if ( !this.observers ) {
+
+      return false;
+
+    } else if ( isSet ( this.observers ) ) {
+
+      return this.observers.has ( observer );
+
+    } else {
+
+      return this.observers === observer;
+
+    }
+
+  }
+
+  registerObserver ( observer: Observer ): void {
+
+    if ( !this.observers ) {
+
+      this.observers = observer;
+
+    } else if ( isSet ( this.observers ) ) {
+
+      this.observers.add ( observer );
+
+    } else if ( this.observers === observer ) {
+
+      return;
+
+    } else {
+
+      this.observers = new Set ([ this.observers, observer ]);
+
+    }
+
+  }
+
+  unregisterObserver ( observer: Observer ): void {
+
+    if ( !this.observers ) {
+
+      return;
+
+    } else if ( isSet ( this.observers ) ) {
+
+      this.observers.delete ( observer );
+
+    } else if ( this.observers === observer ) {
+
+      this.observers = undefined;
+
+    }
+
+  }
+
+  registerSelf (): void {
+
+    if ( this.parent ) {
+
+      if ( !this.parent.dirty ) {
+
+        this.parent.registerSelf ();
+
+      } else {
+
+        this.parent.update ();
+
+      }
+
+    } else {
+
+      Context.registerObservable ( this );
+
+    }
 
   }
 
   /* API */
 
-  call (): T;
-  call ( ...args: (T extends IFN ? [(( valuePrev: T ) => T)] : [T | (( valuePrev: T ) => T)]) ): T;
-  call ( ...args: (T extends IFN ? [(( valuePrev: T ) => T)] | [] : [T | (( valuePrev: T ) => T)] | []) ): T {
-
-    if ( !args.length ) return this.get ();
-
-    const valueOrSetter = args[0];
-
-    if ( typeof valueOrSetter === 'function' ) return this.set ( ( valueOrSetter as any )( this.value ) ); //TSC
-
-    return this.set ( valueOrSetter );
-
-  }
-
   get (): T {
 
-    Context.link ( this as any ); //TSC
+    this.registerSelf ();
 
     return this.value;
 
@@ -60,107 +140,113 @@ class Observable<T = unknown> {
 
   set ( value: T ): T {
 
-    const valuePrev = this.value;
+    if ( Observable.compare ( value, this.value, this.comparator ) ) {
 
-    if ( Object.is ( value, valuePrev ) ) return valuePrev;
+      return this.value;
 
-    this.value = value;
+    }
 
-    this.emit ( valuePrev );
+    if ( Batch.has () ) {
 
-    return this.value;
+      Batch.registerUpdate ( this, value );
 
-  }
-
-  update <P extends GetPath<T>> ( path: P, value: GetPathValue<T, P> ): GetPathValue<T, P> { //FIXME: This only works for JSON-serializable values, as we can't clone other values yet
-
-    if ( typeof path !== 'string' ) throw new Error ( 'path must be a string' );
-
-    const valuePrev = get ( this.value, path );
-
-    if ( Object.is ( value, valuePrev ) ) return valuePrev;
-
-    const valueClone = JSON.parse ( JSON.stringify ( this.value ) );
-
-    set ( valueClone, path, value );
-
-    this.set ( valueClone );
-
-    return value;
-
-  }
-
-  emit ( valuePrev?: T ): void {
-
-    if ( !this.listeners ) return;
-
-    if ( batch.queue.isActive () ) {
-
-      batch.queue.push ( this, valuePrev );
+      return value;
 
     } else {
 
-      this.listeners.forEach ( listener => {
+      this.value = value;
 
-        listener ( this.value, valuePrev );
+      this.emit ();
 
-      });
-
-    }
-
-  }
-
-  on ( listener: IListener<T>, immediate: boolean = false ): void {
-
-    this.listeners || ( this.listeners = new Set () );
-
-    this.listeners.add ( listener );
-
-    if ( immediate ) {
-
-      listener ( this.value, undefined );
+      return value;
 
     }
 
   }
 
-  off ( listener: IListener<T> ): void {
+  update ( fn: UpdateFunction<T> ): T { //TODO: Implement this properly, with good performance and ~arbitrary values support
 
-    if ( !this.listeners ) return;
+    const isValuePrimitive = isPrimitive ( this.value );
+    const valueClone = isValuePrimitive ? this.value : cloneDeep ( this.value );
+    const valueResult = fn ( valueClone );
+    const valueNext = ( isValuePrimitive || !isUndefined ( valueResult ) ? valueResult : valueClone ) as T; //TSC
 
-    this.listeners.delete ( listener );
+    return this.set ( valueNext );
 
   }
 
-  computed <U> ( fn: ( value: T ) => U, dependencies?: (IObservable | Observable)[] ): IObservable<U> {
+  emit (): void {
 
-    const listener = () => observable.set ( fn ( this.value ) );
-    const disposer = () => this.off ( listener );
-    const observable = oby ( fn ( this.value ), disposer );
+    const {observers} = this;
 
-    this.on ( listener );
+    if ( !observers ) return;
 
-    if ( dependencies ) {
+    if ( isSet ( observers ) && !observers.size ) return;
 
-      for ( let i = 0, l = dependencies.length; i < l; i++ ) {
+    Context.wrapWithout ( () => {
 
-        dependencies[i].on ( listener );
+      if ( isSet ( observers ) ) {
+
+        const queue = Array.from ( observers.values () );
+
+        for ( let i = 0, l = queue.length; i < l; i++ ) {
+          const observer = queue[i];
+          observer.dirty = true; // Trip flag for checking for updates
+        }
+
+        for ( let i = 0, l = queue.length; i < l; i++ ) {
+          const observer = queue[i];
+          if ( !observer.dirty ) continue; // Trip flag flipped, already updated
+          if ( !observers.has ( observer ) ) continue; // No longer an observer
+          observer.update ();
+        }
+
+      } else {
+
+        observers.update ();
 
       }
 
-    }
-
-    return observable;
+    });
 
   }
 
-  dispose (): void {
+  on <U> ( fn: ( value: T ) => U ): ObservableCallable<U>;
+  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>;
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>;
+  on <U> ( fn: ( value: T ) => U, options?: (ObservableCallableWithoutInitial | ObservableCallable)[] | ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U> {
 
-    if ( !this.disposer ) return;
+    if ( isArray ( options ) ) return this.on ( fn, undefined, options );
 
-    this.disposer ();
+    const observable = Computed.wrap ( () => {
 
-    this.disposer = undefined;
+      this.get ();
+      dependencies?.forEach ( observable => observable () );
+
+      return Context.wrapWithout ( () => fn ( this.value ) );
+
+    }, undefined, options );
+
+    return observable as ObservableCallable<U>; //TSC
+
+  }
+
+  /* STATIC API */
+
+  static compare <T> ( value: T, valuePrev: undefined, comparator?: ComparatorFunction<T, T | undefined> ): boolean;
+  static compare <T> ( value: T, valuePrev: T, comparator?: ComparatorFunction<T, T> ): boolean;
+  static compare <T> ( value: T, valuePrev?: T, comparator: ComparatorFunction<T, T | undefined> = Object.is ): boolean {
+
+    return comparator ( value, valuePrev );
+
+  }
+
+  static wrap <T> (): ObservableCallableWithoutInitial<T>;
+  static wrap <T> ( value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableCallableWithoutInitial<T>;
+  static wrap <T> ( value: T, options?: ObservableOptions<T, T> ): ObservableCallable<T>;
+  static wrap <T> ( value?: T, options?: ObservableOptions<T, T | undefined> ) {
+
+    return callable ( new Observable ( value, options ) );
 
   }
 

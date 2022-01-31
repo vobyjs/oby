@@ -1,16 +1,17 @@
 
 /* IMPORT */
 
-import oby from '.';
-import {IDisposer, IObservableWithoutInitial} from './types';
+import Effect from './effect';
+import Obserable from './observable';
+import {FromFunction, ObservableCallableWithoutInitial, ObservableOptions} from './types';
 
 /* MAIN */
 
-const from = <T> ( fn: ( observable: IObservableWithoutInitial<T> ) => IDisposer | void ): IObservableWithoutInitial<T> => {
+const from = <T> ( fn: FromFunction<T>, options?: ObservableOptions<T, T | undefined> ): ObservableCallableWithoutInitial<T> => {
 
-  const disposer = () => cleanup && cleanup ();
-  const observable = oby<T> ( undefined, disposer );
-  const cleanup = fn ( observable );
+  const observable = Obserable.wrap<T> ( undefined, options );
+
+  Effect.wrap ( () => fn ( observable ) );
 
   return observable;
 

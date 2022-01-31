@@ -1,8 +1,6 @@
 # Oby
 
-A tiny Observable implementation.
-
-An Observable is an amazingly simple yet extremely powerful reactive primitive.
+A tiny Observable implementation, the brilliant primitive you need to build a powerful reactive system.
 
 ## Install
 
@@ -12,172 +10,372 @@ npm install --save oby
 
 ## Usage
 
+### `$()`
+
+The main exported function wraps a value into an Observable, basically wrapping the value in a reactive shell.
+
 An Observable is a function that works both as a getter and as a setter, with some extra methods attached to it, it has the following interface:
 
 ```ts
 type Observable<T> = {
   (): T,
-  ( value: Exclude<T, Function> | (( valuePrev: T ) => T) ): T,
+  ( value: T ): T,
   get (): T,
   sample (): T,
   set ( value: T ): T,
-  update <V> ( path: string, value: V ): V,
-  emit ( valuePrev?: T | undefined ): void,
-  on ( listener: (( value: T, valuePrev: T | undefined ) => void), immediate?: boolean ): void,
-  off ( listener: (( value: T, valuePrev: T | undefined ) => void) ): void,
-  computed <U> ( fn: (( value: T ) => U), dependencies?: Observable[] ): Observable<U>,
-  dispose (): void
+  update ( fn: ( value: T ) => T | void ): T,
+  on <U> ( fn: ( value: T ) => U, dependencies?: Observable[] ): Observable<U>,
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U>, dependencies?: Observable[] ): Observable<U>
 };
 ```
 
-You would use the library like this:
+`$()` has the following interface:
 
 ```ts
-import oby from 'oby';
+type $ = <T> ( value?: T, options?: ObservableOptions<T> ) => Observable<T>;
 
-// Create an observable without an initial value
-
-oby<number> ();
-
-// Create an observable with an initial value
-
-const o = oby ( 1 );
-
-// Create an observable with an initial value and a disposer function
-
-const disposable = oby ( 1, () => console.log ( 'Dispose!' ) );
-
-disposable.dispose (); // Call the disposer function, future calls to #dispose will be no-ops
-
-// "get" method for explicit getting
-
-o.get (); // => 1
-
-// "sample" method for explicit getting, without causing the sampled observable to be automatically linked as a dependency of the "computed" observable (read below)
-
-o.sample (); // => 1
-
-// "set" method for explicit setting
-
-o.set ( 2 ); // => 2
-
-// "update" method for explicitly setting at a path, mutating the value and triggering listeners
-
-const obj = o ( { foo: { bar: 123 }, baz: '' } );
-
-o.update ( 'baz', 'asd' );
-o.update ( 'foo.bar', 321 );
-
-// "on" method for subscribing to updates
-
-const subscriber = ( value, valuePrev ) => {
-  console.log ( 'The value changed!', value, valuePrev );
+type ObservableOptions<T> = {
+  ComparatorFunction<T = unknown, TI = unknown> = ( value: T, valuePrev: T | TI ) => boolean;
 };
+```
 
-o.on ( subscriber ); // Subscribing for later updates, not called immediately
+This is how to use it:
 
-o.set ( 2 ); // Same value as before, subscribers aren't called
-o.set ( 3 ); // Different value, subscribers are called
+```ts
+import $ from 'oby';
 
-// "off" method for unsubscribing from updates
+// Create an Observable without an initial value
 
-const subscriber = () => console.log ( 'Update!' );
+$<number>();
 
-o.on ( subscriber );
-o.off ( subscriber );
+// Create an Observable with an initial value
 
-o.set ( 4 ); // No subscribers are actually called, because they unsubscribed already
+$(1);
 
-// Subscribing immediately
+// Create an Observable with an initial value and a custom comparator
 
-o.on ( subscriber, true ); // Subscribing for later updates, but also called immediately
+const comparator = ( value, valuePrev ) => Object.is ( value, valuePrev );
 
-// "emit" method for calling listeners manually
-
-o.emit ();
+const o = $( 1, { comparator } );
 
 // Implicit, convenient, getter
 
-o (); // => 4
+o (); // => 1
 
-// Implicit, convenient, setters
+// Implicit, convenient, setter
 
-o ( 5 ); // => 5
-o ( prev => prev + 1 ); // => 6
+o ( 2 ); // => 2
 
-// "computed" method, for making an Observable out of the current Observable, this assumes that the function only depends on the current Observable and is therefor strictly less powerful than the "computed" library method, but by having that assumption it's also slightly faster
+// "get" method for explicit getting
 
-const double = o.computed ( value => value * value );
+o.get (); // => 2
 
-double (); // => 36
+// "sample" method for explicit getting, without causing the sampled Observable to be automatically tracked as a dependency of the parent computation (read below)
 
-o ( 10 );
+o.sample (); // => 2
 
-double (); // => 100
+// "set" method for explicit setting
 
-// "batch" library method, for ensuring no listeners are called while inside it, and calling listeners after the batch exits only once even if the observable got updated multiple times
+o.set ( 3 ); // => 3
 
-oby.batch ( () => {
+// "update" method for setting while receiving the previous value
 
-  o ( 100 );
-  o ( 200 );
-  o ( 300 );
+o.update ( prev => prev + 1 ); // => 4
 
-  // "subscriber" still not called here
+// "update" method for setting by mutating the previous value, the old value is actually transparently cloned for you so it's not actually mutated
 
-});
+const obj = o ( { foo: { bar: true } } );
 
-// "subscriber" called now, once, with [300, 10] as arguments
+obj.update ( prev => {
+  prev.foo.bar = false;
+}); // => { foo: { bar: false } }
 
-// "computed" library method, for making an Observable out of other Observables
+// "on" method for making an Observable out of the current Observable, this is just a potentially cleaner alternative to the `$.computed` method (see below)
 
-const a = oby ( 1 );
-const b = oby ( 2 );
-const c = oby.computed ( () => a () + b () );
+const double = o.on ( value => value * value );
 
-c (); // => 3
+double (); // => 16
+
+o ( 5 );
+
+double (); // => 25
+
+// "on" method, while passing it a custom comparator
+
+o.on ( value => value * value, { comparator } );
+
+// "on" method, while passing it a list of further dependencies to automatically track, only the explicitly listed dependencies will be automatically tracked as dependencies of the newly computed Observable (see below)
+
+const a = $(1);
+const b = $(2);
+const c = $(3);
+const sum = a.on ( () => a () + b () + c (), [b, c] );
+
+sum (); // => 6
 
 a ( 2 );
 
-c (); // => 4
+sum (); // => 7
 
-b ( 10 );
+b ( 3 );
 
-c (); // => 12
+sum (); // => 8
 
-c.dispose (); // Call the disposer function, which stops the reactivity
+c ( 4 );
 
-b ( 20 );
+sum (); // => 9
+```
 
-c (); // => 12, same value as before, it's no longer reactive
+### `$.computed`
 
-// "from" library method, for encapsulating dynamic stuff in an Observable
+This is the library method where the magic happens, it generates a new Observable with the result of the function passed to it, the function is automatically re-executed whenever it's dependencies change, and dependencies are tracked and disposed of automatically.
 
-const oClick = oby.from ( observable => {
+There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
+
+```ts
+import $ from 'oby';
+
+// Make a new computed Observable
+
+const a = $(1);
+const b = $(2);
+const c = $(3);
+
+const sum = $.computed ( () => {
+  return a () + b () + c ();
+});
+
+sum (); // => 6
+
+a ( 2 );
+
+sum (); // => 7
+
+b ( 3 );
+
+sum (); // => 8
+
+c ( 4 );
+
+sum (); // => 9
+
+// Make a new computed Observable while using the previous value
+
+const invocations = $.computed ( prev => {
+  a ();
+  return prev + 1;
+}, 0 );
+
+invocations (); // => 1
+
+a ( 10 );
+a ( 11 );
+a ( 12 );
+
+invocations (); // => 4
+```
+
+### `$.cleanup`
+
+This is an essential function that allows you to register cleanup functions, which are executed automatically whenever the parent computation is disposed of, which also happens before re-evaluating it.
+
+```ts
+import $ from 'oby';
+
+// Attach some cleanup functions to a computed
+
+const callback = $( () => {} );
+
+$.computed ( () => {
+
+  const cb = callback ();
+
+  document.body.addEventListener ( 'click', cb );
+
+  $.cleanup ( () => {
+
+    document.body.removeEventListener ( 'click', cb );
+
+  });
+
+  $.cleanup ( () => { // You can have as many cleanup functions as you want
+
+    console.log ( 'cleaned up!' );
+
+  });
+
+});
+
+callback ( () => {} ); // Cleanups called and computed re-evaluated
+```
+
+### `$.effect`
+
+An effect is a special kind of computed, it doesn't return anything (so it uses a bit less memory), and if you return a function from inside it that's automatically registered as a cleanup function.
+
+```ts
+import $ from 'oby';
+
+// Create an effect with an automatically attached cleanup function
+
+const callback = $( () => {} );
+
+$.effect ( () => {
+
+  const cb = callback ();
+
+  document.body.addEventListener ( 'click', cb );
+
+  return () => {
+
+    document.body.removeEventListener ( 'click', cb );
+
+  };
+
+});
+
+callback ( () => {} ); // Cleanups called and effect re-evaluated
+```
+
+### `$.batch`
+
+This function holds onto updates within its scope and flushes them out at once once it exits, it's useful as a performance optimizations when updating Observables multiple times while causing other Observables/computations/effects that depend on them to be re-evaluated only once.
+
+```ts
+import $ from 'oby';
+
+// Batch updates
+
+const o = $(0);
+
+$.batch ( () => {
+
+  o ( 1 );
+  o ( 2 );
+  o ( 3 );
+
+  o (); // => 0, updates have not been flushed yet
+
+});
+
+o (); // => 3, now the latest update for this observable has been flushed
+```
+
+### `$.root`
+
+This is an important function which creates a computation root, computation roots are detached from parent roots or computations and can be disposed, disposing them ends all the reactvity inside them.
+
+```ts
+import $ from 'oby';
+
+// Create a root and dispose of it
+
+$.root ( dispose => {
+
+  let calls = 0;
+
+  const a = $(0);
+  const b = $.computed ( () => {
+    calls += 1;
+    return a ();
+  });
+
+  calls; // => 1
+  b (); // => 0
+
+  a ( 1 );
+
+  calls; // => 2
+  b (); // => 1
+
+  dispose (); // Now all the reactivity inside this root stops
+
+  a ( 2 );
+
+  calls; // => 2
+  b (); // => 1
+});
+```
+
+### `$.from`
+
+This is a convenient function for encapsulating values that may change over time into an Observable. It's basically an effect that receives a brand new Observable inside it and returns it.
+
+```ts
+import $ from 'oby';
+
+// Encapsulating click coordinates into an Observable
+
+const coordinates = $.from ( observable => {
+
   const onClick = event => {
     const coordinates = { x: e.clientX, y: e.clientY };
     observable ( coordinates );
   });
+
   window.addEventListener ( 'click', onClick );
-  return () => { // Optional disposer function provided, necessary if you want to stop listening eventually
+
+  return () => {
+
     window.removeEventListener ( 'click', onClick );
+
   };
+
 });
 
-oClick.on ( coordinates => console.log ( coordinates ) );
+$.effect ( () => {
 
-oClick.dispose (); // Execute the disposer function
+  if ( !coordinates () ) return; // It will start empty as we did not set an initial value
 
-// "is" library method, for checking if a value is an Observable
+  console.log ( 'click at coordinates:', coordinates () );
 
-oby.is ( o ); // => true
-oby.is ( {} ); // => false
+});
+```
+
+### `$.sample`
+
+This is a convenient function for computing a value out of Observables without creating dependencies on them. It's equivalent to calling `.sample` on all of them manually.
+
+```ts
+import $ from 'oby';
+
+// Sampling
+
+const a = $(1);
+const b = $(2);
+const c = $(3);
+
+const sum = $.sample ( () => {
+  return a () + b () + c ();
+});
+
+sum; // => 6
+
+a ( 2 );
+b ( 3 );
+c ( 4 );
+
+sum; // => 6, it's just a value, not a reactive Observable
+```
+
+### `$.is`
+
+This essential function tells you if a value is an Observable or not.
+
+```ts
+import $ from 'oby';
+
+// Checking
+
+$.is ( $() ); // => true
+$.is ( {} ); // => false
 ```
 
 ## Thanks
 
-- **[sinuous/observable](https://github.com/luwes/sinuous/tree/master/packages/sinuous/observable)**: for making me fall in love with Observables.
-- **[trkl](https://github.com/jbreckmckye/trkl)**: for being so amazingly small and providing a good sort of reference implementation.
+- **[S](https://github.com/adamhaile/S)**: for paving the way to this awesome reactive way of writing software.
+- **[sinuous/observable](https://github.com/luwes/sinuous/tree/master/packages/sinuous/observable)**: for making me fall in love with Observables and providing a good implementation that this library is based of.
+- **[trkl](https://github.com/jbreckmckye/trkl)**: for being so inspiringly small.
 
 ## License
 

@@ -1,8 +1,10 @@
 
 /* IMPORT */
 
+import {NOOP} from './constants';
 import Observable from './observable';
-import {IListener} from './types';
+import Observer from './observer';
+import {CleanupFunction, ContextFunction} from './types';
 
 /* MAIN */
 
@@ -10,81 +12,101 @@ class Context {
 
   /* VARIABLES */
 
-  private links: WeakMap<IListener, Observable[]> = new WeakMap ();
-  private listeners: Set<IListener> = new Set ();
-  private current: IListener | undefined = undefined;
+  private observer?: Observer;
 
-  /* API */
+  /* REGISTRATION API */
 
-  link = ( observable: Observable ): void => {
+  registerCleanup = ( cleanup: CleanupFunction ): void => {
 
-    const listener = this.current;
+    if ( !this.observer ) return;
 
-    if ( !listener ) return;
+    this.observer.registerCleanup ( cleanup );
 
-    observable.on ( listener );
+  };
 
-    let links = this.links.get ( listener );
+  registerObservable = ( observable: Observable ): void => {
 
-    const hadLinks = !!links;
+    if ( !this.observer ) return;
 
-    links = links || [];
+    if ( observable.hasObserver ( this.observer ) ) return;
 
-    const index = links.indexOf ( observable );
+    this.observer.registerObservable ( observable );
 
-    if ( index < 0 ) {
+    observable.registerObserver ( this.observer );
 
-      links.push ( observable );
+  };
 
-    }
+  registerObservables = ( observables: Observable[] ): void => {
 
-    if ( !hadLinks ) {
+    if ( !this.observer ) return;
 
-      this.links.set ( listener, links );
+    observables.forEach ( this.registerObservable );
 
-    }
+  };
 
-  }
+  registerObserver = ( observer: Observer ): void => {
 
-  unlink = ( listener: IListener ): void => {
+    if ( !this.observer ) return;
 
-    const links = this.links.get ( listener );
+    this.observer.registerObserver ( observer );
 
-    if ( !links ) return;
+  };
 
-    for ( let i = 0, l = links.length; i < l; i++ ) {
+  /* WRAPPING API */
 
-      links[i].off ( listener );
+  wrap = <T> ( fn: ContextFunction<T> ): T => {
 
-    }
+    const observer = new Observer ();
 
-  }
+    return this.wrapWith ( fn, observer, true );
 
-  with = ( listener: IListener, fn: () => void ): void => {
+  };
 
-    if ( this.listeners.has ( listener ) ) throw Error ( 'Circular computation detected' );
+  wrapVoid = <T> ( fn: ContextFunction<T> ): void => {
 
-    const prev = this.current;
+    this.wrap ( fn );
 
-    this.listeners.add ( listener );
+  };
 
-    this.current = listener;
+  wrapWith = <T> ( fn: ContextFunction<T>, observer?: Observer, disposable?: boolean ): T => {
+
+    const observerPrev = this.observer;
+
+    this.observer = observer;
 
     try {
 
-      fn ();
+      const dispose = ( observer && disposable ) ? () => this.dispose ( observer ) : NOOP;
+
+      return fn ( dispose );
 
     } finally {
 
-      this.listeners.delete ( listener );
-
-      this.current = prev;
+      this.observer = observerPrev;
 
     }
 
-  }
+  };
 
-};
+  wrapWithout = <T> ( fn: ContextFunction<T> ): T => {
+
+    return this.wrapWith ( fn );
+
+  };
+
+  /* API */
+
+  dispose = ( observer: Observer ): void => {
+
+    //TODO: Maybe throw if disposing a root different from the current one, or implement this properly, setting the _current_ observer to undefined is a mistake
+
+    Observer.unsubscribe ( observer );
+
+    this.observer = undefined;
+
+  };
+
+}
 
 /* EXPORT */
 

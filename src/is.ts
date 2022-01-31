@@ -2,13 +2,14 @@
 /* IMPORT */
 
 import {SYMBOL} from './constants';
-import {IObservableWithoutInitial, IObservable} from './types';
+import {isFunction} from './utils';
+import {ObservableCallableWithoutInitial, ObservableCallable} from './types';
 
 /* MAIN */
 
-const is = ( value: unknown ): value is IObservableWithoutInitial | IObservable => {
+const is = ( value: unknown ): value is ObservableCallableWithoutInitial | ObservableCallable => {
 
-  return typeof value === 'function' && !!value[SYMBOL];
+  return isFunction ( value ) && !!value[SYMBOL];
 
 };
 
