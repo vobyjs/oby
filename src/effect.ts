@@ -3,6 +3,7 @@
 
 import Context from './context';
 import Observer from './observer';
+import {isArray} from './utils';
 import {EffectFunction} from './types';
 
 /* MAIN */
@@ -27,6 +28,44 @@ class Effect extends Observer {
 
   /* API */
 
+  isDisposable (): boolean {
+
+    const {observers, observables, cleanups} = this;
+
+    if ( observers ) {
+      if ( isArray ( observers ) ) {
+        if ( observers.length ) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+
+    if ( observables ) {
+      if ( isArray ( observables ) ) {
+        if ( observables.length ) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+
+    if ( cleanups ) {
+      if ( isArray ( cleanups ) ) {
+        if ( cleanups.length ) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+
+    return true;
+
+  }
+
   update (): void {
 
     Context.registerObserver ( this );
@@ -40,6 +79,14 @@ class Effect extends Observer {
     if ( cleanup ) {
 
       this.registerCleanup ( cleanup );
+
+    }
+
+    if ( this.isDisposable () ) {
+
+      Context.unregisterObserver ( this );
+
+      Observer.unsubscribe ( this );
 
     }
 

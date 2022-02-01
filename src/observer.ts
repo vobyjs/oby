@@ -13,9 +13,9 @@ class Observer {
   /* VARIABLES */
 
   public dirty?: true; // If dirty it needs updating
-  private cleanups?: CleanupFunction[] | CleanupFunction;
-  private observables?: Observable[] | Observable;
-  private observers?: Observer[] | Observer;
+  protected cleanups?: CleanupFunction[] | CleanupFunction;
+  protected observables?: Observable[] | Observable;
+  protected observers?: Observer[] | Observer;
 
   /* REGISTRATION API */
 
@@ -86,6 +86,34 @@ class Observer {
     } else {
 
       Context.registerObservable ( this.observables );
+
+    }
+
+  }
+
+  unregisterObserver ( observer: Observer ): void {
+
+    if ( !this.observers ) {
+
+      return;
+
+    } else if ( isArray ( this.observers ) ) {
+
+      const index = this.observers.indexOf ( observer );
+
+      if ( index >= 0 ) {
+
+        this.observers.splice ( index, 1 );
+
+      }
+
+    } else {
+
+      if ( this.observers === observer ) {
+
+        delete this.observers;
+
+      }
 
     }
 

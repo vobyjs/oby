@@ -52,6 +52,14 @@ class Context {
 
   };
 
+  unregisterObserver = ( observer: Observer ): void => {
+
+    if ( !this.observer ) return;
+
+    this.observer.unregisterObserver ( observer );
+
+  }
+
   /* WRAPPING API */
 
   wrap = <T> ( fn: ContextFunction<T> ): T => {
