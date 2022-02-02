@@ -99,7 +99,7 @@ class Observer {
 
     } else if ( isArray ( this.observers ) ) {
 
-      const index = this.observers.indexOf ( observer );
+      const index = this.observers.indexOf ( observer ); //TODO: This could be a performance issue, depending on how large this array grows
 
       if ( index >= 0 ) {
 
