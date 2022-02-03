@@ -4,7 +4,7 @@
 import Context from './context';
 import Observable from './observable';
 import {isArray} from './utils';
-import {CleanupFunction} from './types';
+import {CleanupFunction, ErrorFunction} from './types';
 
 /* MAIN */
 
@@ -14,6 +14,7 @@ class Observer {
 
   public dirty?: true; // If dirty it needs updating
   protected cleanups?: CleanupFunction[] | CleanupFunction;
+  protected errors?: ErrorFunction[] | ErrorFunction;
   protected observables?: Observable[] | Observable;
   protected observers?: Observer[] | Observer;
 
@@ -32,6 +33,24 @@ class Observer {
     } else {
 
       this.cleanups = [this.cleanups, cleanup];
+
+    }
+
+  }
+
+  registerError ( error: ErrorFunction ): void {
+
+    if ( !this.errors ) {
+
+      this.errors = error;
+
+    } else if ( isArray ( this.errors ) ) {
+
+      this.errors.push ( error );
+
+    } else {
+
+      this.errors = [this.errors, error];
 
     }
 
@@ -127,11 +146,35 @@ class Observer {
 
   }
 
+  updateError ( error: unknown ): void {
+
+    const {errors} = this;
+
+    if ( errors ) {
+
+      if ( isArray ( errors ) ) {
+
+        errors.forEach ( fn => fn ( error ) );
+
+      } else {
+
+        errors ( error );
+
+      }
+
+    } else {
+
+      throw error;
+
+    }
+
+  }
+
   /* STATIC API */
 
   static unsubscribe ( observer: Observer ): void {
 
-    const {observers, observables, cleanups} = observer;
+    const {observers, observables, cleanups, errors} = observer;
 
     if ( observers ) {
       if ( isArray ( observers ) ) {
@@ -166,6 +209,14 @@ class Observer {
       } else {
         cleanups ();
         delete observer.cleanups;
+      }
+    }
+
+    if ( errors ) {
+      if ( isArray ( errors ) ) {
+        errors.length = 0;
+      } else {
+        delete observer.errors;
       }
     }
 

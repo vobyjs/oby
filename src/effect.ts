@@ -74,19 +74,27 @@ class Effect extends Observer {
 
     delete this.dirty;
 
-    const cleanup = Context.wrapWith ( () => this.fn (), this, false );
+    try {
 
-    if ( cleanup ) {
+      const cleanup = Context.wrapWith ( () => this.fn (), this, false );
 
-      this.registerCleanup ( cleanup );
+      if ( cleanup ) {
 
-    }
+        this.registerCleanup ( cleanup );
 
-    if ( this.isDisposable () ) {
+      }
 
-      Context.unregisterObserver ( this );
+      if ( this.isDisposable () ) {
 
-      Observer.unsubscribe ( this );
+        Context.unregisterObserver ( this );
+
+        Observer.unsubscribe ( this );
+
+      }
+
+    } catch ( error: unknown ) {
+
+      this.updateError ( error );
 
     }
 

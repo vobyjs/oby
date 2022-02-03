@@ -40,9 +40,18 @@ class Computed<T, TI> extends Observer {
     delete this.dirty;
 
     const valuePrev = this.observable.sample ();
-    const valueNext = Context.wrapWith ( () => this.fn ( valuePrev ), this, true );
 
-    this.observable.set ( valueNext );
+    try {
+
+      const valueNext = Context.wrapWith ( () => this.fn ( valuePrev ), this, true );
+
+      this.observable.set ( valueNext );
+
+    } catch ( error: unknown ) {
+
+      this.updateError ( error );
+
+    }
 
   }
 

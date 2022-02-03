@@ -14,6 +14,7 @@ npm install --save oby
 - [`$.computed`](#computed)
 - [`$.cleanup`](#cleanup)
 - [`$.effect`](#effect)
+- [`$.error`](#error)
 - [`$.batch`](#batch)
 - [`$.root`](#root)
 - [`$.from`](#from)
@@ -190,7 +191,7 @@ invocations (); // => 4
 
 ### `$.cleanup`
 
-This is an essential function that allows you to register cleanup functions, which are executed automatically whenever the parent computation is disposed of, which also happens before re-evaluating it.
+This is an essential function that allows you to register cleanup functions, which are executed automatically whenever the parent computation/effect/root is disposed of, which also happens before re-evaluating it.
 
 ```ts
 import $ from 'oby';
@@ -220,6 +221,41 @@ $.computed ( () => {
 });
 
 callback ( () => {} ); // Cleanups called and computed re-evaluated
+```
+
+### `$.error`
+
+This is an essential function that allows you to register error handler functions, which are executed automatically whenever the parent computation/effect/root throws. If any error handlers are present the error is caught automatically and is passed to error handlers.
+
+Remember to register your error handlers before doing anything else, or the computation may throw before error handlers are registered.
+
+```ts
+import $ from 'oby';
+
+// Attach an error handler function to a computed
+
+const o = $( 0 );
+
+$.computed ( () => {
+
+  $.error ( error => {
+
+    console.log ( 'Error caught!' );
+    console.log ( error );
+
+  });
+
+  if ( o () === 2 ) {
+
+    throw new Error ( 'Some error' );
+
+  }
+
+});
+
+o ( 1 ); // No error is thrown, error handlers are not called
+
+o ( 2 ); // An error is thrown, so it's caught and passed to the registered error handlers
 ```
 
 ### `$.effect`

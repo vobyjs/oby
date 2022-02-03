@@ -29,6 +29,7 @@ observable.batch = Batch.wrap;
 observable.cleanup = Context.registerCleanup;
 observable.computed = Computed.wrap;
 observable.effect = Effect.wrap;
+observable.error = Context.registerError;
 observable.from = from;
 observable.get = get;
 observable.is = is;

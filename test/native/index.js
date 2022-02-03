@@ -1009,6 +1009,42 @@ describe ( 'oby', it => {
 
     });
 
+    it ( 'supports manually registering a function to be called when the parent computation throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.computed ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        if ( o () ) throw 'err';
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
     it ( 'supports receiving an initial value', t => {
 
       const a = $(1);
@@ -1159,7 +1195,7 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'supports manually registering a function to be called when the parent computation updates', t => {
+    it ( 'supports manually registering a function to be called when the parent effect updates', t => {
 
       const o = $(0);
 
@@ -1195,7 +1231,43 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'supports automatically registering a function to be called when the parent computation updates', t => {
+    it ( 'supports manually registering a function to be called when the parent effect throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.effect ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        if ( o () ) throw 'err';
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'supports automatically registering a function to be called when the parent effect updates', t => {
 
       const o = $(0);
 
@@ -1271,6 +1343,114 @@ describe ( 'oby', it => {
       a ( 1 );
 
       t.is ( calls, 6 );
+
+    });
+
+  });
+
+  describe ( 'error', it => {
+
+    it ( 'registers a function to be called when the parent computation throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.computed ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        if ( o () ) throw 'err';
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'registers a function to be called when the parent effect throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.effect ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        if ( o () ) throw 'err';
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'registers a function to be called when the parent root throws', t => {
+
+      let sequence = '';
+
+      $.root ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        throw 'err';
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+    });
+
+    it ( 'returns undefined', t => {
+
+      const result1 = $.error ( () => {} );
+      const result2 = $.error ( () => {} );
+
+      t.is ( result1, undefined );
+      t.is ( result2, undefined );
 
     });
 

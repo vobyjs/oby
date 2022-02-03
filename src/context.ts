@@ -4,7 +4,7 @@
 import {NOOP} from './constants';
 import Observable from './observable';
 import Observer from './observer';
-import {CleanupFunction, ContextFunction} from './types';
+import {CleanupFunction, ContextFunction, ErrorFunction} from './types';
 
 /* MAIN */
 
@@ -21,6 +21,14 @@ class Context {
     if ( !this.observer ) return;
 
     this.observer.registerCleanup ( cleanup );
+
+  };
+
+  registerError = ( error: ErrorFunction ): void => {
+
+    if ( !this.observer ) return;
+
+    this.observer.registerError ( error );
 
   };
 
@@ -62,11 +70,19 @@ class Context {
 
   /* WRAPPING API */
 
-  wrap = <T> ( fn: ContextFunction<T> ): T => {
+  wrap = <T> ( fn: ContextFunction<T> ): T | undefined => {
 
     const observer = new Observer ();
 
-    return this.wrapWith ( fn, observer, true );
+    try {
+
+      return this.wrapWith ( fn, observer, true );
+
+    } catch ( error: unknown ) {
+
+      observer.updateError ( error );
+
+    }
 
   };
 
