@@ -17,6 +17,7 @@ class Observer {
   protected errors?: ErrorFunction[] | ErrorFunction;
   protected observables?: Observable[] | Observable;
   protected observers?: Observer[] | Observer;
+  private parent?: Observer;
 
   /* REGISTRATION API */
 
@@ -92,6 +93,12 @@ class Observer {
 
   }
 
+  registerParent ( observer: Observer ): void  {
+
+    this.parent = observer;
+
+  }
+
   registerSelf (): void {
 
     if ( !this.observables ) {
@@ -138,6 +145,12 @@ class Observer {
 
   }
 
+  unregisterParent (): void  {
+
+    delete this.parent;
+
+  }
+
   /* API */
 
   update (): void {
@@ -146,9 +159,9 @@ class Observer {
 
   }
 
-  updateError ( error: unknown ): void {
+  updateError ( error: unknown, silent?: boolean ): boolean {
 
-    const {errors} = this;
+    const {errors, parent} = this;
 
     if ( errors ) {
 
@@ -162,9 +175,23 @@ class Observer {
 
       }
 
+      return true;
+
     } else {
 
-      throw error;
+      if ( parent ) {
+
+        if ( parent.updateError ( error, true ) ) return true;
+
+      }
+
+      if ( !silent ) {
+
+        throw error;
+
+      }
+
+      return false;
 
     }
 

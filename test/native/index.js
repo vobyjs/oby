@@ -1444,6 +1444,120 @@ describe ( 'oby', it => {
 
     });
 
+    it ( 'registers a function to be called when a child computation throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.computed ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        $.computed ( () => {
+
+          $.computed ( () => {
+
+            if ( o () ) throw 'err';
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'registers a function to be called when a child effect throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.effect ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        $.effect ( () => {
+
+          $.effect ( () => {
+
+            if ( o () ) throw 'err';
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'registers a function to be called when a child root throws', t => {
+
+      let sequence = '';
+
+      $.root ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        $.root ( () => {
+
+          throw 'err';
+
+        });
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+    });
+
     it ( 'returns undefined', t => {
 
       const result1 = $.error ( () => {} );

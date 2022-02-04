@@ -57,6 +57,7 @@ class Context {
     if ( !this.observer ) return;
 
     this.observer.registerObserver ( observer );
+    observer.registerParent ( this.observer );
 
   };
 
@@ -65,6 +66,7 @@ class Context {
     if ( !this.observer ) return;
 
     this.observer.unregisterObserver ( observer );
+    observer.unregisterParent ();
 
   }
 

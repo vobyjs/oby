@@ -225,7 +225,7 @@ callback ( () => {} ); // Cleanups called and computed re-evaluated
 
 ### `$.error`
 
-This is an essential function that allows you to register error handler functions, which are executed automatically whenever the parent computation/effect/root throws. If any error handlers are present the error is caught automatically and is passed to error handlers.
+This is an essential function that allows you to register error handler functions, which are executed automatically whenever the parent computation/effect/root throws. If any error handlers are present the error is caught automatically and is passed to error handlers. Errors bubble up.
 
 Remember to register your error handlers before doing anything else, or the computation may throw before error handlers are registered.
 
