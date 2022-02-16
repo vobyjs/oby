@@ -2,11 +2,11 @@
 /* IMPORT */
 
 import is from './is';
-import {ObservableCallableWithoutInitial, ObservableCallable} from './types';
+import {ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable} from './types';
 
 /* MAIN */
 
-const get = <T> ( value: ObservableCallableWithoutInitial<T> | ObservableCallable<T> | T ): T => {
+const get = <T> ( value: ObservableCallableWithoutInitial<T> | ObservableCallable<T> | ReadonlyObservableCallableWithoutInitial<T> | ReadonlyObservableCallable<T> | T ): T => {
 
   return ( is ( value ) ? value () : value ) as T; //TSC
 

@@ -28,8 +28,8 @@ type ObservableCallableAbstract<T = unknown, TI = unknown> = {
   sample (): T | TI,
   set ( value: T ): T,
   update ( fn: ( value: T | TI ) => T | void ): T,
-  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>,
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>
+  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>,
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>
 };
 
 type ObservableCallableWithoutInitial<T = unknown> = ObservableCallableAbstract<T, T | undefined>;
@@ -40,8 +40,8 @@ type ReadonlyObservableCallableAbstract<T = unknown, TI = unknown> = {
   (): T | TI,
   get (): T | TI,
   sample (): T | TI,
-  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>,
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>
+  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>,
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>
 };
 
 type ReadonlyObservableCallableWithoutInitial<T = unknown> = ReadonlyObservableCallableAbstract<T, T | undefined>;

@@ -6,7 +6,7 @@ import Computed from './computed';
 import Context from './context';
 import Observer from './observer';
 import {cloneDeep, isArray, isPrimitive, isSet, isUndefined} from './utils';
-import {ComparatorFunction, UpdateFunction, ObservableCallableWithoutInitial, ObservableCallable, ObservableOptions} from './types';
+import {ComparatorFunction, UpdateFunction, ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -214,10 +214,10 @@ class Observable<T = unknown> {
 
   }
 
-  on <U> ( fn: ( value: T ) => U ): ObservableCallable<U>;
-  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>;
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U>;
-  on <U> ( fn: ( value: T ) => U, options?: (ObservableCallableWithoutInitial | ObservableCallable)[] | ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable)[] ): ObservableCallable<U> {
+  on <U> ( fn: ( value: T ) => U ): ReadonlyObservableCallable<U>;
+  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>;
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>;
+  on <U> ( fn: ( value: T ) => U, options?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] | ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U> {
 
     if ( isArray ( options ) ) return this.on ( fn, undefined, options );
 
@@ -230,7 +230,7 @@ class Observable<T = unknown> {
 
     }, undefined, options );
 
-    return observable as ObservableCallable<U>; //TSC
+    return observable as ReadonlyObservableCallable<U>; //TSC
 
   }
 

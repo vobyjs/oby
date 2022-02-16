@@ -104,7 +104,7 @@ obj.update ( prev => {
   prev.foo.bar = false;
 }); // => { foo: { bar: false } }
 
-// "on" method for making an Observable out of the current Observable, this is just a potentially cleaner alternative to the `$.computed` method (see below)
+// "on" method for making an read-only Observable out of the current Observable, this is just a potentially cleaner alternative to the `$.computed` method (see below)
 
 const double = o.on ( value => value * value );
 
@@ -142,7 +142,7 @@ sum (); // => 9
 
 ### `$.computed`
 
-This is the library method where the magic happens, it generates a new Observable with the result of the function passed to it, the function is automatically re-executed whenever it's dependencies change, and dependencies are tracked and disposed of automatically.
+This is the library method where the magic happens, it generates a new read-only Observable with the result of the function passed to it, the function is automatically re-executed whenever it's dependencies change, and dependencies are tracked and disposed of automatically.
 
 There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
 

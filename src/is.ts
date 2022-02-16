@@ -3,11 +3,11 @@
 
 import {SYMBOL} from './constants';
 import {isFunction} from './utils';
-import {ObservableCallableWithoutInitial, ObservableCallable} from './types';
+import {ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable} from './types';
 
 /* MAIN */
 
-const is = ( value: unknown ): value is ObservableCallableWithoutInitial | ObservableCallable => {
+const is = ( value: unknown ): value is ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable => {
 
   return isFunction ( value ) && !!value[SYMBOL];
 
