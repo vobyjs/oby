@@ -5,7 +5,7 @@ import callable from './callable';
 import Context from './context';
 import Observable from './observable';
 import Observer from './observer';
-import {ComputedFunction, ObservableCallableWithoutInitial, ObservableCallable, ObservableOptions} from './types';
+import {ComputedFunction, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -57,9 +57,9 @@ class Computed<T, TI> extends Observer {
 
   /* STATIC API */
 
-  static wrap <T> ( fn: ComputedFunction<T, T | undefined> ): ObservableCallableWithoutInitial<T>;
-  static wrap <T> ( fn: ComputedFunction<T, T | undefined>, value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableCallableWithoutInitial<T>;
-  static wrap <T> ( fn: ComputedFunction<T, T>, value: T, options?: ObservableOptions<T, T> ): ObservableCallable<T>;
+  static wrap <T> ( fn: ComputedFunction<T, T | undefined> ): ReadonlyObservableCallableWithoutInitial<T>;
+  static wrap <T> ( fn: ComputedFunction<T, T | undefined>, value: undefined, options?: ObservableOptions<T, T | undefined> ): ReadonlyObservableCallableWithoutInitial<T>;
+  static wrap <T> ( fn: ComputedFunction<T, T>, value: T, options?: ObservableOptions<T, T> ): ReadonlyObservableCallable<T>;
   static wrap <T> ( fn: ComputedFunction<T, T | undefined>, value?: T, options?: ObservableOptions<T, T | undefined> ) {
 
     return callable ( new Computed ( fn, value, options ).observable );
