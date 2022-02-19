@@ -8,7 +8,9 @@ import {ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservable
 
 const get = <T> ( value: ObservableCallableWithoutInitial<T> | ObservableCallable<T> | ReadonlyObservableCallableWithoutInitial<T> | ReadonlyObservableCallable<T> | T ): T => {
 
-  return ( is ( value ) ? value () : value ) as T; //TSC
+  if ( is ( value ) ) return get ( value () as T ); //TSC
+
+  return value;
 
 };
 
