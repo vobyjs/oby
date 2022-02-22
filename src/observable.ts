@@ -6,7 +6,7 @@ import Computed from './computed';
 import Context from './context';
 import Observer from './observer';
 import {cloneDeep, isArray, isPrimitive, isSet, isUndefined} from './utils';
-import {ComparatorFunction, UpdateFunction, ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableOptions} from './types';
+import {ComparatorFunction, UpdateFunction, ReadonlyObservableCallable, ObservableAny, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -215,9 +215,9 @@ class Observable<T = unknown> {
   }
 
   on <U> ( fn: ( value: T ) => U ): ReadonlyObservableCallable<U>;
-  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>;
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>;
-  on <U> ( fn: ( value: T ) => U, options?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] | ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U> {
+  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>;
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>;
+  on <U> ( fn: ( value: T ) => U, options?: ObservableAny[] | ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U> {
 
     if ( isArray ( options ) ) return this.on ( fn, undefined, options );
 

@@ -28,8 +28,8 @@ type ObservableCallableAbstract<T = unknown, TI = unknown> = {
   sample (): T | TI,
   set ( value: T ): T,
   update ( fn: ( value: T | TI ) => T | void ): T,
-  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>,
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>
+  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>,
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>
 };
 
 type ObservableCallableWithoutInitial<T = unknown> = ObservableCallableAbstract<T, T | undefined>;
@@ -40,13 +40,19 @@ type ReadonlyObservableCallableAbstract<T = unknown, TI = unknown> = {
   (): T | TI,
   get (): T | TI,
   sample (): T | TI,
-  on <U> ( fn: ( value: T ) => U, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>,
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: (ObservableCallableWithoutInitial | ObservableCallable | ReadonlyObservableCallableWithoutInitial | ReadonlyObservableCallable)[] ): ReadonlyObservableCallable<U>
+  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>,
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>
 };
 
 type ReadonlyObservableCallableWithoutInitial<T = unknown> = ReadonlyObservableCallableAbstract<T, T | undefined>;
 
 type ReadonlyObservableCallable<T = unknown> = ReadonlyObservableCallableAbstract<T, T>;
+
+type ObservableAny<T = unknown> = ObservableCallableWithoutInitial<T> | ObservableCallable<T> | ReadonlyObservableCallableWithoutInitial<T> | ReadonlyObservableCallable<T>;
+
+type ObservableResolver<T = unknown> = { (): ObservableResolver<T>, get (): ObservableResolver<T>, sample (): ObservableResolver<T> } | ObservableAny<T>;
+
+type ObservableResolved<T = unknown> = T extends ObservableResolver<infer Value> ? ObservableResolved<Value> : T;
 
 type ObservableOptions<T = unknown, TI = unknown> = {
   comparator?: ComparatorFunction<T, TI>
@@ -54,4 +60,4 @@ type ObservableOptions<T = unknown, TI = unknown> = {
 
 /* EXPORT */
 
-export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, ContextFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, UpdateFunction, ObservableCallableAbstract, ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableAbstract, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableOptions};
+export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, ContextFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, UpdateFunction, ObservableCallableAbstract, ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableAbstract, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableAny, ObservableResolver, ObservableResolved, ObservableOptions};

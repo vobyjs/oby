@@ -2,15 +2,15 @@
 /* IMPORT */
 
 import is from './is';
-import {ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable} from './types';
+import {ObservableResolved} from './types';
 
 /* MAIN */
 
-const get = <T> ( value: ObservableCallableWithoutInitial<T> | ObservableCallable<T> | ReadonlyObservableCallableWithoutInitial<T> | ReadonlyObservableCallable<T> | T ): T => {
+const get = <T> ( value: T ): ObservableResolved<T> => {
 
-  if ( is ( value ) ) return get ( value () as T ); //TSC
+  if ( is ( value ) ) return get ( value () as any ); //TSC
 
-  return value;
+  return value as any; //TSC
 
 };
 
