@@ -13,6 +13,7 @@ npm install --save oby
 - [`$()`](#usage)
 - [`$.computed`](#computed)
 - [`$.cleanup`](#cleanup)
+- [`$.disposed`](#disposed)
 - [`$.effect`](#effect)
 - [`$.error`](#error)
 - [`$.batch`](#batch)
@@ -221,6 +222,44 @@ $.computed ( () => {
 });
 
 callback ( () => {} ); // Cleanups called and computed re-evaluated
+```
+
+### `$.disposed`
+
+This is a convenience function that returns a read-only Observable that tells you if the parent computation got disposed of or not.
+
+```ts
+import $ from 'oby';
+
+// Create an effect whose function knows when it's disposed
+
+const url = $( 'htts://my.api' );
+
+useEffect ( () => {
+
+  const disposed = $.disposed ();
+
+  const onResolve = ( response: Response ): void => {
+
+    if ( disposed () ) return; // The effect got disposed, no need to handle the response anymore
+
+    // Do something with the response
+
+  };
+
+  const onReject = ( error: unknown ): void => {
+
+    if ( disposed () ) return; // The effect got disposed, no need to handle the error anymore
+
+    // Do something with the error
+
+  };
+
+  fetch ( url () ).then ( onResolve, onReject );
+
+});
+
+url ( 'https://my.api2' ); // This causes the effect to be re-executed, and the previous `disposed` observable will be set to `true`
 ```
 
 ### `$.error`

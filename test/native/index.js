@@ -2,6 +2,7 @@
 /* IMPORT */
 
 const {describe} = require ( 'fava' );
+const delay = require ( 'promise-resolve-timeout' );
 const {default: $} = require ( '../../dist' );
 const {default: Observable} = require ( '../../dist/observable' );
 
@@ -1121,6 +1122,40 @@ describe ( 'oby', it => {
       a ( 1 );
 
       t.is ( calls, 6 );
+
+    });
+
+  });
+
+  describe ( 'disposed', it => {
+
+    it ( 'returns an observable that tells if the parent got disposed or not', async t => {
+
+      const a = $(1);
+      const values = [];
+
+      $.effect ( () => {
+
+        const disposed = $.disposed ();
+
+        values.push ( disposed () );
+
+        a ();
+
+        setTimeout ( () => {
+
+          values.push ( disposed () );
+
+        }, 10 );
+
+      });
+
+      a ( 2 );
+      a ( 3 );
+
+      await delay ( 50 );
+
+      t.deepEqual ( values, [false, false, false, true, true, false] );
 
     });
 
