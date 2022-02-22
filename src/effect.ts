@@ -82,13 +82,15 @@ class Effect extends Observer {
 
         this.registerCleanup ( cleanup );
 
-      }
+      } else {
 
-      if ( this.isDisposable () ) {
+        if ( this.isDisposable () ) {
 
-        Context.unregisterObserver ( this );
+          Context.unregisterObserver ( this );
 
-        Observer.unsubscribe ( this );
+          Observer.unsubscribe ( this );
+
+        }
 
       }
 
