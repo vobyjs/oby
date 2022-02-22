@@ -1,7 +1,7 @@
 {
   "name": "oby",
   "description": "A tiny Observable implementation, the brilliant primitive you need to build a powerful reactive system.",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
