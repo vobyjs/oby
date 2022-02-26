@@ -226,7 +226,7 @@ class Observable<T = unknown> {
       this.get ();
       if ( dependencies ) dependencies.forEach ( observable => observable () );
 
-      return Context.wrapWithout ( () => fn ( this.value ) );
+      return Context.wrapWithSampling ( () => fn ( this.value ) );
 
     }, undefined, options );
 

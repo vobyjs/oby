@@ -13,6 +13,7 @@ class Context {
   /* VARIABLES */
 
   private observer?: Observer;
+  private sampling: boolean = false;
 
   /* REGISTRATION API */
 
@@ -36,6 +37,8 @@ class Context {
 
     if ( !this.observer ) return;
 
+    if ( this.sampling ) return;
+
     if ( observable.hasObserver ( this.observer ) ) return;
 
     this.observer.registerObservable ( observable );
@@ -47,6 +50,8 @@ class Context {
   registerObservables = ( observables: Observable[] ): void => {
 
     if ( !this.observer ) return;
+
+    if ( this.sampling ) return;
 
     observables.forEach ( this.registerObservable );
 
@@ -94,11 +99,13 @@ class Context {
 
   };
 
-  wrapWith = <T> ( fn: ContextFunction<T>, observer?: Observer, disposable?: boolean ): T => {
+  wrapWith = <T> ( fn: ContextFunction<T>, observer?: Observer, disposable?: boolean, sampling?: boolean ): T => {
 
     const observerPrev = this.observer;
+    const samplingPrev = this.sampling;
 
     this.observer = observer;
+    this.sampling = !!sampling;
 
     try {
 
@@ -109,6 +116,7 @@ class Context {
     } finally {
 
       this.observer = observerPrev;
+      this.sampling = samplingPrev;
 
     }
 
@@ -117,6 +125,12 @@ class Context {
   wrapWithout = <T> ( fn: ContextFunction<T> ): T => {
 
     return this.wrapWith ( fn );
+
+  };
+
+  wrapWithSampling = <T> ( fn: ContextFunction<T> ): T => {
+
+    return this.wrapWith ( fn, this.observer, false, true );
 
   };
 

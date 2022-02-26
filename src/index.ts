@@ -36,7 +36,7 @@ observable.from = from;
 observable.get = get;
 observable.is = is;
 observable.root = Context.wrapVoid;
-observable.sample = Context.wrapWithout;
+observable.sample = Context.wrapWithSampling;
 
 /* EXPORT */
 

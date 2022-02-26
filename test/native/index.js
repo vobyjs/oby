@@ -1917,6 +1917,74 @@ describe ( 'oby', it => {
 
   describe ( 'sample', it => {
 
+    it ( 'does not leak computeds', t => {
+
+      const o = $(1);
+
+      let cleaned = false;
+
+      $.computed ( () => {
+
+        o ();
+
+        $.sample ( () => {
+
+          $.computed ( () => {
+
+            $.cleanup ( () => {
+
+              cleaned = true;
+
+            });
+
+          });
+
+        });
+
+      });
+
+      t.is ( cleaned, false );
+
+      o ( 2 );
+
+      t.is ( cleaned, true );
+
+    });
+
+    it ( 'does not leak effects', t => {
+
+      const o = $(1);
+
+      let cleaned = false;
+
+      $.effect ( () => {
+
+        o ();
+
+        $.sample ( () => {
+
+          $.effect ( () => {
+
+            $.cleanup ( () => {
+
+              cleaned = true;
+
+            });
+
+          });
+
+        });
+
+      });
+
+      t.is ( cleaned, false );
+
+      o ( 2 );
+
+      t.is ( cleaned, true );
+
+    });
+
     it ( 'supports getting without creating dependencies', t => {
 
       const a = $(1);
