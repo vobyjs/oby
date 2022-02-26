@@ -421,6 +421,73 @@ describe ( 'oby', it => {
 
     });
 
+    describe ( 'update', it => {
+
+      it ( 'does not create a dependency in a computed', t => {
+
+        const o = $(1);
+
+        let calls = 0;
+
+        $.computed ( () => {
+          calls += 1;
+          o.update ( prev => prev + 1 );
+          o.update ( prev => prev + 1 );
+          o.update ( prev => prev + 1 );
+        });
+
+        t.is ( calls, 1 );
+
+        o ( 5 );
+
+        t.is ( calls, 1 );
+
+      });
+
+      it ( 'does not create a dependency in an effect', t => {
+
+        const o = $(1);
+
+        let calls = 0;
+
+        $.computed ( () => {
+          calls += 1;
+          o.update ( prev => prev + 1 );
+          o.update ( prev => prev + 1 );
+          o.update ( prev => prev + 1 );
+        });
+
+        t.is ( calls, 1 );
+
+        o ( 5 );
+
+        t.is ( calls, 1 );
+
+      });
+
+      it ( 'supports updating with a new primitive value', t => {
+
+        const o = $(1);
+
+        t.is ( o.update ( prev => prev + 1 ), 2 );
+        t.is ( o (), 2 );
+
+      });
+
+      it ( 'supports updating with a new object value', t => {
+
+        const valuePrev = [];
+        const valueNext = [];
+
+        const o = $(valuePrev);
+
+        t.is ( o.update ( () => valueNext ), valueNext );
+        t.is ( o (), valueNext );
+
+      });
+
+    });
+
     describe ( 'on', it => {
 
       it ( 'creates a computed of the current observable', t => {

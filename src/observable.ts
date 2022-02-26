@@ -6,7 +6,7 @@ import Computed from './computed';
 import Context from './context';
 import Observer from './observer';
 import {cloneDeep, isArray, isPrimitive, isSet, isUndefined} from './utils';
-import {ComparatorFunction, UpdateFunction, ReadonlyObservableCallable, ObservableAny, ObservableOptions} from './types';
+import {ComparatorFunction, ProduceFunction, UpdateFunction, ReadonlyObservableCallable, ObservableAny, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -167,12 +167,20 @@ class Observable<T = unknown> {
 
   }
 
-  produce ( fn: UpdateFunction<T> ): T { //TODO: Implement this properly, with good performance and ~arbitrary values support (using immer?)
+  produce ( fn: ProduceFunction<T> ): T { //TODO: Implement this properly, with good performance and ~arbitrary values support (using immer?)
 
     const isValuePrimitive = isPrimitive ( this.value );
     const valueClone = isValuePrimitive ? this.value : cloneDeep ( this.value );
     const valueResult = fn ( valueClone );
     const valueNext = ( isValuePrimitive || !isUndefined ( valueResult ) ? valueResult : valueClone ) as T; //TSC
+
+    return this.set ( valueNext );
+
+  }
+
+  update ( fn: UpdateFunction<T> ): T {
+
+    const valueNext = fn ( this.value );
 
     return this.set ( valueNext );
 
