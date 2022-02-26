@@ -27,7 +27,7 @@ type ObservableCallableAbstract<T = unknown, TI = unknown> = {
   get (): T | TI,
   sample (): T | TI,
   set ( value: T ): T,
-  update ( fn: ( value: T | TI ) => T | void ): T,
+  produce ( fn: ( value: T | TI ) => T | void ): T,
   on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>,
   on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>
 };

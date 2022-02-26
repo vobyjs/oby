@@ -167,7 +167,7 @@ class Observable<T = unknown> {
 
   }
 
-  update ( fn: UpdateFunction<T> ): T { //TODO: Implement this properly, with good performance and ~arbitrary values support
+  produce ( fn: UpdateFunction<T> ): T { //TODO: Implement this properly, with good performance and ~arbitrary values support (using immer?)
 
     const isValuePrimitive = isPrimitive ( this.value );
     const valueClone = isValuePrimitive ? this.value : cloneDeep ( this.value );

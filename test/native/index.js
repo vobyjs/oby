@@ -328,7 +328,7 @@ describe ( 'oby', it => {
 
     });
 
-    describe ( 'update', it => {
+    describe ( 'produce', it => {
 
       it ( 'does not create a dependency in a computed', t => {
 
@@ -338,9 +338,9 @@ describe ( 'oby', it => {
 
         $.computed ( () => {
           calls += 1;
-          o.update ( prev => prev + 1 );
-          o.update ( prev => prev + 1 );
-          o.update ( prev => prev + 1 );
+          o.produce ( prev => prev + 1 );
+          o.produce ( prev => prev + 1 );
+          o.produce ( prev => prev + 1 );
         });
 
         t.is ( calls, 1 );
@@ -359,9 +359,9 @@ describe ( 'oby', it => {
 
         $.computed ( () => {
           calls += 1;
-          o.update ( prev => prev + 1 );
-          o.update ( prev => prev + 1 );
-          o.update ( prev => prev + 1 );
+          o.produce ( prev => prev + 1 );
+          o.produce ( prev => prev + 1 );
+          o.produce ( prev => prev + 1 );
         });
 
         t.is ( calls, 1 );
@@ -376,7 +376,7 @@ describe ( 'oby', it => {
 
         const o = $(1);
 
-        t.is ( o.update ( prev => prev + 1 ), 2 );
+        t.is ( o.produce ( prev => prev + 1 ), 2 );
         t.is ( o (), 2 );
 
       });
@@ -388,7 +388,7 @@ describe ( 'oby', it => {
 
         const o = $(valuePrev);
 
-        t.is ( o.update ( () => valueNext ), valueNext );
+        t.is ( o.produce ( () => valueNext ), valueNext );
         t.is ( o (), valueNext );
 
       });
@@ -399,7 +399,7 @@ describe ( 'oby', it => {
 
         const o = $(valuePrev);
 
-        t.not ( o.update ( () => {} ), valuePrev );
+        t.not ( o.produce ( () => {} ), valuePrev );
         t.deepEqual ( o (), valuePrev );
 
       });
@@ -411,10 +411,10 @@ describe ( 'oby', it => {
 
         const o = $(valuePrev);
 
-        t.not ( o.update ( prev => { prev.foo.bar = false } ), valuePrev );
+        t.not ( o.produce ( prev => { prev.foo.bar = false } ), valuePrev );
         t.deepEqual ( o (), valueNext );
 
-        t.not ( o.update ( prev => { prev.foo.bar = true } ), valuePrev );
+        t.not ( o.produce ( prev => { prev.foo.bar = true } ), valuePrev );
         t.deepEqual ( o (), valuePrev );
 
       });

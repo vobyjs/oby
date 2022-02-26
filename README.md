@@ -38,7 +38,7 @@ type Observable<T> = {
   get (): T,
   sample (): T,
   set ( value: T ): T,
-  update ( fn: ( value: T ) => T | void ): T,
+  produce ( fn: ( value: T ) => T | void ): T,
   on <U> ( fn: ( value: T ) => U, dependencies?: Observable[] ): Observable<U>,
   on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U>, dependencies?: Observable[] ): Observable<U>
 };
@@ -93,15 +93,11 @@ o.sample (); // => 2
 
 o.set ( 3 ); // => 3
 
-// "update" method for setting while receiving the previous value
-
-o.update ( prev => prev + 1 ); // => 4
-
-// "update" method for setting by mutating the previous value, the old value is actually transparently cloned for you so it's not actually mutated
+// "produce" method for setting by mutating the previous value, the old value is actually transparently cloned for you so it's not actually mutated
 
 const obj = o ( { foo: { bar: true } } );
 
-obj.update ( prev => {
+obj.produce ( prev => {
   prev.foo.bar = false;
 }); // => { foo: { bar: false } }
 
