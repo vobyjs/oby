@@ -1,8 +1,8 @@
 
 /* IMPORT */
 
-import Owner from './owner';
 import Observer from './observer';
+import Owner from './owner';
 import {isArray} from './utils';
 import {EffectFunction} from './types';
 

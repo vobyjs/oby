@@ -15,11 +15,13 @@ class Batch {
 
   /* REGISTRATION API */
 
-  registerUpdate = ( observable: Observable, value: unknown ): void => {
+  registerSet = ( observable: Observable, value: unknown ): boolean => {
 
-    if ( !this.queue ) return;
+    if ( !this.queue ) return false;
 
     this.queue.set ( observable, value );
+
+    return true;
 
   };
 
@@ -57,12 +59,6 @@ class Batch {
   flush = ( queue: Map<Observable, unknown> ): void => {
 
     queue.forEach ( ( value, observable ) => observable.set ( value ) );
-
-  };
-
-  has = (): boolean => {
-
-    return !!this.queue;
 
   };
 

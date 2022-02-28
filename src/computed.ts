@@ -2,10 +2,10 @@
 /* IMPORT */
 
 import callable from './callable';
-import Owner from './owner';
 import Observable from './observable';
 import Observer from './observer';
-import {ComputedFunction, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableOptions} from './types';
+import Owner from './owner';
+import {ComputedFunction, ReadonlyObservableCallable, ReadonlyObservableCallableWithoutInitial, ObservableOptions} from './types';
 
 /* MAIN */
 

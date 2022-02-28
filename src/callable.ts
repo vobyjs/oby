@@ -3,7 +3,7 @@
 
 import {SYMBOL} from './constants';
 import Observable from './observable';
-import {ObservableCallableWithoutInitial, ObservableCallable} from './types';
+import {ObservableCallable, ObservableCallableWithoutInitial} from './types';
 
 /* MAIN */
 
@@ -20,18 +20,27 @@ const callable = (() => {
 
   const traps = {
     get ( target: () => Observable, property: number | string | symbol ) {
+
       if ( property === SYMBOL ) return true;
+
       const observable = target ();
+
       return observable[property].bind ( observable );
+
     },
     apply ( target: () => Observable, thisArg: unknown, args: unknown[] ) {
+
       if ( !args.length ) return target ().get ();
+
       return target ().set ( args[0] );
+
     }
   };
 
-  return ( observable: Observable ): ObservableCallableWithoutInitial | ObservableCallable => {
+  return ( observable: Observable ): ObservableCallable | ObservableCallableWithoutInitial => {
+
     return new Proxy ( self.bind ( observable ), traps );
+
   };
 
 })();

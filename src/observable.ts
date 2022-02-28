@@ -3,9 +3,9 @@
 
 import Batch from './batch';
 import Computed from './computed';
-import Owner from './owner';
 import Observer from './observer';
-import {cloneDeep, isArray, isPrimitive, isSet, isUndefined} from './utils';
+import Owner from './owner';
+import {isArray, isSet, isUndefined} from './utils';
 import {ComparatorFunction, ProduceFunction, UpdateFunction, ReadonlyObservableCallable, ObservableAny, ObservableOptions} from './types';
 
 /* MAIN */
@@ -143,15 +143,15 @@ class Observable<T = unknown> {
 
   set ( value: T ): T {
 
-    if ( Observable.compare ( value, this.value, this.comparator ) ) {
+    const comparator = this.comparator || Object.is;
+
+    if ( comparator ( value, this.value ) ) {
 
       return this.value;
 
     }
 
-    if ( Batch.has () ) {
-
-      Batch.registerUpdate ( this, value );
+    if ( Batch.registerSet ( this, value ) ) {
 
       return value;
 
@@ -169,10 +169,9 @@ class Observable<T = unknown> {
 
   produce ( fn: ProduceFunction<T> ): T { //TODO: Implement this properly, with good performance and ~arbitrary values support (using immer?)
 
-    const isValuePrimitive = isPrimitive ( this.value );
-    const valueClone = isValuePrimitive ? this.value : cloneDeep ( this.value );
+    const valueClone = JSON.parse ( JSON.stringify ( this.value ) );
     const valueResult = fn ( valueClone );
-    const valueNext = ( isValuePrimitive || !isUndefined ( valueResult ) ? valueResult : valueClone ) as T; //TSC
+    const valueNext = ( !isUndefined ( valueResult ) ? valueResult : valueClone ) as T; //TSC
 
     return this.set ( valueNext );
 
@@ -232,6 +231,7 @@ class Observable<T = unknown> {
     const observable = Computed.wrap ( () => {
 
       this.get ();
+
       if ( dependencies ) dependencies.forEach ( observable => observable () );
 
       return Owner.wrapWithSampling ( () => fn ( this.value ) );
@@ -239,16 +239,6 @@ class Observable<T = unknown> {
     }, undefined, options );
 
     return observable as ReadonlyObservableCallable<U>; //TSC
-
-  }
-
-  /* STATIC API */
-
-  static compare <T> ( value: T, valuePrev: undefined, comparator?: ComparatorFunction<T, T | undefined> ): boolean;
-  static compare <T> ( value: T, valuePrev: T, comparator?: ComparatorFunction<T, T> ): boolean;
-  static compare <T> ( value: T, valuePrev?: T, comparator: ComparatorFunction<T, T | undefined> = Object.is ): boolean {
-
-    return comparator ( value, valuePrev );
 
   }
 

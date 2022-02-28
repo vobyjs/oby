@@ -5,13 +5,13 @@ import Batch from './batch';
 import callable from './callable';
 import Computed from './computed';
 import context from './context';
-import Owner from './owner';
 import disposed from './disposed';
 import Effect from './effect';
 import from from './from';
 import get from './get';
 import is from './is';
 import Observable from './observable';
+import Owner from './owner';
 import {ObservableCallable, ObservableCallableWithoutInitial, ReadonlyObservableCallable, ReadonlyObservableCallableWithoutInitial, ObservableAny, ObservableOptions} from './types';
 
 /* MAIN */
@@ -43,4 +43,4 @@ observable.sample = Owner.wrapWithSampling;
 /* EXPORT */
 
 export default observable;
-export type {ObservableCallable as Observable, ObservableCallableWithoutInitial as ObservableWithoutInitial, ReadonlyObservableCallable as ObservableReadonly, ReadonlyObservableCallableWithoutInitial as ObservableReadonlyWithoutInitial, ObservableAny};
+export type {ObservableCallable as Observable, ObservableCallableWithoutInitial as ObservableWithoutInitial, ReadonlyObservableCallable as ObservableReadonly, ReadonlyObservableCallableWithoutInitial as ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions};

@@ -1,9 +1,9 @@
 
 /* IMPORT */
 
-import {NOOP} from './constants';
 import Observable from './observable';
 import Observer from './observer';
+import {noop} from './utils';
 import {CleanupFunction, OwnerFunction, ErrorFunction} from './types';
 
 /* MAIN */
@@ -62,6 +62,7 @@ class Owner {
     if ( !this.observer ) return;
 
     this.observer.registerObserver ( observer );
+
     observer.registerParent ( this.observer );
 
   };
@@ -71,6 +72,7 @@ class Owner {
     if ( !this.observer ) return;
 
     this.observer.unregisterObserver ( observer );
+
     observer.unregisterParent ();
 
   }
@@ -116,7 +118,7 @@ class Owner {
 
     try {
 
-      const dispose = ( observer && disposable ) ? () => this.dispose ( observer ) : NOOP;
+      const dispose = ( observer && disposable ) ? () => this.dispose ( observer ) : noop;
 
       return fn ( dispose );
 

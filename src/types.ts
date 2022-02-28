@@ -23,7 +23,7 @@ type FromFunction<T = unknown> = ( observable: ObservableCallableWithoutInitial<
 
 type OwnerFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
 
-type ProduceFunction<T> = ( value: T ) => T | void;
+type ProduceFunction<T> = ( value: T ) => T | undefined;
 
 type UpdateFunction<T> = ( value: T ) => T;
 

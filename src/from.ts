@@ -11,7 +11,11 @@ const from = <T> ( fn: FromFunction<T>, options?: ObservableOptions<T, T | undef
 
   const value = observable<T> ( undefined, options );
 
-  Effect.wrap ( () => fn ( value ) );
+  Effect.wrap ( () => {
+
+    return fn ( value );
+
+  });
 
   return value;
 

@@ -1,8 +1,8 @@
 
 /* IMPORT */
 
-import Owner from './owner';
 import Observable from './observable';
+import Owner from './owner';
 import {isArray} from './utils';
 import {CleanupFunction, Context, ContextToken, ErrorFunction} from './types';
 
