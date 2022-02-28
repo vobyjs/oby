@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import callable from './callable';
-import Context from './context';
+import Owner from './owner';
 import Observable from './observable';
 import Observer from './observer';
 import {ComputedFunction, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableOptions} from './types';
@@ -33,7 +33,7 @@ class Computed<T, TI> extends Observer {
 
   update (): void {
 
-    Context.registerObserver ( this );
+    Owner.registerObserver ( this );
 
     Observer.unsubscribe ( this );
 
@@ -43,7 +43,7 @@ class Computed<T, TI> extends Observer {
 
     try {
 
-      const valueNext = Context.wrapWith ( () => this.fn ( valuePrev ), this, true );
+      const valueNext = Owner.wrapWith ( () => this.fn ( valuePrev ), this, true );
 
       this.observable.set ( valueNext );
 

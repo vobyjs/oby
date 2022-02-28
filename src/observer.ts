@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import Context from './context';
+import Owner from './owner';
 import Observable from './observable';
 import {isArray} from './utils';
 import {CleanupFunction, ErrorFunction} from './types';
@@ -107,11 +107,11 @@ class Observer {
 
     } else if ( isArray ( this.observables ) ) {
 
-      Context.registerObservables ( this.observables );
+      Owner.registerObservables ( this.observables );
 
     } else {
 
-      Context.registerObservable ( this.observables );
+      Owner.registerObservable ( this.observables );
 
     }
 

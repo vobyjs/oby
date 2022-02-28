@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import Context from './context';
+import Owner from './owner';
 import Observer from './observer';
 import {isArray} from './utils';
 import {EffectFunction} from './types';
@@ -68,7 +68,7 @@ class Effect extends Observer {
 
   update (): void {
 
-    Context.registerObserver ( this );
+    Owner.registerObserver ( this );
 
     Observer.unsubscribe ( this );
 
@@ -76,7 +76,7 @@ class Effect extends Observer {
 
     try {
 
-      const cleanup = Context.wrapWith ( () => this.fn (), this, false );
+      const cleanup = Owner.wrapWith ( () => this.fn (), this, false );
 
       if ( cleanup ) {
 
@@ -86,7 +86,7 @@ class Effect extends Observer {
 
         if ( this.isDisposable () ) {
 
-          Context.unregisterObserver ( this );
+          Owner.unregisterObserver ( this );
 
           Observer.unsubscribe ( this );
 

@@ -4,11 +4,11 @@
 import {NOOP} from './constants';
 import Observable from './observable';
 import Observer from './observer';
-import {CleanupFunction, ContextFunction, ErrorFunction} from './types';
+import {CleanupFunction, OwnerFunction, ErrorFunction} from './types';
 
 /* MAIN */
 
-class Context {
+class Owner {
 
   /* VARIABLES */
 
@@ -77,7 +77,7 @@ class Context {
 
   /* WRAPPING API */
 
-  wrap = <T> ( fn: ContextFunction<T> ): T | undefined => {
+  wrap = <T> ( fn: OwnerFunction<T> ): T | undefined => {
 
     const observer = new Observer ();
 
@@ -93,13 +93,13 @@ class Context {
 
   };
 
-  wrapVoid = <T> ( fn: ContextFunction<T> ): void => {
+  wrapVoid = <T> ( fn: OwnerFunction<T> ): void => {
 
     this.wrap ( fn );
 
   };
 
-  wrapWith = <T> ( fn: ContextFunction<T>, observer?: Observer, disposable?: boolean, sampling?: boolean ): T => {
+  wrapWith = <T> ( fn: OwnerFunction<T>, observer?: Observer, disposable?: boolean, sampling?: boolean ): T => {
 
     const observerPrev = this.observer;
     const samplingPrev = this.sampling;
@@ -122,13 +122,13 @@ class Context {
 
   };
 
-  wrapWithout = <T> ( fn: ContextFunction<T> ): T => {
+  wrapWithout = <T> ( fn: OwnerFunction<T> ): T => {
 
     return this.wrapWith ( fn );
 
   };
 
-  wrapWithSampling = <T> ( fn: ContextFunction<T> ): T => {
+  wrapWithSampling = <T> ( fn: OwnerFunction<T> ): T => {
 
     return this.wrapWith ( fn, this.observer, false, true );
 
@@ -150,4 +150,4 @@ class Context {
 
 /* EXPORT */
 
-export default new Context ();
+export default new Owner ();

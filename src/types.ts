@@ -9,8 +9,6 @@ type ComparatorFunction<T = unknown, TI = unknown> = ( value: T, valuePrev: T | 
 
 type ComputedFunction<T = unknown, TI = unknown> = ( valuePrev: T | TI ) => T;
 
-type ContextFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
-
 type DisposeFunction = () => void;
 
 type EffectFunction = () => CleanupFunction | void;
@@ -18,6 +16,8 @@ type EffectFunction = () => CleanupFunction | void;
 type ErrorFunction = ( error: unknown ) => void;
 
 type FromFunction<T = unknown> = ( observable: ObservableCallableWithoutInitial<T> ) => CleanupFunction | void;
+
+type OwnerFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
 
 type ProduceFunction<T> = ( value: T ) => T | void;
 
@@ -63,4 +63,4 @@ type ObservableOptions<T = unknown, TI = unknown> = {
 
 /* EXPORT */
 
-export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, ContextFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, ProduceFunction, UpdateFunction, ObservableCallableAbstract, ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableAbstract, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableAny, ObservableResolver, ObservableResolved, ObservableOptions};
+export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, UpdateFunction, ObservableCallableAbstract, ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableAbstract, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableAny, ObservableResolver, ObservableResolved, ObservableOptions};

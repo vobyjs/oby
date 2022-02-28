@@ -3,7 +3,7 @@
 
 import Batch from './batch';
 import Computed from './computed';
-import Context from './context';
+import Owner from './owner';
 import Observer from './observer';
 import {cloneDeep, isArray, isPrimitive, isSet, isUndefined} from './utils';
 import {ComparatorFunction, ProduceFunction, UpdateFunction, ReadonlyObservableCallable, ObservableAny, ObservableOptions} from './types';
@@ -119,7 +119,7 @@ class Observable<T = unknown> {
 
     } else {
 
-      Context.registerObservable ( this );
+      Owner.registerObservable ( this );
 
     }
 
@@ -194,7 +194,7 @@ class Observable<T = unknown> {
 
     if ( isSet ( observers ) && !observers.size ) return;
 
-    Context.wrapWithout ( () => {
+    Owner.wrapWithout ( () => {
 
       if ( isSet ( observers ) ) {
 
@@ -234,7 +234,7 @@ class Observable<T = unknown> {
       this.get ();
       if ( dependencies ) dependencies.forEach ( observable => observable () );
 
-      return Context.wrapWithSampling ( () => fn ( this.value ) );
+      return Owner.wrapWithSampling ( () => fn ( this.value ) );
 
     }, undefined, options );
 

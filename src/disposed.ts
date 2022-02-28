@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import observable from '.';
-import Context from './context';
+import Owner from './owner';
 import {ReadonlyObservableCallable} from './types';
 
 /* MAIN */
@@ -11,7 +11,7 @@ const disposed = (): ReadonlyObservableCallable<boolean> => {
 
   const value = observable ( false );
 
-  Context.registerCleanup ( () => {
+  Owner.registerCleanup ( () => {
 
     value ( true );
 
