@@ -4,7 +4,7 @@
 import Observable from './observable';
 import Owner from './owner';
 import {isArray} from './utils';
-import {CleanupFunction, Context, ContextToken, ErrorFunction} from './types';
+import {CleanupFunction, ContextToken, Contexts, ErrorFunction} from './types';
 
 /* MAIN */
 
@@ -14,7 +14,7 @@ class Observer {
 
   public dirty?: true; // If dirty it needs updating
   protected cleanups?: CleanupFunction[] | CleanupFunction;
-  protected context?: Context;
+  protected contexts?: Contexts;
   protected errors?: ErrorFunction[] | ErrorFunction;
   protected observables?: Observable[] | Observable;
   protected observers?: Observer[] | Observer;
@@ -45,9 +45,9 @@ class Observer {
     const symbol = Symbol ();
     const token = Object.freeze ({ symbol, default: value });
 
-    if ( !this.context ) this.context = {};
+    if ( !this.contexts ) this.contexts = {};
 
-    this.context[symbol] = value;
+    this.contexts[symbol] = value;
 
     return token;
 
@@ -175,10 +175,10 @@ class Observer {
 
   updateContext <T> ( token: ContextToken<T> ): T | undefined {
 
-    const {context, parent} = this;
+    const {contexts, parent} = this;
     const {symbol} = token;
 
-    if ( context && symbol in context ) return context[symbol];
+    if ( contexts && symbol in contexts ) return contexts[symbol];
 
     if ( !parent ) return;
 
@@ -228,7 +228,7 @@ class Observer {
 
   static unsubscribe ( observer: Observer ): void {
 
-    const {observers, observables, cleanups, errors, context} = observer;
+    const {observers, observables, cleanups, errors, contexts} = observer;
 
     if ( observers ) {
       if ( isArray ( observers ) ) {
@@ -274,8 +274,8 @@ class Observer {
       }
     }
 
-    if ( context ) {
-      delete observer.context;
+    if ( contexts ) {
+      delete observer.contexts;
     }
 
   }

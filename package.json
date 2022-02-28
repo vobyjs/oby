@@ -8,13 +8,14 @@
     "benchmark": "node tasks/benchmark.js",
     "clean": "rimraf dist",
     "compile": "tsc --skipLibCheck",
+    "compile:bundle": "esbuild --bundle --minify --format=cjs --target=es2015 '--mangle-props=^(level|queue|flush|dirty|cleanups|contexts|errors|fn|observable|observables|observer|observers|value|dispose|sampling|parent|unsubscribe|isDisposable|hasObserver|updateContext|updateError|registerCleanup|registerContext|registerError|registerObservable|registerObservables|registerObserver|registerParent|registerSelf|unregisterObserver|unregisterParent|registerSet|wrap|wrapVoid|wrapWith|wrapWithout|wrapWithSampling)$' ./src/index.js > ./dist/index.js",
     "compile:watch": "tsc --skipLibCheck --watch",
     "memory": "node tasks/memory.js",
     "test:native": "fava '**/native/**'",
     "test:native:watch": "fava -w '**/native/**'",
     "test:sinuous": "bash test/sinuous/index.sh",
     "test": "npm run test:sinuous && npm run test:native",
-    "prepublishOnly": "npm run clean && npm run compile && npm run test"
+    "prepublishOnly": "npm run clean && npm run compile && npm run test && npm run compile:bundle && npm run test:native"
   },
   "bugs": {
     "url": "https://github.com/fabiospampinato/oby/issues"
@@ -39,6 +40,7 @@
   ],
   "devDependencies": {
     "benchloop": "^1.3.2",
+    "esbuild": "^0.14.23",
     "fava": "^0.0.4",
     "ispy": "^0.1.2",
     "promise-resolve-timeout": "^1.2.1",

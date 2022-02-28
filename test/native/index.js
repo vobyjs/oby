@@ -4,7 +4,6 @@
 const {describe} = require ( 'fava' );
 const delay = require ( 'promise-resolve-timeout' );
 const {default: $} = require ( '../../dist' );
-const {default: Observable} = require ( '../../dist/observable' );
 
 /* MAIN */
 
@@ -1910,7 +1909,6 @@ describe ( 'oby', it => {
       t.false ( $.is ( {} ) );
       t.false ( $.is ( [] ) );
       t.false ( $.is ( $.effect ( () => {} ) ) );
-      t.false ( $.is ( new Observable () ) );
 
     });
 
