@@ -12,7 +12,7 @@ import from from './from';
 import get from './get';
 import is from './is';
 import Observable from './observable';
-import {ObservableCallableWithoutInitial, ObservableCallable, ObservableOptions} from './types';
+import {ObservableCallable, ObservableCallableWithoutInitial, ReadonlyObservableCallable, ReadonlyObservableCallableWithoutInitial, ObservableAny, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -43,3 +43,4 @@ observable.sample = Owner.wrapWithSampling;
 /* EXPORT */
 
 export default observable;
+export type {ObservableCallable as Observable, ObservableCallableWithoutInitial as ObservableWithoutInitial, ReadonlyObservableCallable as ObservableReadonly, ReadonlyObservableCallableWithoutInitial as ObservableReadonlyWithoutInitial, ObservableAny};
