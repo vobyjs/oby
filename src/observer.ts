@@ -4,7 +4,7 @@
 import Owner from './owner';
 import Observable from './observable';
 import {isArray} from './utils';
-import {CleanupFunction, ErrorFunction} from './types';
+import {CleanupFunction, Context, ContextToken, ErrorFunction} from './types';
 
 /* MAIN */
 
@@ -14,6 +14,7 @@ class Observer {
 
   public dirty?: true; // If dirty it needs updating
   protected cleanups?: CleanupFunction[] | CleanupFunction;
+  protected context?: Context;
   protected errors?: ErrorFunction[] | ErrorFunction;
   protected observables?: Observable[] | Observable;
   protected observers?: Observer[] | Observer;
@@ -36,6 +37,19 @@ class Observer {
       this.cleanups = [this.cleanups, cleanup];
 
     }
+
+  }
+
+  registerContext <T> ( value: T ): ContextToken<T> {
+
+    const symbol = Symbol ();
+    const token = Object.freeze ({ symbol, default: value });
+
+    if ( !this.context ) this.context = {};
+
+    this.context[symbol] = value;
+
+    return token;
 
   }
 
@@ -93,7 +107,7 @@ class Observer {
 
   }
 
-  registerParent ( observer: Observer ): void  {
+  registerParent ( observer: Observer ): void {
 
     this.parent = observer;
 
@@ -145,7 +159,7 @@ class Observer {
 
   }
 
-  unregisterParent (): void  {
+  unregisterParent (): void {
 
     delete this.parent;
 
@@ -156,6 +170,19 @@ class Observer {
   update (): void {
 
     delete this.dirty;
+
+  }
+
+  updateContext <T> ( token: ContextToken<T> ): T | undefined {
+
+    const {context, parent} = this;
+    const {symbol} = token;
+
+    if ( context && symbol in context ) return context[symbol];
+
+    if ( !parent ) return;
+
+    return parent.updateContext ( token );
 
   }
 

@@ -4,6 +4,7 @@
 import Batch from './batch';
 import callable from './callable';
 import Computed from './computed';
+import context from './context';
 import Owner from './owner';
 import disposed from './disposed';
 import Effect from './effect';
@@ -29,6 +30,7 @@ function observable <T> ( value?: T, options?: ObservableOptions<T, T | undefine
 observable.batch = Batch.wrap;
 observable.cleanup = Owner.registerCleanup;
 observable.computed = Computed.wrap;
+observable.context  = context;
 observable.disposed = disposed;
 observable.effect = Effect.wrap;
 observable.error = Owner.registerError;

@@ -1194,6 +1194,116 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'context', it => {
+
+    it ( 'can read and write context values inside an effect', t => {
+
+      $.effect ( () => {
+
+        const value = { foo: 123 };
+
+        const token = $.context ( value );
+
+        t.is ( $.context ( token ), value );
+
+      });
+
+    });
+
+    it ( 'can read and write context values inside a computed', t => {
+
+      $.computed ( () => {
+
+        const value = { foo: 123 };
+
+        const token = $.context ( value );
+
+        t.is ( $.context ( token ), value );
+
+      });
+
+    });
+
+    it ( 'can read and write context values inside a root', t => {
+
+      $.root ( () => {
+
+        const value = { foo: 123 };
+
+        const token = $.context ( value );
+
+        t.is ( $.context ( token ), value );
+
+      });
+
+    });
+
+    it ( 'can read and write context values inside a deep effect', t => {
+
+      $.effect ( () => {
+
+        const value = { foo: 123 };
+
+        const token = $.context ( value );
+
+        $.effect ( () => {
+
+          t.is ( $.context ( token ), value );
+
+        });
+
+      });
+
+    });
+
+    it ( 'can read and write context values inside a deep computed', t => {
+
+      $.computed ( () => {
+
+        const value = { foo: 123 };
+
+        const token = $.context ( value );
+
+        $.computed ( () => {
+
+          t.is ( $.context ( token ), value );
+
+        });
+
+      });
+
+    });
+
+    it ( 'can read and write context values inside a deep root', t => {
+
+      $.root ( () => {
+
+        const value = { foo: 123 };
+
+        const token = $.context ( value );
+
+        $.root ( () => {
+
+          t.is ( $.context ( token ), value );
+
+        });
+
+      });
+
+    });
+
+    it ( 'throws if called outside of an observer', t => {
+
+      t.throws ( () => {
+
+        $.context ( {} );
+
+      }, { message: 'Invalid context call, no parent computation found' } );
+
+    });
+
+  });
+
   describe ( 'disposed', it => {
 
     it ( 'returns an observable that tells if the parent got disposed or not', async t => {

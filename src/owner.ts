@@ -79,7 +79,14 @@ class Owner {
 
   wrap = <T> ( fn: OwnerFunction<T> ): T | undefined => {
 
+    const parent = this.observer;
     const observer = new Observer ();
+
+    if ( parent ) {
+
+      observer.registerParent ( parent );
+
+    }
 
     try {
 
@@ -143,6 +150,12 @@ class Owner {
     Observer.unsubscribe ( observer );
 
     this.observer = undefined;
+
+  };
+
+  get = (): Observer | undefined => {
+
+    return this.observer;
 
   };
 

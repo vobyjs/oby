@@ -12,6 +12,7 @@ npm install --save oby
 
 - [`$()`](#usage)
 - [`$.computed`](#computed)
+- [`$.context`](#context)
 - [`$.cleanup`](#cleanup)
 - [`$.disposed`](#disposed)
 - [`$.effect`](#effect)
@@ -189,6 +190,26 @@ a ( 11 );
 a ( 12 );
 
 invocations (); // => 4
+```
+
+### `$.context`
+
+This function provides a dependency injection mechanism, through wich an arbitrary value can be registered with the current parent computation which can later on be retrieved from anywhere inside it via the provided token.
+
+```ts
+$.root ( () => {
+
+  const token = $.context ( { foo: 123 } );
+
+  $.effect ( () => {
+
+    const value = $.context ( token );
+
+    console.log ( value.foo ); // => 123
+
+  });
+
+});
 ```
 
 ### `$.cleanup`
