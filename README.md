@@ -199,11 +199,13 @@ This function provides a dependency injection mechanism, through wich an arbitra
 ```ts
 $.root ( () => {
 
-  const token = $.context ( { foo: 123 } );
+  const ctx = Symbol ( 'Some Context' );
+
+  $.context ( ctx, { foo: 123 } );
 
   $.effect ( () => {
 
-    const value = $.context ( token );
+    const value = $.context ( ctx );
 
     console.log ( value.foo ); // => 123
 

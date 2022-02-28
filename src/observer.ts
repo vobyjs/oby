@@ -4,7 +4,7 @@
 import Observable from './observable';
 import Owner from './owner';
 import {isArray} from './utils';
-import {CleanupFunction, ContextToken, Contexts, ErrorFunction} from './types';
+import {CleanupFunction, Contexts, ErrorFunction} from './types';
 
 /* MAIN */
 
@@ -40,16 +40,13 @@ class Observer {
 
   }
 
-  registerContext <T> ( value: T ): ContextToken<T> {
-
-    const symbol = Symbol ();
-    const token = Object.freeze ({ symbol, default: value });
+  registerContext <T> ( symbol: symbol, value: T ): T {
 
     if ( !this.contexts ) this.contexts = {};
 
     this.contexts[symbol] = value;
 
-    return token;
+    return value;
 
   }
 
@@ -173,16 +170,15 @@ class Observer {
 
   }
 
-  updateContext <T> ( token: ContextToken<T> ): T | undefined {
+  updateContext <T> ( symbol: symbol ): T | undefined {
 
     const {contexts, parent} = this;
-    const {symbol} = token;
 
     if ( contexts && symbol in contexts ) return contexts[symbol];
 
     if ( !parent ) return;
 
-    return parent.updateContext ( token );
+    return parent.updateContext ( symbol );
 
   }
 

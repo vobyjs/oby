@@ -1199,11 +1199,12 @@ describe ( 'oby', it => {
 
       $.effect ( () => {
 
+        const ctx = Symbol ();
         const value = { foo: 123 };
 
-        const token = $.context ( value );
+        $.context ( ctx, value );
 
-        t.is ( $.context ( token ), value );
+        t.is ( $.context ( ctx ), value );
 
       });
 
@@ -1213,11 +1214,12 @@ describe ( 'oby', it => {
 
       $.computed ( () => {
 
+        const ctx = Symbol ();
         const value = { foo: 123 };
 
-        const token = $.context ( value );
+        $.context ( ctx, value );
 
-        t.is ( $.context ( token ), value );
+        t.is ( $.context ( ctx ), value );
 
       });
 
@@ -1227,11 +1229,12 @@ describe ( 'oby', it => {
 
       $.root ( () => {
 
+        const ctx = Symbol ();
         const value = { foo: 123 };
 
-        const token = $.context ( value );
+        $.context ( ctx, value );
 
-        t.is ( $.context ( token ), value );
+        t.is ( $.context ( ctx ), value );
 
       });
 
@@ -1241,13 +1244,14 @@ describe ( 'oby', it => {
 
       $.effect ( () => {
 
+        const ctx = Symbol ();
         const value = { foo: 123 };
 
-        const token = $.context ( value );
+        $.context ( ctx, value );
 
         $.effect ( () => {
 
-          t.is ( $.context ( token ), value );
+          t.is ( $.context ( ctx ), value );
 
         });
 
@@ -1259,13 +1263,14 @@ describe ( 'oby', it => {
 
       $.computed ( () => {
 
+        const ctx = Symbol ();
         const value = { foo: 123 };
 
-        const token = $.context ( value );
+        $.context ( ctx, value );
 
         $.computed ( () => {
 
-          t.is ( $.context ( token ), value );
+          t.is ( $.context ( ctx ), value );
 
         });
 
@@ -1277,15 +1282,68 @@ describe ( 'oby', it => {
 
       $.root ( () => {
 
+        const ctx = Symbol ();
         const value = { foo: 123 };
 
-        const token = $.context ( value );
+        $.context ( ctx, value );
 
         $.root ( () => {
 
-          t.is ( $.context ( token ), value );
+          t.is ( $.context ( ctx ), value );
 
         });
+
+      });
+
+    });
+
+    it ( 'returns the value being set', t => {
+
+      $.effect ( () => {
+
+        const ctx = Symbol ();
+        const value = { foo: 123 };
+
+        const ret = $.context ( ctx, value );
+
+        t.is ( ret, value );
+
+      });
+
+    });
+
+    it ( 'returns undefined for unknown contexts', t => {
+
+      $.effect ( () => {
+
+        const ctx = Symbol ();
+
+        t.is ( $.context ( ctx ), undefined );
+
+      });
+
+    });
+
+    it ( 'supports overriding the outer context', t => {
+
+      $.effect ( () => {
+
+        const ctx = Symbol ();
+        const value = { foo: 123 };
+
+        $.context ( ctx, value );
+
+        $.effect ( () => {
+
+          const value2 = { foo: 321 };
+
+          $.context ( ctx, value2 );
+
+          t.is ( $.context ( ctx ), value2 );
+
+        });
+
+        t.is ( $.context ( ctx ), value );
 
       });
 
@@ -1295,7 +1353,9 @@ describe ( 'oby', it => {
 
       t.throws ( () => {
 
-        $.context ( {} );
+        const ctx = Symbol ();
+
+        $.context ( ctx );
 
       }, { message: 'Invalid context call, no parent computation found' } );
 

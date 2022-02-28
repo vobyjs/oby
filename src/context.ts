@@ -2,25 +2,25 @@
 /* IMPORT */
 
 import Owner from './owner';
-import {ContextToken} from './types';
+import {isUndefined} from './utils';
 
 /* MAIN */
 
-function context <T> ( token: ContextToken<T> ): T | undefined;
-function context <T> ( value: T ): ContextToken<T>;
-function context <T> ( value: T | ContextToken<T> ) {
+function context <T> ( symbol: symbol ): T | undefined;
+function context <T> ( symbol: symbol, value: T ): T;
+function context <T> ( symbol: symbol, value?: T ) {
 
   const observer = Owner.get ();
 
   if ( !observer ) throw new Error ( 'Invalid context call, no parent computation found' );
 
-  if ( 'symbol' in value && 'default' in value ) { // Read
+  if ( isUndefined ( value ) ) { // Read
 
-    return observer.updateContext ( value );
+    return observer.updateContext ( symbol );
 
   } else { // Write
 
-    return observer.registerContext ( value );
+    return observer.registerContext ( symbol, value );
 
   }
 

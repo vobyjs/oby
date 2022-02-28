@@ -9,8 +9,6 @@ type ComparatorFunction<T = unknown, TI = unknown> = ( value: T, valuePrev: T | 
 
 type ComputedFunction<T = unknown, TI = unknown> = ( valuePrev: T | TI ) => T;
 
-type ContextToken<T = unknown> = { symbol: symbol, default: T | undefined };
-
 type Contexts = Record<symbol, any>;
 
 type DisposeFunction = () => void;
@@ -67,4 +65,4 @@ type ObservableOptions<T = unknown, TI = unknown> = {
 
 /* EXPORT */
 
-export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, ContextToken, Contexts, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, UpdateFunction, ObservableCallableAbstract, ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableAbstract, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableAny, ObservableResolver, ObservableResolved, ObservableOptions};
+export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, Contexts, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, UpdateFunction, ObservableCallableAbstract, ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableAbstract, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableAny, ObservableResolver, ObservableResolved, ObservableOptions};
