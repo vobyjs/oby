@@ -228,7 +228,7 @@ class Observer {
 
   static unsubscribe ( observer: Observer ): void {
 
-    const {observers, observables, cleanups, errors} = observer;
+    const {observers, observables, cleanups, errors, context} = observer;
 
     if ( observers ) {
       if ( isArray ( observers ) ) {
@@ -272,6 +272,10 @@ class Observer {
       } else {
         delete observer.errors;
       }
+    }
+
+    if ( context ) {
+      delete observer.context;
     }
 
   }
