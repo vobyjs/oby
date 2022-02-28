@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "benchmark": "node tasks/benchmark.js",
     "clean": "rimraf dist",
     "compile": "tsc --skipLibCheck",
     "compile:watch": "tsc --skipLibCheck --watch",
@@ -37,6 +38,7 @@
     "fast"
   ],
   "devDependencies": {
+    "benchloop": "^1.3.2",
     "fava": "^0.0.4",
     "ispy": "^0.1.2",
     "promise-resolve-timeout": "^1.2.1",
