@@ -4,7 +4,7 @@
 import Observer from './observer';
 import Owner from './owner';
 import {isArray} from './utils';
-import {EffectFunction} from './types';
+import {DisposeFunction, EffectFunction} from './types';
 
 /* MAIN */
 
@@ -110,7 +110,7 @@ class Effect extends Observer {
 
   /* STATIC API */
 
-  static wrap ( fn: EffectFunction ): void {
+  static wrap ( fn: EffectFunction ): DisposeFunction {
 
     const effect = new Effect ( fn );
 
