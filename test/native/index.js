@@ -1399,17 +1399,22 @@ describe ( 'oby', it => {
 
   describe ( 'effect', it => {
 
-    it ( 'returns undefined', t => {
+    it ( 'returns a disposer', t => {
 
       const a = $(1);
       const b = $(2);
       const c = $();
 
-      const d = $.effect ( () => {
+      const dispose = $.effect ( () => {
         c ( a () + b () );
       });
 
-      t.is ( d, undefined );
+      t.is ( c (), 3 );
+
+      dispose ();
+
+      a ( 2 );
+
       t.is ( c (), 3 );
 
     });

@@ -66,6 +66,14 @@ class Effect extends Observer {
 
   }
 
+  dispose (): void {
+
+    Owner.unregisterObserver ( this );
+
+    Observer.unsubscribe ( this );
+
+  }
+
   update (): void {
 
     Owner.registerObserver ( this );
@@ -86,9 +94,7 @@ class Effect extends Observer {
 
         if ( this.isDisposable () ) {
 
-          Owner.unregisterObserver ( this );
-
-          Observer.unsubscribe ( this );
+          this.dispose ();
 
         }
 
@@ -106,7 +112,9 @@ class Effect extends Observer {
 
   static wrap ( fn: EffectFunction ): void {
 
-    new Effect ( fn );
+    const effect = new Effect ( fn );
+
+    return effect.dispose.bind ( effect );
 
   }
 
