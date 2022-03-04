@@ -3,7 +3,7 @@
 
 import Observable from './observable';
 import Owner from './owner';
-import {isArray} from './utils';
+import {isArray, isSet} from './utils';
 import {CleanupFunction, Contexts, ErrorFunction} from './types';
 
 /* MAIN */
@@ -17,7 +17,7 @@ class Observer {
   protected contexts?: Contexts;
   protected errors?: ErrorFunction[] | ErrorFunction;
   protected observables?: Observable[] | Observable;
-  protected observers?: Observer[] | Observer;
+  protected observers?: Set<Observer> | Observer;
   private parent?: Observer;
 
   /* REGISTRATION API */
@@ -92,13 +92,13 @@ class Observer {
 
       this.observers = observer;
 
-    } else if ( isArray ( this.observers ) ) {
+    } else if ( isSet ( this.observers ) ) {
 
-      this.observers.push ( observer );
+      this.observers.add ( observer );
 
     } else {
 
-      this.observers = [this.observers, observer];
+      this.observers = new Set ([ this.observers, observer ]);
 
     }
 
@@ -134,15 +134,9 @@ class Observer {
 
       return;
 
-    } else if ( isArray ( this.observers ) ) {
+    } else if ( isSet ( this.observers ) ) {
 
-      const index = this.observers.indexOf ( observer ); //TODO: This could be a performance issue, depending on how large this array grows
-
-      if ( index >= 0 ) {
-
-        this.observers.splice ( index, 1 );
-
-      }
+      this.observers.delete ( observer )
 
     } else {
 
@@ -227,11 +221,11 @@ class Observer {
     const {observers, observables, cleanups, errors, contexts} = observer;
 
     if ( observers ) {
-      if ( isArray ( observers ) ) {
-        for ( let i = 0, l = observers.length; i < l; i++ ) {
-          Observer.unsubscribe ( observers[i] );
+      if ( isSet ( observers ) ) {
+        for ( const observer of observers ) {
+          Observer.unsubscribe ( observer );
         }
-        observers.length = 0;
+        observers.clear ();
       } else {
         Observer.unsubscribe ( observers );
         delete observer.observers;
