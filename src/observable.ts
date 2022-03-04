@@ -79,7 +79,12 @@ class Observable<T = unknown> {
 
     } else {
 
-      this.observers = new Set ([ this.observers, observer ]);
+      const observerPrev = this.observers;
+
+      this.observers = new Set ();
+
+      this.observers.add ( observerPrev );
+      this.observers.add ( observer );
 
     }
 
