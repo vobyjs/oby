@@ -3,7 +3,6 @@
 
 import Observable from './observable';
 import Observer from './observer';
-import {noop} from './utils';
 import {CleanupFunction, OwnerFunction, ErrorFunction} from './types';
 
 /* MAIN */
@@ -118,9 +117,17 @@ class Owner {
 
     try {
 
-      const dispose = ( observer && disposable ) ? () => this.dispose ( observer ) : noop;
+      if ( observer && disposable ) {
 
-      return fn ( dispose );
+        const dispose = this.dispose.bind ( this, observer );
+
+        return fn ( dispose );
+
+      } else {
+
+        return ( fn as any )(); //TSC
+
+      }
 
     } finally {
 

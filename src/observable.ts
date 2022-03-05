@@ -239,7 +239,7 @@ class Observable<T = unknown> {
 
       if ( dependencies ) dependencies.forEach ( observable => observable () );
 
-      return Owner.wrapWithSampling ( () => fn ( this.value ) );
+      return Owner.wrapWithSampling ( fn.bind ( undefined, this.value ) );
 
     }, undefined, options );
 

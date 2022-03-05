@@ -43,7 +43,7 @@ class Computed<T, TI> extends Observer {
 
     try {
 
-      const valueNext = Owner.wrapWith ( () => this.fn ( valuePrev ), this, true );
+      const valueNext: T = Owner.wrapWith ( this.fn.bind ( undefined, valuePrev ), this );
 
       this.observable.set ( valueNext );
 

@@ -21,8 +21,6 @@ const isUndefined = ( value: unknown ): value is undefined => {
 
 };
 
-const noop = (): void => {};
-
 /* EXPORT */
 
-export {isArray, isFunction, isSet, isUndefined, noop};
+export {isArray, isFunction, isSet, isUndefined};

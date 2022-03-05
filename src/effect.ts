@@ -84,7 +84,7 @@ class Effect extends Observer {
 
     try {
 
-      const cleanup = Owner.wrapWith ( () => this.fn (), this, false );
+      const cleanup = Owner.wrapWith ( this.fn, this );
 
       if ( cleanup ) {
 
