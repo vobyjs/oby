@@ -8,7 +8,7 @@
     "benchmark": "node tasks/benchmark.js",
     "clean": "rimraf dist",
     "compile": "tsc --skipLibCheck",
-    "compile:bundle": "esbuild --bundle --minify --format=cjs --target=es2015 '--mangle-props=^(level|queue|flush|dirty|cleanups|contexts|errors|fn|observable|observables|observer|observers|value|dispose|sampling|parent|unsubscribe|isDisposable|hasObserver|updateContext|updateError|registerCleanup|registerContext|registerError|registerObservable|registerObservables|registerObserver|registerParent|registerSelf|unregisterObserver|unregisterParent|registerSet|wrap|wrapVoid|wrapWith|wrapWithout|wrapWithSampling)$' ./src/index.js > ./dist/index.js",
+    "compile:bundle": "esbuild --bundle --minify --format=cjs --target=es2015 ./src/index.js > ./dist/index.js",
     "compile:watch": "tsc --skipLibCheck --watch",
     "memory": "node tasks/memory.js",
     "test:native": "fava '**/native/**'",
