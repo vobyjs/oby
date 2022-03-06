@@ -80,7 +80,7 @@ class Effect extends Observer {
 
     Observer.unsubscribe ( this );
 
-    delete this.dirty;
+    this.dirty = false;
 
     try {
 

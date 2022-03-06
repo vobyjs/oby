@@ -12,7 +12,7 @@ class Observer {
 
   /* VARIABLES */
 
-  public dirty?: true; // If dirty it needs updating
+  public dirty?: boolean; // If dirty it needs updating
   protected cleanups?: CleanupFunction[] | CleanupFunction;
   protected contexts?: Contexts;
   protected errors?: ErrorFunction[] | ErrorFunction;
@@ -147,7 +147,7 @@ class Observer {
 
       if ( this.observers === observer ) {
 
-        delete this.observers;
+        this.observers = undefined;
 
       }
 
@@ -157,7 +157,7 @@ class Observer {
 
   unregisterParent (): void {
 
-    delete this.parent;
+    this.parent = undefined;
 
   }
 
@@ -165,7 +165,7 @@ class Observer {
 
   update (): void {
 
-    delete this.dirty;
+    this.dirty = false;
 
   }
 
@@ -233,7 +233,7 @@ class Observer {
         observers.clear ();
       } else {
         Observer.unsubscribe ( observers );
-        delete observer.observers;
+        observer.observers = undefined;
       }
     }
 
@@ -245,7 +245,7 @@ class Observer {
         observables.length = 0;
       } else {
         observables.unregisterObserver ( observer );
-        delete observer.observables;
+        observer.observables = undefined;
       }
     }
 
@@ -257,7 +257,7 @@ class Observer {
         cleanups.length = 0;
       } else {
         cleanups ();
-        delete observer.cleanups;
+        observer.cleanups = undefined;
       }
     }
 
@@ -265,12 +265,12 @@ class Observer {
       if ( isArray ( errors ) ) {
         errors.length = 0;
       } else {
-        delete observer.errors;
+        observer.errors = undefined;
       }
     }
 
     if ( contexts ) {
-      delete observer.contexts;
+      observer.contexts = undefined;
     }
 
   }

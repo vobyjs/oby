@@ -158,7 +158,7 @@ class Owner {
 
     Observer.unsubscribe ( observer );
 
-    delete this.observer;
+    this.observer = undefined;
 
   };
 

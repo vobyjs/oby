@@ -102,7 +102,7 @@ class Observable<T = unknown> {
 
     } else if ( this.observers === observer ) {
 
-      delete this.observers;
+      this.observers = undefined;
 
     }
 

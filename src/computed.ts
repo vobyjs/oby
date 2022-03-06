@@ -37,7 +37,7 @@ class Computed<T, TI> extends Observer {
 
     Observer.unsubscribe ( this );
 
-    delete this.dirty;
+    this.dirty = false;
 
     const valuePrev = this.observable.sample ();
 
