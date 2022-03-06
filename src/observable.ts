@@ -198,7 +198,7 @@ class Observable<T = unknown> {
 
     if ( isSet ( observers ) && !observers.size ) return;
 
-    Owner.wrapWithout ( () => {
+    Owner.wrapWith ( () => {
 
       if ( isSet ( observers ) ) {
 

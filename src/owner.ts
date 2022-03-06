@@ -132,12 +132,6 @@ class Owner {
 
   };
 
-  wrapWithout = <T> ( fn: OwnerFunction<T> ): T => {
-
-    return this.wrapWith ( fn );
-
-  };
-
   wrapWithSampling = <T> ( fn: OwnerFunction<T> ): T => {
 
     return this.wrapWith ( fn, this.observer, false, true );
