@@ -78,7 +78,11 @@ class Effect extends Observer {
 
     Owner.registerObserver ( this );
 
-    Observer.unsubscribe ( this );
+    if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
+
+      Observer.unsubscribe ( this );
+
+    }
 
     this.dirty = false;
 
