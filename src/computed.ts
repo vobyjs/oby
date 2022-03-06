@@ -43,7 +43,7 @@ class Computed<T, TI> extends Observer {
 
     this.dirty = false;
 
-    const valuePrev = this.observable.sample ();
+    const valuePrev = this.observable.value;
 
     try {
 

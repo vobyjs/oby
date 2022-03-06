@@ -14,7 +14,7 @@ class Observable<T = unknown> {
 
   /* VARIABLES */
 
-  private value: T;
+  public value: T;
   private observers?: Set<Observer> | Observer;
   private comparator?: ComparatorFunction<T, T>;
   private parent?: Computed<T, T>;
