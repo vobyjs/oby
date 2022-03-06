@@ -78,7 +78,7 @@ class Owner {
 
   /* WRAPPING API */
 
-  wrap = <T> ( fn: OwnerFunction<T> ): T | undefined => {
+  wrap = <T> ( fn: OwnerFunction<T> ): void => {
 
     const parent = this.observer;
     const observer = new Observer ();
@@ -91,19 +91,13 @@ class Owner {
 
     try {
 
-      return this.wrapWith ( fn, observer, true );
+      this.wrapWith ( fn, observer, true );
 
     } catch ( error: unknown ) {
 
       observer.updateError ( error );
 
     }
-
-  };
-
-  wrapVoid = <T> ( fn: OwnerFunction<T> ): void => {
-
-    this.wrap ( fn );
 
   };
 

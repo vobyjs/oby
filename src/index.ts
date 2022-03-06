@@ -37,7 +37,7 @@ observable.error = Owner.registerError;
 observable.from = from;
 observable.get = get;
 observable.is = is;
-observable.root = Owner.wrapVoid;
+observable.root = Owner.wrap;
 observable.sample = Owner.wrapWithSampling;
 
 /* EXPORT */
