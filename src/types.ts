@@ -59,6 +59,8 @@ type ObservableOptions<T = unknown, TI = unknown> = {
   comparator?: ComparatorFunction<T, TI>
 };
 
+type ObservableResolved<T = unknown> = T extends ObservableAny<infer U> ? U : T;
+
 /* EXPORT */
 
-export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, Context, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, UpdateFunction, ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions};
+export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, Context, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, UpdateFunction, ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};

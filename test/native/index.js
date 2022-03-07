@@ -1945,14 +1945,6 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'gets the value out of a nested observable', t => {
-
-      const o = $($($($($(123)))));
-
-      t.is ( $.get ( o ), 123 );
-
-    });
-
     it ( 'gets the value out of a non-observable', t => {
 
       t.is ( $.get ( 123 ), 123 );

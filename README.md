@@ -446,7 +446,7 @@ $.effect ( () => {
 
 ### `$.get`
 
-This is a convenient function for getting the value out of something, if it gets passed an Observable then it calls `.get` on it, recursively if needed, otherwise it just returns the value.
+This is a convenient function for getting the value out of something, if it gets passed an Observable then it calls `.get` on it, otherwise it just returns the value.
 
 ```ts
 import $ from 'oby';

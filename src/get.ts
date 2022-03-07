@@ -8,7 +8,7 @@ import {ObservableResolved} from './types';
 
 const get = <T> ( value: T ): ObservableResolved<T> => {
 
-  if ( is ( value ) ) return get ( value () as any ); //TSC
+  if ( is ( value ) ) return value () as any; //TSC
 
   return value as any; //TSC
 
