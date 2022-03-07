@@ -44,37 +44,25 @@ class Observable<T = unknown> {
 
   /* REGISTRATION API */
 
-  hasObserver ( observer: Observer ): boolean {
-
-    if ( !this.observers ) {
-
-      return false;
-
-    } else if ( isSet ( this.observers ) ) {
-
-      return this.observers.has ( observer );
-
-    } else {
-
-      return this.observers === observer;
-
-    }
-
-  }
-
-  registerObserver ( observer: Observer ): void {
+  registerObserver ( observer: Observer ): boolean {
 
     if ( !this.observers ) {
 
       this.observers = observer;
 
+      return true;
+
     } else if ( isSet ( this.observers ) ) {
+
+      const sizePrev = this.observers.size;
 
       this.observers.add ( observer );
 
+      return sizePrev !== this.observers.size;
+
     } else if ( this.observers === observer ) {
 
-      return;
+      return false;
 
     } else {
 
@@ -84,6 +72,8 @@ class Observable<T = unknown> {
 
       this.observers.add ( observerPrev );
       this.observers.add ( observer );
+
+      return true;
 
     }
 

@@ -38,11 +38,11 @@ class Owner {
 
     if ( this.sampling ) return;
 
-    if ( observable.hasObserver ( this.observer ) ) return;
+    const wasRegistered = observable.registerObserver ( this.observer );
+
+    if ( !wasRegistered ) return;
 
     this.observer.registerObservable ( observable );
-
-    observable.registerObserver ( this.observer );
 
   };
 
