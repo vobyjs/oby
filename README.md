@@ -40,9 +40,7 @@ type Observable<T> = {
   sample (): T,
   set ( value: T ): T,
   produce ( fn: ( value: T ) => T | void ): T,
-  update ( fn: ( value: T ) => T ): T,
-  on <U> ( fn: ( value: T ) => U, dependencies?: Observable[] ): Observable<U>,
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U>, dependencies?: Observable[] ): Observable<U>
+  update ( fn: ( value: T ) => T ): T
 };
 ```
 
@@ -106,41 +104,6 @@ const obj = o ( { foo: { bar: true } } );
 obj.produce ( prev => {
   prev.foo.bar = false;
 }); // => { foo: { bar: false } }
-
-// "on" method for making an read-only Observable out of the current Observable, this is just a potentially cleaner alternative to the `$.computed` method (see below)
-
-const double = o.on ( value => value * value );
-
-double (); // => 16
-
-o ( 5 );
-
-double (); // => 25
-
-// "on" method, while passing it a custom comparator
-
-o.on ( value => value * value, { comparator } );
-
-// "on" method, while passing it a list of further dependencies to automatically track, only the explicitly listed dependencies will be automatically tracked as dependencies of the newly computed Observable (see below)
-
-const a = $(1);
-const b = $(2);
-const c = $(3);
-const sum = a.on ( () => a () + b () + c (), [b, c] );
-
-sum (); // => 6
-
-a ( 2 );
-
-sum (); // => 7
-
-b ( 3 );
-
-sum (); // => 8
-
-c ( 4 );
-
-sum (); // => 9
 ```
 
 ### `$.computed`

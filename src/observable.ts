@@ -2,11 +2,10 @@
 /* IMPORT */
 
 import Batch from './batch';
-import Computed from './computed';
 import Observer from './observer';
 import Owner from './owner';
-import {isArray, isSet, isUndefined} from './utils';
-import {ComparatorFunction, ProduceFunction, UpdateFunction, ObservableReadonly, ObservableAny, ObservableOptions} from './types';
+import {isSet, isUndefined} from './utils';
+import {ComparatorFunction, ProduceFunction, UpdateFunction, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -223,27 +222,6 @@ class Observable<T = unknown> {
       }
 
     });
-
-  }
-
-  on <U> ( fn: ( value: T ) => U ): ObservableReadonly<U>;
-  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ObservableReadonly<U>;
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ObservableReadonly<U>;
-  on <U> ( fn: ( value: T ) => U, options?: ObservableAny[] | ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ObservableReadonly<U> {
-
-    if ( isArray ( options ) ) return this.on ( fn, undefined, options );
-
-    const observable = Computed.wrap ( () => {
-
-      this.get ();
-
-      if ( dependencies ) dependencies.forEach ( observable => observable () );
-
-      return Owner.wrapWithSampling ( fn.bind ( undefined, this.value ) );
-
-    }, undefined, options );
-
-    return observable as ObservableReadonly<U>; //TSC
 
   }
 
