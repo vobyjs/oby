@@ -1,10 +1,11 @@
 
 /* IMPORT */
 
-import callable from './callable';
 import ObservableClass from './observable';
 import Observer from './observer';
 import Owner from './owner';
+import readable from './readable';
+import {isUndefined} from './utils';
 import {ComputedFunction, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableOptions} from './types';
 
 /* MAIN */
@@ -35,7 +36,7 @@ class Computed<T, TI> extends Observer {
 
     Owner.registerObserver ( this );
 
-    if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
+    if ( !isUndefined ( this.dirty ) ) { // Skipping unusbscription during the first execution
 
       Observer.unsubscribe ( this );
 
@@ -66,7 +67,7 @@ class Computed<T, TI> extends Observer {
   static wrap <T> ( fn: ComputedFunction<T, T>, value: T, options?: ObservableOptions<T, T> ): ObservableReadonly<T>;
   static wrap <T> ( fn: ComputedFunction<T, T | undefined>, value?: T, options?: ObservableOptions<T, T | undefined> ) {
 
-    return callable ( new Computed ( fn, value, options ).observable );
+    return readable ( new Computed ( fn, value, options ).observable );
 
   }
 

@@ -24,7 +24,7 @@ function context <T> ( symbol: symbol, value?: T ) {
 
   }
 
-};
+}
 
 /* EXPORT */
 

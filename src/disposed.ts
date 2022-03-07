@@ -1,23 +1,24 @@
 
 /* IMPORT */
 
-import observable from '.';
+import Observable from './observable';
 import Owner from './owner';
+import readable from './readable';
 import {ObservableReadonly} from './types';
 
 /* MAIN */
 
 const disposed = (): ObservableReadonly<boolean> => {
 
-  const value = observable ( false );
+  const observable = new Observable ( false );
 
   Owner.registerCleanup ( () => {
 
-    value ( true );
+    observable.set ( true );
 
   });
 
-  return value;
+  return readable ( observable );
 
 };
 

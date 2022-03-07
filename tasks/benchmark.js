@@ -41,10 +41,18 @@ const cellx = layers => {
             })
           };
 
-          $.computed ( s.prop1.get );
-          $.computed ( s.prop2.get );
-          $.computed ( s.prop3.get );
-          $.computed ( s.prop4.get );
+          $.computed ( () => {
+            return s.prop1 ();
+          });
+          $.computed ( () => {
+            return s.prop2 ();
+          });
+          $.computed ( () => {
+            return s.prop3 ();
+          });
+          $.computed ( () => {
+            return s.prop4 ();
+          });
 
           s.prop1 ();
           s.prop2 ();

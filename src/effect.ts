@@ -3,7 +3,7 @@
 
 import Observer from './observer';
 import Owner from './owner';
-import {isArray} from './utils';
+import {isArray, isUndefined} from './utils';
 import {DisposeFunction, EffectFunction} from './types';
 
 /* MAIN */
@@ -78,7 +78,7 @@ class Effect extends Observer {
 
     Owner.registerObserver ( this );
 
-    if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
+    if ( !isUndefined ( this.dirty ) ) { // Skipping unusbscription during the first execution
 
       Observer.unsubscribe ( this );
 

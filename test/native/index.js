@@ -5,6 +5,26 @@ const {describe} = require ( 'fava' );
 const delay = require ( 'promise-resolve-timeout' );
 const {default: $} = require ( '../../dist' );
 
+/* HELPERS */
+
+const isReadable = ( t, value ) => {
+
+  t.true ( $.is ( value ) );
+  t.true ( typeof value.get === 'function' );
+  t.true ( typeof value.set === 'undefined' );
+  t.true ( typeof value.emit === 'undefined' );
+
+};
+
+const isWritable = ( t, value ) => {
+
+  t.true ( $.is ( value ) );
+  t.true ( typeof value.get === 'function' );
+  t.true ( typeof value.set === 'function' );
+  t.true ( typeof value.emit === 'undefined' );
+
+};
+
 /* MAIN */
 
 describe ( 'oby', it => {
@@ -828,6 +848,14 @@ describe ( 'oby', it => {
 
   describe ( 'computed', it => {
 
+    it ( 'returns a readable observable', t => {
+
+      const o = $.computed ( () => {} );
+
+      isReadable ( t, o );
+
+    });
+
     it ( 'returns an observable with the return of the function', t => {
 
       const a = $(1);
@@ -1274,6 +1302,14 @@ describe ( 'oby', it => {
       await delay ( 50 );
 
       t.deepEqual ( values, [false, false, false, true, true, false] );
+
+    });
+
+    it ( 'returns a readable observable', t => {
+
+      const o = $.from ( () => {} );
+
+      isReadable ( t, o );
 
     });
 
@@ -1741,6 +1777,24 @@ describe ( 'oby', it => {
 
       t.true ( $.is ( o2 ) );
       t.is ( o2 (), 123 );
+
+    });
+
+    it ( 'passes a writable observable to the function', t => {
+
+      $.from ( o => {
+
+        isWritable ( t, o );
+
+      });
+
+    });
+
+    it ( 'returns a readable observable', t => {
+
+      const o = $.from ( () => {} );
+
+      isReadable ( t, o );
 
     });
 
