@@ -226,7 +226,7 @@ class Observer {
         for ( const observer of observers ) {
           Observer.unsubscribe ( observer );
         }
-        observers.clear ();
+        observer.observers = undefined;
       } else {
         Observer.unsubscribe ( observers );
         observer.observers = undefined;
@@ -238,7 +238,7 @@ class Observer {
         for ( let i = 0, l = observables.length; i < l; i++ ) {
           observables[i].unregisterObserver ( observer );
         }
-        observables.length = 0;
+        observer.observables = undefined;
       } else {
         observables.unregisterObserver ( observer );
         observer.observables = undefined;
@@ -250,7 +250,7 @@ class Observer {
         for ( let i = 0, l = cleanups.length; i < l; i++ ) {
           cleanups[i]();
         }
-        cleanups.length = 0;
+        observer.cleanups = undefined;
       } else {
         cleanups ();
         observer.cleanups = undefined;
@@ -258,11 +258,7 @@ class Observer {
     }
 
     if ( errors ) {
-      if ( isArray ( errors ) ) {
-        errors.length = 0;
-      } else {
-        observer.errors = undefined;
-      }
+      observer.errors = undefined;
     }
 
     if ( context ) {
