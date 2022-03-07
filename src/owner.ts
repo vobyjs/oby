@@ -52,7 +52,11 @@ class Owner {
 
     if ( this.sampling ) return;
 
-    observables.forEach ( this.registerObservable );
+    for ( let i = 0, l = observables.length; i < l; i++ ) {
+
+      this.registerObservable ( observables[i] );
+
+    }
 
   };
 
