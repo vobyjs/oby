@@ -201,18 +201,28 @@ class Observable<T = unknown> {
 
       if ( isSet ( observers ) ) {
 
-        const queue = Array.from ( observers.values () );
+        if ( observers.size === 1 ) {
 
-        for ( let i = 0, l = queue.length; i < l; i++ ) {
-          const observer = queue[i];
-          observer.dirty = true; // Trip flag for checking for updates
-        }
+          for ( const observer of observers ) {
+            observer.update ();
+          }
 
-        for ( let i = 0, l = queue.length; i < l; i++ ) {
-          const observer = queue[i];
-          if ( !observer.dirty ) continue; // Trip flag flipped, already updated
-          if ( !observers.has ( observer ) ) continue; // No longer an observer
-          observer.update ();
+        } else {
+
+          const queue = Array.from ( observers.values () );
+
+          for ( let i = 0, l = queue.length; i < l; i++ ) {
+            const observer = queue[i];
+            observer.dirty = true; // Trip flag for checking for updates
+          }
+
+          for ( let i = 0, l = queue.length; i < l; i++ ) {
+            const observer = queue[i];
+            if ( !observer.dirty ) continue; // Trip flag flipped, already updated
+            if ( !observers.has ( observer ) ) continue; // No longer an observer
+            observer.update ();
+          }
+
         }
 
       } else {
