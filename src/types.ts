@@ -9,7 +9,7 @@ type ComparatorFunction<T = unknown, TI = unknown> = ( value: T, valuePrev: T | 
 
 type ComputedFunction<T = unknown, TI = unknown> = ( valuePrev: T | TI ) => T;
 
-type Contexts = Record<symbol, any>;
+type Context = Record<symbol, any>;
 
 type DisposeFunction = () => void;
 
@@ -17,47 +17,43 @@ type EffectFunction = () => CleanupFunction | void;
 
 type ErrorFunction = ( error: unknown ) => void;
 
-type FromFunction<T = unknown> = ( observable: ObservableCallableWithoutInitial<T> ) => CleanupFunction | void;
+type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | void;
 
 type OwnerFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
 
-type ProduceFunction<T> = ( value: T ) => T | undefined;
+type ProduceFunction<T = unknown> = ( value: T ) => T | undefined;
 
-type UpdateFunction<T> = ( value: T ) => T;
+type UpdateFunction<T = unknown> = ( value: T ) => T;
 
-type ObservableCallableAbstract<T = unknown, TI = unknown> = {
+type ObservableAbstract<T = unknown, TI = unknown> = {
   (): T | TI,
   ( value: T ): T,
   get (): T | TI,
   sample (): T | TI,
   set ( value: T ): T,
-  produce ( fn: ( value: T | TI ) => T | void ): T,
+  produce ( fn: ( value: T | TI ) => T | undefined ): T,
   update ( fn: ( value: T | TI ) => T ): T,
-  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>,
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>
+  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ObservableReadonly<U>,
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ObservableReadonly<U>
 };
 
-type ObservableCallableWithoutInitial<T = unknown> = ObservableCallableAbstract<T, T | undefined>;
+type ObservableWithoutInitial<T = unknown> = ObservableAbstract<T, T | undefined>;
 
-type ObservableCallable<T = unknown> = ObservableCallableAbstract<T, T>;
+type Observable<T = unknown> = ObservableAbstract<T, T>;
 
-type ReadonlyObservableCallableAbstract<T = unknown, TI = unknown> = {
+type ObservableReadonlyAbstract<T = unknown, TI = unknown> = {
   (): T | TI,
   get (): T | TI,
   sample (): T | TI,
-  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>,
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>
+  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ObservableReadonly<U>,
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ObservableReadonly<U>
 };
 
-type ReadonlyObservableCallableWithoutInitial<T = unknown> = ReadonlyObservableCallableAbstract<T, T | undefined>;
+type ObservableReadonlyWithoutInitial<T = unknown> = ObservableReadonlyAbstract<T, T | undefined>;
 
-type ReadonlyObservableCallable<T = unknown> = ReadonlyObservableCallableAbstract<T, T>;
+type ObservableReadonly<T = unknown> = ObservableReadonlyAbstract<T, T>;
 
-type ObservableAny<T = unknown> = ObservableCallableWithoutInitial<T> | ObservableCallable<T> | ReadonlyObservableCallableWithoutInitial<T> | ReadonlyObservableCallable<T>;
-
-type ObservableResolver<T = unknown> = { (): ObservableResolver<T>, get (): ObservableResolver<T>, sample (): ObservableResolver<T> } | ObservableAny<T>;
-
-type ObservableResolved<T = unknown> = T extends ObservableResolver<infer Value> ? ObservableResolved<Value> : T;
+type ObservableAny<T = unknown> = ObservableWithoutInitial<T> | Observable<T> | ObservableReadonlyWithoutInitial<T> | ObservableReadonly<T>;
 
 type ObservableOptions<T = unknown, TI = unknown> = {
   comparator?: ComparatorFunction<T, TI>
@@ -65,4 +61,4 @@ type ObservableOptions<T = unknown, TI = unknown> = {
 
 /* EXPORT */
 
-export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, Contexts, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, UpdateFunction, ObservableCallableAbstract, ObservableCallableWithoutInitial, ObservableCallable, ReadonlyObservableCallableAbstract, ReadonlyObservableCallableWithoutInitial, ReadonlyObservableCallable, ObservableAny, ObservableResolver, ObservableResolved, ObservableOptions};
+export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, Context, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, UpdateFunction, ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions};

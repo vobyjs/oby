@@ -3,11 +3,11 @@
 
 import observable from '.';
 import Owner from './owner';
-import {ReadonlyObservableCallable} from './types';
+import {ObservableReadonly} from './types';
 
 /* MAIN */
 
-const disposed = (): ReadonlyObservableCallable<boolean> => {
+const disposed = (): ObservableReadonly<boolean> => {
 
   const value = observable ( false );
 

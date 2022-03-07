@@ -6,7 +6,7 @@ import Computed from './computed';
 import Observer from './observer';
 import Owner from './owner';
 import {isArray, isSet, isUndefined} from './utils';
-import {ComparatorFunction, ProduceFunction, UpdateFunction, ReadonlyObservableCallable, ObservableAny, ObservableOptions} from './types';
+import {ComparatorFunction, ProduceFunction, UpdateFunction, ObservableReadonly, ObservableAny, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -15,13 +15,13 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   public value: T;
-  private observers?: Set<Observer> | Observer;
   private comparator?: ComparatorFunction<T, T>;
-  private parent?: Computed<T, T>;
+  private observers?: Set<Observer> | Observer;
+  private parent?: Observer;
 
   /* CONSTRUCTOR */
 
-  constructor ( value: T, options?: ObservableOptions<T, T>, parent?: Computed<T, T> ) {
+  constructor ( value: T, options?: ObservableOptions<T, T>, parent?: Observer ) {
 
     this.value = value;
 
@@ -174,9 +174,9 @@ class Observable<T = unknown> {
 
   produce ( fn: ProduceFunction<T> ): T { //TODO: Implement this properly, with good performance and ~arbitrary values support (using immer?)
 
-    const valueClone = JSON.parse ( JSON.stringify ( this.value ) );
+    const valueClone: T = JSON.parse ( JSON.stringify ( this.value ) );
     const valueResult = fn ( valueClone );
-    const valueNext = ( !isUndefined ( valueResult ) ? valueResult : valueClone ) as T; //TSC
+    const valueNext = ( isUndefined ( valueResult ) ? valueClone : valueResult );
 
     return this.set ( valueNext );
 
@@ -226,10 +226,10 @@ class Observable<T = unknown> {
 
   }
 
-  on <U> ( fn: ( value: T ) => U ): ReadonlyObservableCallable<U>;
-  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>;
-  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U>;
-  on <U> ( fn: ( value: T ) => U, options?: ObservableAny[] | ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ReadonlyObservableCallable<U> {
+  on <U> ( fn: ( value: T ) => U ): ObservableReadonly<U>;
+  on <U> ( fn: ( value: T ) => U, dependencies?: ObservableAny[] ): ObservableReadonly<U>;
+  on <U> ( fn: ( value: T ) => U, options?: ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ObservableReadonly<U>;
+  on <U> ( fn: ( value: T ) => U, options?: ObservableAny[] | ObservableOptions<U, U | undefined>, dependencies?: ObservableAny[] ): ObservableReadonly<U> {
 
     if ( isArray ( options ) ) return this.on ( fn, undefined, options );
 
@@ -243,7 +243,7 @@ class Observable<T = unknown> {
 
     }, undefined, options );
 
-    return observable as ReadonlyObservableCallable<U>; //TSC
+    return observable as ObservableReadonly<U>; //TSC
 
   }
 

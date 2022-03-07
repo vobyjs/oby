@@ -3,7 +3,7 @@
 
 import {SYMBOL} from './constants';
 import Observable from './observable';
-import {ObservableCallable, ObservableCallableWithoutInitial} from './types';
+import {ObservableAny} from './types';
 
 /* MAIN */
 
@@ -37,7 +37,7 @@ const callable = (() => {
     }
   };
 
-  return ( observable: Observable ): ObservableCallable | ObservableCallableWithoutInitial => {
+  return ( observable: Observable ): ObservableAny => {
 
     return new Proxy ( self.bind ( observable ), traps );
 

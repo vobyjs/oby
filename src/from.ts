@@ -3,11 +3,11 @@
 
 import observable from '.';
 import Effect from './effect';
-import {FromFunction, ObservableCallableWithoutInitial, ObservableOptions} from './types';
+import {FromFunction, ObservableWithoutInitial, ObservableOptions} from './types';
 
 /* MAIN */
 
-const from = <T> ( fn: FromFunction<T>, options?: ObservableOptions<T, T | undefined> ): ObservableCallableWithoutInitial<T> => {
+const from = <T> ( fn: FromFunction<T>, options?: ObservableOptions<T, T | undefined> ): ObservableWithoutInitial<T> => {
 
   const value = observable<T> ( undefined, options );
 

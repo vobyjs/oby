@@ -4,7 +4,7 @@
 import Observable from './observable';
 import Owner from './owner';
 import {isArray, isSet} from './utils';
-import {CleanupFunction, Contexts, ErrorFunction} from './types';
+import {CleanupFunction, Context, ErrorFunction} from './types';
 
 /* MAIN */
 
@@ -14,7 +14,7 @@ class Observer {
 
   public dirty?: boolean; // If dirty it needs updating
   protected cleanups?: CleanupFunction[] | CleanupFunction;
-  protected contexts?: Contexts;
+  protected context?: Context;
   protected errors?: ErrorFunction[] | ErrorFunction;
   protected observables?: Observable[] | Observable;
   protected observers?: Set<Observer> | Observer;
@@ -42,9 +42,9 @@ class Observer {
 
   registerContext <T> ( symbol: symbol, value: T ): T {
 
-    if ( !this.contexts ) this.contexts = {};
+    if ( !this.context ) this.context = {};
 
-    this.contexts[symbol] = value;
+    this.context[symbol] = value;
 
     return value;
 
@@ -143,13 +143,9 @@ class Observer {
 
       this.observers.delete ( observer )
 
-    } else {
+    } else if ( this.observers === observer ) {
 
-      if ( this.observers === observer ) {
-
-        this.observers = undefined;
-
-      }
+      this.observers = undefined;
 
     }
 
@@ -171,9 +167,9 @@ class Observer {
 
   updateContext <T> ( symbol: symbol ): T | undefined {
 
-    const {contexts, parent} = this;
+    const {context, parent} = this;
 
-    if ( contexts && symbol in contexts ) return contexts[symbol];
+    if ( context && symbol in context ) return context[symbol];
 
     if ( !parent ) return;
 
@@ -223,7 +219,7 @@ class Observer {
 
   static unsubscribe ( observer: Observer ): void {
 
-    const {observers, observables, cleanups, errors, contexts} = observer;
+    const {observers, observables, cleanups, errors, context} = observer;
 
     if ( observers ) {
       if ( isSet ( observers ) ) {
@@ -269,8 +265,8 @@ class Observer {
       }
     }
 
-    if ( contexts ) {
-      observer.contexts = undefined;
+    if ( context ) {
+      observer.context = undefined;
     }
 
   }

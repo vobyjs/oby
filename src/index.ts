@@ -10,18 +10,18 @@ import Effect from './effect';
 import from from './from';
 import get from './get';
 import is from './is';
-import Observable from './observable';
+import ObservableClass from './observable';
 import Owner from './owner';
-import {ObservableCallable, ObservableCallableWithoutInitial, ReadonlyObservableCallable, ReadonlyObservableCallableWithoutInitial, ObservableAny, ObservableOptions} from './types';
+import {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions} from './types';
 
 /* MAIN */
 
-function observable <T> (): ObservableCallableWithoutInitial<T>;
-function observable <T> ( value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableCallableWithoutInitial<T>;
-function observable <T> ( value: T, options?: ObservableOptions<T, T> ): ObservableCallable<T>;
+function observable <T> (): ObservableWithoutInitial<T>;
+function observable <T> ( value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableWithoutInitial<T>;
+function observable <T> ( value: T, options?: ObservableOptions<T, T> ): Observable<T>;
 function observable <T> ( value?: T, options?: ObservableOptions<T, T | undefined> ) {
 
-  return callable ( new Observable ( value, options ) );
+  return callable ( new ObservableClass ( value, options ) );
 
 }
 
@@ -43,4 +43,4 @@ observable.sample = Owner.wrapWithSampling;
 /* EXPORT */
 
 export default observable;
-export type {ObservableCallable as Observable, ObservableCallableWithoutInitial as ObservableWithoutInitial, ReadonlyObservableCallable as ObservableReadonly, ReadonlyObservableCallableWithoutInitial as ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions};
+export type {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions};
