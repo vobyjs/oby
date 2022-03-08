@@ -1762,11 +1762,47 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'throws if the error handle throws', t => {
+    it ( 'throws if the error handler in a computation throws', t => {
+
+      t.throws ( () => {
+
+        $.computed ( () => {
+
+          $.error ( () => {
+            throw new Error ( 'Inner error' );
+          });
+
+          throw 'err';
+
+        });
+
+      }, { message: 'Inner error' } );
+
+    });
+
+    it ( 'throws if the error handler in an effect throws', t => {
 
       t.throws ( () => {
 
         $.effect ( () => {
+
+          $.error ( () => {
+            throw new Error ( 'Inner error' );
+          });
+
+          throw 'err';
+
+        });
+
+      }, { message: 'Inner error' } );
+
+    });
+
+    it ( 'throws if the error handler in a root throws', t => {
+
+      t.throws ( () => {
+
+        $.root ( () => {
 
           $.error ( () => {
             throw new Error ( 'Inner error' );
