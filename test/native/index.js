@@ -1762,6 +1762,24 @@ describe ( 'oby', it => {
 
     });
 
+    it ( 'throws if the error handle throws', t => {
+
+      t.throws ( () => {
+
+        $.effect ( () => {
+
+          $.error ( () => {
+            throw new Error ( 'Inner error' );
+          });
+
+          throw 'err';
+
+        });
+
+      }, { message: 'Inner error' } );
+
+    });
+
   });
 
   describe ( 'from', it => {
