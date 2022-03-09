@@ -112,6 +112,8 @@ This is the library method where the magic happens, it generates a new read-only
 
 There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
 
+Note that the Observable returned by a computed could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+
 ```ts
 import $ from 'oby';
 

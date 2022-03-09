@@ -6,7 +6,7 @@ import Observer from './observer';
 import Owner from './owner';
 import readable from './readable';
 import {isUndefined} from './utils';
-import {ComputedFunction, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableOptions} from './types';
+import {ComputedFunction, ObservableReadonly, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -62,8 +62,8 @@ class Computed<T, TI> extends Observer {
 
   /* STATIC API */
 
-  static wrap <T> ( fn: ComputedFunction<T, T | undefined> ): ObservableReadonlyWithoutInitial<T>;
-  static wrap <T> ( fn: ComputedFunction<T, T | undefined>, value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableReadonlyWithoutInitial<T>;
+  static wrap <T> ( fn: ComputedFunction<T, T | undefined> ): ObservableReadonly<T>;
+  static wrap <T> ( fn: ComputedFunction<T, T | undefined>, value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableReadonly<T>;
   static wrap <T> ( fn: ComputedFunction<T, T>, value: T, options?: ObservableOptions<T, T> ): ObservableReadonly<T>;
   static wrap <T> ( fn: ComputedFunction<T, T | undefined>, value?: T, options?: ObservableOptions<T, T | undefined> ) {
 
