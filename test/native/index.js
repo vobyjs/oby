@@ -507,6 +507,50 @@ describe ( 'oby', it => {
 
     });
 
+    describe ( 'readonly', it => {
+
+      it ( 'returns a readonly observable out of the current one', t => {
+
+        const o = $(1);
+        const ro = o.readonly ();
+
+        isReadable ( t, ro );
+
+        t.is ( o (), 1 );
+        t.is ( ro (), 1 );
+
+        o ( 2 );
+
+        t.is ( o (), 2 );
+        t.is ( ro (), 2 );
+
+        const ro2 = o.readonly ();
+        const rro = ro.readonly ();
+
+        t.is ( ro2 (), 2 );
+        t.is ( rro (), 2 );
+
+        t.true ( ro !== ro2 );
+        t.true ( ro === rro );
+
+      });
+
+    });
+
+    describe ( 'isReadonly', it => {
+
+      it ( 'checks if a value is a readonly observable', t => {
+
+        const o = $(1);
+        const ro = o.readonly ();
+
+        t.false ( o.isReadonly () );
+        t.true ( ro.isReadonly () );
+
+      });
+
+    });
+
     it ( 'is both a getter and a setter', t => {
 
       const o = $();

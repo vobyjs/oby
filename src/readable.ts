@@ -19,6 +19,12 @@ const readable = (() => {
     },
     sample () {
       return this ( SYMBOL ).sample ();
+    },
+    readonly () {
+      return this;
+    },
+    isReadonly () {
+      return true;
     }
   };
 

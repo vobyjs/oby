@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {SYMBOL} from './constants';
+import readable from './readable';
 
 /* MAIN */
 
@@ -29,6 +30,12 @@ const writable = (() => {
     },
     update ( fn ) {
       return this ( SYMBOL ).update ( fn );
+    },
+    readonly () {
+      return readable ( this ( SYMBOL ) );
+    },
+    isReadonly () {
+      return false;
     }
   };
 

@@ -32,7 +32,9 @@ type ObservableAbstract<T = unknown, TI = unknown> = {
   sample (): T | TI,
   set ( value: T ): T,
   produce ( fn: ( value: T | TI ) => T | undefined ): T,
-  update ( fn: ( value: T | TI ) => T ): T
+  update ( fn: ( value: T | TI ) => T ): T,
+  readonly (): ObservableReadonlyAbstract<T, TI>,
+  isReadonly (): false
 };
 
 type ObservableWithoutInitial<T = unknown> = ObservableAbstract<T, T | undefined>;
@@ -42,7 +44,9 @@ type Observable<T = unknown> = ObservableAbstract<T, T>;
 type ObservableReadonlyAbstract<T = unknown, TI = unknown> = {
   (): T | TI,
   get (): T | TI,
-  sample (): T | TI
+  sample (): T | TI,
+  readonly (): ObservableReadonlyAbstract<T, TI>,
+  isReadonly (): true
 };
 
 type ObservableReadonlyWithoutInitial<T = unknown> = ObservableReadonlyAbstract<T, T | undefined>;

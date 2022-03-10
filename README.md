@@ -40,7 +40,17 @@ type Observable<T> = {
   sample (): T,
   set ( value: T ): T,
   produce ( fn: ( value: T ) => T | void ): T,
-  update ( fn: ( value: T ) => T ): T
+  update ( fn: ( value: T ) => T ): T,
+  readonly (): ObservableReadonly<T>,
+  isReadonly (): false
+};
+
+type ObservableReadonly<T> = {
+  (): T,
+  get (): T,
+  sample (): T,
+  readonly (): ObservableReadonly<T>,
+  isReadonly (): true
 };
 ```
 
@@ -99,11 +109,22 @@ o.update ( prev => prev + 1 ); // => 4
 
 // "produce" method for setting by mutating the previous value, the old value is actually transparently cloned for you so it's not actually mutated
 
-const obj = o ( { foo: { bar: true } } );
+const obj = $( { foo: { bar: true } } );
 
 obj.produce ( prev => {
   prev.foo.bar = false;
 }); // => { foo: { bar: false } }
+
+// "readonly" method for getting a readonly Observable out of the current one, readonly Observables provide no APIs for changing the value they are pointing to
+
+const ro = o.readonly ();
+
+ro (); // => 4
+
+// "isReadonly" method for checking if the Observable is readonly
+
+o.isReadonly (); // => false
+ro.isReadonly (); // => true
 ```
 
 ### `$.computed`
