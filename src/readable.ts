@@ -20,6 +20,9 @@ const readable = (() => {
     sample () {
       return this ( SYMBOL ).sample ();
     },
+    select ( fn ) {
+      return this ( SYMBOL ).select ( fn );
+    },
     readonly () {
       return this;
     },

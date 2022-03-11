@@ -2,10 +2,11 @@
 /* IMPORT */
 
 import Batch from './batch';
+import Computed from './computed';
 import Observer from './observer';
 import Owner from './owner';
 import {isSet, isUndefined} from './utils';
-import {ComparatorFunction, ProduceFunction, UpdateFunction, ObservableOptions} from './types';
+import {ComparatorFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -132,6 +133,16 @@ class Observable<T = unknown> {
   sample (): T {
 
     return this.value;
+
+  }
+
+  select <R> ( fn: SelectFunction<T, R>, options?: ObservableOptions<R, R> ): ObservableReadonly<R> {
+
+    return Computed.wrap ( () => {
+
+      return fn ( this.get () );
+
+    }, undefined, options );
 
   }
 

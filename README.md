@@ -38,6 +38,7 @@ type Observable<T> = {
   ( value: T ): T,
   get (): T,
   sample (): T,
+  select <R> ( fn: ( value: T ) => R ): ObservableReadonly<R>,
   set ( value: T ): T,
   produce ( fn: ( value: T ) => T | void ): T,
   update ( fn: ( value: T ) => T ): T,
@@ -49,6 +50,7 @@ type ObservableReadonly<T> = {
   (): T,
   get (): T,
   sample (): T,
+  select <R> ( fn: ( value: T ) => R ): ObservableReadonly<R>,
   readonly (): ObservableReadonly<T>,
   isReadonly (): true
 };
@@ -114,6 +116,10 @@ const obj = $( { foo: { bar: true } } );
 obj.produce ( prev => {
   prev.foo.bar = false;
 }); // => { foo: { bar: false } }
+
+// "select" method for creating a readonly Observable out of the return of the passed function
+
+const objSelected = obj.select ( obj => obj.foo.bar ); // => ObservableReadonly<boolean>
 
 // "readonly" method for getting a readonly Observable out of the current one, readonly Observables provide no APIs for changing the value they are pointing to
 

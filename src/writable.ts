@@ -22,6 +22,9 @@ const writable = (() => {
     sample () {
       return this ( SYMBOL ).sample ();
     },
+    select ( fn ) {
+      return this ( SYMBOL ).select ( fn );
+    },
     set ( value ) {
       return this ( SYMBOL ).set ( value );
     },

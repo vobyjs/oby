@@ -215,6 +215,85 @@ describe ( 'oby', it => {
 
     });
 
+    describe ( 'select', it => {
+
+      it ( 'creates a selected readonly observable out of a writable observable', t => {
+
+        const o = $({ foo: { bar: 123 } });
+
+        const selected = o.select ( value => value.foo.bar );
+
+        t.is ( selected (), 123 );
+
+        o ({ foo: { bar: 321 } });
+
+        t.is ( selected (), 321 );
+
+        isReadable ( t, selected );
+
+      });
+
+      it ( 'creates a selected readonly observable out of a readable observable', t => {
+
+        const o = $({ foo: { bar: 123 } }).readonly ();
+
+        const selected = o.select ( value => value.foo.bar );
+
+        t.is ( selected (), 123 );
+
+        isReadable ( t, selected );
+
+      });
+
+      it ( 'can select the entire value out of a writable observable', t => {
+
+        const o = $({ foo: { bar: 123 } });
+
+        const selected = o.select ( value => value );
+
+        t.deepEqual ( selected (), o () );
+
+        isReadable ( t, selected );
+
+        t.not ( o, selected );
+
+      });
+
+      it ( 'can select the entire value out of a readable observable', t => {
+
+        const o = $({ foo: { bar: 123 } }).readonly ();
+
+        const selected = o.select ( value => value );
+
+        t.deepEqual ( selected (), o () );
+
+        isReadable ( t, selected );
+
+        t.not ( o, selected );
+
+      });
+
+      it ( 'subscribes to other observables too', t => {
+
+        const a = $(1);
+        const b = $(2);
+
+        const selected = a.select ( a => a * b () );
+
+        t.is ( selected (), 2 );
+
+        a ( 10 );
+
+        t.is ( selected (), 20 );
+
+        b ( 5 );
+
+        t.is ( selected (), 50 );
+
+      });
+
+    });
+
     describe ( 'set', it => {
 
       it ( 'does not create a dependency in a computed', t => {
