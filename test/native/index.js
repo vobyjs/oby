@@ -11,8 +11,15 @@ const isReadable = ( t, value ) => {
 
   t.true ( $.is ( value ) );
   t.true ( typeof value.get === 'function' );
+  t.true ( typeof value.sample === 'function' );
+  t.true ( typeof value.select === 'function' );
   t.true ( typeof value.set === 'undefined' );
-  t.true ( typeof value.emit === 'undefined' );
+  t.true ( typeof value.produce === 'undefined' );
+  t.true ( typeof value.update === 'undefined' );
+  t.true ( typeof value.emit === 'function' );
+  t.true ( typeof value.readonly === 'function' );
+  t.true ( typeof value.isReadonly === 'function' );
+  t.true ( typeof value.registerSelf === 'undefined' );
 
 };
 
@@ -20,8 +27,15 @@ const isWritable = ( t, value ) => {
 
   t.true ( $.is ( value ) );
   t.true ( typeof value.get === 'function' );
+  t.true ( typeof value.sample === 'function' );
+  t.true ( typeof value.select === 'function' );
   t.true ( typeof value.set === 'function' );
-  t.true ( typeof value.emit === 'undefined' );
+  t.true ( typeof value.produce === 'function' );
+  t.true ( typeof value.update === 'function' );
+  t.true ( typeof value.emit === 'function' );
+  t.true ( typeof value.readonly === 'function' );
+  t.true ( typeof value.isReadonly === 'function' );
+  t.true ( typeof value.registerSelf === 'undefined' );
 
 };
 
