@@ -34,6 +34,9 @@ const writable = (() => {
     update ( fn ) {
       return this ( SYMBOL ).update ( fn );
     },
+    emit () {
+      return this ( SYMBOL ).emit ();
+    },
     readonly () {
       return readable ( this ( SYMBOL ) );
     },

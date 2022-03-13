@@ -23,6 +23,9 @@ const readable = (() => {
     select ( fn ) {
       return this ( SYMBOL ).select ( fn );
     },
+    emit () {
+      return this ( SYMBOL ).emit ();
+    },
     readonly () {
       return this;
     },

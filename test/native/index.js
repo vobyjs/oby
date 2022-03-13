@@ -586,6 +586,43 @@ describe ( 'oby', it => {
 
     });
 
+    describe ( 'emit', it => {
+
+      it ( 'calls subscribers manually, even if nothing changed', t => {
+
+        const obj = $({ foo: { bar: 123 } });
+
+        let calls = 0;
+        let value;
+
+        $.effect ( () => {
+
+          value = obj ();
+
+          calls += 1;
+
+        });
+
+        t.is ( calls, 1 );
+        t.is ( value, obj () );
+        t.is ( value.foo.bar, 123 );
+
+        obj ().foo.bar = 321;
+
+        t.is ( calls, 1 );
+        t.is ( value, obj () );
+        t.is ( value.foo.bar, 321 );
+
+        obj.emit ();
+
+        t.is ( calls, 2 );
+        t.is ( value, obj () );
+        t.is ( value.foo.bar, 321 );
+
+      });
+
+    });
+
     describe ( 'readonly', it => {
 
       it ( 'returns a readonly observable out of the current one', t => {

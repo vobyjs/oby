@@ -42,6 +42,7 @@ type Observable<T> = {
   set ( value: T ): T,
   produce ( fn: ( value: T ) => T | void ): T,
   update ( fn: ( value: T ) => T ): T,
+  emit (): void,
   readonly (): ObservableReadonly<T>,
   isReadonly (): false
 };
@@ -51,6 +52,7 @@ type ObservableReadonly<T> = {
   get (): T,
   sample (): T,
   select <R> ( fn: ( value: T ) => R ): ObservableReadonly<R>,
+  emit (): void,
   readonly (): ObservableReadonly<T>,
   isReadonly (): true
 };
@@ -120,6 +122,14 @@ obj.produce ( prev => {
 // "select" method for creating a readonly Observable out of the return of the passed function
 
 const objSelected = obj.select ( obj => obj.foo.bar ); // => ObservableReadonly<boolean>
+
+// "emit" method for manually telling all observers to update themselves, useful for updating the current value efficiently by mutating it
+
+obj.emit ();
+
+obj ().foo.bar = true; // Mutation
+
+obj.emit ();
 
 // "readonly" method for getting a readonly Observable out of the current one, readonly Observables provide no APIs for changing the value they are pointing to
 
