@@ -14,7 +14,7 @@ const from = <T> ( fn: FromFunction<T>, options?: ObservableOptions<T, T | undef
   const observable = new Observable<T | undefined> ( undefined, options );
   const value = writable ( observable );
 
-  Effect.wrap ( () => {
+  new Effect ( () => {
 
     return fn ( value );
 
