@@ -25,6 +25,8 @@ type ProduceFunction<T = unknown> = ( value: T ) => T | undefined;
 
 type SelectFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
+type SelectorFunction<T = unknown> = ( value: T ) => boolean;
+
 type UpdateFunction<T = unknown> = ( value: T ) => T;
 
 type ObservableAbstract<T = unknown, TI = unknown> = {
@@ -69,4 +71,4 @@ type ObservableResolved<T = unknown> = T extends ObservableAny<infer U> ? U : T;
 
 /* EXPORT */
 
-export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, Context, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
+export {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, Context, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, SelectFunction, SelectorFunction, UpdateFunction, ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};

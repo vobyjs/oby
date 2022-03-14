@@ -11,6 +11,7 @@ import get from './get';
 import is from './is';
 import ObservableClass from './observable';
 import Owner from './owner';
+import selector from './selector';
 import writable from './writable';
 import {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions} from './types';
 
@@ -39,6 +40,7 @@ observable.get = get;
 observable.is = is;
 observable.root = Owner.wrap;
 observable.sample = Owner.wrapWithSampling;
+observable.selector = selector;
 
 /* EXPORT */
 

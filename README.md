@@ -22,6 +22,7 @@ npm install --save oby
 - [`$.from`](#from)
 - [`$.get`](#get)
 - [`$.sample`](#sample)
+- [`$.selector`](#selector)
 - [`$.is`](#is)
 
 ## Usage
@@ -488,6 +489,39 @@ b ( 3 );
 c ( 4 );
 
 sum; // => 6, it's just a value, not a reactive Observable
+```
+
+### `$.selector`
+
+This function is useful for optimizing performance when you need to, for example, know when an item within a set is the selected one.
+
+This way when a new item should be the selected one the old one is unselected, and the new one is selected, directly, without checking if each element in the set is the currently selected one. This turns a `O(n)` operation into an `O(2)` one.
+
+```ts
+import $ from 'oby';
+
+// Making a selector
+
+const values = [1, 2, 3, 4, 5];
+const selected = $(-1);
+
+const select = value => selected ( value );
+const isSelected = $.selector ( selected );
+
+values.forEach ( value => {
+
+  $.effect ( () => {
+
+    if ( isSelected ( value ) ) return;
+
+    console.log ( `${value} selected!` );
+
+  });
+
+});
+
+select ( 1 );
+select ( 5 );
 ```
 
 ### `$.is`

@@ -2417,6 +2417,50 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'selector', it => {
+
+    it ( 'efficiently tells when the provided item is the selected one', t => {
+
+      const values = [1, 2, 3, 4, 5];
+      const selected = $(-1);
+
+      const select = value => selected ( value );
+      const isSelected = $.selector ( selected );
+
+      let sequence = '';
+
+      values.forEach ( value => {
+
+        $.effect ( () => {
+
+          sequence += value;
+
+          if ( !isSelected ( value ) ) return;
+
+          sequence += value;
+
+        });
+
+      });
+
+      t.is ( sequence, '12345' );
+
+      select ( 1 );
+
+      t.is ( sequence, '1234511' );
+
+      select ( 2 );
+
+      t.is ( sequence, '1234511122' );
+
+      select ( -1 );
+
+      t.is ( sequence, '12345111222' );
+
+    });
+
+  });
+
   it ( 'only propagates in topological order', t => {
 
     //    c1
