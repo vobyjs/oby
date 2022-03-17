@@ -3,7 +3,7 @@
 
 import Observable from './observable';
 import Owner from './owner';
-import {isArray, isSet} from './utils';
+import {isArray} from './utils';
 import {CleanupFunction, Context, ErrorFunction} from './types';
 
 /* MAIN */
@@ -17,7 +17,7 @@ class Observer {
   protected context?: Context;
   protected errors?: ErrorFunction[] | ErrorFunction;
   protected observables?: Observable[] | Observable;
-  protected observers?: Set<Observer> | Observer;
+  protected observers?: Observer[] | Observer;
   private parent?: Observer;
 
   /* REGISTRATION API */
@@ -92,18 +92,13 @@ class Observer {
 
       this.observers = observer;
 
-    } else if ( isSet ( this.observers ) ) {
+    } else if ( isArray ( this.observers ) ) {
 
-      this.observers.add ( observer );
+      this.observers.push ( observer );
 
     } else {
 
-      const observerPrev = this.observers;
-
-      this.observers = new Set ();
-
-      this.observers.add ( observerPrev );
-      this.observers.add ( observer );
+      this.observers = [this.observers, observer];
 
     }
 
@@ -130,30 +125,6 @@ class Observer {
       Owner.registerObservable ( this.observables );
 
     }
-
-  }
-
-  unregisterObserver ( observer: Observer ): void {
-
-    if ( !this.observers ) {
-
-      return;
-
-    } else if ( isSet ( this.observers ) ) {
-
-      this.observers.delete ( observer )
-
-    } else if ( this.observers === observer ) {
-
-      this.observers = undefined;
-
-    }
-
-  }
-
-  unregisterParent (): void {
-
-    this.parent = undefined;
 
   }
 
@@ -222,9 +193,9 @@ class Observer {
     const {observers, observables, cleanups, errors, context} = observer;
 
     if ( observers ) {
-      if ( isSet ( observers ) ) {
-        for ( const observer of observers ) {
-          Observer.unsubscribe ( observer );
+      if ( isArray ( observers ) ) {
+        for ( let i = 0, l = observers.length; i < l; i++ ) {
+          Observer.unsubscribe ( observers[i] );
         }
         observer.observers = undefined;
       } else {

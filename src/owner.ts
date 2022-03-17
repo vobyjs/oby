@@ -70,16 +70,6 @@ class Owner {
 
   };
 
-  unregisterObserver = ( observer: Observer ): void => {
-
-    if ( !this.observer ) return;
-
-    this.observer.unregisterObserver ( observer );
-
-    observer.unregisterParent ();
-
-  }
-
   /* WRAPPING API */
 
   wrap = <T> ( fn: OwnerFunction<T> ): void => {

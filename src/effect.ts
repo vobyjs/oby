@@ -3,7 +3,7 @@
 
 import Observer from './observer';
 import Owner from './owner';
-import {isArray, isSet, isUndefined} from './utils';
+import {isArray, isUndefined} from './utils';
 import {DisposeFunction, EffectFunction} from './types';
 
 /* MAIN */
@@ -33,8 +33,8 @@ class Effect extends Observer {
     const {observers, observables, cleanups} = this;
 
     if ( observers ) {
-      if ( isSet ( observers ) ) {
-        if ( observers.size ) {
+      if ( isArray ( observers ) ) {
+        if ( observers.length ) {
           return false;
         }
       } else {
@@ -66,14 +66,6 @@ class Effect extends Observer {
 
   }
 
-  dispose (): void {
-
-    Owner.unregisterObserver ( this );
-
-    Observer.unsubscribe ( this );
-
-  }
-
   update (): void {
 
     Owner.registerObserver ( this );
@@ -98,7 +90,7 @@ class Effect extends Observer {
 
         if ( this.isDisposable () ) {
 
-          this.dispose ();
+          Observer.unsubscribe ( this );
 
         }
 
@@ -118,7 +110,7 @@ class Effect extends Observer {
 
     const effect = new Effect ( fn );
 
-    return effect.dispose.bind ( effect );
+    return Observer.unsubscribe.bind ( Observer, effect );
 
   }
 
