@@ -10,7 +10,7 @@ class Batch {
 
   /* VARIABLES */
 
-  public active: boolean;
+  public active = false;
   private level = 0;
   private queue?: Map<Observable, unknown>;
 
