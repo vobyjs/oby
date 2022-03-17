@@ -156,7 +156,9 @@ class Observable<T = unknown> {
 
     }
 
-    if ( Batch.registerSet ( this, value ) ) {
+    if ( Batch.active ) {
+
+      Batch.registerSet ( this, value );
 
       return value;
 

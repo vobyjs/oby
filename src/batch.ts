@@ -10,18 +10,17 @@ class Batch {
 
   /* VARIABLES */
 
+  public active: boolean;
   private level = 0;
   private queue?: Map<Observable, unknown>;
 
   /* REGISTRATION API */
 
-  registerSet = ( observable: Observable, value: unknown ): boolean => {
+  registerSet = ( observable: Observable, value: unknown ): void => {
 
-    if ( !this.queue ) return false;
+    if ( !this.queue ) return;
 
     this.queue.set ( observable, value );
-
-    return true;
 
   };
 
@@ -34,6 +33,7 @@ class Batch {
 
     this.level += 1;
     this.queue = queueNext;
+    this.active = true;
 
     try {
 
@@ -43,8 +43,9 @@ class Batch {
 
       this.level -= 1;
       this.queue = queuePrev;
+      this.active = !!this.level;
 
-      if ( !this.level ) {
+      if ( !this.active ) {
 
         this.flush ( queueNext );
 
