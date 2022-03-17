@@ -3,7 +3,7 @@
 
 import Observer from './observer';
 import Owner from './owner';
-import {isArray, isUndefined} from './utils';
+import {isArray, isSet, isUndefined} from './utils';
 import {DisposeFunction, EffectFunction} from './types';
 
 /* MAIN */
@@ -33,8 +33,8 @@ class Effect extends Observer {
     const {observers, observables, cleanups} = this;
 
     if ( observers ) {
-      if ( isArray ( observers ) ) {
-        if ( observers.length ) {
+      if ( isSet ( observers ) ) {
+        if ( observers.size ) {
           return false;
         }
       } else {
