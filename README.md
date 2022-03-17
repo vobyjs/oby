@@ -326,7 +326,7 @@ o ( 2 ); // An error is thrown, so it's caught and passed to the registered erro
 
 ### `$.effect`
 
-An effect is a special kind of computed, it doesn't return anything (so it uses a bit less memory), and if you return a function from inside it that's automatically registered as a cleanup function.
+An effect is a special kind of computed, it returns a function for manually disposing of it, and if you return a function from inside it that's automatically registered as a cleanup function.
 
 ```ts
 import $ from 'oby';
