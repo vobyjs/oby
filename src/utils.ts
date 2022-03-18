@@ -9,9 +9,9 @@ const isFunction = ( value: unknown ): value is Function => {
 
 };
 
-const isSet = ( value: unknown ): value is Set<unknown> => {
+const isMap = ( value: unknown ): value is Map<unknown, unknown> => {
 
-  return value instanceof Set;
+  return value instanceof Map;
 
 };
 
@@ -23,4 +23,4 @@ const isUndefined = ( value: unknown ): value is undefined => {
 
 /* EXPORT */
 
-export {isArray, isFunction, isSet, isUndefined};
+export {isArray, isFunction, isMap, isUndefined};
