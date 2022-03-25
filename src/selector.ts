@@ -58,15 +58,11 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     Owner.registerCleanup ( () => {
 
-      Promise.resolve ().then ( () => { // Queuing a microtask, giving a chance to the selector to register itself again potentially
+      selected['listeners'] -= 1;
 
-        selected['listeners'] -= 1;
+      if ( selected['listeners'] ) return;
 
-        if ( selected['listeners'] ) return;
-
-        selecteds.delete ( value );
-
-      });
+      selecteds.delete ( value );
 
     });
 
