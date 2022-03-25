@@ -21,7 +21,7 @@ $.root ( dispose => {
 
       $.effect ( () => {
         o ();
-        isSelected ( o );
+        isSelected ( i );
       });
 
       $.effect ( () => {
