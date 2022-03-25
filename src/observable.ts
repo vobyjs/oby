@@ -9,13 +9,15 @@ import {ComparatorFunction, ProduceFunction, SelectFunction, UpdateFunction, Obs
 
 /* MAIN */
 
+//FIXME: The list of observers can't be allowed to grow endlessly potentially in some cases, it must get cleared up at idle times or something
+
 class Observable<T = unknown> {
 
   /* VARIABLES */
 
   public value: T;
   private comparator?: ComparatorFunction<T, T>;
-  private observers?: Map<Observer, boolean> | Observer;
+  private observers?: Set<Observer> | Observer;
   private parent?: Observer;
 
   /* CONSTRUCTOR */
@@ -52,15 +54,15 @@ class Observable<T = unknown> {
 
       return true;
 
-    } else if ( this.observers instanceof Map ) {
+    } else if ( this.observers instanceof Set ) {
 
-      const isRegistered = this.observers.get ( observer );
+      const sizePrev = this.observers.size;
 
-      if ( isRegistered ) return false;
+      this.observers.add ( observer );
 
-      this.observers.set ( observer, true );
+      const sizeNext = this.observers.size;
 
-      return true;
+      return ( sizePrev !== sizeNext );
 
     } else if ( this.observers === observer ) {
 
@@ -70,10 +72,10 @@ class Observable<T = unknown> {
 
       const observerPrev = this.observers;
 
-      this.observers = new Map ();
+      this.observers = new Set ();
 
-      this.observers.set ( observerPrev, true );
-      this.observers.set ( observer, true );
+      this.observers.add ( observerPrev );
+      this.observers.add ( observer );
 
       return true;
 
@@ -87,9 +89,9 @@ class Observable<T = unknown> {
 
       return;
 
-    } else if ( this.observers instanceof Map ) {
+    } else if ( this.observers instanceof Set ) {
 
-      this.observers.set ( observer, false ); // Soft deleting instead of deleting from a Set improves performance ~20% in the cellx benchmark
+      this.observers.delete ( observer );
 
     } else if ( this.observers === observer ) {
 
@@ -199,18 +201,18 @@ class Observable<T = unknown> {
 
     if ( !observers ) return;
 
-    const isMap = ( observers instanceof Map );
+    const isSet = ( observers instanceof Set );
 
-    if ( isMap && !observers.size ) return;
+    if ( isSet && !observers.size ) return;
 
     Owner.wrapWith ( () => {
 
-      if ( isMap ) {
+      if ( isSet ) {
 
         if ( observers.size === 1 ) {
 
-          for ( const [observer, active] of observers.entries () ) {
-            if ( !active ) {
+          for ( const observer of observers.keys () ) {
+            if ( observer.destroyed ) {
               observers.delete ( observer );
             } else {
               observer.update ();
@@ -222,8 +224,8 @@ class Observable<T = unknown> {
 
           const queue: Observer[] = [];
 
-          for ( const [observer, active] of observers.entries () ) {
-            if ( !active ) {
+          for ( const observer of observers.keys () ) {
+            if ( observer.destroyed ) {
               observers.delete ( observer );
             } else {
               queue.push ( observer );
@@ -234,15 +236,23 @@ class Observable<T = unknown> {
           for ( let i = 0, l = queue.length; i < l; i++ ) {
             const observer = queue[i];
             if ( !observer.dirty ) continue; // Trip flag flipped, already updated
-            if ( !observers.get ( observer ) ) continue; // No longer an observer
-            observer.update ();
+            if ( !observers.has ( observer ) ) continue; // No longer an observer
+            if ( observer.destroyed ) {
+              observers.delete ( observer );
+            } else {
+              observer.update ();
+            }
           }
 
         }
 
       } else {
 
-        observers.update ();
+        if ( observers.destroyed ) {
+          this.observers = undefined;
+        } else {
+          observers.update ();
+        }
 
       }
 

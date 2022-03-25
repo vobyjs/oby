@@ -12,6 +12,7 @@ class Observer {
 
   /* VARIABLES */
 
+  public destroyed?: true; // If destroyed then observables shouldn't notify it anymore
   public dirty?: boolean; // If dirty it needs updating
   protected cleanups?: CleanupFunction[] | CleanupFunction;
   protected context?: Context;
@@ -193,38 +194,40 @@ class Observer {
     const {observers, observables, cleanups, errors, context} = observer;
 
     if ( observers ) {
+      observer.observers = undefined;
       if ( isArray ( observers ) ) {
         for ( let i = 0, l = observers.length; i < l; i++ ) {
-          Observer.unsubscribe ( observers[i] );
+          const observer = observers[i];
+          observer.destroyed = true;
+          Observer.unsubscribe ( observer );
         }
-        observer.observers = undefined;
       } else {
+        observers.destroyed = true;
         Observer.unsubscribe ( observers );
-        observer.observers = undefined;
       }
     }
 
     if ( observables ) {
-      if ( isArray ( observables ) ) {
-        for ( let i = 0, l = observables.length; i < l; i++ ) {
-          observables[i].unregisterObserver ( observer );
+      observer.observables = undefined;
+      if ( !observer.destroyed ) {
+        if ( isArray ( observables ) ) {
+          for ( let i = 0, l = observables.length; i < l; i++ ) {
+            observables[i].unregisterObserver ( observer );
+          }
+        } else {
+          observables.unregisterObserver ( observer );
         }
-        observer.observables = undefined;
-      } else {
-        observables.unregisterObserver ( observer );
-        observer.observables = undefined;
       }
     }
 
     if ( cleanups ) {
+      observer.cleanups = undefined;
       if ( isArray ( cleanups ) ) {
         for ( let i = 0, l = cleanups.length; i < l; i++ ) {
           cleanups[i]();
         }
-        observer.cleanups = undefined;
       } else {
         cleanups ();
-        observer.cleanups = undefined;
       }
     }
 
