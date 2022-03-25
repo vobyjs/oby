@@ -31,6 +31,18 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   });
 
+  /* CLENAUP */
+
+  const cleanup = function ( this: Observable ): void {
+
+    this['listeners'] -= 1;
+
+    if ( this['listeners'] ) return;
+
+    selecteds.delete ( this['listenedValue'] );
+
+  };
+
   /* SELECTOR */
 
   return ( value: T ): boolean => {
@@ -49,6 +61,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
       selected = new Observable ( observable.sample () === value );
       selected['listeners'] = 1;
+      selected['listenedValue'] = value;
 
       selecteds.set ( value, selected );
 
@@ -56,15 +69,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     /* CLEANUP */
 
-    Owner.registerCleanup ( () => {
-
-      selected['listeners'] -= 1;
-
-      if ( selected['listeners'] ) return;
-
-      selecteds.delete ( value );
-
-    });
+    Owner.registerCleanup ( cleanup.bind ( selected ) );
 
     /* RETURN */
 
