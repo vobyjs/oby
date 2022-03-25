@@ -7,6 +7,7 @@
   "scripts": {
     "benchmark": "node tasks/benchmark.js",
     "clean": "rimraf dist",
+    "cleanup": "node tasks/cleanup.js",
     "compile": "tsc --skipLibCheck",
     "compile:bundle": "esbuild --bundle --minify --format=cjs --target=es2015 ./src/index.js > ./dist/index.js",
     "compile:watch": "tsc --skipLibCheck --watch",
