@@ -12,7 +12,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   /* SELECTEDS */
 
-  const selecteds: Map<T | undefined, Observable<boolean>> = new Map ();
+  let selecteds: Map<T | undefined, Observable<boolean>> = new Map ();
 
   let valuePrev: T | undefined;
 
@@ -31,13 +31,23 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   });
 
-  /* CLENAUP */
+  /* BULK CLEANUP */
+
+  Owner.registerCleanup ( () => {
+
+    selecteds = new Map ();
+
+  });
+
+  /* SINGLE CLENAUP */
 
   const cleanup = function ( this: Observable ): void {
 
     this['listeners'] -= 1;
 
     if ( this['listeners'] ) return;
+
+    if ( !selecteds.size ) return;
 
     selecteds.delete ( this['listenedValue'] );
 
