@@ -15,12 +15,6 @@ const isMap = ( value: unknown ): value is Map<unknown, unknown> => {
 
 };
 
-const isUndefined = ( value: unknown ): value is undefined => {
-
-  return value === undefined;
-
-};
-
 /* EXPORT */
 
-export {isArray, isFunction, isMap, isUndefined};
+export {isArray, isFunction, isMap};

@@ -2,7 +2,6 @@
 /* IMPORT */
 
 import Owner from './owner';
-import {isUndefined} from './utils';
 
 /* MAIN */
 
@@ -14,7 +13,7 @@ function context <T> ( symbol: symbol, value?: T ) {
 
   if ( !observer ) throw new Error ( 'Invalid context call, no parent computation found' );
 
-  if ( isUndefined ( value ) ) { // Read
+  if ( value === undefined ) { // Read
 
     return observer.updateContext ( symbol );
 

@@ -5,7 +5,7 @@ import Batch from './batch';
 import Computed from './computed';
 import Observer from './observer';
 import Owner from './owner';
-import {isMap, isUndefined} from './utils';
+import {isMap} from './utils';
 import {ComparatorFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableOptions} from './types';
 
 /* MAIN */
@@ -180,7 +180,7 @@ class Observable<T = unknown> {
 
     const valueClone: T = JSON.parse ( JSON.stringify ( this.value ) );
     const valueResult = fn ( valueClone );
-    const valueNext = ( isUndefined ( valueResult ) ? valueClone : valueResult );
+    const valueNext = ( valueResult === undefined ? valueClone : valueResult );
 
     return this.set ( valueNext );
 

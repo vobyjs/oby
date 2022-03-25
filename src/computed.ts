@@ -5,7 +5,6 @@ import ObservableClass from './observable';
 import Observer from './observer';
 import Owner from './owner';
 import readable from './readable';
-import {isUndefined} from './utils';
 import {ComputedFunction, ObservableReadonly, ObservableOptions} from './types';
 
 /* MAIN */
@@ -36,7 +35,7 @@ class Computed<T, TI> extends Observer {
 
     Owner.registerObserver ( this );
 
-    if ( !isUndefined ( this.dirty ) ) { // Skipping unusbscription during the first execution
+    if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
 
       Observer.unsubscribe ( this );
 
