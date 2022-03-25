@@ -5,7 +5,6 @@ import Batch from './batch';
 import Computed from './computed';
 import Observer from './observer';
 import Owner from './owner';
-import {isMap} from './utils';
 import {ComparatorFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableOptions} from './types';
 
 /* MAIN */
@@ -53,7 +52,7 @@ class Observable<T = unknown> {
 
       return true;
 
-    } else if ( isMap ( this.observers ) ) {
+    } else if ( this.observers instanceof Map ) {
 
       const isRegistered = this.observers.get ( observer );
 
@@ -88,7 +87,7 @@ class Observable<T = unknown> {
 
       return;
 
-    } else if ( isMap ( this.observers ) ) {
+    } else if ( this.observers instanceof Map ) {
 
       this.observers.set ( observer, false ); // Soft deleting instead of deleting from a Set improves performance ~20% in the cellx benchmark
 
@@ -200,11 +199,13 @@ class Observable<T = unknown> {
 
     if ( !observers ) return;
 
-    if ( isMap ( observers ) && !observers.size ) return;
+    const isMap = ( observers instanceof Map );
+
+    if ( isMap && !observers.size ) return;
 
     Owner.wrapWith ( () => {
 
-      if ( isMap ( observers ) ) {
+      if ( isMap ) {
 
         if ( observers.size === 1 ) {
 
