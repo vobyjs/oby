@@ -13,7 +13,7 @@ $.root ( dispose => {
 
   const disposers = [];
 
-  for ( let i = 0, l = 1000; i < l; i++ ) {
+  for ( let i = 0, l = 1000000; i < l; i++ ) {
 
     $.root ( dispose => {
 
