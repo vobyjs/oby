@@ -6,9 +6,9 @@ import {ObservableAny} from './types';
 
 /* MAIN */
 
-const is = ( value: unknown ): value is ObservableAny => {
+const is = <T = unknown> ( value: unknown ): value is ObservableAny<T> => {
 
-  return ( typeof value === 'function' ) && !!value[SYMBOL];
+  return ( typeof value === 'function' ) && ( SYMBOL in value );
 
 };
 

@@ -67,7 +67,7 @@ type ObservableOptions<T = unknown, TI = unknown> = {
   comparator?: ComparatorFunction<T, TI>
 };
 
-type ObservableResolved<T = unknown> = T extends ObservableAny<infer U> ? U : T;
+type ObservableResolved<T = unknown> = T extends Observable<infer U> ? U : T extends ObservableWithoutInitial<infer U> ? U | undefined : T extends ObservableReadonly<infer U> ? U : T extends ObservableReadonlyWithoutInitial<infer U> ? U | undefined : T;
 
 /* EXPORT */
 
