@@ -2,19 +2,19 @@
 /* IMPORT */
 
 import {readable} from './callable';
-import ObservableClass from './observable';
+import Observable from './observable';
 import Observer from './observer';
 import Owner from './owner';
 import {ComputedFunction, ObservableReadonly, ObservableOptions} from './types';
 
 /* MAIN */
 
-class Computed<T, TI> extends Observer {
+class Computed<T = unknown, TI = unknown> extends Observer {
 
   /* VARIABLES */
 
   private fn: ComputedFunction<T, TI>;
-  private observable: ObservableClass<T | TI>;
+  private observable: Observable<T | TI>;
 
   /* CONSTRUCTOR */
 
@@ -23,7 +23,7 @@ class Computed<T, TI> extends Observer {
     super ();
 
     this.fn = fn;
-    this.observable = new ObservableClass ( valueInitial, options, this ) as ObservableClass<T | TI>; //TSC
+    this.observable = new Observable ( valueInitial, options, this ) as Observable<T | TI>; //TSC
 
     Owner.registerObserver ( this );
 

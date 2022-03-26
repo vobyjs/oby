@@ -20,11 +20,11 @@ class Observable<T = unknown> {
   public listenedValue: any;
   private comparator?: ComparatorFunction<T, T>;
   private observers?: Set<Observer> | Observer;
-  private parent?: Observer;
+  private parent?: Computed;
 
   /* CONSTRUCTOR */
 
-  constructor ( value: T, options?: ObservableOptions<T, T>, parent?: Observer ) {
+  constructor ( value: T, options?: ObservableOptions<T, T>, parent?: Computed ) {
 
     this.value = value;
 
