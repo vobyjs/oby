@@ -129,11 +129,7 @@ class Observer {
 
   /* API */
 
-  update (): void {
-
-    this.dirty = false;
-
-  }
+  update (): void {}
 
   updateContext <T> ( symbol: symbol ): T | undefined {
 
