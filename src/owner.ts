@@ -34,9 +34,9 @@ const Owner = {
 
     if ( isSampling ) return;
 
-    const wasUnegistered = observable.registerObserver ( owner );
+    const gotRegistered = observable.registerObserver ( owner );
 
-    if ( !wasUnegistered ) return;
+    if ( !gotRegistered ) return;
 
     owner.registerObservable ( observable );
 
