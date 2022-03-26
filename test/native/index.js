@@ -1433,6 +1433,22 @@ describe ( 'oby', it => {
 
     });
 
+    it ( 'supports setting the value to undefined', t => {
+
+      $.effect ( () => {
+
+        const ctx = Symbol ();
+        const value = { foo: 123 };
+
+        $.context ( ctx, value );
+        $.context ( ctx, undefined );
+
+        t.is ( $.context ( ctx ), undefined );
+
+      });
+
+    });
+
     it ( 'throws if called outside of an observer', t => {
 
       t.throws ( () => {

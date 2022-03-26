@@ -13,7 +13,7 @@ function context <T> ( symbol: symbol, value?: T ) {
 
   if ( !observer ) throw new Error ( 'Invalid context call, no parent computation found' );
 
-  if ( value === undefined ) { // Read
+  if ( arguments.length === 1 ) { // Read
 
     return observer.updateContext ( symbol );
 
