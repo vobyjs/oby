@@ -6,34 +6,15 @@ import {BatchFunction} from './types';
 
 /* MAIN */
 
-class Batch {
+const batch = ( fn: BatchFunction ): void => {
 
-  /* VARIABLES */
+  if ( batch.queue ) { // Already batching
 
-  public active = false;
-  private level = 0;
-  private queue?: Map<Observable, unknown>;
+    fn ();
 
-  /* REGISTRATION API */
+  } else { // Starting batching
 
-  registerSet = ( observable: Observable, value: unknown ): void => {
-
-    if ( !this.queue ) return;
-
-    this.queue.set ( observable, value );
-
-  };
-
-  /* WRAPPING API */
-
-  wrap = ( fn: BatchFunction ): void => {
-
-    const queuePrev = this.queue;
-    const queueNext = queuePrev || new Map ();
-
-    this.level += 1;
-    this.queue = queueNext;
-    this.active = true;
+    const queue = batch.queue = new Map ();
 
     try {
 
@@ -41,30 +22,24 @@ class Batch {
 
     } finally {
 
-      this.level -= 1;
-      this.queue = queuePrev;
-      this.active = !!this.level;
+      batch.queue = undefined;
 
-      if ( !this.active ) {
+      queue.forEach ( ( value, observable ) => {
 
-        this.flush ( queueNext );
+        observable.set ( value );
 
-      }
+      });
 
     }
 
-  };
+  }
 
-  /* API */
+};
 
-  flush = ( queue: Map<Observable, unknown> ): void => {
+/* UTILITIES */
 
-    queue.forEach ( ( value, observable ) => observable.set ( value ) );
-
-  };
-
-}
+batch.queue = <Map<Observable, unknown> | undefined> undefined;
 
 /* EXPORT */
 
-export default new Batch ();
+export default batch;

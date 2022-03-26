@@ -1,7 +1,7 @@
 
 /* MAIN */
 
-const SYMBOL = Symbol ( 'Observable' );
+const SYMBOL = Symbol ();
 
 /* EXPORT */
 

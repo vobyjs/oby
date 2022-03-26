@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import Batch from './batch';
+import batch from './batch';
 import Computed from './computed';
 import Observer from './observer';
 import Owner from './owner';
@@ -16,6 +16,8 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   public value: T;
+  public listeners: number;
+  public listenedValue: any;
   private comparator?: ComparatorFunction<T, T>;
   private observers?: Set<Observer> | Observer;
   private parent?: Observer;
@@ -159,9 +161,9 @@ class Observable<T = unknown> {
 
     }
 
-    if ( Batch.active ) {
+    if ( batch.queue ) {
 
-      Batch.registerSet ( this, value );
+      batch.queue.set ( this, value );
 
       return value;
 

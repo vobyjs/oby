@@ -1,9 +1,9 @@
 
 /* IMPORT */
 
+import {readable} from './callable';
 import Observable from './observable';
 import Owner from './owner';
-import readable from './readable';
 import {ObservableReadonly} from './types';
 
 /* MAIN */

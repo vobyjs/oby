@@ -3,6 +3,8 @@
 
 const {isArray} = Array;
 
+const {setPrototypeOf} = Object;
+
 /* EXPORT */
 
-export {isArray};
+export {isArray, setPrototypeOf};

@@ -1,10 +1,9 @@
 
 /* IMPORT */
 
+import {readable, writable} from './callable';
 import Effect from './effect';
 import Observable from './observable';
-import readable from './readable';
-import writable from './writable';
 import {FromFunction, ObservableReadonlyWithoutInitial, ObservableOptions} from './types';
 
 /* MAIN */

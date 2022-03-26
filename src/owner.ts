@@ -5,87 +5,58 @@ import Observable from './observable';
 import Observer from './observer';
 import {CleanupFunction, OwnerFunction, ErrorFunction} from './types';
 
+/* HELPERS */
+
+let owner: Observer | undefined = undefined;
+let isSampling = false;
+
 /* MAIN */
 
-class Owner {
-
-  /* VARIABLES */
-
-  private observer?: Observer;
-  private sampling: boolean = false;
+const Owner = {
 
   /* REGISTRATION API */
 
-  registerCleanup = ( cleanup: CleanupFunction ): void => {
+  registerCleanup: ( cleanup: CleanupFunction ): void => {
 
-    if ( !this.observer ) return;
+    owner?.registerCleanup ( cleanup );
 
-    this.observer.registerCleanup ( cleanup );
+  },
 
-  };
+  registerError: ( error: ErrorFunction ): void => {
 
-  registerError = ( error: ErrorFunction ): void => {
+    owner?.registerError ( error );
 
-    if ( !this.observer ) return;
+  },
 
-    this.observer.registerError ( error );
+  registerObservable: ( observable: Observable ): void => {
 
-  };
+    if ( !owner ) return;
 
-  registerObservable = ( observable: Observable ): void => {
+    if ( isSampling ) return;
 
-    if ( !this.observer ) return;
+    const wasUnegistered = observable.registerObserver ( owner );
 
-    if ( this.sampling ) return;
+    if ( !wasUnegistered ) return;
 
-    const wasRegistered = observable.registerObserver ( this.observer );
+    owner.registerObservable ( observable );
 
-    if ( !wasRegistered ) return;
+  },
 
-    this.observer.registerObservable ( observable );
+  registerObserver: ( observer: Observer ): void => {
 
-  };
+    owner?.registerObserver ( observer );
 
-  registerObservables = ( observables: Observable[] ): void => {
-
-    if ( !this.observer ) return;
-
-    if ( this.sampling ) return;
-
-    for ( let i = 0, l = observables.length; i < l; i++ ) {
-
-      this.registerObservable ( observables[i] );
-
-    }
-
-  };
-
-  registerObserver = ( observer: Observer ): void => {
-
-    if ( !this.observer ) return;
-
-    this.observer.registerObserver ( observer );
-
-    observer.registerParent ( this.observer );
-
-  };
+  },
 
   /* WRAPPING API */
 
-  wrap = <T> ( fn: OwnerFunction<T> ): void => {
+  wrap: <T> ( fn: OwnerFunction<T> ): void => {
 
-    const parent = this.observer;
     const observer = new Observer ();
-
-    if ( parent ) {
-
-      observer.registerParent ( parent );
-
-    }
 
     try {
 
-      this.wrapWith ( fn, observer, true );
+      Owner.wrapWith ( fn, observer, true );
 
     } catch ( error: unknown ) {
 
@@ -93,21 +64,21 @@ class Owner {
 
     }
 
-  };
+  },
 
-  wrapWith = <T> ( fn: OwnerFunction<T>, observer?: Observer, disposable?: boolean, sampling?: boolean ): T => {
+  wrapWith: <T> ( fn: OwnerFunction<T>, observer?: Observer, disposable?: boolean, sampling?: boolean ): T => {
 
-    const observerPrev = this.observer;
-    const samplingPrev = this.sampling;
+    const ownerPrev = owner;
+    const samplingPrev = isSampling;
 
-    this.observer = observer;
-    this.sampling = !!sampling;
+    owner = observer;
+    isSampling = !!sampling;
 
     try {
 
       if ( observer && disposable ) {
 
-        const dispose = this.dispose.bind ( this, observer );
+        const dispose = Owner.dispose.bind ( undefined, observer );
 
         return fn ( dispose );
 
@@ -119,39 +90,39 @@ class Owner {
 
     } finally {
 
-      this.observer = observerPrev;
-      this.sampling = samplingPrev;
+      owner = ownerPrev;
+      isSampling = samplingPrev;
 
     }
 
-  };
+  },
 
-  wrapWithSampling = <T> ( fn: OwnerFunction<T> ): T => {
+  wrapWithSampling: <T> ( fn: OwnerFunction<T> ): T => {
 
-    return this.wrapWith ( fn, this.observer, false, true );
+    return Owner.wrapWith ( fn, owner, false, true );
 
-  };
+  },
 
   /* API */
 
-  dispose = ( observer: Observer ): void => {
+  dispose: ( observer: Observer ): void => {
 
     //TODO: Maybe throw if disposing a root different from the current one, or implement this properly, setting the _current_ observer to undefined is a mistake
 
     Observer.unsubscribe ( observer );
 
-    this.observer = undefined;
+    owner = undefined;
 
-  };
+  },
 
-  get = (): Observer | undefined => {
+  get: (): Observer | undefined => {
 
-    return this.observer;
+    return owner;
 
-  };
+  }
 
-}
+};
 
 /* EXPORT */
 
-export default new Owner ();
+export default Owner;

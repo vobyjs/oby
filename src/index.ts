@@ -1,7 +1,8 @@
 
 /* IMPORT */
 
-import Batch from './batch';
+import batch from './batch';
+import {writable} from './callable';
 import Computed from './computed';
 import context from './context';
 import disposed from './disposed';
@@ -12,7 +13,6 @@ import is from './is';
 import ObservableClass from './observable';
 import Owner from './owner';
 import selector from './selector';
-import writable from './writable';
 import {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions} from './types';
 
 /* MAIN */
@@ -28,7 +28,7 @@ function observable <T> ( value?: T, options?: ObservableOptions<T, T | undefine
 
 /* UTILITIES */
 
-observable.batch = Batch.wrap;
+observable.batch = batch;
 observable.cleanup = Owner.registerCleanup;
 observable.computed = Computed.wrap;
 observable.context  = context;

@@ -1,10 +1,10 @@
 
 /* IMPORT */
 
+import {readable} from './callable';
 import ObservableClass from './observable';
 import Observer from './observer';
 import Owner from './owner';
-import readable from './readable';
 import {ComputedFunction, ObservableReadonly, ObservableOptions} from './types';
 
 /* MAIN */

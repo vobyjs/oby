@@ -19,7 +19,7 @@ class Observer {
   protected errors?: ErrorFunction[] | ErrorFunction;
   protected observables?: Observable[] | Observable;
   protected observers?: Observer[] | Observer;
-  private parent?: Observer;
+  private parent?: Observer = Owner.get ();
 
   /* REGISTRATION API */
 
@@ -105,12 +105,6 @@ class Observer {
 
   }
 
-  registerParent ( observer: Observer ): void {
-
-    this.parent = observer;
-
-  }
-
   registerSelf (): void {
 
     if ( !this.observables ) {
@@ -119,7 +113,11 @@ class Observer {
 
     } else if ( isArray ( this.observables ) ) {
 
-      Owner.registerObservables ( this.observables );
+      for ( let i = 0, l = this.observables.length; i < l; i++ ) {
+
+        Owner.registerObservable ( this.observables[i] );
+
+      }
 
     } else {
 
@@ -143,9 +141,7 @@ class Observer {
 
     if ( context && symbol in context ) return context[symbol];
 
-    if ( !parent ) return;
-
-    return parent.updateContext ( symbol );
+    return parent?.updateContext ( symbol );
 
   }
 
