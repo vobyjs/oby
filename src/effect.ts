@@ -21,6 +21,8 @@ class Effect extends Observer {
 
     this.fn = fn;
 
+    Owner.registerObserver ( this );
+
     this.update ();
 
   }
@@ -28,8 +30,6 @@ class Effect extends Observer {
   /* API */
 
   update (): void {
-
-    Owner.registerObserver ( this );
 
     if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
 

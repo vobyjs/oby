@@ -113,6 +113,8 @@ class Observable<T = unknown> {
 
       } else {
 
+        Owner.registerObserver ( this.parent );
+
         this.parent.update ();
 
       }

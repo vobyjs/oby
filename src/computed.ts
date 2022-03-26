@@ -25,6 +25,8 @@ class Computed<T, TI> extends Observer {
     this.fn = fn;
     this.observable = new ObservableClass ( valueInitial, options, this ) as ObservableClass<T | TI>; //TSC
 
+    Owner.registerObserver ( this );
+
     this.update ();
 
   }
@@ -32,8 +34,6 @@ class Computed<T, TI> extends Observer {
   /* API */
 
   update (): void {
-
-    Owner.registerObserver ( this );
 
     if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
 
