@@ -9,7 +9,7 @@
     "clean": "rimraf dist",
     "cleanup": "node tasks/cleanup.js",
     "compile": "tsc --skipLibCheck",
-    "compile:bundle": "esbuild --bundle --minify --format=cjs --target=es2018 ./src/index.ts > ./dist/index.js",
+    "compile:bundle": "esbuild --bundle --minify --format=cjs --target=es2018 '--mangle-props=^(dirty|cleanups|errors|fn|observable|observables|observer|observers|value|parent|listenedValue|listeners|updateContext|updateError|registerCleanup|registerContext|registerError|registerObservable|registerObservables|registerObserver|registerSelf|unregisterObserver|wrap|wrapWith|wrapWithSampling)$' ./src/index.ts > ./dist/index.js",
     "compile:watch": "tsc --skipLibCheck --watch",
     "memory": "node tasks/memory.js",
     "test:native": "fava '**/native/**'",
