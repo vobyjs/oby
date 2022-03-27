@@ -9,8 +9,6 @@ import {ComparatorFunction, ProduceFunction, SelectFunction, UpdateFunction, Obs
 
 /* MAIN */
 
-//FIXME: The list of observers can't be allowed to grow endlessly potentially in some cases, it must get cleared up at idle times or something
-
 class Observable<T = unknown> {
 
   /* VARIABLES */
