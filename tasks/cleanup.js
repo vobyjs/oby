@@ -5,11 +5,22 @@ const {default: $} = require ( '../dist' );
 
 /* MAIN */
 
-const o = $(-1);
-
 $.root ( dispose => {
 
-  const isSelected = $.selector ( o );
+  console.time ( 'create' );
+
+  const global = $();
+
+  const items = [];
+
+  for ( let i = 0, l = 1000000; i < l; i++ ) {
+
+    items.push ( $() );
+
+  }
+
+  const selected = $();
+  const isSelected = $.selector ( selected );
 
   const disposers = [];
 
@@ -20,21 +31,26 @@ $.root ( dispose => {
       disposers.push ( dispose );
 
       $.effect ( () => {
-        o ();
+        global ();
+        items[i]();
         isSelected ( i );
       });
 
       $.effect ( () => {
-        o ();
+        global ();
+        items[i]();
       });
 
       $.effect ( () => {
-        o ();
+        global ();
+        items[i]();
       });
 
     });
 
   }
+
+  console.timeEnd ( 'create' );
 
   console.time ( 'cleanup' );
 
