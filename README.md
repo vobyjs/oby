@@ -53,7 +53,6 @@ type ObservableReadonly<T> = {
   get (): T,
   sample (): T,
   select <R> ( fn: ( value: T ) => R ): ObservableReadonly<R>,
-  emit (): void,
   readonly (): ObservableReadonly<T>,
   isReadonly (): true
 };
@@ -124,7 +123,7 @@ obj.produce ( prev => {
 
 const objSelected = obj.select ( obj => obj.foo.bar ); // => ObservableReadonly<boolean>
 
-// "emit" method for manually telling all observers to update themselves, useful for updating the current value efficiently by mutating it
+// "emit" method for manually telling all observers to update themselves, useful for updating the current value efficiently by mutating it, it's only available in writable Observables
 
 obj.emit ();
 

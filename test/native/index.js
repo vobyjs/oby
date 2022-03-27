@@ -16,7 +16,7 @@ const isReadable = ( t, value ) => {
   t.true ( typeof value.set === 'undefined' );
   t.true ( typeof value.produce === 'undefined' );
   t.true ( typeof value.update === 'undefined' );
-  t.true ( typeof value.emit === 'function' );
+  t.true ( typeof value.emit === 'undefined' );
   t.true ( typeof value.readonly === 'function' );
   t.true ( typeof value.isReadonly === 'function' );
   t.true ( typeof value.registerSelf === 'undefined' );

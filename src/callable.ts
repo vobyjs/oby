@@ -22,9 +22,6 @@ const readablePrototype = {
   select ( fn ) {
     return this ( SYMBOL ).select ( fn );
   },
-  emit () {
-    return this ( SYMBOL ).emit ();
-  },
   readonly () {
     return this;
   },
@@ -55,6 +52,9 @@ const writablePrototype = {
   },
   update ( fn ) {
     return this ( SYMBOL ).update ( fn );
+  },
+  emit () {
+    return this ( SYMBOL ).emit ();
   },
   readonly () {
     return readable ( this ( SYMBOL ) );
