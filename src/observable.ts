@@ -230,14 +230,14 @@ class Observable<T = unknown> {
 
         } else {
 
-          const queue: Observer[] = [];
+          const queue: Observer[] = Array.from ( observers );
+          const length = queue.length;
 
-          for ( const observer of observers ) {
-            queue.push ( observer );
-            observer.dirty = true; // Trip flag for checking for updates
+          for ( let i = 0; i < length; i++ ) {
+            queue[i].dirty = true; // Trip flag for checking for updates
           }
 
-          for ( let i = 0, l = queue.length; i < l; i++ ) {
+          for ( let i = 0; i < length; i++ ) {
             const observer = queue[i];
             if ( !observer.dirty ) continue; // Trip flag flipped, already updated
             if ( !observers.has ( observer ) ) continue; // No longer an observer
