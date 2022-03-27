@@ -17,6 +17,8 @@ const isReadable = ( t, value ) => {
   t.true ( typeof value.produce === 'undefined' );
   t.true ( typeof value.update === 'undefined' );
   t.true ( typeof value.emit === 'undefined' );
+  t.true ( typeof value.dispose === 'undefined' );
+  t.true ( typeof value.isDisposed === 'function' );
   t.true ( typeof value.readonly === 'function' );
   t.true ( typeof value.isReadonly === 'function' );
   t.true ( typeof value.registerSelf === 'undefined' );
@@ -33,6 +35,8 @@ const isWritable = ( t, value ) => {
   t.true ( typeof value.produce === 'function' );
   t.true ( typeof value.update === 'function' );
   t.true ( typeof value.emit === 'function' );
+  t.true ( typeof value.dispose === 'function' );
+  t.true ( typeof value.isDisposed === 'function' );
   t.true ( typeof value.readonly === 'function' );
   t.true ( typeof value.isReadonly === 'function' );
   t.true ( typeof value.registerSelf === 'undefined' );
@@ -632,6 +636,98 @@ describe ( 'oby', it => {
         t.is ( calls, 2 );
         t.is ( value, obj () );
         t.is ( value.foo.bar, 321 );
+
+      });
+
+    });
+
+    describe ( 'dispose', it => {
+
+      it ( 'does not throw if called multiple times', t => {
+
+        const o = $(1);
+
+        o.dispose ();
+        o.dispose ();
+        o.dispose ();
+
+        t.pass ();
+
+      });
+
+      it ( 'disposed observables do not emit anymore', t => {
+
+        const o = $(0);
+
+        $.effect ( () => {
+
+          if ( !o () ) return;
+
+          t.fail ();
+
+        });
+
+        o.dispose ();
+
+        $.computed ( () => {
+
+          if ( !o () ) return;
+
+          t.fail ();
+
+        });
+
+        o.emit ();
+
+        t.pass ();
+
+      });
+
+      it ( 'disposed observables throw on set', t => {
+
+        const o = $(0);
+
+        o.dispose ();
+
+        t.throws ( () => {
+
+          o ( 1 );
+
+        }, { message: 'A disposed Observable can not be updated' } );
+
+      });
+
+    });
+
+    describe ( 'isDisposed', it => {
+
+      it ( 'checks if an observable is disposed', t => {
+
+        const o = $(1);
+
+        t.false ( o.isDisposed () );
+
+        o.dispose ();
+
+        t.true ( o.isDisposed () );
+
+      });
+
+      it ( 'returns always true for readonly observables', t => {
+
+        const o = $(1);
+        const ro = o.readonly ();
+        const squared = o.select ( value => value ** 2 );
+
+        t.false ( o.isDisposed () );
+        t.false ( ro.isDisposed () );
+        t.false ( squared.isDisposed () );
+
+        o.dispose ();
+
+        t.true ( o.isDisposed () );
+        t.false ( ro.isDisposed () );
+        t.false ( squared.isDisposed () );
 
       });
 

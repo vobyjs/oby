@@ -9,6 +9,8 @@ import {ComputedFunction, ObservableReadonly, ObservableOptions} from './types';
 
 /* MAIN */
 
+//TODO: Find out why disposing automatically of the observable doesn't improve performance here
+
 class Computed<T = unknown, TI = unknown> extends Observer {
 
   /* VARIABLES */
@@ -37,7 +39,7 @@ class Computed<T = unknown, TI = unknown> extends Observer {
 
     if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
 
-      Observer.unsubscribe ( this );
+      this.dispose ();
 
     }
 

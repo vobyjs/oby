@@ -15,6 +15,7 @@ class Observable<T = unknown> {
 
   /* VARIABLES */
 
+  public disposed: boolean;
   public value: T;
   public listeners: number;
   public listenedValue: any;
@@ -26,6 +27,7 @@ class Observable<T = unknown> {
 
   constructor ( value: T, options?: ObservableOptions<T, T>, parent?: Computed ) {
 
+    this.disposed = false;
     this.value = value;
 
     if ( options ) {
@@ -105,6 +107,8 @@ class Observable<T = unknown> {
 
   registerSelf (): void {
 
+    if ( this.disposed ) return;
+
     if ( this.parent ) {
 
       if ( !this.parent.dirty ) {
@@ -155,6 +159,8 @@ class Observable<T = unknown> {
 
   set ( value: T ): T {
 
+    if ( this.disposed ) throw new Error ( 'A disposed Observable can not be updated' );
+
     const comparator = this.comparator || Object.is;
 
     if ( comparator ( value, this.value ) ) {
@@ -201,6 +207,8 @@ class Observable<T = unknown> {
 
   emit (): void {
 
+    if ( this.disposed ) return;
+
     const {observers} = this;
 
     if ( !observers ) return;
@@ -215,12 +223,8 @@ class Observable<T = unknown> {
 
         if ( observers.size === 1 ) {
 
-          for ( const observer of observers.keys () ) {
-            if ( observer.destroyed ) {
-              observers.delete ( observer );
-            } else {
-              observer.update ();
-            }
+          for ( const observer of observers ) {
+            observer.update ();
             break;
           }
 
@@ -228,39 +232,33 @@ class Observable<T = unknown> {
 
           const queue: Observer[] = [];
 
-          for ( const observer of observers.keys () ) {
-            if ( observer.destroyed ) {
-              observers.delete ( observer );
-            } else {
-              queue.push ( observer );
-              observer.dirty = true; // Trip flag for checking for updates
-            }
+          for ( const observer of observers ) {
+            queue.push ( observer );
+            observer.dirty = true; // Trip flag for checking for updates
           }
 
           for ( let i = 0, l = queue.length; i < l; i++ ) {
             const observer = queue[i];
             if ( !observer.dirty ) continue; // Trip flag flipped, already updated
             if ( !observers.has ( observer ) ) continue; // No longer an observer
-            if ( observer.destroyed ) {
-              observers.delete ( observer );
-            } else {
-              observer.update ();
-            }
+            observer.update ();
           }
 
         }
 
       } else {
 
-        if ( observers.destroyed ) {
-          this.observers = undefined;
-        } else {
-          observers.update ();
-        }
+        observers.update ();
 
       }
 
     });
+
+  }
+
+  dispose (): void {
+
+    this.disposed = true;
 
   }
 

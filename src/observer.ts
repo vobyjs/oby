@@ -12,7 +12,6 @@ class Observer {
 
   /* VARIABLES */
 
-  public destroyed?: true; // If destroyed then observables shouldn't notify it anymore
   public dirty?: boolean; // If dirty it needs updating
   protected cleanups?: CleanupFunction[] | CleanupFunction;
   protected context?: Context;
@@ -179,41 +178,39 @@ class Observer {
 
   }
 
-  /* STATIC API */
+  dispose (): void {
 
-  static unsubscribe ( observer: Observer ): void {
-
-    const {observers, observables, cleanups, errors, context} = observer;
+    const {observers, observables, cleanups, errors, context} = this;
 
     if ( observers ) {
-      observer.observers = undefined;
+      this.observers = undefined;
       if ( isArray ( observers ) ) {
         for ( let i = 0, l = observers.length; i < l; i++ ) {
-          const observer = observers[i];
-          observer.destroyed = true;
-          Observer.unsubscribe ( observer );
+          observers[i].dispose ();
         }
       } else {
-        observers.destroyed = true;
-        Observer.unsubscribe ( observers );
+        observers.dispose ();
       }
     }
 
     if ( observables ) {
-      observer.observables = undefined;
-      if ( !observer.destroyed ) {
-        if ( isArray ( observables ) ) {
-          for ( let i = 0, l = observables.length; i < l; i++ ) {
-            observables[i].unregisterObserver ( observer );
+      this.observables = undefined;
+      if ( isArray ( observables ) ) {
+        for ( let i = 0, l = observables.length; i < l; i++ ) {
+          const observable = observables[i];
+          if ( !observable.disposed ) {
+            observable.unregisterObserver ( this );
           }
-        } else {
-          observables.unregisterObserver ( observer );
+        }
+      } else {
+        if ( !observables.disposed ) {
+          observables.unregisterObserver ( this );
         }
       }
     }
 
     if ( cleanups ) {
-      observer.cleanups = undefined;
+      this.cleanups = undefined;
       if ( isArray ( cleanups ) ) {
         for ( let i = 0, l = cleanups.length; i < l; i++ ) {
           cleanups[i]();
@@ -224,11 +221,11 @@ class Observer {
     }
 
     if ( errors ) {
-      observer.errors = undefined;
+      this.errors = undefined;
     }
 
     if ( context ) {
-      observer.context = undefined;
+      this.context = undefined;
     }
 
   }

@@ -39,6 +39,8 @@ type ObservableAbstract<T = unknown, TI = unknown> = {
   produce ( fn: ( value: T | TI ) => T | undefined ): T,
   update ( fn: ( value: T | TI ) => T ): T,
   emit (): void,
+  dispose (): void,
+  isDisposed (): boolean,
   readonly (): ObservableReadonlyAbstract<T, TI>,
   isReadonly (): false
 };
@@ -52,7 +54,7 @@ type ObservableReadonlyAbstract<T = unknown, TI = unknown> = {
   get (): T | TI,
   sample (): T | TI,
   select <R> ( fn: ( value: T | TI ) => R, options?: ObservableOptions<R, R> ): ObservableReadonly<R>,
-  emit (): void,
+  isDisposed (): false,
   readonly (): ObservableReadonlyAbstract<T, TI>,
   isReadonly (): true
 };

@@ -20,7 +20,7 @@ const subscribe = fn => {
 };
 
 const unsubscribe = fn => {
-  Observer.default.unsubscribe ( fn._computed );
+  fn._computed.dispose ();
 };
 
 const o = observable;

@@ -47,6 +47,8 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     if ( this.listeners ) return;
 
+    this.dispose ();
+
     if ( !selecteds.size ) return;
 
     selecteds.delete ( this.listenedValue );

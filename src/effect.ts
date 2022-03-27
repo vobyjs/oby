@@ -33,7 +33,7 @@ class Effect extends Observer {
 
     if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
 
-      Observer.unsubscribe ( this );
+      this.dispose ();
 
     }
 
@@ -63,7 +63,7 @@ class Effect extends Observer {
 
     const effect = new Effect ( fn );
 
-    return Observer.unsubscribe.bind ( Observer, effect );
+    return effect.dispose.bind ( effect );
 
   }
 

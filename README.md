@@ -44,6 +44,8 @@ type Observable<T> = {
   produce ( fn: ( value: T ) => T | void ): T,
   update ( fn: ( value: T ) => T ): T,
   emit (): void,
+  dispose (): void,
+  isDisposed (): boolean,
   readonly (): ObservableReadonly<T>,
   isReadonly (): false
 };
@@ -53,6 +55,7 @@ type ObservableReadonly<T> = {
   get (): T,
   sample (): T,
   select <R> ( fn: ( value: T ) => R ): ObservableReadonly<R>,
+  isDisposed (): false,
   readonly (): ObservableReadonly<T>,
   isReadonly (): true
 };
@@ -130,6 +133,17 @@ obj.emit ();
 obj ().foo.bar = true; // Mutation
 
 obj.emit ();
+
+// "dispose" method for manually stopping any reactivity for an Observable, this enables some extra optimizations internally, if you don't really need the extra performance you should never use this
+
+o.dispose ();
+
+o.set ( 5 ); // This will throw, disposed Observables can't be updated anymore
+
+// "isDisposed" method for checking if the Observable has been disposed
+
+obj.isDisposed (); // => false
+o.isDisposed (); // => true
 
 // "readonly" method for getting a readonly Observable out of the current one, readonly Observables provide no APIs for changing the value they are pointing to
 

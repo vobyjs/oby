@@ -22,6 +22,9 @@ const readablePrototype = {
   select ( fn ) {
     return this ( SYMBOL ).select ( fn );
   },
+  isDisposed () {
+    return false;
+  },
   readonly () {
     return this;
   },
@@ -55,6 +58,12 @@ const writablePrototype = {
   },
   emit () {
     return this ( SYMBOL ).emit ();
+  },
+  dispose () {
+    return this ( SYMBOL ).dispose ();
+  },
+  isDisposed () {
+    return this ( SYMBOL ).disposed;
   },
   readonly () {
     return readable ( this ( SYMBOL ) );

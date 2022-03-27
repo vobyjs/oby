@@ -54,6 +54,10 @@ $.root ( dispose => {
 
   console.time ( 'cleanup' );
 
+  global.dispose ();
+  selected.dispose ();
+  items.forEach ( item => item.dispose () );
+
   dispose ();
 
   disposers.forEach ( dispose => dispose () );
