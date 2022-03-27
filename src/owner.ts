@@ -50,22 +50,6 @@ const Owner = {
 
   /* WRAPPING API */
 
-  wrap: <T> ( fn: OwnerFunction<T> ): void => {
-
-    const observer = new Observer ();
-
-    try {
-
-      Owner.wrapWith ( fn, observer, true );
-
-    } catch ( error: unknown ) {
-
-      observer.updateError ( error );
-
-    }
-
-  },
-
   wrapWith: <T> ( fn: OwnerFunction<T>, observer?: Observer, disposable?: boolean, sampling?: boolean ): T => {
 
     const ownerPrev = owner;

@@ -12,6 +12,7 @@ import get from './get';
 import is from './is';
 import ObservableClass from './observable';
 import Owner from './owner';
+import Root from './root';
 import selector from './selector';
 import {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions} from './types';
 
@@ -38,7 +39,7 @@ observable.error = Owner.registerError;
 observable.from = from;
 observable.get = get;
 observable.is = is;
-observable.root = Owner.wrap;
+observable.root = Root.wrap;
 observable.sample = Owner.wrapWithSampling;
 observable.selector = selector;
 
