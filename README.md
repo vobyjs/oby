@@ -23,6 +23,7 @@ npm install --save oby
 - [`$.get`](#get)
 - [`$.sample`](#sample)
 - [`$.selector`](#selector)
+- [`$.owner`](#owner)
 - [`$.is`](#is)
 
 ## Usage
@@ -539,6 +540,32 @@ select ( 5 );
 // "dispose" method for manually stopping any reactivity, this enables some extra optimizations internally, if you don't really need the extra performance you should never use this. The isSelected function remains usable after disposing, but previous usages of it just will stop being reactive.
 
 isSelected.dispose ();
+```
+
+### `$.owner`
+
+This low-level function returns the current owner, which can be an effect, a computed, a root, or nothing.
+
+This is an advanced function which enables some optimizations, generally you probably should just never use it.
+
+```ts
+import $ from 'oby';
+
+// Getting
+
+$.owner (); // => undefined
+
+let effect;
+
+$.effect ( () => {
+
+  effect = $.owner ();
+
+});
+
+// "dispose" method, for manually disposing of the owner
+
+effect.dispose (); // Manually disposing of the effect
 ```
 
 ### `$.is`

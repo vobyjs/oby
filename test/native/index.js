@@ -43,6 +43,13 @@ const isWritable = ( t, value ) => {
 
 };
 
+const isOwner = ( t, value ) => {
+
+  t.false ( $.is ( value ) );
+  t.true ( typeof value.dispose === 'function' );
+
+};
+
 /* MAIN */
 
 describe ( 'oby', it => {
@@ -2242,6 +2249,162 @@ describe ( 'oby', it => {
       t.false ( $.is ( {} ) );
       t.false ( $.is ( [] ) );
       t.false ( $.is ( $.effect ( () => {} ) ) );
+
+    });
+
+  });
+
+  describe ( 'owner', it => {
+
+    it ( 'can dispose of an effect', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.effect ( () => {
+
+        o ();
+
+        sequence += 'a';
+
+      });
+
+      $.effect ( () => {
+
+        o ();
+
+        sequence += 'b';
+
+        $.owner ().dispose ();
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'aba' );
+
+    });
+
+    it ( 'can dispose of a computed', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.computed ( () => {
+
+        o ();
+
+        sequence += 'a';
+
+      });
+
+      $.computed ( () => {
+
+        o ();
+
+        sequence += 'b';
+
+        $.owner ().dispose ();
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'aba' );
+
+    });
+
+    it ( 'can dispose of a root', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.root ( () => {
+
+        $.effect ( () => {
+
+          o ();
+
+          sequence += 'a';
+
+        });
+
+      });
+
+      $.root ( () => {
+
+        $.effect ( () => {
+
+          o ();
+
+          sequence += 'b';
+
+        });
+
+        $.owner ().dispose ();
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'aba' );
+
+    });
+
+    it ( 'returns undefined outside an owner', t => {
+
+      t.is ( $.owner (), undefined );
+
+      $.root ( () => {} );
+
+      t.is ( $.owner (), undefined );
+
+      $.effect ( () => {} );
+
+      t.is ( $.owner (), undefined );
+
+      $.computed ( () => {} );
+
+      t.is ( $.owner (), undefined );
+
+    });
+
+    it ( 'returns the effect inside an effect', t => {
+
+      $.effect ( () => {
+
+        isOwner ( t, $.owner () );
+
+      });
+
+    });
+
+    it ( 'returns the computed inside an computed', t => {
+
+      $.computed ( () => {
+
+        isOwner ( t, $.owner () );
+
+      });
+
+    });
+
+    it ( 'returns the root inside an root', t => {
+
+      $.root ( () => {
+
+        isOwner ( t, $.owner () );
+
+      });
 
     });
 

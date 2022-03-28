@@ -3,7 +3,7 @@
 
 import Observable from './observable';
 import Observer from './observer';
-import {CleanupFunction, OwnerFunction, ErrorFunction} from './types';
+import {CleanupFunction, ObserverPublic, OwnerFunction, ErrorFunction} from './types';
 
 /* HELPERS */
 
@@ -119,6 +119,12 @@ const Owner = {
   },
 
   get: (): Observer | undefined => {
+
+    return owner;
+
+  },
+
+  getPublic: (): ObserverPublic | undefined => {
 
     return owner;
 
