@@ -31,15 +31,17 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   });
 
-  /* BULK CLEANUP */
+  /* CLEANUP ALL */
 
-  Owner.registerCleanup ( () => {
+  const cleanupAll = (): void => {
 
     selecteds = new Map ();
 
-  });
+  };
 
-  /* SINGLE CLENAUP */
+  Owner.registerCleanup ( cleanupAll );
+
+  /* CLENAUP SINGLE */
 
   const cleanup = function ( this: Observable ): void {
 
@@ -57,7 +59,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   /* SELECTOR */
 
-  return ( value: T ): boolean => {
+  const selector = ( value: T ): boolean => {
 
     /* INIT */
 
@@ -88,6 +90,10 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
     return selected.get ();
 
   };
+
+  selector.dispose = cleanupAll;
+
+  return selector;
 
 };
 

@@ -5,6 +5,9 @@ const {default: $} = require ( '../dist' );
 
 /* MAIN */
 
+const selected = $();
+const isSelected = $.selector ( selected );
+
 $.root ( dispose => {
 
   console.time ( 'create' );
@@ -18,9 +21,6 @@ $.root ( dispose => {
     items.push ( $() );
 
   }
-
-  const selected = $();
-  const isSelected = $.selector ( selected );
 
   const disposers = [];
 
@@ -56,6 +56,7 @@ $.root ( dispose => {
 
   global.dispose ();
   selected.dispose ();
+  isSelected.dispose ();
   items.forEach ( item => item.dispose () );
 
   dispose ();
