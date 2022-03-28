@@ -106,21 +106,19 @@ class Observer {
 
   registerSelf (): void {
 
-    if ( !this.observables ) {
+    const {observables} = this;
+
+    if ( !observables ) {
 
       return;
 
-    } else if ( isArray ( this.observables ) ) {
+    } else if ( isArray ( observables ) ) {
 
-      for ( let i = 0, l = this.observables.length; i < l; i++ ) {
-
-        Owner.registerObservable ( this.observables[i] );
-
-      }
+      Owner.registerObservables ( observables );
 
     } else {
 
-      Owner.registerObservable ( this.observables );
+      Owner.registerObservable ( observables );
 
     }
 

@@ -42,6 +42,25 @@ const Owner = {
 
   },
 
+  registerObservables: ( observables: Observable[] ): void => {
+
+    if ( !owner ) return;
+
+    if ( isSampling ) return;
+
+    for ( let i = 0, l = observables.length; i < l; i++ ) {
+
+      const observable = observables[i];
+      const gotRegistered = observable.registerObserver ( owner );
+
+      if ( !gotRegistered ) continue;
+
+      owner.registerObservable ( observable );
+
+    }
+
+  },
+
   registerObserver: ( observer: Observer ): void => {
 
     owner?.registerObserver ( observer );
