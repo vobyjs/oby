@@ -275,7 +275,7 @@ import $ from 'oby';
 
 const url = $( 'htts://my.api' );
 
-useEffect ( () => {
+$.effect ( () => {
 
   const disposed = $.disposed ();
 
