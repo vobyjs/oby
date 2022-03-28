@@ -35,6 +35,12 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   const cleanupAll = (): void => {
 
+    selecteds.forEach ( selected => {
+
+      selected.dispose ();
+
+    });
+
     selecteds = new Map ();
 
   };
