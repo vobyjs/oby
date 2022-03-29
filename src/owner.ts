@@ -3,6 +3,7 @@
 
 import Observable from './observable';
 import Observer from './observer';
+import Root from './root';
 import {CleanupFunction, ObserverPublic, OwnerFunction, ErrorFunction} from './types';
 
 /* HELPERS */
@@ -33,6 +34,8 @@ const Owner = {
     if ( !owner ) return;
 
     if ( isSampling ) return;
+
+    if ( owner instanceof Root ) return;
 
     const gotRegistered = observable.registerObserver ( owner );
 

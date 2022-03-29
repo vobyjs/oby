@@ -28,6 +28,8 @@ $.root ( dispose => {
 
     $.root ( dispose => {
 
+      global ();
+
       disposers.push ( dispose );
 
       $.effect ( () => {
