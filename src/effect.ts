@@ -47,6 +47,14 @@ class Effect extends Observer {
 
         this.registerCleanup ( cleanup );
 
+      } else {
+
+        if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
+
+          this.dispose ();
+
+        }
+
       }
 
     } catch ( error: unknown ) {
