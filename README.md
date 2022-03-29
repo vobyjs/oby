@@ -394,6 +394,10 @@ o (); // => 3, now the latest update for this observable has been flushed
 
 This is an important function which creates a computation root, computation roots are detached from parent roots or computations and can be disposed, disposing them ends all the reactvity inside them.
 
+The value returned by the function is returned by the root itself.
+
+Note that the value returned by the root could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+
 ```ts
 import $ from 'oby';
 

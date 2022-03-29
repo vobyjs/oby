@@ -2576,11 +2576,11 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'returns undefined', t => {
+    it ( 'returns whatever the function returns', t => {
 
       const result = $.root ( () => 123 );
 
-      t.is ( result, undefined );
+      t.is ( result, 123 );
 
     });
 
