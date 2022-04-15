@@ -2999,7 +2999,7 @@ describe ( 'oby', it => {
     t.is ( childValue, 'name2' );
 
     // data is null -> cache is false -> child is not run here
-    o(null);
+    o ( null );
 
     t.is ( childValue, 'name2' );
 

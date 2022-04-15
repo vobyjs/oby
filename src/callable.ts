@@ -57,7 +57,7 @@ const writablePrototype = {
     return this ( SYMBOL ).update ( fn );
   },
   emit () {
-    return this ( SYMBOL ).emit ();
+    return this ( SYMBOL ).emit ( true );
   },
   dispose () {
     return this ( SYMBOL ).dispose ();

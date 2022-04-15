@@ -23,45 +23,49 @@ class Effect extends Observer {
 
     Owner.registerObserver ( this );
 
-    this.update ();
+    this.update ( true );
 
   }
 
   /* API */
 
-  update (): void {
+  update ( fresh: boolean ): void {
 
-    if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
+    if ( fresh ) { // Something might change
 
-      this.dispose ();
+      if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
 
-    }
-
-    this.dirty = false;
-
-    try {
-
-      const cleanup = Owner.wrapWith ( this.fn, this );
-
-      if ( cleanup ) {
-
-        this.registerCleanup ( cleanup );
-
-      } else {
-
-        if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
-
-          this.dispose ();
-
-          Owner.unregisterObserver ( this );
-
-        }
+        this.dispose ();
 
       }
 
-    } catch ( error: unknown ) {
+      this.dirty = false;
 
-      this.updateError ( error );
+      try {
+
+        const cleanup = Owner.wrapWith ( this.fn, this );
+
+        if ( cleanup ) {
+
+          this.registerCleanup ( cleanup );
+
+        } else {
+
+          if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
+
+            this.dispose ();
+
+            Owner.unregisterObserver ( this );
+
+          }
+
+        }
+
+      } catch ( error: unknown ) {
+
+        this.updateError ( error );
+
+      }
 
     }
 

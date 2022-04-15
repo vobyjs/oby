@@ -13,6 +13,8 @@ class Observer {
   /* VARIABLES */
 
   public dirty?: boolean; // If dirty it needs updating
+  public staleCount: number = 0;
+  public staleFresh: boolean = false;
   protected cleanups?: CleanupFunction[] | CleanupFunction;
   protected context?: Context;
   protected errors?: ErrorFunction[] | ErrorFunction;
@@ -159,7 +161,47 @@ class Observer {
 
   /* API */
 
-  update (): void {}
+  onStale ( fresh: boolean ): void {
+
+    this.staleCount += 1;
+
+    if ( fresh ) {
+
+      this.staleFresh = true;
+
+    }
+
+  }
+
+  onUnstale ( fresh: boolean ): void {
+
+    if ( !this.staleCount ) return;
+
+    if ( this.staleCount ) {
+
+      this.staleCount -= 1;
+
+    }
+
+    if ( fresh ) {
+
+      this.staleFresh = true;
+
+    }
+
+    if ( !this.staleCount ) {
+
+      const fresh = this.staleFresh;
+
+      this.staleFresh = false;
+
+      this.update ( fresh );
+
+    }
+
+  }
+
+  update ( fresh: boolean ): void {}
 
   updateContext <T> ( symbol: symbol ): T | undefined {
 

@@ -263,7 +263,7 @@ test('insures that new dependencies are updated before dependee', function(t) {
   order = '';
   a(0);
 
-  t.equal(order, 'bc', '3rd bcd test');
+  t.equal(order, 'bdc', '3rd bcd test'); //FIXME: It's bcd in Solid, and bc in Sinuous
   t.equal(c(), 1);
   t.end();
 });

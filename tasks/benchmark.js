@@ -87,13 +87,19 @@ const benchmark = async () => {
 
   let total = 0;
 
-  for ( const layers of [10, 20, 30, 50, 100, 1000, 5000, 10000, 500000] ) {
+  for ( const layers of [10, 20, 30, 50, 100, 1000, 5000] ) {
 
-    const elapsed = await cellx ( layers );
+    console.log ( '----' );
 
-    console.log ( `Layers ${layers}: ${elapsed}` );
+    for ( const run of [1, 2, 3] ) {
 
-    total += elapsed;
+      const elapsed = await cellx ( layers );
+
+      console.log ( `Layers ${layers}: ${elapsed}` );
+
+      total += elapsed;
+
+    }
 
   }
 

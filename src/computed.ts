@@ -29,33 +29,53 @@ class Computed<T = unknown, TI = unknown> extends Observer {
 
     Owner.registerObserver ( this );
 
-    this.update ();
+    this.update ( true );
 
   }
 
   /* API */
 
-  update (): void {
+  onStale ( fresh: boolean ): void {
 
-    if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
+    super.onStale ( fresh );
 
-      this.dispose ();
+    if ( this.staleCount === 1 ) {
+
+      this.observable.emitStale ( fresh );
 
     }
 
-    this.dirty = false;
+  }
 
-    const valuePrev = this.observable.value;
+  update ( fresh: boolean ): void {
 
-    try {
+    if ( fresh ) { // The resulting value might change
 
-      const valueNext: T = Owner.wrapWith ( this.fn.bind ( undefined, valuePrev ), this );
+      if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
 
-      this.observable.set ( valueNext );
+        this.dispose ();
 
-    } catch ( error: unknown ) {
+      }
 
-      this.updateError ( error );
+      this.dirty = false;
+
+      const valuePrev = this.observable.value;
+
+      try {
+
+        const valueNext: T = Owner.wrapWith ( this.fn.bind ( undefined, valuePrev ), this );
+
+        this.observable.set ( valueNext );
+
+      } catch ( error: unknown ) {
+
+        this.updateError ( error );
+
+      }
+
+    } else { // The resulting value could/should not possibly change
+
+      this.observable.emitUnstale ( false );
 
     }
 

@@ -107,23 +107,16 @@ class Observable<T = unknown> {
 
     if ( this.disposed ) return;
 
-    if ( this.parent ) {
+    Owner.registerObservable ( this );
 
-      if ( !this.parent.dirty ) {
+    if ( this.parent && this.parent.staleCount ) {
 
-        this.parent.registerSelf ();
+      const fresh = this.parent.staleFresh;
 
-      } else {
+      this.parent.staleCount = 0;
+      this.parent.staleFresh = false;
 
-        Owner.registerObserver ( this.parent );
-
-        this.parent.update ();
-
-      }
-
-    } else {
-
-      Owner.registerObservable ( this );
+      this.parent.update ( fresh );
 
     }
 
@@ -159,14 +152,6 @@ class Observable<T = unknown> {
 
     if ( this.disposed ) throw new Error ( 'A disposed Observable can not be updated' );
 
-    const comparator = this.comparator || Object.is;
-
-    if ( comparator ( value, this.value ) ) {
-
-      return this.value;
-
-    }
-
     if ( batch.queue ) {
 
       batch.queue.set ( this, value );
@@ -175,11 +160,20 @@ class Observable<T = unknown> {
 
     } else {
 
-      this.value = value;
+      const comparator = this.comparator || Object.is;
+      const fresh = !comparator ( value, this.value );
 
-      this.emit ();
+      if ( !this.parent ) {
 
-      return value;
+        this.emitStale ( fresh );
+
+      }
+
+      this.value = ( fresh ? value : this.value );
+
+      this.emitUnstale ( fresh );
+
+      return this.value;
 
     }
 
@@ -203,54 +197,60 @@ class Observable<T = unknown> {
 
   }
 
-  emit (): void {
+  emit ( fresh: boolean ): void {
+
+    this.emitStale ( fresh );
+    this.emitUnstale ( fresh );
+
+  }
+
+  emitStale ( fresh: boolean ): void {
 
     if ( this.disposed ) return;
 
-    const {observers} = this;
+    if ( !this.observers ) {
 
-    if ( !observers ) return;
+      return;
 
-    const isSet = ( observers instanceof Set );
+    } else if ( this.observers instanceof Set ) {
 
-    if ( isSet && !observers.size ) return;
+      for ( const observer of this.observers ) {
 
-    Owner.wrapWith ( () => {
-
-      if ( isSet ) {
-
-        if ( observers.size === 1 ) {
-
-          for ( const observer of observers ) {
-            observer.update ();
-            break;
-          }
-
-        } else {
-
-          const queue: Observer[] = Array.from ( observers );
-          const length = queue.length;
-
-          for ( let i = 0; i < length; i++ ) {
-            queue[i].dirty = true; // Trip flag for checking for updates
-          }
-
-          for ( let i = 0; i < length; i++ ) {
-            const observer = queue[i];
-            if ( !observer.dirty ) continue; // Trip flag flipped, already updated
-            if ( !observers.has ( observer ) ) continue; // No longer an observer
-            observer.update ();
-          }
-
-        }
-
-      } else {
-
-        observers.update ();
+        observer.onStale ( fresh );
 
       }
 
-    });
+    } else {
+
+      this.observers.onStale ( fresh );
+
+    }
+
+  }
+
+  emitUnstale ( fresh: boolean ): void {
+
+    if ( this.disposed ) return;
+
+    if ( !this.observers ) {
+
+      return;
+
+    } else if ( this.observers instanceof Set ) {
+
+      //TODO: Maybe clone the queue, though all tests are passing already
+
+      for ( const observer of this.observers ) {
+
+        observer.onUnstale ( fresh );
+
+      }
+
+    } else {
+
+      this.observers.onUnstale ( fresh );
+
+    }
 
   }
 
