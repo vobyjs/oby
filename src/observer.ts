@@ -124,6 +124,39 @@ class Observer {
 
   }
 
+  unregisterObserver ( observer: Observer ): void {
+
+    if ( !this.observers ) {
+
+      return;
+
+    } else if ( isArray ( this.observers ) ) {
+
+      if ( this.observers.length < 3 ) { //TODO: Otherwise it may be expensive, and unregistering an observer is not stricly necessary, though this is kind of ugly
+
+        const first = this.observers[0];
+        const second = this.observers[1];
+
+        if ( first === observer ) {
+
+          this.observers = second;
+
+        } else if ( second === observer ) {
+
+          this.observers = first;
+
+        }
+
+      }
+
+    } else if ( this.observers === observer ) {
+
+      this.observers = undefined;
+
+    }
+
+  }
+
   /* API */
 
   update (): void {}

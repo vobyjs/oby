@@ -70,6 +70,12 @@ const Owner = {
 
   },
 
+  unregisterObserver: ( observer: Observer ): void => {
+
+    owner?.unregisterObserver ( observer );
+
+  },
+
   /* WRAPPING API */
 
   wrapWith: <T> ( fn: OwnerFunction<T>, observer?: Observer, disposable?: boolean, sampling?: boolean ): T => {

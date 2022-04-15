@@ -53,6 +53,8 @@ class Effect extends Observer {
 
           this.dispose ();
 
+          Owner.unregisterObserver ( this );
+
         }
 
       }
