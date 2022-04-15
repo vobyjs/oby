@@ -193,14 +193,12 @@ class Observable<T = unknown> {
 
     Owner.registerObservable ( this );
 
-    if ( this.parent && this.parent.staleCount ) {
-
-      const fresh = this.parent.staleFresh;
+    if ( this.parent && this.parent.staleCount ) { //FIXME: This is probably buggy, if it's refreshed early and the counter is reset it may not update itself when one of its dependencies change
 
       this.parent.staleCount = 0;
       this.parent.staleFresh = false;
 
-      this.parent.update ( fresh );
+      this.parent.update ( true );
 
     }
 
