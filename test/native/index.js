@@ -613,6 +613,34 @@ describe ( 'oby', it => {
 
     describe ( 'emit', it => {
 
+      it ( 'calls computeds before effects', t => {
+
+        const o = $(0);
+
+        let sequence = '';
+
+        $.effect ( () => {
+          sequence += 'e';
+          o ();
+        });
+
+        $.computed ( () => {
+          sequence += 'c';
+          o ();
+        });
+
+        t.is ( sequence, 'ec' );
+
+        o ( 1 );
+
+        t.is ( sequence, 'ecce' );
+
+        o ( 2 );
+
+        t.is ( sequence, 'eccece' );
+
+      });
+
       it ( 'calls subscribers manually, even if nothing changed', t => {
 
         const obj = $({ foo: { bar: 123 } });

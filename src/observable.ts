@@ -18,7 +18,8 @@ class Observable<T = unknown> {
   public listeners: number;
   public listenedValue: any;
   private comparator?: ComparatorFunction<T, T>;
-  private observers?: Set<Observer> | Observer;
+  private computeds?: Set<Observer> | Observer;
+  private effects?: Set<Observer> | Observer;
   private parent?: Computed;
 
   /* CONSTRUCTOR */
@@ -50,34 +51,85 @@ class Observable<T = unknown> {
 
   registerObserver ( observer: Observer ): boolean {
 
-    if ( !this.observers ) {
+    if ( observer instanceof Computed ) {
 
-      this.observers = observer;
+      return this.registerObserverComputed ( observer );
+
+    } else {
+
+      return this.registerObserverEffect ( observer );
+
+    }
+
+  }
+
+  registerObserverComputed ( observer: Observer ): boolean {
+
+    if ( !this.computeds ) {
+
+      this.computeds = observer;
 
       return true;
 
-    } else if ( this.observers instanceof Set ) {
+    } else if ( this.computeds instanceof Set ) {
 
-      const sizePrev = this.observers.size;
+      const sizePrev = this.computeds.size;
 
-      this.observers.add ( observer );
+      this.computeds.add ( observer );
 
-      const sizeNext = this.observers.size;
+      const sizeNext = this.computeds.size;
 
       return ( sizePrev !== sizeNext );
 
-    } else if ( this.observers === observer ) {
+    } else if ( this.computeds === observer ) {
 
       return false;
 
     } else {
 
-      const observerPrev = this.observers;
+      const observerPrev = this.computeds;
 
-      this.observers = new Set ();
+      this.computeds = new Set ();
 
-      this.observers.add ( observerPrev );
-      this.observers.add ( observer );
+      this.computeds.add ( observerPrev );
+      this.computeds.add ( observer );
+
+      return true;
+
+    }
+
+  }
+
+  registerObserverEffect ( observer: Observer ): boolean {
+
+    if ( !this.effects ) {
+
+      this.effects = observer;
+
+      return true;
+
+    } else if ( this.effects instanceof Set ) {
+
+      const sizePrev = this.effects.size;
+
+      this.effects.add ( observer );
+
+      const sizeNext = this.effects.size;
+
+      return ( sizePrev !== sizeNext );
+
+    } else if ( this.effects === observer ) {
+
+      return false;
+
+    } else {
+
+      const observerPrev = this.effects;
+
+      this.effects = new Set ();
+
+      this.effects.add ( observerPrev );
+      this.effects.add ( observer );
 
       return true;
 
@@ -87,17 +139,49 @@ class Observable<T = unknown> {
 
   unregisterObserver ( observer: Observer ): void {
 
-    if ( !this.observers ) {
+    if ( observer instanceof Computed ) {
+
+      return this.unregisterObserverComputed ( observer );
+
+    } else {
+
+      return this.unregisterObserverEffect ( observer );
+
+    }
+
+  }
+
+  unregisterObserverComputed ( observer: Observer ): void {
+
+    if ( !this.computeds ) {
 
       return;
 
-    } else if ( this.observers instanceof Set ) {
+    } else if ( this.computeds instanceof Set ) {
 
-      this.observers.delete ( observer );
+      this.computeds.delete ( observer );
 
-    } else if ( this.observers === observer ) {
+    } else if ( this.computeds === observer ) {
 
-      this.observers = undefined;
+      this.computeds = undefined;
+
+    }
+
+  }
+
+  unregisterObserverEffect ( observer: Observer ): void {
+
+    if ( !this.effects ) {
+
+      return;
+
+    } else if ( this.effects instanceof Set ) {
+
+      this.effects.delete ( observer );
+
+    } else if ( this.effects === observer ) {
+
+      this.effects = undefined;
 
     }
 
@@ -208,13 +292,20 @@ class Observable<T = unknown> {
 
     if ( this.disposed ) return;
 
-    if ( !this.observers ) {
+    this.emitStaleComputeds ( fresh );
+    this.emitStaleEffects ( fresh );
+
+  }
+
+  emitStaleComputeds ( fresh: boolean ): void {
+
+    if ( !this.computeds ) {
 
       return;
 
-    } else if ( this.observers instanceof Set ) {
+    } else if ( this.computeds instanceof Set ) {
 
-      for ( const observer of this.observers ) {
+      for ( const observer of this.computeds ) {
 
         observer.onStale ( fresh );
 
@@ -222,7 +313,29 @@ class Observable<T = unknown> {
 
     } else {
 
-      this.observers.onStale ( fresh );
+      this.computeds.onStale ( fresh );
+
+    }
+
+  }
+
+  emitStaleEffects ( fresh: boolean ): void {
+
+    if ( !this.effects ) {
+
+      return;
+
+    } else if ( this.effects instanceof Set ) {
+
+      for ( const observer of this.effects ) {
+
+        observer.onStale ( fresh );
+
+      }
+
+    } else {
+
+      this.effects.onStale ( fresh );
 
     }
 
@@ -232,15 +345,22 @@ class Observable<T = unknown> {
 
     if ( this.disposed ) return;
 
-    if ( !this.observers ) {
+    this.emitUnstaleComputeds ( fresh );
+    this.emitUnstaleEffects ( fresh );
+
+  }
+
+  emitUnstaleComputeds ( fresh: boolean ): void {
+
+    if ( !this.computeds ) {
 
       return;
 
-    } else if ( this.observers instanceof Set ) {
+    } else if ( this.computeds instanceof Set ) {
 
       //TODO: Maybe clone the queue, though all tests are passing already
 
-      for ( const observer of this.observers ) {
+      for ( const observer of this.computeds ) {
 
         observer.onUnstale ( fresh );
 
@@ -248,7 +368,31 @@ class Observable<T = unknown> {
 
     } else {
 
-      this.observers.onUnstale ( fresh );
+      this.computeds.onUnstale ( fresh );
+
+    }
+
+  }
+
+  emitUnstaleEffects ( fresh: boolean ): void {
+
+    if ( !this.effects ) {
+
+      return;
+
+    } else if ( this.effects instanceof Set ) {
+
+      //TODO: Maybe clone the queue, though all tests are passing already
+
+      for ( const observer of this.effects ) {
+
+        observer.onUnstale ( fresh );
+
+      }
+
+    } else {
+
+      this.effects.onUnstale ( fresh );
 
     }
 
