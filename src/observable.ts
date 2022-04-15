@@ -17,10 +17,10 @@ class Observable<T = unknown> {
   public value: T;
   public listeners: number;
   public listenedValue: any;
-  private comparator?: ComparatorFunction<T, T>;
-  private computeds?: Set<Observer> | Observer;
-  private effects?: Set<Observer> | Observer;
-  private parent?: Computed;
+  private comparator?: ComparatorFunction<T, T> = undefined;
+  private computeds?: Set<Observer> | Observer = undefined;
+  private effects?: Set<Observer> | Observer = undefined;
+  private parent?: Computed = undefined;
 
   /* CONSTRUCTOR */
 

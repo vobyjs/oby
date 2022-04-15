@@ -15,11 +15,11 @@ class Observer {
   public dirty?: boolean; // If dirty it needs updating
   public staleCount: number = 0;
   public staleFresh: boolean = false;
-  protected cleanups?: CleanupFunction[] | CleanupFunction;
-  protected context?: Context;
-  protected errors?: ErrorFunction[] | ErrorFunction;
-  protected observables?: Observable[] | Observable;
-  protected observers?: Observer[] | Observer;
+  protected cleanups?: CleanupFunction[] | CleanupFunction = undefined;
+  protected context?: Context = undefined;
+  protected errors?: ErrorFunction[] | ErrorFunction = undefined;
+  protected observables?: Observable[] | Observable = undefined;
+  protected observers?: Observer[] | Observer = undefined;
   private parent?: Observer = Owner.get ();
 
   /* REGISTRATION API */
