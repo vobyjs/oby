@@ -12,7 +12,6 @@ class Observer {
 
   /* VARIABLES */
 
-  public dirty?: boolean; // If dirty it needs updating
   public staleCount: number = 0;
   public staleFresh: boolean = false;
   protected cleanups?: CleanupFunction[] | CleanupFunction = undefined;

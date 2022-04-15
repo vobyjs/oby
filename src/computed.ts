@@ -51,13 +51,7 @@ class Computed<T = unknown, TI = unknown> extends Observer {
 
     if ( fresh ) { // The resulting value might change
 
-      if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
-
-        this.dispose ();
-
-      }
-
-      this.dirty = false;
+      this.dispose ();
 
       const valuePrev = this.observable.value;
 

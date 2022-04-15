@@ -33,13 +33,7 @@ class Effect extends Observer {
 
     if ( fresh ) { // Something might change
 
-      if ( this.dirty !== undefined ) { // Skipping unusbscription during the first execution
-
-        this.dispose ();
-
-      }
-
-      this.dirty = false;
+      this.dispose ();
 
       try {
 
