@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import Observer from './observer';
 import Owner from './owner';
 
 /* MAIN */
@@ -11,15 +12,13 @@ function context <T> ( symbol: symbol, value?: T ) {
 
   const observer = Owner.get ();
 
-  if ( !observer ) throw new Error ( 'Invalid context call, no parent computation found' );
-
   if ( arguments.length === 1 ) { // Read
 
-    return observer.updateContext ( symbol );
+    return Observer.updateContext ( observer, symbol );
 
   } else { // Write
 
-    return observer.registerContext ( symbol, value );
+    return Observer.registerContext ( observer, symbol, value );
 
   }
 

@@ -1,232 +1,128 @@
 
 /* IMPORT */
 
+import Computed from './computed';
+import Effect from './effect';
 import Observable from './observable';
-import Owner from './owner';
-import {isArray} from './utils';
-import {CleanupFunction, Context, ErrorFunction} from './types';
+import type {CleanupFunction, ErrorFunction, PlainObservable, PlainObserver} from './types';
 
 /* MAIN */
 
-class Observer {
-
-  /* VARIABLES */
-
-  public staleCount: number = 0;
-  public staleFresh: boolean = false;
-  protected cleanups?: CleanupFunction[] | CleanupFunction = undefined;
-  protected context?: Context = undefined;
-  protected errors?: ErrorFunction[] | ErrorFunction = undefined;
-  protected observables?: Observable[] | Observable = undefined;
-  protected observers?: Observer[] | Observer = undefined;
-  private parent?: Observer = Owner.get ();
+const Observer = {
 
   /* REGISTRATION API */
 
-  registerCleanup ( cleanup: CleanupFunction ): void {
+  registerCleanup: ( observer: PlainObserver, cleanup: CleanupFunction ): void => {
 
-    if ( !this.cleanups ) {
+    observer.cleanups.push ( cleanup );
 
-      this.cleanups = cleanup;
+  },
 
-    } else if ( isArray ( this.cleanups ) ) {
+  registerContext: <T> ( observer: PlainObserver, symbol: symbol, value: T ): T => {
 
-      this.cleanups.push ( cleanup );
+    return observer.context[symbol] = value;
 
-    } else {
+  },
 
-      this.cleanups = [this.cleanups, cleanup];
+  registerError: ( observer: PlainObserver, error: ErrorFunction ): void => {
 
-    }
+    observer.errors.push ( error );
 
-  }
+  },
 
-  registerContext <T> ( symbol: symbol, value: T ): T {
+  registerObservable: ( observer: PlainObserver, observable: PlainObservable ): void => {
 
-    if ( !this.context ) this.context = {};
+    observer.observables.push ( observable );
 
-    this.context[symbol] = value;
+  },
 
-    return value;
+  registerObserver: ( observer: PlainObserver, observer2: PlainObserver ): void => {
 
-  }
+    observer.observers.push ( observer2 );
 
-  registerError ( error: ErrorFunction ): void {
+  },
 
-    if ( !this.errors ) {
+  unregisterObserver ( observer: PlainObserver, observer2: PlainObserver ): void {
 
-      this.errors = error;
+    //TODO: Make this never slow, it's still ok if things are not deleted
 
-    } else if ( isArray ( this.errors ) ) {
+    observer.observers = observer.observers.filter ( observer => observer !== observer2 );
 
-      this.errors.push ( error );
-
-    } else {
-
-      this.errors = [this.errors, error];
-
-    }
-
-  }
-
-  registerObservable ( observable: Observable ): void {
-
-    if ( !this.observables ) {
-
-      this.observables = observable;
-
-    } else if ( isArray ( this.observables ) ) {
-
-      this.observables.push ( observable );
-
-    } else {
-
-      this.observables = [this.observables, observable];
-
-    }
-
-  }
-
-  registerObserver ( observer: Observer ): void {
-
-    if ( !this.observers ) {
-
-      this.observers = observer;
-
-    } else if ( isArray ( this.observers ) ) {
-
-      this.observers.push ( observer );
-
-    } else {
-
-      this.observers = [this.observers, observer];
-
-    }
-
-  }
-
-  registerSelf (): void {
-
-    const {observables} = this;
-
-    if ( !observables ) {
-
-      return;
-
-    } else if ( isArray ( observables ) ) {
-
-      Owner.registerObservables ( observables );
-
-    } else {
-
-      Owner.registerObservable ( observables );
-
-    }
-
-  }
-
-  unregisterObserver ( observer: Observer ): void {
-
-    if ( !this.observers ) {
-
-      return;
-
-    } else if ( isArray ( this.observers ) ) {
-
-      if ( this.observers.length < 3 ) { //TODO: Otherwise it may be expensive, and unregistering an observer is not stricly necessary, though this is kind of ugly
-
-        const first = this.observers[0];
-        const second = this.observers[1];
-
-        if ( first === observer ) {
-
-          this.observers = second;
-
-        } else if ( second === observer ) {
-
-          this.observers = first;
-
-        }
-
-      }
-
-    } else if ( this.observers === observer ) {
-
-      this.observers = undefined;
-
-    }
-
-  }
+  },
 
   /* API */
 
-  onStale ( fresh: boolean ): void {
+  onStale: ( observer: PlainObserver, fresh: boolean ): void => {
 
-    this.staleCount += 1;
-
-    if ( fresh ) {
-
-      this.staleFresh = true;
-
-    }
-
-  }
-
-  onUnstale ( fresh: boolean ): void {
-
-    if ( !this.staleCount ) return;
-
-    if ( this.staleCount ) {
-
-      this.staleCount -= 1;
-
-    }
+    observer.staleCount += 1;
 
     if ( fresh ) {
 
-      this.staleFresh = true;
+      observer.staleFresh = true;
 
     }
 
-    if ( !this.staleCount ) {
+  },
 
-      const fresh = this.staleFresh;
+  onUnstale: ( observer: PlainObserver, fresh: boolean ): void => {
 
-      this.staleFresh = false;
+    if ( !observer.staleCount ) return; //TODO: If this happens is probably an error
 
-      this.update ( fresh );
+    observer.staleCount -= 1;
+
+    if ( fresh ) {
+
+      observer.staleFresh = true;
 
     }
 
-  }
+    if ( !observer.staleCount ) {
 
-  update ( fresh: boolean ): void {}
+      const fresh = observer.staleFresh;
 
-  updateContext <T> ( symbol: symbol ): T | undefined {
+      observer.staleFresh = false;
 
-    const {context, parent} = this;
+      Observer.update ( observer, fresh );
+
+    }
+
+  },
+
+  update: ( observer: PlainObserver, fresh: boolean ): void => {
+
+    if ( observer.symbol === 3 ) {
+
+      Computed.update ( observer, fresh );
+
+    }
+
+    if ( observer.symbol === 4 ) {
+
+      Effect.update ( observer, fresh );
+
+    }
+
+  },
+
+  updateContext: <T> ( observer: PlainObserver, symbol: symbol ): T | undefined => {
+
+    const {context, parent} = observer;
 
     if ( context && symbol in context ) return context[symbol];
 
-    return parent?.updateContext ( symbol );
+    if ( !parent ) return;
 
-  }
+    return Observer.updateContext ( parent, symbol );
 
-  updateError ( error: unknown, silent?: boolean ): boolean {
+  },
 
-    const {errors, parent} = this;
+  updateError: ( observer: PlainObserver, error: unknown, silent?: boolean ): boolean => {
 
-    if ( errors ) {
+    const {errors, parent} = observer;
 
-      if ( isArray ( errors ) ) {
+    if ( errors.length ) {
 
-        errors.forEach ( fn => fn ( error ) );
-
-      } else {
-
-        errors ( error );
-
-      }
+      errors.forEach ( fn => fn ( error ) );
 
       return true;
 
@@ -234,7 +130,7 @@ class Observer {
 
       if ( parent ) {
 
-        if ( parent.updateError ( error, true ) ) return true;
+        if ( Observer.updateError ( parent, error, true ) ) return true;
 
       }
 
@@ -242,67 +138,54 @@ class Observer {
 
         throw error;
 
-      }
-
-      return false;
-
-    }
-
-  }
-
-  dispose (): void {
-
-    const {observers, observables, cleanups, errors, context} = this;
-
-    if ( observers ) {
-      this.observers = undefined;
-      if ( isArray ( observers ) ) {
-        for ( let i = 0, l = observers.length; i < l; i++ ) {
-          observers[i].dispose ();
-        }
       } else {
-        observers.dispose ();
+
+        return false;
+
+      }
+
+    }
+
+  },
+
+  dispose: ( observer: PlainObserver ): void => {
+
+    const {observers, observables, cleanups, errors, context} = observer;
+
+    if ( observers.length ) {
+      observer.observers = [];
+      for ( let i = 0, l = observers.length; i < l; i++ ) {
+        Observer.dispose ( observers[i] );
       }
     }
 
-    if ( observables ) {
-      this.observables = undefined;
-      if ( isArray ( observables ) ) {
-        for ( let i = 0, l = observables.length; i < l; i++ ) {
-          const observable = observables[i];
-          if ( !observable.disposed ) {
-            observable.unregisterObserver ( this );
-          }
-        }
-      } else {
-        if ( !observables.disposed ) {
-          observables.unregisterObserver ( this );
-        }
+    if ( observables.length ) {
+      observer.observables = [];
+      for ( let i = 0, l = observables.length; i < l; i++ ) {
+        const observable = observables[i];
+        if ( observable.disposed ) continue;
+        Observable.unregisterObserver ( observable, observer );
       }
     }
 
-    if ( cleanups ) {
-      this.cleanups = undefined;
-      if ( isArray ( cleanups ) ) {
-        for ( let i = 0, l = cleanups.length; i < l; i++ ) {
-          cleanups[i]();
-        }
-      } else {
-        cleanups ();
+    if ( cleanups.length ) {
+      observer.cleanups = [];
+      for ( let i = 0, l = cleanups.length; i < l; i++ ) {
+        cleanups[i]();
       }
     }
 
-    if ( errors ) {
-      this.errors = undefined;
+    if ( errors.length ) {
+      observer.errors = [];
     }
 
     if ( context ) {
-      this.context = undefined;
+      observer.context = {};
     }
 
   }
 
-}
+};
 
 /* EXPORT */
 

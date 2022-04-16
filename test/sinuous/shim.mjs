@@ -1,33 +1,38 @@
 
 import oby from '../../dist/index.js';
-import Computed from '../../dist/computed.js';
-import Observer from '../../dist/observer.js';
+
+const $ = oby.default;
 
 const comparator = () => false;
 
 const observable = value => {
-  return oby.default ( value, { comparator } );
+  return $ ( value, { comparator } );
 };
 
 const computed = ( fn, value ) => {
-  const observable = oby.default.computed ( fn, value, { comparator } );
+  const observable = $.computed ( fn, value, { comparator } );
   return () => observable.get ();
 };
 
 const subscribe = fn => {
-  fn._computed = new Computed.default ( fn, undefined, { comparator } );
-  return () => unsubscribe ( fn );
+  const dispose = $.root ( dispose => {
+    $.computed ( fn, undefined, { comparator } );
+    return dispose;
+  });
+  $.cleanup ( dispose );
+  fn._dispose = dispose;
+  return () => dispose ();
 };
 
 const unsubscribe = fn => {
-  fn._computed.dispose ();
+  fn._dispose ();
 };
 
 const o = observable;
 const S = computed;
-const root = oby.default.root;
-const transaction = oby.default.batch;
-const sample = oby.default.sample;
-const cleanup = oby.default.cleanup;
+const root = $.root;
+const transaction = $.batch;
+const sample = $.sample;
+const cleanup = $.cleanup;
 
 export {o, S, root, sample, transaction, observable, computed, cleanup, subscribe, unsubscribe};

@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {SYMBOL} from './constants';
-import {ObservableAny} from './types';
+import type {ObservableAny} from './types';
 
 /* MAIN */
 

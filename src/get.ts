@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import is from './is';
-import {ObservableResolved} from './types';
+import type {ObservableResolved} from './types';
 
 /* MAIN */
 

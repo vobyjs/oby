@@ -16,7 +16,7 @@
     "test:native:watch": "fava -w '**/native/**'",
     "test:sinuous": "bash test/sinuous/index.sh",
     "test": "npm run test:sinuous && npm run test:native",
-    "prepublishOnly": "npm run clean && npm run compile && npm run test && npm run compile:bundle && npm run test:native"
+    "prepublishOnly": "npm run clean && npm run compile && npm run test && npm run compile:bundle && npm run test"
   },
   "bugs": {
     "url": "https://github.com/fabiospampinato/oby/issues"

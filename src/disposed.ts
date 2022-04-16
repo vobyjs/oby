@@ -4,18 +4,18 @@
 import {readable} from './callable';
 import Observable from './observable';
 import Owner from './owner';
-import {ObservableReadonly} from './types';
+import type {ObservableReadonly} from './types';
 
 /* MAIN */
 
 const disposed = (): ObservableReadonly<boolean> => {
 
-  const observable = new Observable ( false );
+  const observable = Observable.create<boolean, boolean> ( false );
 
   Owner.registerCleanup ( () => {
 
-    observable.set ( true );
-    observable.dispose ();
+    Observable.set ( observable, true );
+    Observable.dispose ( observable );
 
   });
 

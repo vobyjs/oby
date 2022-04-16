@@ -87,7 +87,7 @@ const benchmark = async () => {
 
   let total = 0;
 
-  for ( const layers of [10, 20, 30, 50, 100, 1000, 5000] ) {
+  for ( const layers of [10, 20, 30, 50, 100, 1000, 2500] ) {
 
     console.log ( '----' );
 

@@ -3,17 +3,17 @@
 
 import Observer from './observer';
 import Owner from './owner';
-import {OwnerFunction} from './types';
+import type {OwnerFunction, PlainRoot} from './types';
 
 /* MAIN */
 
-class Root extends Observer {
+const Root = {
 
-  /* STATIC API */
+  /* WRAPPING API */
 
-  static wrap <T> ( fn: OwnerFunction<T> ): T {
+  wrap: <T> ( fn: OwnerFunction<T> ): T => {
 
-    const root = new Root ();
+    const root = Root.create ();
 
     let result: T;
 
@@ -23,15 +23,33 @@ class Root extends Observer {
 
     } catch ( error: unknown ) {
 
-      root.updateError ( error );
+      Observer.updateError ( root, error );
 
     }
 
     return result!;
 
+  },
+
+  /* API */
+
+  create: (): PlainRoot => {
+
+    return {
+      symbol: 5,
+      staleCount: 0,
+      staleFresh: false,
+      cleanups: [],
+      context: {},
+      errors: [],
+      observables: [],
+      observers: [],
+      parent: Owner.get ()
+    };
+
   }
 
-}
+};
 
 /* EXPORT */
 

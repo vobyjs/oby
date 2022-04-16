@@ -5,404 +5,197 @@ import batch from './batch';
 import Computed from './computed';
 import Observer from './observer';
 import Owner from './owner';
-import {ComparatorFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableOptions} from './types';
+import type {ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableOptions, PlainObservable, PlainObserver} from './types';
 
 /* MAIN */
 
-class Observable<T = unknown> {
-
-  /* VARIABLES */
-
-  public disposed: boolean;
-  public value: T;
-  public listeners: number;
-  public listenedValue: any;
-  private comparator?: ComparatorFunction<T, T> = undefined;
-  private computeds?: Set<Observer> | Observer = undefined;
-  private effects?: Set<Observer> | Observer = undefined;
-  private parent?: Computed = undefined;
-
-  /* CONSTRUCTOR */
-
-  constructor ( value: T, options?: ObservableOptions<T, T>, parent?: Computed ) {
-
-    this.disposed = false;
-    this.value = value;
-
-    if ( options ) {
-
-      if ( options.comparator ) {
-
-        this.comparator = options.comparator;
-
-      }
-
-    }
-
-    if ( parent ) {
-
-      this.parent = parent;
-
-    }
-
-  }
+const Observable = {
 
   /* REGISTRATION API */
 
-  registerObserver ( observer: Observer ): boolean {
+  registerObserver: <T, TI> ( observable: PlainObservable<T, TI>, observer: PlainObserver ): boolean => {
 
-    if ( observer instanceof Computed ) {
+    const set = ( observer.symbol === 3 ) ? observable.computeds : observable.effects;
 
-      return this.registerObserverComputed ( observer );
+    const sizePrev = set.size;
 
-    } else {
+    set.add ( observer );
 
-      return this.registerObserverEffect ( observer );
+    const sizeNext = set.size;
 
-    }
+    return ( sizePrev !== sizeNext );
 
-  }
+  },
 
-  registerObserverComputed ( observer: Observer ): boolean {
+  unregisterObserver: <T, TI> ( observable: PlainObservable<T, TI>, observer: PlainObserver ): void => {
 
-    if ( !this.computeds ) {
+    const set = ( observer.symbol === 3 ) ? observable.computeds : observable.effects;
 
-      this.computeds = observer;
+    set.delete ( observer );
 
-      return true;
+  },
 
-    } else if ( this.computeds instanceof Set ) {
+  registerSelf: <T, TI> ( observable: PlainObservable<T, TI> ): void => {
 
-      const sizePrev = this.computeds.size;
+    if ( observable.disposed ) return;
 
-      this.computeds.add ( observer );
+    Owner.registerObservable ( observable );
 
-      const sizeNext = this.computeds.size;
+    if ( observable.parent && observable.parent.staleCount ) { //FIXME: observable is probably buggy, if it's refreshed early and the counter is reset it may not update itself when one of its dependencies change
 
-      return ( sizePrev !== sizeNext );
+      observable.parent.staleCount = 0;
+      observable.parent.staleFresh = false;
 
-    } else if ( this.computeds === observer ) {
-
-      return false;
-
-    } else {
-
-      const observerPrev = this.computeds;
-
-      this.computeds = new Set ();
-
-      this.computeds.add ( observerPrev );
-      this.computeds.add ( observer );
-
-      return true;
+      Observer.update ( observable.parent, true );
 
     }
 
-  }
-
-  registerObserverEffect ( observer: Observer ): boolean {
-
-    if ( !this.effects ) {
-
-      this.effects = observer;
-
-      return true;
-
-    } else if ( this.effects instanceof Set ) {
-
-      const sizePrev = this.effects.size;
-
-      this.effects.add ( observer );
-
-      const sizeNext = this.effects.size;
-
-      return ( sizePrev !== sizeNext );
-
-    } else if ( this.effects === observer ) {
-
-      return false;
-
-    } else {
-
-      const observerPrev = this.effects;
-
-      this.effects = new Set ();
-
-      this.effects.add ( observerPrev );
-      this.effects.add ( observer );
-
-      return true;
-
-    }
-
-  }
-
-  unregisterObserver ( observer: Observer ): void {
-
-    if ( observer instanceof Computed ) {
-
-      return this.unregisterObserverComputed ( observer );
-
-    } else {
-
-      return this.unregisterObserverEffect ( observer );
-
-    }
-
-  }
-
-  unregisterObserverComputed ( observer: Observer ): void {
-
-    if ( !this.computeds ) {
-
-      return;
-
-    } else if ( this.computeds instanceof Set ) {
-
-      this.computeds.delete ( observer );
-
-    } else if ( this.computeds === observer ) {
-
-      this.computeds = undefined;
-
-    }
-
-  }
-
-  unregisterObserverEffect ( observer: Observer ): void {
-
-    if ( !this.effects ) {
-
-      return;
-
-    } else if ( this.effects instanceof Set ) {
-
-      this.effects.delete ( observer );
-
-    } else if ( this.effects === observer ) {
-
-      this.effects = undefined;
-
-    }
-
-  }
-
-  registerSelf (): void {
-
-    if ( this.disposed ) return;
-
-    Owner.registerObservable ( this );
-
-    if ( this.parent && this.parent.staleCount ) { //FIXME: This is probably buggy, if it's refreshed early and the counter is reset it may not update itself when one of its dependencies change
-
-      this.parent.staleCount = 0;
-      this.parent.staleFresh = false;
-
-      this.parent.update ( true );
-
-    }
-
-  }
+  },
 
   /* API */
 
-  get (): T {
+  create: <T, TI> ( value: T, options?: ObservableOptions<T, TI> ): PlainObservable<T, TI> => {
 
-    this.registerSelf ();
+    return {
+      symbol: 1,
+      disposed: false,
+      value,
+      listeners: 0,
+      listenedValue: undefined,
+      comparator: options?.comparator || Object.is,
+      computeds: new Set (),
+      effects: new Set (),
+      parent: undefined
+    }
 
-    return this.value;
+  },
 
-  }
+  get: <T, TI> ( observable: PlainObservable<T, TI> ): T | TI => {
 
-  sample (): T {
+    Observable.registerSelf ( observable );
 
-    return this.value;
+    return observable.value;
 
-  }
+  },
 
-  select <R> ( fn: SelectFunction<T, R>, options?: ObservableOptions<R, R> ): ObservableReadonly<R> {
+  sample: <T, TI> ( observable: PlainObservable<T, TI> ): T | TI => {
+
+    return observable.value;
+
+  },
+
+  select: <T, TI, R> ( observable: PlainObservable<T, TI>, fn: SelectFunction<T | TI, R>, options?: ObservableOptions<R, R> ): ObservableReadonly<R> => {
 
     return Computed.wrap ( () => {
 
-      return fn ( this.get () );
+      return fn ( Observable.get ( observable ) );
 
     }, undefined, options );
 
-  }
+  },
 
-  set ( value: T ): T {
+  set: <T, TI> ( observable: PlainObservable<T, TI>, value: T ): T => {
 
-    if ( this.disposed ) throw new Error ( 'A disposed Observable can not be updated' );
+    if ( observable.disposed ) throw new Error ( 'A disposed Observable can not be updated' );
 
     if ( batch.queue ) {
 
-      batch.queue.set ( this, value );
+      batch.queue.set ( observable, value );
 
       return value;
 
     } else {
 
-      const comparator = this.comparator || Object.is;
-      const fresh = !comparator ( value, this.value );
+      const fresh = !observable.comparator ( value, observable.value );
 
-      if ( !this.parent ) {
+      if ( !observable.parent ) {
 
-        this.emitStale ( fresh );
+        Observable.emitStale (observable, fresh );
 
       }
 
-      this.value = ( fresh ? value : this.value );
+      const valueNext: T = ( fresh ? value : observable.value ) as any;
 
-      this.emitUnstale ( fresh );
+      observable.value = valueNext;
 
-      return this.value;
+      Observable.emitUnstale ( observable, fresh );
+
+      return valueNext;
 
     }
 
-  }
+  },
 
-  produce ( fn: ProduceFunction<T> ): T { //TODO: Implement this properly, with good performance and ~arbitrary values support (using immer?)
+  produce: <T, TI> ( observable: PlainObservable<T, TI>, fn: ProduceFunction<T | TI, T> ): T => { //TODO: Implement this properly, with good performance and ~arbitrary values support (using immer?)
 
-    const valueClone: T = JSON.parse ( JSON.stringify ( this.value ) );
+    const valueClone: T = JSON.parse ( JSON.stringify ( observable.value ) );
     const valueResult = fn ( valueClone );
     const valueNext = ( valueResult === undefined ? valueClone : valueResult );
 
-    return this.set ( valueNext );
+    return Observable.set ( observable, valueNext );
 
-  }
+  },
 
-  update ( fn: UpdateFunction<T> ): T {
+  update: <T, TI> ( observable: PlainObservable<T, TI>, fn: UpdateFunction<T | TI, T> ): T => {
 
-    const valueNext = fn ( this.value );
+    const valueNext = fn ( observable.value );
 
-    return this.set ( valueNext );
+    return Observable.set ( observable, valueNext );
 
-  }
+  },
 
-  emit ( fresh: boolean ): void {
+  emit: <T, TI> ( observable: PlainObservable<T, TI>, fresh: boolean ): void => {
 
-    this.emitStale ( fresh );
-    this.emitUnstale ( fresh );
+    Observable.emitStale ( observable, fresh );
+    Observable.emitUnstale ( observable, fresh );
 
-  }
+  },
 
-  emitStale ( fresh: boolean ): void {
+  emitStale: <T, TI> ( observable: PlainObservable<T, TI>, fresh: boolean ): void => {
 
-    if ( this.disposed ) return;
+    if ( observable.disposed ) return;
 
-    this.emitStaleComputeds ( fresh );
-    this.emitStaleEffects ( fresh );
+    for ( const observer of observable.computeds ) {
 
-  }
-
-  emitStaleComputeds ( fresh: boolean ): void {
-
-    if ( !this.computeds ) {
-
-      return;
-
-    } else if ( this.computeds instanceof Set ) {
-
-      for ( const observer of this.computeds ) {
-
-        observer.onStale ( fresh );
-
-      }
-
-    } else {
-
-      this.computeds.onStale ( fresh );
+      Computed.onStale ( observer as any, fresh ); //TSC
 
     }
 
-  }
+    for ( const observer of observable.effects ) {
 
-  emitStaleEffects ( fresh: boolean ): void {
-
-    if ( !this.effects ) {
-
-      return;
-
-    } else if ( this.effects instanceof Set ) {
-
-      for ( const observer of this.effects ) {
-
-        observer.onStale ( fresh );
-
-      }
-
-    } else {
-
-      this.effects.onStale ( fresh );
+      Observer.onStale ( observer, fresh );
 
     }
 
-  }
+  },
 
-  emitUnstale ( fresh: boolean ): void {
+  emitUnstale: <T, TI> ( observable: PlainObservable<T, TI>, fresh: boolean ): void => {
 
-    if ( this.disposed ) return;
+    if ( observable.disposed ) return;
 
-    this.emitUnstaleComputeds ( fresh );
-    this.emitUnstaleEffects ( fresh );
+    //TODO: Maybe clone the queues, though all tests are passing already
 
-  }
+    for ( const observer of observable.computeds ) {
 
-  emitUnstaleComputeds ( fresh: boolean ): void {
-
-    if ( !this.computeds ) {
-
-      return;
-
-    } else if ( this.computeds instanceof Set ) {
-
-      //TODO: Maybe clone the queue, though all tests are passing already
-
-      for ( const observer of this.computeds ) {
-
-        observer.onUnstale ( fresh );
-
-      }
-
-    } else {
-
-      this.computeds.onUnstale ( fresh );
+      Observer.onUnstale ( observer, fresh );
 
     }
 
-  }
+    for ( const observer of observable.effects ) {
 
-  emitUnstaleEffects ( fresh: boolean ): void {
-
-    if ( !this.effects ) {
-
-      return;
-
-    } else if ( this.effects instanceof Set ) {
-
-      //TODO: Maybe clone the queue, though all tests are passing already
-
-      for ( const observer of this.effects ) {
-
-        observer.onUnstale ( fresh );
-
-      }
-
-    } else {
-
-      this.effects.onUnstale ( fresh );
+      Observer.onUnstale ( observer, fresh );
 
     }
 
+  },
+
+  dispose: <T, TI> ( observable: PlainObservable<T, TI> ): void => {
+
+    observable.disposed = true;
+
   }
 
-  dispose (): void {
-
-    this.disposed = true;
-
-  }
-
-}
+};
 
 /* EXPORT */
 

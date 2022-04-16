@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import Observable from './observable';
-import {BatchFunction} from './types';
+import type {BatchFunction, PlainObservable} from './types';
 
 /* MAIN */
 
@@ -14,7 +14,7 @@ const batch = ( fn: BatchFunction ): void => {
 
   } else { // Starting batching
 
-    const queue = batch.queue = new Map ();
+    const queue = batch.queue = new Map<PlainObservable, unknown> ();
 
     try {
 
@@ -26,7 +26,7 @@ const batch = ( fn: BatchFunction ): void => {
 
       queue.forEach ( ( value, observable ) => {
 
-        observable.set ( value );
+        Observable.set ( observable, value );
 
       });
 
@@ -38,7 +38,7 @@ const batch = ( fn: BatchFunction ): void => {
 
 /* UTILITIES */
 
-batch.queue = <Map<Observable, unknown> | undefined> undefined;
+batch.queue = <Map<PlainObservable, unknown> | undefined> undefined;
 
 /* EXPORT */
 

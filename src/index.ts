@@ -10,11 +10,11 @@ import Effect from './effect';
 import from from './from';
 import get from './get';
 import is from './is';
-import ObservableClass from './observable';
+import ObservableObject from './observable';
 import Owner from './owner';
 import Root from './root';
 import selector from './selector';
-import {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions, ObserverPublic} from './types';
+import type {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions, ObserverPublic} from './types';
 
 /* MAIN */
 
@@ -23,7 +23,7 @@ function observable <T> ( value: undefined, options?: ObservableOptions<T, T | u
 function observable <T> ( value: T, options?: ObservableOptions<T, T> ): Observable<T>;
 function observable <T> ( value?: T, options?: ObservableOptions<T, T | undefined> ) {
 
-  return writable ( new ObservableClass ( value, options ) );
+  return writable ( ObservableObject.create ( value, options ) );
 
 }
 

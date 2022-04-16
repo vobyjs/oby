@@ -3,53 +3,68 @@
 
 import Observer from './observer';
 import Owner from './owner';
-import {DisposeFunction, EffectFunction} from './types';
+import type {DisposeFunction, EffectFunction, PlainEffect} from './types';
 
 /* MAIN */
 
-class Effect extends Observer {
+const Effect = {
 
-  /* VARIABLES */
+  /* WRAPPING API */
 
-  private fn: EffectFunction;
+  wrap: ( fn: EffectFunction ): DisposeFunction => {
 
-  /* CONSTRUCTOR */
+    const effect = Effect.create ( fn );
 
-  constructor ( fn: EffectFunction ) {
+    return Observer.dispose.bind ( undefined, effect );
 
-    super ();
-
-    this.fn = fn;
-
-    Owner.registerObserver ( this );
-
-    this.update ( true );
-
-  }
+  },
 
   /* API */
 
-  update ( fresh: boolean ): void {
+  create: ( fn: EffectFunction ): PlainEffect => {
+
+    const effect: PlainEffect = {
+      symbol: 4,
+      staleCount: 0,
+      staleFresh: false,
+      cleanups: [],
+      context: {},
+      errors: [],
+      observables: [],
+      observers: [],
+      parent: Owner.get (),
+      fn
+    };
+
+    Owner.registerObserver ( effect );
+
+    Effect.update ( effect, true );
+
+    return effect;
+
+  },
+
+  update: ( effect: PlainEffect, fresh: boolean ): void => {
 
     if ( fresh ) { // Something might change
 
-      this.dispose ();
+      Observer.dispose ( effect );
 
       try {
 
-        const cleanup = Owner.wrapWith ( this.fn, this );
+        const cleanup = Owner.wrapWith ( effect.fn, effect );
 
         if ( cleanup ) {
 
-          this.registerCleanup ( cleanup );
+          Observer.registerCleanup ( effect, cleanup );
 
         } else {
 
-          if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
+          if ( !effect.observers.length && !effect.observables.length && !effect.cleanups.length ) { // Auto-disposable
 
-            this.dispose ();
+            Observer.dispose ( effect );
 
-            Owner.unregisterObserver ( this );
+            Owner.unregisterObserver ( effect );
 
           }
 
@@ -57,7 +72,7 @@ class Effect extends Observer {
 
       } catch ( error: unknown ) {
 
-        this.updateError ( error );
+        Observer.updateError ( effect, error );
 
       }
 
@@ -65,17 +80,7 @@ class Effect extends Observer {
 
   }
 
-  /* STATIC API */
-
-  static wrap ( fn: EffectFunction ): DisposeFunction {
-
-    const effect = new Effect ( fn );
-
-    return effect.dispose.bind ( effect );
-
-  }
-
-}
+};
 
 /* EXPORT */
 

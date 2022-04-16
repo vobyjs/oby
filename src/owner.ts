@@ -1,14 +1,16 @@
 
 /* IMPORT */
 
+import {NOOP} from './constants';
 import Observable from './observable';
 import Observer from './observer';
-import Root from './root';
-import {CleanupFunction, ObserverPublic, OwnerFunction, ErrorFunction} from './types';
+import SuperRoot from './superroot';
+import type {CleanupFunction, ErrorFunction, OwnerFunction, PlainObservable, PlainObserver, ObserverPublic} from './types';
 
 /* HELPERS */
 
-let owner: Observer | undefined = undefined;
+let superowner = SuperRoot.create ();
+let owner: PlainObserver = superowner;
 let isSampling = false;
 
 /* MAIN */
@@ -19,71 +21,58 @@ const Owner = {
 
   registerCleanup: ( cleanup: CleanupFunction ): void => {
 
-    owner?.registerCleanup ( cleanup );
+    if ( owner === superowner ) return; //TODO: Show error message during development
+
+    Observer.registerCleanup ( owner, cleanup );
 
   },
 
   registerError: ( error: ErrorFunction ): void => {
 
-    owner?.registerError ( error );
+    if ( owner === superowner ) return; //TODO: Delete this, just a test
+
+    Observer.registerError ( owner, error );
 
   },
 
-  registerObservable: ( observable: Observable ): void => {
-
-    if ( !owner ) return;
+  registerObservable: ( observable: PlainObservable ): void => {
 
     if ( isSampling ) return;
 
-    if ( owner instanceof Root ) return;
+    if ( owner.symbol === 5 || owner.symbol === 6 ) return;
 
-    const gotRegistered = observable.registerObserver ( owner );
+    const isNewObserver = Observable.registerObserver ( observable, owner );
 
-    if ( !gotRegistered ) return;
+    if ( !isNewObserver ) return;
 
-    owner.registerObservable ( observable );
-
-  },
-
-  registerObservables: ( observables: Observable[] ): void => {
-
-    if ( !owner ) return;
-
-    if ( isSampling ) return;
-
-    for ( let i = 0, l = observables.length; i < l; i++ ) {
-
-      const observable = observables[i];
-      const gotRegistered = observable.registerObserver ( owner );
-
-      if ( !gotRegistered ) continue;
-
-      owner.registerObservable ( observable );
-
-    }
+    Observer.registerObservable ( owner, observable );
 
   },
 
-  registerObserver: ( observer: Observer ): void => {
+  registerObserver: ( observer: PlainObserver ): void => {
 
-    owner?.registerObserver ( observer );
+    if ( owner === superowner ) return; //TODO: Show error message during development
+
+    Observer.registerObserver ( owner, observer );
 
   },
 
-  unregisterObserver: ( observer: Observer ): void => {
+  unregisterObserver: ( observer: PlainObserver ): void => {
 
-    owner?.unregisterObserver ( observer );
+    if ( owner === superowner ) return;
+
+    Observer.unregisterObserver ( owner, observer );
 
   },
 
   /* WRAPPING API */
 
-  wrapWith: <T> ( fn: OwnerFunction<T>, observer?: Observer, disposable?: boolean, sampling?: boolean ): T => {
+  wrapWith: <T> ( fn: OwnerFunction<T>, observer?: PlainObserver, disposable?: boolean, sampling?: boolean ): T => {
 
     const ownerPrev = owner;
     const samplingPrev = isSampling;
 
-    owner = observer;
+    owner = observer || superowner;
     isSampling = !!sampling;
 
     try {
@@ -117,25 +106,27 @@ const Owner = {
 
   /* API */
 
-  dispose: ( observer: Observer ): void => {
+  dispose: ( observer: PlainObserver ): void => {
 
     //TODO: Maybe throw if disposing a root different from the current one, or implement this properly, setting the _current_ observer to undefined is a mistake
 
-    observer.dispose ();
+    Observer.dispose ( observer );
 
-    owner = undefined;
+    owner = superowner;
 
   },
 
-  get: (): Observer | undefined => {
+  get: (): PlainObserver => {
 
     return owner;
 
   },
 
-  getPublic: (): ObserverPublic | undefined => {
+  getPublic: (): ObserverPublic => {
 
-    return owner;
+    const dispose = ( owner !== superowner ) ? Observer.dispose.bind ( undefined, owner ) : NOOP;
+
+    return { dispose };
 
   }
 

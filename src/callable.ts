@@ -2,25 +2,29 @@
 /* IMPORT */
 
 import {SYMBOL} from './constants';
-import {setPrototypeOf} from './utils';
+import Observable from './observable';
+
+/* HELPERS */
+
+const {setPrototypeOf} = Object;
 
 /* READABLE */
 
 function readableFunction ( arg ) {
   if ( arg === SYMBOL ) return this;
-  return this.get ();
+  return Observable.get ( this );
 }
 
 const readablePrototype = {
   [SYMBOL]: true,
   get () {
-    return this ( SYMBOL ).get ();
+    return Observable.get ( this ( SYMBOL ) );
   },
   sample () {
-    return this ( SYMBOL ).sample ();
+    return Observable.sample ( this ( SYMBOL ) );
   },
   select ( fn ) {
-    return this ( SYMBOL ).select ( fn );
+    return Observable.select ( this ( SYMBOL ), fn );
   },
   isDisposed () {
     return false;
@@ -41,26 +45,26 @@ const readable = readableFunction.bind.bind ( readableFunction );
 
 function writableFunction ( arg ) {
   if ( arg === SYMBOL ) return this;
-  if ( arguments.length ) return this.set ( arg );
-  return this.get ();
+  if ( arguments.length ) return Observable.set ( this, arg );
+  return Observable.get ( this );
 }
 
 const writablePrototype = {
   ...readablePrototype,
   set ( value ) {
-    return this ( SYMBOL ).set ( value );
+    return Observable.set ( this ( SYMBOL ), value );
   },
   produce ( fn ) {
-    return this ( SYMBOL ).produce ( fn );
+    return Observable.produce ( this ( SYMBOL ), fn );
   },
   update ( fn ) {
-    return this ( SYMBOL ).update ( fn );
+    return Observable.update ( this ( SYMBOL ), fn );
   },
   emit () {
-    return this ( SYMBOL ).emit ( true );
+    return Observable.emit ( this ( SYMBOL ), true );
   },
   dispose () {
-    return this ( SYMBOL ).dispose ();
+    return Observable.dispose ( this ( SYMBOL ) );
   },
   isDisposed () {
     return this ( SYMBOL ).disposed;

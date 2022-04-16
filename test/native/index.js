@@ -1580,15 +1580,28 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'throws if called outside of an observer', t => {
+    it ( 'works even outside a manually created owner', t => {
 
-      t.throws ( () => {
+      const ctx = Symbol ();
+      const value = { foo: 123 };
 
-        const ctx = Symbol ();
+      $.context ( ctx, value );
 
-        $.context ( ctx );
+      t.is ( $.context ( ctx ), value );
 
-      }, { message: 'Invalid context call, no parent computation found' } );
+      $.effect ( () => {
+
+        t.is ( $.context ( ctx ), value );
+
+        const value2 = { foo: 321 };
+
+        $.context ( ctx, value2 );
+
+        t.is ( $.context ( ctx ), value2 );
+
+      });
+
+      t.is ( $.context ( ctx ), value );
 
     });
 
@@ -2388,21 +2401,21 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'returns undefined outside an owner', t => {
+    it ( 'returns an owner even outside a manually created owner', t => {
 
-      t.is ( $.owner (), undefined );
+      t.true ( !!$.owner () );
 
       $.root ( () => {} );
 
-      t.is ( $.owner (), undefined );
+      t.true ( !!$.owner () );
 
       $.effect ( () => {} );
 
-      t.is ( $.owner (), undefined );
+      t.true ( !!$.owner () );
 
       $.computed ( () => {} );
 
-      t.is ( $.owner (), undefined );
+      t.true ( !!$.owner () );
 
     });
 

@@ -4,16 +4,16 @@
 import {readable, writable} from './callable';
 import Effect from './effect';
 import Observable from './observable';
-import {FromFunction, ObservableReadonlyWithoutInitial, ObservableOptions} from './types';
+import type {FromFunction, ObservableReadonlyWithoutInitial, ObservableOptions} from './types';
 
 /* MAIN */
 
 const from = <T> ( fn: FromFunction<T>, options?: ObservableOptions<T, T | undefined> ): ObservableReadonlyWithoutInitial<T> => {
 
-  const observable = new Observable<T | undefined> ( undefined, options );
+  const observable = Observable.create<T, T | undefined> ( undefined as any, options ); //TODO
   const value = writable ( observable );
 
-  new Effect ( () => {
+  Effect.create ( () => {
 
     return fn ( value );
 

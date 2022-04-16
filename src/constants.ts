@@ -1,8 +1,10 @@
 
 /* MAIN */
 
+const NOOP = (): void => {};
+
 const SYMBOL = Symbol ();
 
 /* EXPORT */
 
-export {SYMBOL};
+export {NOOP, SYMBOL};
