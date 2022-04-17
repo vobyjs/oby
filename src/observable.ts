@@ -20,21 +20,36 @@ const Observable = {
 
     if ( observers ) {
 
-      const sizePrev = observers.size;
+      if ( observers instanceof Set ) {
 
-      observers.add ( observer );
+        const sizePrev = observers.size;
 
-      const sizeNext = observers.size;
+        observers.add ( observer );
 
-      return ( sizePrev !== sizeNext );
+        const sizeNext = observers.size;
+
+        return ( sizePrev !== sizeNext );
+
+      } else if ( observers === observer ) {
+
+        return false;
+
+      } else {
+
+        const observersNext = new Set<PlainObserver> ();
+
+        observersNext.add ( observers );
+        observersNext.add ( observer );
+
+        observable.observers = observersNext;
+
+        return true;
+
+      }
 
     } else {
 
-      const observersNext = new Set<PlainObserver> ();
-
-      observersNext.add ( observer );
-
-      observable.observers = observersNext;
+      observable.observers = observer;
 
       return true;
 
@@ -46,7 +61,15 @@ const Observable = {
 
     if ( !observable.observers ) return;
 
-    observable.observers.delete ( observer );
+    if ( observable.observers instanceof Set ) {
+
+      observable.observers.delete ( observer );
+
+    } else if ( observable.observers === observer ) {
+
+      observable.observers = null;
+
+    }
 
   },
 
@@ -168,9 +191,17 @@ const Observable = {
 
     if ( !observable.observers ) return;
 
-    for ( const observer of observable.observers ) {
+    if ( observable.observers instanceof Set ) {
 
-      Reaction.stale ( observer as PlainReaction, fresh ); //TSC
+      for ( const observer of observable.observers ) {
+
+        Reaction.stale ( observer as PlainReaction, fresh ); //TSC
+
+      }
+
+    } else {
+
+      Reaction.stale ( observable.observers  as PlainReaction, fresh ); //TSC
 
     }
 
@@ -182,9 +213,17 @@ const Observable = {
 
     if ( !observable.observers ) return;
 
-    for ( const observer of observable.observers ) {
+    if ( observable.observers instanceof Set ) {
 
-      Reaction.unstale ( observer as PlainReaction, fresh ); //TSC
+      for ( const observer of observable.observers ) {
+
+        Reaction.unstale ( observer as PlainReaction, fresh ); //TSC
+
+      }
+
+    } else {
+
+      Reaction.unstale ( observable.observers as PlainReaction, fresh ); //TSC
 
     }
 
