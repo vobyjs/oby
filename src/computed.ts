@@ -58,7 +58,7 @@ const Computed = {
 
   update: <T> ( computed: PlainComputed, fresh: boolean ): void => {
 
-    if ( fresh ) { // The resulting value might change
+    if ( fresh && !computed.observable.disposed ) { // The resulting value might change
 
       Observer.dispose ( computed );
 
