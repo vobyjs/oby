@@ -24,14 +24,13 @@ const Effect = {
   create: ( fn: EffectFunction ): PlainEffect => {
 
     const effect: PlainEffect = {
-      symbol: 4,
       staleCount: 0,
       staleFresh: false,
-      cleanups: [],
-      context: {},
-      errors: [],
-      observables: [],
-      observers: [],
+      cleanups: null,
+      context: null,
+      errors: null,
+      observables: null,
+      observers: null,
       parent: Owner.get (),
       fn
     };
@@ -60,7 +59,7 @@ const Effect = {
 
         } else {
 
-          if ( !effect.observers.length && !effect.observables.length && !effect.cleanups.length ) { // Auto-disposable
+          if ( !effect.observers && !effect.observables && !effect.cleanups ) { // Auto-disposable
 
             Observer.dispose ( effect );
 
@@ -72,7 +71,7 @@ const Effect = {
 
       } catch ( error: unknown ) {
 
-        Observer.updateError ( effect, error );
+        Observer.error ( effect, error );
 
       }
 

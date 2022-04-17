@@ -5,7 +5,7 @@ import {readable} from './callable';
 import Observable from './observable';
 import Observer from './observer';
 import Owner from './owner';
-import type {ComputedFunction, ObservableOptions, PlainComputed} from './types';
+import type {ComputedFunction, ObservableReadonly, ObservableOptions, PlainComputed} from './types';
 
 /* MAIN */
 
@@ -15,31 +15,36 @@ const Computed = {
 
   /* WRAPPING API */
 
-  // wrap <T> ( fn: ComputedFunction<T, T | undefined> ): ObservableReadonly<T>;
-  // wrap <T> ( fn: ComputedFunction<T, T | undefined>, value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableReadonly<T>;
-  // wrap <T> ( fn: ComputedFunction<T, T>, value: T, options?: ObservableOptions<T, T> ): ObservableReadonly<T>;
-  wrap <T> ( fn: ComputedFunction<T, T | undefined>, value?: T, options?: ObservableOptions<T, T | undefined> ) { //FIXME: Overload missing
+  wrap: (() => { //FIXME: Ugly way to colocate the damn function overloads
 
-    return readable ( Computed.create ( fn, value, options ).observable );
+    function wrap <T> ( fn: ComputedFunction<T, T | undefined> ): ObservableReadonly<T>;
+    function wrap <T> ( fn: ComputedFunction<T, T | undefined>, value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableReadonly<T>;
+    function wrap <T> ( fn: ComputedFunction<T, T>, value: T, options?: ObservableOptions<T, T> ): ObservableReadonly<T>;
+    function wrap <T> ( fn: ComputedFunction<T, T | undefined>, value?: T, options?: ObservableOptions<T, T | undefined> ) {
 
-  },
+      return readable ( Computed.create ( fn, value, options ).observable );
+
+    }
+
+    return wrap;
+
+  })(),
 
   /* API */
 
   create: <T> ( fn: ComputedFunction<T, T | undefined>, valueInitial?: T, options?: ObservableOptions<T, T | undefined> ): PlainComputed<T, T | undefined> => {
 
     const computed: PlainComputed<T, T | undefined> = {
-      symbol: 3,
       staleCount: 0,
       staleFresh: false,
-      cleanups: [],
-      context: {},
-      errors: [],
-      observables: [],
-      observers: [],
+      cleanups: null,
+      context: null,
+      errors: null,
+      observables: null,
+      observers: null,
       parent: Owner.get (),
+      observable: Observable.create ( valueInitial, options ),
       fn,
-      observable: Observable.create<T, T | undefined> ( valueInitial as any, options ) //TODO
     };
 
     computed.observable.parent = computed;
@@ -49,18 +54,6 @@ const Computed = {
     Computed.update ( computed, true );
 
     return computed;
-
-  },
-
-  onStale: ( computed: PlainComputed, fresh: boolean ): void => {
-
-    Observer.onStale ( computed, fresh );
-
-    if ( computed.staleCount === 1 ) {
-
-      Observable.emitStale ( computed.observable, fresh );
-
-    }
 
   },
 
@@ -80,9 +73,9 @@ const Computed = {
 
       } catch ( error: unknown ) {
 
-        Observer.updateError ( computed, error );
+        Observer.error ( computed, error );
 
-        Observable.emitUnstale ( computed.observable, fresh );
+        Observable.emitUnstale ( computed.observable, false );
 
       }
 

@@ -23,7 +23,7 @@ const Root = {
 
     } catch ( error: unknown ) {
 
-      Observer.updateError ( root, error );
+      Observer.error ( root, error );
 
     }
 
@@ -36,14 +36,11 @@ const Root = {
   create: (): PlainRoot => {
 
     return {
-      symbol: 5,
-      staleCount: 0,
-      staleFresh: false,
-      cleanups: [],
-      context: {},
-      errors: [],
-      observables: [],
-      observers: [],
+      cleanups: null,
+      context: null,
+      errors: null,
+      observables: null,
+      observers: null,
       parent: Owner.get ()
     };
 

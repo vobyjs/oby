@@ -1,8 +1,8 @@
 
 /* IMPORT */
 
-import {SYMBOL} from './constants';
 import Observable from './observable';
+import symbol from './symbol';
 
 /* HELPERS */
 
@@ -11,20 +11,20 @@ const {setPrototypeOf} = Object;
 /* READABLE */
 
 function readableFunction ( arg ) {
-  if ( arg === SYMBOL ) return this;
+  if ( arg === symbol ) return this;
   return Observable.get ( this );
 }
 
 const readablePrototype = {
-  [SYMBOL]: true,
+  [symbol]: true,
   get () {
-    return Observable.get ( this ( SYMBOL ) );
+    return Observable.get ( this ( symbol ) );
   },
   sample () {
-    return Observable.sample ( this ( SYMBOL ) );
+    return Observable.sample ( this ( symbol ) );
   },
   select ( fn ) {
-    return Observable.select ( this ( SYMBOL ), fn );
+    return Observable.select ( this ( symbol ), fn );
   },
   isDisposed () {
     return false;
@@ -44,7 +44,7 @@ const readable = readableFunction.bind.bind ( readableFunction );
 /* WRITABLE */
 
 function writableFunction ( arg ) {
-  if ( arg === SYMBOL ) return this;
+  if ( arg === symbol ) return this;
   if ( arguments.length ) return Observable.set ( this, arg );
   return Observable.get ( this );
 }
@@ -52,25 +52,25 @@ function writableFunction ( arg ) {
 const writablePrototype = {
   ...readablePrototype,
   set ( value ) {
-    return Observable.set ( this ( SYMBOL ), value );
+    return Observable.set ( this ( symbol ), value );
   },
   produce ( fn ) {
-    return Observable.produce ( this ( SYMBOL ), fn );
+    return Observable.produce ( this ( symbol ), fn );
   },
   update ( fn ) {
-    return Observable.update ( this ( SYMBOL ), fn );
+    return Observable.update ( this ( symbol ), fn );
   },
   emit () {
-    return Observable.emit ( this ( SYMBOL ), true );
+    return Observable.emit ( this ( symbol ), true );
   },
   dispose () {
-    return Observable.dispose ( this ( SYMBOL ) );
+    return Observable.dispose ( this ( symbol ) );
   },
   isDisposed () {
-    return this ( SYMBOL ).disposed;
+    return this ( symbol ).disposed;
   },
   readonly () {
-    return readable ( this ( SYMBOL ) );
+    return readable ( this ( symbol ) );
   },
   isReadonly () {
     return false;

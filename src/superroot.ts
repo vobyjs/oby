@@ -12,15 +12,12 @@ const SuperRoot = {
   create: (): PlainSuperRoot => {
 
     return {
-      symbol: 6,
-      staleCount: 0,
-      staleFresh: false,
-      cleanups: [],
-      context: {},
-      errors: [],
-      observables: [],
-      observers: [],
-      parent: undefined
+      cleanups: null,
+      context: null,
+      errors: null,
+      observables: null,
+      observers: null,
+      parent: null
     };
 
   }

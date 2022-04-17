@@ -53,15 +53,15 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     const observable = this;
 
-    observable.listeners -= 1;
+    observable['listeners'] -= 1;
 
-    if ( observable.listeners ) return;
-
-    Observable.dispose ( observable );
+    if ( observable['listeners'] ) return;
 
     if ( !selecteds.size ) return;
 
-    selecteds.delete ( observable.listenedValue );
+    Observable.dispose ( observable );
+
+    selecteds.delete ( observable['listenedValue'] );
 
   };
 
@@ -72,18 +72,18 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
     /* INIT */
 
     let selected: PlainObservable<boolean, boolean>;
-    const selectedPrev = selecteds.get ( value );
+    let selectedPrev = selecteds.get ( value );
 
     if ( selectedPrev ) {
 
       selected = selectedPrev;
-      selected.listeners += 1;
+      selected['listeners'] += 1;
 
     } else {
 
       selected = Observable.create<boolean, boolean> ( observable.sample () === value );
-      selected.listeners = 1;
-      selected.listenedValue = value;
+      selected['listeners'] = 1;
+      selected['listenedValue'] = value;
 
       selecteds.set ( value, selected );
 

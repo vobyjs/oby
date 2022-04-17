@@ -1,7 +1,6 @@
 
 /* IMPORT */
 
-import {NOOP} from './constants';
 import Observable from './observable';
 import Observer from './observer';
 import SuperRoot from './superroot';
@@ -21,15 +20,11 @@ const Owner = {
 
   registerCleanup: ( cleanup: CleanupFunction ): void => {
 
-    if ( owner === superowner ) return; //TODO: Show error message during development
-
     Observer.registerCleanup ( owner, cleanup );
 
   },
 
   registerError: ( error: ErrorFunction ): void => {
-
-    if ( owner === superowner ) return; //TODO: Delete this, just a test
 
     Observer.registerError ( owner, error );
 
@@ -39,7 +34,7 @@ const Owner = {
 
     if ( isSampling ) return;
 
-    if ( owner.symbol === 5 || owner.symbol === 6 ) return;
+    if ( !( 'fn' in owner ) ) return;
 
     const isNewObserver = Observable.registerObserver ( observable, owner );
 
@@ -51,15 +46,11 @@ const Owner = {
 
   registerObserver: ( observer: PlainObserver ): void => {
 
-    if ( owner === superowner ) return; //TODO: Show error message during development
-
     Observer.registerObserver ( owner, observer );
 
   },
 
   unregisterObserver: ( observer: PlainObserver ): void => {
-
-    if ( owner === superowner ) return;
 
     Observer.unregisterObserver ( owner, observer );
 
@@ -85,7 +76,7 @@ const Owner = {
 
       } else {
 
-        return ( fn as any )(); //TSC
+        return fn ();
 
       }
 
@@ -124,7 +115,7 @@ const Owner = {
 
   getPublic: (): ObserverPublic => {
 
-    const dispose = ( owner !== superowner ) ? Observer.dispose.bind ( undefined, owner ) : NOOP;
+    const dispose = ( owner !== superowner ) ? Observer.dispose.bind ( undefined, owner ) : () => {};
 
     return { dispose };
 

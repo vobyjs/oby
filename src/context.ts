@@ -14,7 +14,7 @@ function context <T> ( symbol: symbol, value?: T ) {
 
   if ( arguments.length === 1 ) { // Read
 
-    return Observer.updateContext ( observer, symbol );
+    return Observer.context ( observer, symbol );
 
   } else { // Write
 

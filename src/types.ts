@@ -17,7 +17,7 @@ type ErrorFunction = ( error: unknown ) => void;
 
 type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | void;
 
-type OwnerFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
+type OwnerFunction<T = unknown> = ( dispose?: DisposeFunction ) => T;
 
 type ProduceFunction<T = unknown, R = unknown> = ( value: T ) => R | undefined;
 
@@ -27,54 +27,52 @@ type SelectorFunction<T = unknown> = (( value: T ) => boolean) & { dispose: Clea
 
 type UpdateFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
-/* PLAIN OBJECTS */ //TODO: Clean this up massively, and improve memory usage
+/* PLAIN OBJECTS */
 
 type PlainObservable<T = unknown, TI = unknown> = {
-  symbol: 1,
-  disposed: boolean,
   value: T | TI,
-  listeners: number,
-  listenedValue: unknown,
-  comparator: ComparatorFunction<T, TI>,
-  computeds: Set<PlainObserver>,
-  effects: Set<PlainObserver>,
-  parent?: PlainObserver
+  comparator: ComparatorFunction<T, TI> | null,
+  computeds: Set<PlainComputed> | null,
+  effects: Set<PlainEffect> | null,
+  parent: PlainComputed | null,
+  disposed: boolean
 };
 
 type PlainObserverBase = {
-  staleCount: number,
-  staleFresh: boolean,
-  cleanups: CleanupFunction[],
-  context: Record<symbol, any>,
-  errors: ErrorFunction[],
-  observables: PlainObservable[],
-  observers: PlainObserver[]
+  cleanups: CleanupFunction[] | null,
+  context: Record<symbol, any> | null,
+  errors: ErrorFunction[] | null,
+  observables: PlainObservable[] | null,
+  observers: PlainObserver[] | null
 };
 
-type PlainComputed<T = unknown, TI = unknown> = PlainObserverBase & {
-  symbol: 3,
-  fn: ComputedFunction<T, TI>,
+type PlainReactionBase = {
+  staleCount: number, //TODO: Maybe merge these into one somehow, though keep the number low
+  staleFresh: boolean
+};
+
+type PlainComputed<T = unknown, TI = unknown> = PlainObserverBase & PlainReactionBase & {
+  parent: PlainObserver,
   observable: PlainObservable<T, TI>,
-  parent: PlainObserver
+  fn: ComputedFunction<T, TI>
 };
 
-type PlainEffect = PlainObserverBase & {
-  symbol: 4,
-  fn: EffectFunction,
-  parent: PlainObserver
+type PlainEffect = PlainObserverBase & PlainReactionBase & {
+  parent: PlainObserver,
+  fn: EffectFunction
 };
+
+type PlainReaction = PlainComputed | PlainEffect;
 
 type PlainRoot = PlainObserverBase & {
-  symbol: 5,
   parent: PlainObserver
 };
 
 type PlainSuperRoot = PlainObserverBase & {
-  symbol: 6
-  parent: undefined
+  parent: null
 };
 
-type PlainObserver = PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot;
+type PlainObserver = any; // PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot; //FIXME
 
 /* OBSERVABLES */
 
@@ -129,6 +127,6 @@ type ObserverPublic = {
 /* EXPORT */
 
 export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, SelectFunction, SelectorFunction, UpdateFunction};
-export type {PlainObservable, PlainObserverBase, PlainComputed, PlainEffect, PlainRoot, PlainSuperRoot, PlainObserver};
+export type {PlainObservable, PlainObserverBase, PlainComputed, PlainEffect, PlainReaction, PlainRoot, PlainSuperRoot, PlainObserver};
 export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
 export type {ObserverPublic};

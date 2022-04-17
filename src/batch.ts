@@ -22,7 +22,7 @@ const batch = ( fn: BatchFunction ): void => {
 
     } finally {
 
-      batch.queue = undefined;
+      batch.queue = null;
 
       queue.forEach ( ( value, observable ) => {
 
@@ -38,7 +38,7 @@ const batch = ( fn: BatchFunction ): void => {
 
 /* UTILITIES */
 
-batch.queue = <Map<PlainObservable, unknown> | undefined> undefined;
+batch.queue = <Map<PlainObservable, unknown> | null> null;
 
 /* EXPORT */
 

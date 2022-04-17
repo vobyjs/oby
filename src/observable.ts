@@ -3,8 +3,8 @@
 
 import batch from './batch';
 import Computed from './computed';
-import Observer from './observer';
 import Owner from './owner';
+import Reaction from './reaction';
 import type {ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableOptions, PlainObservable, PlainObserver} from './types';
 
 /* MAIN */
@@ -15,7 +15,7 @@ const Observable = {
 
   registerObserver: <T, TI> ( observable: PlainObservable<T, TI>, observer: PlainObserver ): boolean => {
 
-    const set = ( observer.symbol === 3 ) ? observable.computeds : observable.effects;
+    const set = ( 'observable' in observer ) ? observable.computeds || ( observable.computeds = new Set () ) : observable.effects || ( observable.effects = new Set () );
 
     const sizePrev = set.size;
 
@@ -29,7 +29,9 @@ const Observable = {
 
   unregisterObserver: <T, TI> ( observable: PlainObservable<T, TI>, observer: PlainObserver ): void => {
 
-    const set = ( observer.symbol === 3 ) ? observable.computeds : observable.effects;
+    const set = ( 'observable' in observer ) ? observable.computeds : observable.effects;
+
+    if ( !set ) return;
 
     set.delete ( observer );
 
@@ -46,7 +48,7 @@ const Observable = {
       observable.parent.staleCount = 0;
       observable.parent.staleFresh = false;
 
-      Observer.update ( observable.parent, true );
+      Computed.update ( observable.parent, true );
 
     }
 
@@ -54,19 +56,16 @@ const Observable = {
 
   /* API */
 
-  create: <T, TI> ( value: T, options?: ObservableOptions<T, TI> ): PlainObservable<T, TI> => {
+  create: <T, TI> ( value: T | TI, options?: ObservableOptions<T, TI> ): PlainObservable<T, TI> => {
 
     return {
-      symbol: 1,
       disposed: false,
       value,
-      listeners: 0,
-      listenedValue: undefined,
-      comparator: options?.comparator || Object.is,
-      computeds: new Set (),
-      effects: new Set (),
-      parent: undefined
-    }
+      comparator: options?.comparator || null,
+      computeds: null,
+      effects: null,
+      parent: null
+    };
 
   },
 
@@ -106,7 +105,8 @@ const Observable = {
 
     } else {
 
-      const fresh = !observable.comparator ( value, observable.value );
+      const comparator = observable.comparator || Object.is;
+      const fresh = !comparator ( value, observable.value );
 
       if ( !observable.parent ) {
 
@@ -155,15 +155,23 @@ const Observable = {
 
     if ( observable.disposed ) return;
 
-    for ( const observer of observable.computeds ) {
+    if ( observable.computeds ) {
 
-      Computed.onStale ( observer as any, fresh ); //TSC
+      for ( const observer of observable.computeds ) {
+
+        Reaction.stale ( observer as any, fresh ); //TSC
+
+      }
 
     }
 
-    for ( const observer of observable.effects ) {
+    if ( observable.effects ) {
 
-      Observer.onStale ( observer, fresh );
+      for ( const observer of observable.effects ) {
+
+        Reaction.stale ( observer as any, fresh ); //TSC
+
+      }
 
     }
 
@@ -175,15 +183,23 @@ const Observable = {
 
     //TODO: Maybe clone the queues, though all tests are passing already
 
-    for ( const observer of observable.computeds ) {
+    if ( observable.computeds ) {
 
-      Observer.onUnstale ( observer, fresh );
+      for ( const observer of observable.computeds ) {
+
+        Reaction.unstale ( observer, fresh );
+
+      }
 
     }
 
-    for ( const observer of observable.effects ) {
+    if ( observable.effects ) {
 
-      Observer.onUnstale ( observer, fresh );
+      for ( const observer of observable.effects ) {
+
+        Reaction.unstale ( observer, fresh );
+
+      }
 
     }
 

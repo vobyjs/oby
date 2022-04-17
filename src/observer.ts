@@ -1,8 +1,6 @@
 
 /* IMPORT */
 
-import Computed from './computed';
-import Effect from './effect';
 import Observable from './observable';
 import type {CleanupFunction, ErrorFunction, PlainObservable, PlainObserver} from './types';
 
@@ -14,11 +12,15 @@ const Observer = {
 
   registerCleanup: ( observer: PlainObserver, cleanup: CleanupFunction ): void => {
 
+    if ( !observer.cleanups ) observer.cleanups = [];
+
     observer.cleanups.push ( cleanup );
 
   },
 
   registerContext: <T> ( observer: PlainObserver, symbol: symbol, value: T ): T => {
+
+    if ( !observer.context ) observer.context = {};
 
     return observer.context[symbol] = value;
 
@@ -26,11 +28,15 @@ const Observer = {
 
   registerError: ( observer: PlainObserver, error: ErrorFunction ): void => {
 
+    if ( !observer.errors ) observer.errors = [];
+
     observer.errors.push ( error );
 
   },
 
   registerObservable: ( observer: PlainObserver, observable: PlainObservable ): void => {
+
+    if ( !observer.observables ) observer.observables = [];
 
     observer.observables.push ( observable );
 
@@ -38,11 +44,15 @@ const Observer = {
 
   registerObserver: ( observer: PlainObserver, observer2: PlainObserver ): void => {
 
+    if ( !observer.observers ) observer.observers = [];
+
     observer.observers.push ( observer2 );
 
   },
 
   unregisterObserver ( observer: PlainObserver, observer2: PlainObserver ): void {
+
+    if ( !observer.observers ) return;
 
     //TODO: Make this never slow, it's still ok if things are not deleted
 
@@ -52,75 +62,25 @@ const Observer = {
 
   /* API */
 
-  onStale: ( observer: PlainObserver, fresh: boolean ): void => {
+  context: <T> ( observer: PlainObserver, symbol: symbol ): T | undefined => {
 
-    observer.staleCount += 1;
-
-    if ( fresh ) {
-
-      observer.staleFresh = true;
-
-    }
-
-  },
-
-  onUnstale: ( observer: PlainObserver, fresh: boolean ): void => {
-
-    if ( !observer.staleCount ) return; //TODO: If this happens is probably an error
-
-    observer.staleCount -= 1;
-
-    if ( fresh ) {
-
-      observer.staleFresh = true;
-
-    }
-
-    if ( !observer.staleCount ) {
-
-      const fresh = observer.staleFresh;
-
-      observer.staleFresh = false;
-
-      Observer.update ( observer, fresh );
-
-    }
-
-  },
-
-  update: ( observer: PlainObserver, fresh: boolean ): void => {
-
-    if ( observer.symbol === 3 ) {
-
-      Computed.update ( observer, fresh );
-
-    }
-
-    if ( observer.symbol === 4 ) {
-
-      Effect.update ( observer, fresh );
-
-    }
-
-  },
-
-  updateContext: <T> ( observer: PlainObserver, symbol: symbol ): T | undefined => {
-
-    const {context, parent} = observer;
+    const context = observer.context;
 
     if ( context && symbol in context ) return context[symbol];
 
+    const parent = observer.parent;
+
     if ( !parent ) return;
 
-    return Observer.updateContext ( parent, symbol );
+    return Observer.context ( parent, symbol );
 
   },
 
-  updateError: ( observer: PlainObserver, error: unknown, silent?: boolean ): boolean => {
+  error: ( observer: PlainObserver, error: unknown, silent?: boolean ): boolean => {
 
-    const {errors, parent} = observer;
+    const errors = observer.errors;
 
-    if ( errors.length ) {
+    if ( errors ) {
 
       errors.forEach ( fn => fn ( error ) );
 
@@ -128,19 +88,21 @@ const Observer = {
 
     } else {
 
+      const parent = observer.parent;
+
       if ( parent ) {
 
-        if ( Observer.updateError ( parent, error, true ) ) return true;
+        if ( Observer.error ( parent, error, true ) ) return true;
 
       }
 
-      if ( !silent ) {
+      if ( silent ) {
 
-        throw error;
+        return false;
 
       } else {
 
-        return false;
+        throw error;
 
       }
 
@@ -152,15 +114,15 @@ const Observer = {
 
     const {observers, observables, cleanups, errors, context} = observer;
 
-    if ( observers.length ) {
-      observer.observers = [];
+    if ( observers ) {
+      observer.observers = null;
       for ( let i = 0, l = observers.length; i < l; i++ ) {
         Observer.dispose ( observers[i] );
       }
     }
 
-    if ( observables.length ) {
-      observer.observables = [];
+    if ( observables ) {
+      observer.observables = null;
       for ( let i = 0, l = observables.length; i < l; i++ ) {
         const observable = observables[i];
         if ( observable.disposed ) continue;
@@ -168,19 +130,19 @@ const Observer = {
       }
     }
 
-    if ( cleanups.length ) {
-      observer.cleanups = [];
+    if ( cleanups ) {
+      observer.cleanups = null;
       for ( let i = 0, l = cleanups.length; i < l; i++ ) {
         cleanups[i]();
       }
     }
 
-    if ( errors.length ) {
-      observer.errors = [];
+    if ( errors ) {
+      observer.errors = null;
     }
 
     if ( context ) {
-      observer.context = {};
+      observer.context = null;
     }
 
   }

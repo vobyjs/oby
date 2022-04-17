@@ -10,7 +10,7 @@ import type {FromFunction, ObservableReadonlyWithoutInitial, ObservableOptions} 
 
 const from = <T> ( fn: FromFunction<T>, options?: ObservableOptions<T, T | undefined> ): ObservableReadonlyWithoutInitial<T> => {
 
-  const observable = Observable.create<T, T | undefined> ( undefined as any, options ); //TODO
+  const observable = Observable.create<T, T | undefined> ( undefined, options );
   const value = writable ( observable );
 
   Effect.create ( () => {
