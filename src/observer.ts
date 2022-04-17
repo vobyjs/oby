@@ -14,11 +14,20 @@ const Observer = {
 
     if ( observer.cleanups ) {
 
-      observer.cleanups.push ( cleanup );
+      if ( observer.cleanups instanceof Array ) {
+
+        observer.cleanups.push ( cleanup );
+
+      } else {
+
+        observer.cleanups = [observer.cleanups, cleanup];
+
+      }
 
     } else {
 
-      observer.cleanups = [cleanup];
+      observer.cleanups = cleanup;
+
     }
 
   },
@@ -43,11 +52,19 @@ const Observer = {
 
     if ( observer.errors ) {
 
-      observer.errors.push ( error );
+      if ( observer.errors instanceof Array ) {
+
+        observer.errors.push ( error );
+
+      } else {
+
+        observer.errors = [observer.errors, error];
+
+      }
 
     } else {
 
-      observer.errors = [error];
+      observer.errors = error;
 
     }
 
@@ -57,11 +74,19 @@ const Observer = {
 
     if ( observer.observables ) {
 
-      observer.observables.push ( observable );
+      if ( observer.observables instanceof Array ) {
+
+        observer.observables.push ( observable );
+
+      } else {
+
+        observer.observables = [observer.observables, observable];
+
+      }
 
     } else {
 
-      observer.observables = [observable];
+      observer.observables = observable;
 
     }
 
@@ -71,11 +96,19 @@ const Observer = {
 
     if ( observer.observers ) {
 
-      observer.observers.push ( observer2 );
+      if ( observer.observers instanceof Array ) {
+
+        observer.observers.push ( observer2 );
+
+      } else {
+
+        observer.observers = [observer.observers, observer2];
+
+      }
 
     } else {
 
-      observer.observers = [observer2];
+      observer.observers = observer2;
 
     }
 
@@ -85,9 +118,17 @@ const Observer = {
 
     if ( !observer.observers ) return;
 
-    if ( observer.observers[observer.observers.length - 1] !== observer2 ) return; // Not strictly correct, but this function is only called when auto-disposing where this holds true, besides this function is not necessary for correctness
+    if ( observer.observers instanceof Array ) {
 
-    observer.observers.pop ();
+      if ( observer.observers[observer.observers.length - 1] !== observer2 ) return; // Not strictly correct, but this function is only called when auto-disposing where this holds true, besides this function is not necessary for correctness
+
+      observer.observers.pop ();
+
+    } else if ( observer.observers === observer2 ) {
+
+      observer.observers = null;
+
+    }
 
   },
 
@@ -113,7 +154,15 @@ const Observer = {
 
     if ( errors ) {
 
-      errors.forEach ( fn => fn ( error ) );
+      if ( errors instanceof Array ) {
+
+        errors.forEach ( fn => fn ( error ) );
+
+      } else {
+
+        errors ( error );
+
+      }
 
       return true;
 
@@ -147,28 +196,45 @@ const Observer = {
 
     if ( observers ) {
       observer.observers = null;
-      for ( let i = 0, l = observers.length; i < l; i++ ) {
-        const observer = observers[i];
-        if ( 'observable' in observer ) {
-          Observable.dispose ( observer.observable );
+      if ( observers instanceof Array ) {
+        for ( let i = 0, l = observers.length; i < l; i++ ) {
+          const observer = observers[i];
+          if ( 'observable' in observer ) {
+            Observable.dispose ( observer.observable );
+          }
+          Observer.dispose ( observer );
         }
-        Observer.dispose ( observer );
+      } else {
+        if ( 'observable' in observers ) {
+          Observable.dispose ( observers.observable );
+        }
+        Observer.dispose ( observers );
       }
     }
 
     if ( observables ) {
       observer.observables = null;
-      for ( let i = 0, l = observables.length; i < l; i++ ) {
-        const observable = observables[i];
-        if ( observable.disposed ) return;
-        Observable.unregisterObserver ( observable, observer );
+      if ( observables instanceof Array ) {
+        for ( let i = 0, l = observables.length; i < l; i++ ) {
+          const observable = observables[i];
+          if ( observable.disposed ) return;
+          Observable.unregisterObserver ( observable, observer );
+        }
+      } else {
+        if ( !observables.disposed ) {
+          Observable.unregisterObserver ( observables, observer );
+        }
       }
     }
 
     if ( cleanups ) {
       observer.cleanups = null;
-      for ( let i = 0, l = cleanups.length; i < l; i++ ) {
-        cleanups[i]();
+      if ( cleanups instanceof Array ) {
+        for ( let i = 0, l = cleanups.length; i < l; i++ ) {
+          cleanups[i]();
+        }
+      } else {
+        cleanups ();
       }
     }
 

@@ -38,11 +38,11 @@ type PlainObservable<T = unknown, TI = unknown> = {
 };
 
 type PlainObserverBase = {
-  cleanups: CleanupFunction[] | null,
+  cleanups: CleanupFunction[] | CleanupFunction | null,
   context: Record<symbol, any> | null,
-  errors: ErrorFunction[] | null,
-  observables: PlainObservable[] | null,
-  observers: PlainObserver[] | null
+  errors: ErrorFunction[] | ErrorFunction | null,
+  observables: PlainObservable[] | PlainObservable | null,
+  observers: PlainObserver[] | PlainObserver | null
 };
 
 type PlainReactionBase = {
