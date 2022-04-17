@@ -67,7 +67,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   /* SELECTOR */
 
-  const selector = ( value: T ): boolean => {
+  return ( value: T ): boolean => {
 
     /* INIT */
 
@@ -98,10 +98,6 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
     return Observable.get ( selected );
 
   };
-
-  selector.dispose = cleanupAll;
-
-  return selector;
 
 };
 

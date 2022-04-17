@@ -540,10 +540,6 @@ values.forEach ( value => {
 
 select ( 1 );
 select ( 5 );
-
-// "dispose" method for manually stopping any reactivity, this enables some extra optimizations internally, if you don't really need the extra performance you should never use this. The isSelected function remains usable after disposing, but previous usages of it just will stop being reactive.
-
-isSelected.dispose ();
 ```
 
 ### `$.owner`

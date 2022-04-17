@@ -23,7 +23,7 @@ type ProduceFunction<T = unknown, R = unknown> = ( value: T ) => R | undefined;
 
 type SelectFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
-type SelectorFunction<T = unknown> = (( value: T ) => boolean) & { dispose: CleanupFunction };
+type SelectorFunction<T = unknown> = (( value: T ) => boolean);
 
 type UpdateFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
