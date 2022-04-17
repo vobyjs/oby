@@ -5,7 +5,8 @@ import batch from './batch';
 import Computed from './computed';
 import Owner from './owner';
 import Reaction from './reaction';
-import type {ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableOptions, PlainObservable, PlainObserver} from './types';
+import symbol from './symbol';
+import type {ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableAny, ObservableOptions, PlainObservable, PlainObserver} from './types';
 
 /* MAIN */
 
@@ -188,6 +189,12 @@ const Observable = {
       Reaction.unstale ( observer, fresh );
 
     }
+
+  },
+
+  target: <T> ( observable: ObservableAny<T> ): PlainObservable<T, T | undefined> => {
+
+    return ( observable as any )( symbol ); //TSC
 
   },
 

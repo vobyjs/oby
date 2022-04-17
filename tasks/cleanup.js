@@ -7,12 +7,15 @@ const {default: $} = require ( '../dist' );
 
 const selected = $();
 const isSelected = $.selector ( selected );
+const isSelectedDisposed = $.selector ( $.computed ( () => {} ) );
 
 $.root ( dispose => {
 
   console.time ( 'create' );
 
   const global = $();
+
+  const computedVoid = $.computed ( () => {} );
 
   const items = [];
 
@@ -36,18 +39,21 @@ $.root ( dispose => {
         global ();
         items[i]();
         isSelected ( i );
+        isSelectedDisposed ( i );
       });
 
       $.effect ( () => {
         global ();
         items[i]();
         computed ();
+        computedVoid ();
       });
 
       $.effect ( () => {
         global ();
         items[i]();
         computed ();
+        computedVoid ();
       });
 
     });

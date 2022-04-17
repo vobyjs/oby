@@ -10,6 +10,20 @@ import type {SelectorFunction, ObservableAny, PlainObservable} from './types';
 
 const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
+  /* DISPOSED SELECTOR */
+
+  if ( Observable.target ( observable ).disposed ) { // A disposed observable will never change, no need to make selecteds
+
+    const valueFixed = observable.sample ();
+
+    return ( value: T ): boolean => {
+
+      return value === valueFixed;
+
+    };
+
+  }
+
   /* SELECTEDS */
 
   let selecteds: Map<unknown, PlainObservable<boolean, boolean>> = new Map ();
