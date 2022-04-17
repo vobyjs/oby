@@ -35,8 +35,7 @@ const Computed = {
   create: <T> ( fn: ComputedFunction<T, T | undefined>, valueInitial?: T, options?: ObservableOptions<T, T | undefined> ): PlainComputed<T, T | undefined> => {
 
     const computed: PlainComputed<T, T | undefined> = {
-      staleCount: 0,
-      staleFresh: false,
+      stale: 0,
       cleanups: null,
       context: null,
       errors: null,

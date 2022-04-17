@@ -24,8 +24,7 @@ const Effect = {
   create: ( fn: EffectFunction ): PlainEffect => {
 
     const effect: PlainEffect = {
-      staleCount: 0,
-      staleFresh: false,
+      stale: 0,
       cleanups: null,
       context: null,
       errors: null,

@@ -55,10 +55,9 @@ const Observable = {
 
     Owner.registerObservable ( observable );
 
-    if ( observable.parent && observable.parent.staleCount ) { //FIXME: observable is probably buggy, if it's refreshed early and the counter is reset it may not update itself when one of its dependencies change
+    if ( observable.parent && observable.parent.stale ) { //FIXME: observable is probably buggy, if it's refreshed early and the counter is reset it may not update itself when one of its dependencies change
 
-      observable.parent.staleCount = 0;
-      observable.parent.staleFresh = false;
+      observable.parent.stale = 0;
 
       Computed.update ( observable.parent, true );
 

@@ -14,17 +14,15 @@ const Reaction = {
 
   stale: ( reaction: PlainReaction, fresh: boolean ): void => {
 
-    reaction.staleCount += 1;
+    const count = ( reaction.stale >>> 1 ) + 1;
+    const freshbit = fresh ? 1 : reaction.stale & 1;
+    const stale = ( count << 1 ) | freshbit;
 
-    if ( reaction.staleCount === 1 && 'observable' in reaction ) {
+    reaction.stale = stale;
 
-      Observable.emitStale ( reaction.observable, fresh );
+    if ( count === 1 && 'observable' in reaction ) {
 
-    }
-
-    if ( fresh ) {
-
-      reaction.staleFresh = true;
+      Observable.emitStale ( reaction.observable, !!freshbit );
 
     }
 
@@ -32,23 +30,19 @@ const Reaction = {
 
   unstale: ( reaction: PlainReaction, fresh: boolean ): void => {
 
-    if ( !reaction.staleCount ) return; //TODO: If this ever happens we probably hit a bug
+    if ( !reaction.stale ) return; //TODO: If this ever happens we probably hit a bug
 
-    reaction.staleCount -= 1;
+    const count = ( reaction.stale >>> 1 ) - 1;
+    const freshbit = fresh ? 1 : reaction.stale & 1;
+    const stale = ( count << 1 ) | freshbit;
 
-    if ( fresh ) {
+    reaction.stale = stale;
 
-      reaction.staleFresh = true;
+    if ( !count ) {
 
-    }
+      reaction.stale = 0;
 
-    if ( !reaction.staleCount ) {
-
-      const fresh = reaction.staleFresh;
-
-      reaction.staleFresh = false;
-
-      Reaction.update ( reaction, fresh );
+      Reaction.update ( reaction, !!freshbit );
 
     }
 

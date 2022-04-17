@@ -46,8 +46,7 @@ type PlainObserverBase = {
 };
 
 type PlainReactionBase = {
-  staleCount: number, //TODO: Maybe merge these into one somehow, though keep the number low
-  staleFresh: boolean
+  stale: number // The rightmost bit indicates whether the fresh boolean is set or not, the rest makes up a counter
 };
 
 type PlainComputed<T = unknown, TI = unknown> = PlainObserverBase & PlainReactionBase & {
