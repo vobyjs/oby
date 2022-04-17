@@ -182,8 +182,6 @@ const Observable = {
 
     if ( !observable.observers ) return;
 
-    //TODO: Maybe clone the queue, though all tests are passing already
-
     for ( const observer of observable.observers ) {
 
       Reaction.unstale ( observer as PlainReaction, fresh ); //TSC

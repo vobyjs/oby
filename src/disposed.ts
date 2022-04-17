@@ -15,7 +15,6 @@ const disposed = (): ObservableReadonly<boolean> => {
   Owner.registerCleanup ( () => {
 
     Observable.set ( observable, true );
-    Observable.dispose ( observable );
 
   });
 
