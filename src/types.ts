@@ -114,15 +114,8 @@ type ObservableOptions<T = unknown, TI = unknown> = {
 
 type ObservableResolved<T = unknown> = T extends Observable<infer U> ? U : T extends ObservableWithoutInitial<infer U> ? U | undefined : T extends ObservableReadonly<infer U> ? U : T extends ObservableReadonlyWithoutInitial<infer U> ? U | undefined : T;
 
-/* OBSERVERS */
-
-type ObserverPublic = {
-  dispose (): void
-};
-
 /* EXPORT */
 
 export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, SelectFunction, SelectorFunction, UpdateFunction};
 export type {PlainObservable, PlainObserverBase, PlainComputed, PlainEffect, PlainReaction, PlainRoot, PlainSuperRoot, PlainObserver};
 export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
-export type {ObserverPublic};

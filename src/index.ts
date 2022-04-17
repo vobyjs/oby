@@ -14,7 +14,7 @@ import ObservableObject from './observable';
 import Owner from './owner';
 import Root from './root';
 import selector from './selector';
-import type {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions, ObserverPublic} from './types';
+import type {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions} from './types';
 
 /* MAIN */
 
@@ -39,7 +39,6 @@ observable.error = Owner.registerError;
 observable.from = from;
 observable.get = get;
 observable.is = is;
-observable.owner = Owner.getPublic;
 observable.root = Root.wrap;
 observable.sample = Owner.wrapWithSampling;
 observable.selector = selector;
@@ -47,4 +46,4 @@ observable.selector = selector;
 /* EXPORT */
 
 export default observable;
-export type {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions, ObserverPublic as Owner};
+export type {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions};

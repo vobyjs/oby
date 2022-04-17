@@ -23,7 +23,6 @@ npm install --save oby
 - [`$.get`](#get)
 - [`$.sample`](#sample)
 - [`$.selector`](#selector)
-- [`$.owner`](#owner)
 - [`$.is`](#is)
 
 ## Usage
@@ -526,32 +525,6 @@ values.forEach ( value => {
 
 select ( 1 );
 select ( 5 );
-```
-
-### `$.owner`
-
-This low-level function returns the current owner, which can be an effect, a computed, a root, or nothing.
-
-This is an advanced function which enables some optimizations, generally you probably should just never use it.
-
-```ts
-import $ from 'oby';
-
-// Getting
-
-$.owner (); // => undefined
-
-let effect;
-
-$.effect ( () => {
-
-  effect = $.owner ();
-
-});
-
-// "dispose" method, for manually disposing of the owner
-
-effect.dispose (); // Manually disposing of the effect
 ```
 
 ### `$.is`

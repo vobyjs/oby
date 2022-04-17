@@ -4,7 +4,7 @@
 import Observable from './observable';
 import Observer from './observer';
 import SuperRoot from './superroot';
-import type {CleanupFunction, ErrorFunction, OwnerFunction, PlainObservable, PlainObserver, ObserverPublic} from './types';
+import type {CleanupFunction, ErrorFunction, OwnerFunction, PlainObservable, PlainObserver} from './types';
 
 /* HELPERS */
 
@@ -110,14 +110,6 @@ const Owner = {
   get: (): PlainObserver => {
 
     return owner;
-
-  },
-
-  getPublic: (): ObserverPublic => {
-
-    const dispose = ( owner !== superowner ) ? Observer.dispose.bind ( undefined, owner ) : () => {};
-
-    return { dispose };
 
   }
 
