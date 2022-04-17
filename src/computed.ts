@@ -76,6 +76,14 @@ const Computed = {
 
         }
 
+        if ( !computed.observers && !computed.observables && !computed.cleanups ) { // Auto-disposable
+
+          Observer.dispose ( computed );
+
+          Owner.unregisterObserver ( computed );
+
+        }
+
       } catch ( error: unknown ) {
 
         Observer.error ( computed, error );
