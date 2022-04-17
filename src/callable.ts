@@ -6,6 +6,7 @@ import symbol from './symbol';
 
 /* HELPERS */
 
+const {prototype} = Function;
 const {setPrototypeOf} = Object;
 
 /* READABLE */
@@ -34,7 +35,7 @@ const readablePrototype = {
   }
 };
 
-setPrototypeOf ( readableFunction, setPrototypeOf ( readablePrototype, Function.prototype ) );
+setPrototypeOf ( readableFunction, setPrototypeOf ( readablePrototype, prototype ) );
 
 const readable = readableFunction.bind.bind ( readableFunction );
 
@@ -68,7 +69,7 @@ const writablePrototype = {
   }
 };
 
-setPrototypeOf ( writableFunction, setPrototypeOf ( writablePrototype, Function.prototype ) );
+setPrototypeOf ( writableFunction, setPrototypeOf ( writablePrototype, prototype ) );
 
 const writable = writableFunction.bind.bind ( writableFunction );
 

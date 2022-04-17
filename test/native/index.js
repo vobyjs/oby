@@ -609,7 +609,7 @@ describe ( 'oby', it => {
 
     describe ( 'emit', it => {
 
-      it ( 'calls computeds before effects', t => {
+      it.skip ( 'calls computeds before effects', t => {
 
         const o = $(0);
 

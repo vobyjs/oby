@@ -70,11 +70,11 @@ const Observable = {
   create: <T, TI> ( value: T | TI, options?: ObservableOptions<T, TI> ): PlainObservable<T, TI> => {
 
     return {
-      disposed: false,
       value,
       comparator: options?.comparator || null,
       observers: null,
-      parent: null
+      parent: null,
+      disposed: false
     };
 
   },

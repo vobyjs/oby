@@ -53,15 +53,15 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     const observable = this;
 
-    observable['listeners'] -= 1;
+    observable['s_count'] -= 1;
 
-    if ( observable['listeners'] ) return;
+    if ( observable['s_count'] ) return;
 
     if ( !selecteds.size ) return;
 
     Observable.dispose ( observable );
 
-    selecteds.delete ( observable['listenedValue'] );
+    selecteds.delete ( observable['s_value'] );
 
   };
 
@@ -77,13 +77,13 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
     if ( selectedPrev ) {
 
       selected = selectedPrev;
-      selected['listeners'] += 1;
+      selected['s_count'] += 1;
 
     } else {
 
       selected = Observable.create<boolean, boolean> ( observable.sample () === value );
-      selected['listeners'] = 1;
-      selected['listenedValue'] = value;
+      selected['s_count'] = 1;
+      selected['s_value'] = value;
 
       selecteds.set ( value, selected );
 
