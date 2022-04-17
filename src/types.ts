@@ -32,7 +32,7 @@ type UpdateFunction<T = unknown, R = unknown> = ( value: T ) => R;
 type PlainObservable<T = unknown, TI = unknown> = {
   value: T | TI,
   comparator: ComparatorFunction<T, TI> | null,
-  observers: Set<PlainComputed | PlainEffect> | null,
+  observers: Set<PlainObserver> | null,
   parent: PlainComputed | null,
   disposed: boolean
 };
@@ -50,27 +50,27 @@ type PlainReactionBase = {
 };
 
 type PlainComputed<T = unknown, TI = unknown> = PlainObserverBase & PlainReactionBase & {
-  parent: PlainObserver,
+  parent: PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot,
   observable: PlainObservable<T, TI>,
   fn: ComputedFunction<T, TI>
 };
 
 type PlainEffect = PlainObserverBase & PlainReactionBase & {
-  parent: PlainObserver,
+  parent: PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot,
   fn: EffectFunction
 };
 
 type PlainReaction = PlainComputed | PlainEffect;
 
 type PlainRoot = PlainObserverBase & {
-  parent: PlainObserver
+  parent: PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot
 };
 
 type PlainSuperRoot = PlainObserverBase & {
   parent: null
 };
 
-type PlainObserver = any; // PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot; //FIXME
+type PlainObserver = PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot;
 
 /* OBSERVABLES */
 

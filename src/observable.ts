@@ -6,7 +6,7 @@ import Computed from './computed';
 import Owner from './owner';
 import Reaction from './reaction';
 import symbol from './symbol';
-import type {ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableAny, ObservableOptions, PlainObservable, PlainObserver} from './types';
+import type {ProduceFunction, SelectFunction, UpdateFunction, ObservableReadonly, ObservableAny, ObservableOptions, PlainObservable, PlainObserver, PlainReaction} from './types';
 
 /* MAIN */
 
@@ -170,7 +170,7 @@ const Observable = {
 
     for ( const observer of observable.observers ) {
 
-      Reaction.stale ( observer, fresh );
+      Reaction.stale ( observer as PlainReaction, fresh ); //TSC
 
     }
 
@@ -186,7 +186,7 @@ const Observable = {
 
     for ( const observer of observable.observers ) {
 
-      Reaction.unstale ( observer, fresh );
+      Reaction.unstale ( observer as PlainReaction, fresh ); //TSC
 
     }
 
