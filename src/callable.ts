@@ -26,9 +26,6 @@ const readablePrototype = {
   select ( fn ) {
     return Observable.select ( this ( symbol ), fn );
   },
-  isDisposed () {
-    return false;
-  },
   readonly () {
     return this;
   },
@@ -62,12 +59,6 @@ const writablePrototype = {
   },
   emit () {
     return Observable.emit ( this ( symbol ), true );
-  },
-  dispose () {
-    return Observable.dispose ( this ( symbol ) );
-  },
-  isDisposed () {
-    return this ( symbol ).disposed;
   },
   readonly () {
     return readable ( this ( symbol ) );
