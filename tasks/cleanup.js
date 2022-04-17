@@ -32,7 +32,7 @@ $.root ( dispose => {
 
       disposers.push ( dispose );
 
-      $.effect ( () => {
+      const computed = $.computed ( () => {
         global ();
         items[i]();
         isSelected ( i );
@@ -41,11 +41,13 @@ $.root ( dispose => {
       $.effect ( () => {
         global ();
         items[i]();
+        computed ();
       });
 
       $.effect ( () => {
         global ();
         items[i]();
+        computed ();
       });
 
     });
@@ -55,11 +57,6 @@ $.root ( dispose => {
   console.timeEnd ( 'create' );
 
   console.time ( 'cleanup' );
-
-  global.dispose ();
-  selected.dispose ();
-  isSelected.dispose ();
-  items.forEach ( item => item.dispose () );
 
   dispose ();
 

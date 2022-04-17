@@ -9,8 +9,6 @@ import type {ComputedFunction, ObservableReadonly, ObservableOptions, PlainCompu
 
 /* MAIN */
 
-//TODO: Find out why disposing automatically of the observable doesn't improve performance here
-
 const Computed = {
 
   /* WRAPPING API */

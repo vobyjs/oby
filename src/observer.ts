@@ -148,16 +148,21 @@ const Observer = {
     if ( observers ) {
       observer.observers = null;
       for ( let i = 0, l = observers.length; i < l; i++ ) {
-        Observer.dispose ( observers[i] );
+        const observer = observers[i];
+        if ( 'observable' in observer ) {
+          Observable.dispose ( observer.observable );
+        }
+        Observer.dispose ( observer );
       }
     }
 
     if ( observables ) {
       observer.observables = null;
-      observables.forEach ( observable => { // A forEach here is more consistently fast compared to a for loop
+      for ( let i = 0, l = observables.length; i < l; i++ ) {
+        const observable = observables[i];
         if ( observable.disposed ) return;
         Observable.unregisterObserver ( observable, observer );
-      });
+      }
     }
 
     if ( cleanups ) {
