@@ -78,6 +78,8 @@ const Computed = {
 
         if ( !computed.observers && !computed.observables && !computed.cleanups ) { // Auto-disposable
 
+          Observable.dispose ( computed.observable );
+
           Observer.dispose ( computed );
 
           Owner.unregisterObserver ( computed );
