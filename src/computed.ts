@@ -68,7 +68,15 @@ const Computed = {
 
         const valueNext: T = Owner.wrapWith ( computed.fn.bind ( undefined, valuePrev ), computed );
 
-        Observable.set ( computed.observable, valueNext );
+        if ( computed.observable.disposed ) { // Maybe a computed disposed of itself via a root before returning
+
+          Observable.emitUnstale ( computed.observable, false );
+
+        } else {
+
+          Observable.set ( computed.observable, valueNext );
+
+        }
 
       } catch ( error: unknown ) {
 
