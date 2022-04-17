@@ -12,41 +12,72 @@ const Observer = {
 
   registerCleanup: ( observer: PlainObserver, cleanup: CleanupFunction ): void => {
 
-    if ( !observer.cleanups ) observer.cleanups = [];
+    if ( observer.cleanups ) {
 
-    observer.cleanups.push ( cleanup );
+      observer.cleanups.push ( cleanup );
+
+    } else {
+
+      observer.cleanups = [cleanup];
+    }
 
   },
 
   registerContext: <T> ( observer: PlainObserver, symbol: symbol, value: T ): T => {
 
-    if ( !observer.context ) observer.context = {};
+    if ( observer.context ) {
 
-    return observer.context[symbol] = value;
+      observer.context[symbol] = value;
+
+    } else {
+
+      observer.context = { [symbol]: value };
+
+    }
+
+    return value;
 
   },
 
   registerError: ( observer: PlainObserver, error: ErrorFunction ): void => {
 
-    if ( !observer.errors ) observer.errors = [];
+    if ( observer.errors ) {
 
-    observer.errors.push ( error );
+      observer.errors.push ( error );
+
+    } else {
+
+      observer.errors = [error];
+
+    }
 
   },
 
   registerObservable: ( observer: PlainObserver, observable: PlainObservable ): void => {
 
-    if ( !observer.observables ) observer.observables = [];
+    if ( observer.observables ) {
 
-    observer.observables.push ( observable );
+      observer.observables.push ( observable );
+
+    } else {
+
+      observer.observables = [observable];
+
+    }
 
   },
 
   registerObserver: ( observer: PlainObserver, observer2: PlainObserver ): void => {
 
-    if ( !observer.observers ) observer.observers = [];
+    if ( observer.observers ) {
 
-    observer.observers.push ( observer2 );
+      observer.observers.push ( observer2 );
+
+    } else {
+
+      observer.observers = [observer2];
+
+    }
 
   },
 
@@ -54,9 +85,9 @@ const Observer = {
 
     if ( !observer.observers ) return;
 
-    //TODO: Make this never slow, it's still ok if things are not deleted
+    if ( observer.observers[observer.observers.length - 1] !== observer2 ) return; // Not strictly correct, but this function is only called when auto-disposing where this holds true, besides this function is not necessary for correctness
 
-    observer.observers = observer.observers.filter ( observer => observer !== observer2 );
+    observer.observers.pop ();
 
   },
 
@@ -123,11 +154,10 @@ const Observer = {
 
     if ( observables ) {
       observer.observables = null;
-      for ( let i = 0, l = observables.length; i < l; i++ ) {
-        const observable = observables[i];
-        if ( observable.disposed ) continue;
+      observables.forEach ( observable => { // A forEach here is more consistently fast compared to a for loop
+        if ( observable.disposed ) return;
         Observable.unregisterObserver ( observable, observer );
-      }
+      });
     }
 
     if ( cleanups ) {

@@ -32,8 +32,7 @@ type UpdateFunction<T = unknown, R = unknown> = ( value: T ) => R;
 type PlainObservable<T = unknown, TI = unknown> = {
   value: T | TI,
   comparator: ComparatorFunction<T, TI> | null,
-  computeds: Set<PlainComputed> | null,
-  effects: Set<PlainEffect> | null,
+  observers: Set<PlainComputed | PlainEffect> | null,
   parent: PlainComputed | null,
   disposed: boolean
 };

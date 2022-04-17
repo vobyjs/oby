@@ -15,25 +15,37 @@ const Observable = {
 
   registerObserver: <T, TI> ( observable: PlainObservable<T, TI>, observer: PlainObserver ): boolean => {
 
-    const set = ( 'observable' in observer ) ? observable.computeds || ( observable.computeds = new Set () ) : observable.effects || ( observable.effects = new Set () );
+    const observers = observable.observers;
 
-    const sizePrev = set.size;
+    if ( observers ) {
 
-    set.add ( observer );
+      const sizePrev = observers.size;
 
-    const sizeNext = set.size;
+      observers.add ( observer );
 
-    return ( sizePrev !== sizeNext );
+      const sizeNext = observers.size;
+
+      return ( sizePrev !== sizeNext );
+
+    } else {
+
+      const observersNext = new Set<PlainObserver> ();
+
+      observersNext.add ( observer );
+
+      observable.observers = observersNext;
+
+      return true;
+
+    }
 
   },
 
   unregisterObserver: <T, TI> ( observable: PlainObservable<T, TI>, observer: PlainObserver ): void => {
 
-    const set = ( 'observable' in observer ) ? observable.computeds : observable.effects;
+    if ( !observable.observers ) return;
 
-    if ( !set ) return;
-
-    set.delete ( observer );
+    observable.observers.delete ( observer );
 
   },
 
@@ -62,8 +74,7 @@ const Observable = {
       disposed: false,
       value,
       comparator: options?.comparator || null,
-      computeds: null,
-      effects: null,
+      observers: null,
       parent: null
     };
 
@@ -155,23 +166,11 @@ const Observable = {
 
     if ( observable.disposed ) return;
 
-    if ( observable.computeds ) {
+    if ( !observable.observers ) return;
 
-      for ( const observer of observable.computeds ) {
+    for ( const observer of observable.observers ) {
 
-        Reaction.stale ( observer as any, fresh ); //TSC
-
-      }
-
-    }
-
-    if ( observable.effects ) {
-
-      for ( const observer of observable.effects ) {
-
-        Reaction.stale ( observer as any, fresh ); //TSC
-
-      }
+      Reaction.stale ( observer, fresh );
 
     }
 
@@ -181,25 +180,13 @@ const Observable = {
 
     if ( observable.disposed ) return;
 
-    //TODO: Maybe clone the queues, though all tests are passing already
+    if ( !observable.observers ) return;
 
-    if ( observable.computeds ) {
+    //TODO: Maybe clone the queue, though all tests are passing already
 
-      for ( const observer of observable.computeds ) {
+    for ( const observer of observable.observers ) {
 
-        Reaction.unstale ( observer, fresh );
-
-      }
-
-    }
-
-    if ( observable.effects ) {
-
-      for ( const observer of observable.effects ) {
-
-        Reaction.unstale ( observer, fresh );
-
-      }
+      Reaction.unstale ( observer, fresh );
 
     }
 
