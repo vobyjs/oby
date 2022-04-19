@@ -56,6 +56,18 @@ const Owner = {
 
   },
 
+  registerRoot: ( root: PlainRoot ): void => {
+
+    Observer.registerRoot ( owner, root );
+
+  },
+
+  unregisterRoot: ( root: PlainRoot ): void => {
+
+    Observer.unregisterRoot ( owner, root );
+
+  },
+
   /* WRAPPING API */
 
   wrapWith: <T> ( fn: OwnerFunction<T>, observer?: PlainObserver, disposable?: boolean, sampling?: boolean ): T => {
@@ -102,6 +114,8 @@ const Owner = {
     //TODO: Maybe throw if disposing a root different from the current one, or implement this properly, setting the _current_ observer to undefined is a mistake
 
     Observer.dispose ( observer );
+
+    Owner.unregisterRoot ( observer );
 
     owner = superowner;
 

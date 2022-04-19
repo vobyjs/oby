@@ -17,6 +17,7 @@ const SuperRoot = {
       errors: null,
       observables: null,
       observers: null,
+      roots: 0,
       parent: null
     };
 

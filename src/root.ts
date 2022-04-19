@@ -35,14 +35,19 @@ const Root = {
 
   create: (): PlainRoot => {
 
-    return {
+    const root = {
       cleanups: null,
       context: null,
       errors: null,
       observables: null,
       observers: null,
+      roots: 0,
       parent: Owner.get ()
     };
+
+    Owner.registerRoot ( root );
+
+    return root;
 
   }
 

@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import Observable from './observable';
-import type {CleanupFunction, ErrorFunction, PlainObservable, PlainObserver} from './types';
+import type {CleanupFunction, ErrorFunction, PlainObservable, PlainObserver, PlainRoot} from './types';
 
 /* MAIN */
 
@@ -129,6 +129,18 @@ const Observer = {
       observer.observers = null;
 
     }
+
+  },
+
+  registerRoot: ( observer: PlainObserver, _root: PlainRoot ): void => {
+
+    observer.roots += 1;
+
+  },
+
+  unregisterRoot: ( observer: PlainObserver, _root: PlainRoot ): void => {
+
+    observer.roots -= 1;
 
   },
 

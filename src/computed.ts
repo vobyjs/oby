@@ -39,6 +39,7 @@ const Computed = {
       errors: null,
       observables: null,
       observers: null,
+      roots: 0,
       parent: Owner.get (),
       observable: Observable.create ( valueInitial, options ),
       fn,

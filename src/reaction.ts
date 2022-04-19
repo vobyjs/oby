@@ -42,6 +42,8 @@ const Reaction = {
 
       reaction.stale = 0;
 
+      if ( !freshbit && ( 'observable' in reaction ) && !reaction.roots && !reaction.observers && !reaction.cleanups ) return; // Nothing could/should possibly change, not even side effects //TODO: Should we also skip effects?
+
       Reaction.update ( reaction, !!freshbit );
 
     }

@@ -43,6 +43,7 @@ type PlainObserverBase = {
   errors: ErrorFunction[] | ErrorFunction | null,
   observables: PlainObservable[] | PlainObservable | null,
   observers: PlainObserver[] | PlainObserver | null
+  roots: number
 };
 
 type PlainReactionBase = {
