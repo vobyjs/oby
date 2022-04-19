@@ -14,7 +14,7 @@ const batch = ( fn: BatchFunction ): void => {
 
   } else { // Starting batching
 
-    const queue = batch.queue = new Map<PlainObservable, unknown> ();
+    const queue = batch.queue = new Map<PlainObservable<any, any>, unknown> ();
 
     try {
 
@@ -38,7 +38,7 @@ const batch = ( fn: BatchFunction ): void => {
 
 /* UTILITIES */
 
-batch.queue = <Map<PlainObservable, unknown> | null> null;
+batch.queue = <Map<PlainObservable<any, any>, unknown> | null> null;
 
 /* EXPORT */
 

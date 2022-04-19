@@ -33,7 +33,7 @@ type PlainObservable<T = unknown, TI = unknown> = {
   value: T | TI,
   comparator: ComparatorFunction<T, TI> | null,
   observers: Set<PlainObserver> | PlainObserver | null,
-  parent: PlainComputed | null,
+  parent: PlainComputed<T, TI> | null,
   disposed: boolean
 };
 
@@ -113,8 +113,19 @@ type ObservableOptions<T = unknown, TI = unknown> = {
 
 type ObservableResolved<T = unknown> = T extends Observable<infer U> ? U : T extends ObservableWithoutInitial<infer U> ? U | undefined : T extends ObservableReadonly<infer U> ? U : T extends ObservableReadonlyWithoutInitial<infer U> ? U | undefined : T;
 
+/* OTHERS */
+
+type Accessor<T, TI> = ( arg: symbol ) => PlainObservable<T, TI>;
+
+type Readable = <T = unknown, TI = unknown> ( observable: PlainObservable<T, TI> ) => ObservableReadonlyAbstract<T, TI>;
+
+type Writable = <T = unknown, TI = unknown> ( observable: PlainObservable<T, TI> ) => ObservableAbstract<T, TI>;
+
+type Selected = { count: number, value: unknown, observable: PlainObservable<boolean, boolean> };
+
 /* EXPORT */
 
 export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, SelectFunction, SelectorFunction, UpdateFunction};
 export type {PlainObservable, PlainObserverBase, PlainComputed, PlainEffect, PlainReaction, PlainRoot, PlainSuperRoot, PlainObserver};
 export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
+export type {Accessor, Readable, Writable, Selected};

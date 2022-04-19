@@ -4,7 +4,7 @@
 import Observable from './observable';
 import Observer from './observer';
 import SuperRoot from './superroot';
-import type {CleanupFunction, ErrorFunction, OwnerFunction, PlainObservable, PlainObserver} from './types';
+import type {CleanupFunction, ErrorFunction, OwnerFunction, PlainObservable, PlainObserver, PlainRoot} from './types';
 
 /* HELPERS */
 
@@ -30,7 +30,7 @@ const Owner = {
 
   },
 
-  registerObservable: ( observable: PlainObservable ): void => {
+  registerObservable: ( observable: PlainObservable<any, any> ): void => {
 
     if ( isSampling ) return;
 
@@ -70,7 +70,7 @@ const Owner = {
 
       if ( observer && disposable ) {
 
-        const dispose = Owner.dispose.bind ( undefined, observer );
+        const dispose = Owner.dispose.bind ( undefined, observer as PlainRoot ); //TSC
 
         return fn ( dispose );
 
@@ -97,7 +97,7 @@ const Owner = {
 
   /* API */
 
-  dispose: ( observer: PlainObserver ): void => {
+  dispose: ( observer: PlainRoot ): void => {
 
     //TODO: Maybe throw if disposing a root different from the current one, or implement this properly, setting the _current_ observer to undefined is a mistake
 

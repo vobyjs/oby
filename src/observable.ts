@@ -79,7 +79,7 @@ const Observable = {
 
     Owner.registerObservable ( observable );
 
-    if ( observable.parent && observable.parent.stale ) { //FIXME: observable is probably buggy, if it's refreshed early and the counter is reset it may not update itself when one of its dependencies change
+    if ( observable.parent && observable.parent.stale ) {
 
       observable.parent.stale = 0;
 
@@ -117,13 +117,11 @@ const Observable = {
 
   },
 
-  select: <T, TI, R> ( observable: PlainObservable<T, TI>, fn: SelectFunction<T | TI, R>, options?: ObservableOptions<R, R> ): ObservableReadonly<R> => {
+  select: <T, TI, R> ( observable: PlainObservable<T, TI>, fn: SelectFunction<T | TI, R>, options?: ObservableOptions<R, R | undefined> ): ObservableReadonly<R> => {
 
-    return Computed.wrap ( () => {
+    const update = (): R => fn ( Observable.get ( observable ) );
 
-      return fn ( Observable.get ( observable ) );
-
-    }, undefined, options );
+    return Computed.wrap ( update, undefined, options );
 
   },
 
@@ -201,7 +199,7 @@ const Observable = {
 
     } else {
 
-      Reaction.stale ( observable.observers  as PlainReaction, fresh ); //TSC
+      Reaction.stale ( observable.observers as PlainReaction, fresh ); //TSC
 
     }
 
@@ -215,7 +213,14 @@ const Observable = {
 
     if ( observable.observers instanceof Set ) {
 
-      for ( const observer of observable.observers ) {
+      const set = observable.observers;
+      const queue = Array.from ( set ); //TODO: Could cloning be avoided?
+
+      for ( let i = 0, l = queue.length; i < l; i++ ) {
+
+        const observer = queue[i];
+
+        if ( !set.has ( observer ) ) continue;
 
         Reaction.unstale ( observer as PlainReaction, fresh ); //TSC
 

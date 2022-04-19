@@ -22,7 +22,7 @@ const Reaction = {
 
     if ( count === 1 && 'observable' in reaction ) {
 
-      Observable.emitStale ( reaction.observable, !!freshbit );
+      Observable.emitStale ( reaction.observable, false );
 
     }
 
@@ -30,7 +30,7 @@ const Reaction = {
 
   unstale: ( reaction: PlainReaction, fresh: boolean ): void => {
 
-    if ( !reaction.stale ) return; //TODO: If this ever happens we probably hit a bug
+    if ( !reaction.stale ) return; //FIXME: This line should be deleted, with it some things may fail to update themselves, without it some things may update themselves excessively (is this actually correct though??)
 
     const count = ( reaction.stale >>> 1 ) - 1;
     const freshbit = fresh ? 1 : reaction.stale & 1;

@@ -70,7 +70,7 @@ const Observer = {
 
   },
 
-  registerObservable: ( observer: PlainObserver, observable: PlainObservable ): void => {
+  registerObservable: ( observer: PlainObserver, observable: PlainObservable<any, any> ): void => {
 
     if ( observer.observables ) {
 
@@ -114,7 +114,7 @@ const Observer = {
 
   },
 
-  unregisterObserver ( observer: PlainObserver, observer2: PlainObserver ): void {
+  unregisterObserver: ( observer: PlainObserver, observer2: PlainObserver ): void => {
 
     if ( !observer.observers ) return;
 

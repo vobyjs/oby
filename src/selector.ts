@@ -4,7 +4,7 @@
 import Effect from './effect';
 import Observable from './observable';
 import Owner from './owner';
-import type {SelectorFunction, ObservableAny, PlainObservable} from './types';
+import type {SelectorFunction, ObservableAny, Selected} from './types';
 
 /* MAIN */
 
@@ -26,7 +26,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   /* SELECTEDS */
 
-  let selecteds: Map<unknown, PlainObservable<boolean, boolean>> = new Map ();
+  let selecteds: Map<unknown, Selected> = new Map ();
 
   let valuePrev: T | undefined;
 
@@ -34,12 +34,12 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     const selectedPrev = selecteds.get ( valuePrev );
 
-    if ( selectedPrev ) Observable.set ( selectedPrev, false );
+    if ( selectedPrev ) Observable.set ( selectedPrev.observable, false );
 
     const valueNext = observable ();
     const selectedNext = selecteds.get ( valueNext );
 
-    if ( selectedNext ) Observable.set ( selectedNext, true );
+    if ( selectedNext ) Observable.set ( selectedNext.observable, true );
 
     valuePrev = valueNext;
 
@@ -51,7 +51,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     selecteds.forEach ( selected => {
 
-      Observable.dispose ( selected );
+      Observable.dispose ( selected.observable );
 
     });
 
@@ -63,19 +63,19 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   /* CLENAUP SINGLE */
 
-  const cleanup = function ( this: PlainObservable ): void {
+  const cleanup = function ( this: Selected ): void {
 
-    const observable = this;
+    const selected = this;
 
-    observable['s_count'] -= 1;
+    selected.count -= 1;
 
-    if ( observable['s_count'] ) return;
+    if ( selected.count ) return;
 
     if ( !selecteds.size ) return;
 
-    Observable.dispose ( observable );
+    Observable.dispose ( selected.observable );
 
-    selecteds.delete ( observable['s_value'] );
+    selecteds.delete ( selected.value );
 
   };
 
@@ -85,19 +85,19 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     /* INIT */
 
-    let selected: PlainObservable<boolean, boolean>;
+    let selected: Selected;
     let selectedPrev = selecteds.get ( value );
 
     if ( selectedPrev ) {
 
       selected = selectedPrev;
-      selected['s_count'] += 1;
+      selected.count += 1;
 
     } else {
 
-      selected = Observable.create<boolean, boolean> ( observable.sample () === value );
-      selected['s_count'] = 1;
-      selected['s_value'] = value;
+      const o = Observable.create<boolean, boolean> ( observable.sample () === value );
+
+      selected = { count: 1, value, observable: o };
 
       selecteds.set ( value, selected );
 
@@ -109,7 +109,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     /* RETURN */
 
-    return Observable.get ( selected );
+    return Observable.get ( selected.observable );
 
   };
 

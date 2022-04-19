@@ -54,7 +54,7 @@ const Computed = {
 
   },
 
-  update: <T> ( computed: PlainComputed, fresh: boolean ): void => {
+  update: <T, TI> ( computed: PlainComputed<T, TI>, fresh: boolean ): void => {
 
     if ( fresh && !computed.observable.disposed ) { // The resulting value might change
 
@@ -64,7 +64,7 @@ const Computed = {
 
       try {
 
-        const valueNext: T = Owner.wrapWith ( computed.fn.bind ( undefined, valuePrev ), computed );
+        const valueNext = Owner.wrapWith ( computed.fn.bind ( undefined, valuePrev ), computed );
 
         if ( computed.observable.disposed ) { // Maybe a computed disposed of itself via a root before returning
 
