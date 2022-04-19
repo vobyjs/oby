@@ -1,6 +1,6 @@
 import test from 'tape';
 import spy from 'ispy';
-import { o, S } from './shim.mjs';
+import { o, S } from './shim.js';
 
 // Tests from S.js
 
@@ -90,12 +90,10 @@ test('set works from other computed', function(t) {
 
   var carrot = o();
   S(() => {
-    console.log('banana false');
     banana(false);
 
     carrot() + ' soup';
 
-    console.log('banana true');
     banana(true);
   });
 

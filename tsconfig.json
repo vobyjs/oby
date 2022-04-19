@@ -1,28 +1,3 @@
 {
-  "compilerOptions": {
-    "alwaysStrict": true,
-    "declaration": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "forceConsistentCasingInFileNames": true,
-    "inlineSourceMap": false,
-    "jsx": "react",
-    "lib": ["es2020"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "newLine": "LF",
-    "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": false,
-    "outDir": "dist",
-    "pretty": true,
-    "strictNullChecks": true,
-    "target": "es2018"
-  },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "extends": "tsex/tsconfig.json"
 }

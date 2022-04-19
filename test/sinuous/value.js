@@ -1,6 +1,5 @@
 import test from 'tape';
-import { o, S, root } from './shim.mjs';
-
+import { o, S, root } from './shim.js';
 
 function value(current, eq) {
   const v = o(current);

@@ -1,5 +1,5 @@
 import test from 'tape';
-import { o, S, sample } from './shim.mjs';
+import { o, S, sample } from './shim.js';
 
 test('avoids a depdendency', function(t) {
   var a = o(1),

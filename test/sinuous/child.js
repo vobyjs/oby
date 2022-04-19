@@ -1,6 +1,6 @@
 import test from 'tape';
 import spy from 'ispy';
-import { o, S, transaction, observable, sample } from './shim.mjs';
+import { o, S, transaction, observable, sample } from './shim.js';
 
 test('parent cleans up inner subscriptions', function(t) {
   let i = 0;
@@ -233,22 +233,18 @@ test('insures that new dependencies are updated before dependee', function(t) {
 
   var b = S(function x() {
     order += 'b';
-    console.log('B');
     return a() + 1;
   });
 
   var c = S(function y() {
     order += 'c';
-    console.log('C');
     return b() || d();
   });
 
-  function z() {
+  var d = S(function z() {
     order += 'd';
-    console.log('D');
     return a() + 10;
-  }
-  var d = S(z);
+  });
 
   t.equal(order, 'bcd', '1st bcd test');
 
@@ -263,7 +259,7 @@ test('insures that new dependencies are updated before dependee', function(t) {
   order = '';
   a(0);
 
-  t.equal(order, 'bdc', '3rd bcd test'); //FIXME: It's bcd in Solid, and bc in Sinuous
+  t.equal(order, 'bdc', '3rd bcd test'); // This is "bcd" in Solid and "bc" in Sinuous with lazy evaluation of "d"
   t.equal(c(), 1);
   t.end();
 });

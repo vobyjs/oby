@@ -1,9 +1,9 @@
 
 /* IMPORT */
 
-const {describe} = require ( 'fava' );
-const delay = require ( 'promise-resolve-timeout' );
-const {default: $} = require ( '../../dist' );
+import {describe} from 'fava';
+import {setTimeout as delay} from 'node:timers/promises';
+import $ from '../../dist/index.js';
 
 /* HELPERS */
 
@@ -2605,9 +2605,9 @@ describe ( 'oby', it => {
       return f1 () + f2 () + f3 () + f4 () + f5 ();
     });
 
-    calss = 0;
+    calls = 0;
 
-    d ( 0 );
+    d ( 1 );
 
     t.is ( calls, 1 );
 
@@ -2769,7 +2769,10 @@ describe ( 'oby', it => {
 
     let view;
 
-    $.computed ( () => ( view = memo () ) );
+    $.computed ( () => {
+      view = memo ();
+      return view;
+    });
 
     t.is ( view, undefined );
 
@@ -2787,7 +2790,9 @@ describe ( 'oby', it => {
 
     t.is ( childValue, 'name2' );
 
+    // 3rd
     // data is null -> cache is false -> child is not run here
+
     o ( null );
 
     t.is ( childValue, 'name2' );

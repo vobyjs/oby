@@ -1,11 +1,6 @@
 import test from 'tape';
 import spy from 'ispy';
-import {
-  o,
-  subscribe,
-  unsubscribe,
-  cleanup
-} from './shim.mjs';
+import { o, subscribe, unsubscribe } from './shim.js';
 
 test('initial value can be set', function(t) {
   let title = o('Groovy!');

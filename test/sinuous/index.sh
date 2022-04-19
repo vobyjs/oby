@@ -1,2 +1,2 @@
 
-node test/sinuous/S.mjs && node test/sinuous/child.mjs && node test/sinuous/dispose.mjs && node test/sinuous/observable.mjs && node test/sinuous/root.mjs && node test/sinuous/sample.mjs && node test/sinuous/transaction.mjs && node test/sinuous/value.mjs
+node test/sinuous/S.js && node test/sinuous/child.js && node test/sinuous/dispose.js && node test/sinuous/observable.js && node test/sinuous/root.js && node test/sinuous/sample.js && node test/sinuous/transaction.js && node test/sinuous/value.js

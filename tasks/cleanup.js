@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-const {default: $} = require ( '../dist' );
+import $ from '../dist/index.js';
 
 /* MAIN */
 

@@ -1,5 +1,5 @@
 import test from 'tape';
-import { o, S, root } from './shim.mjs';
+import { o, S, root } from './shim.js';
 
 test("disables updates and sets computation's value to undefined", function(t) {
   root(function(dispose) {

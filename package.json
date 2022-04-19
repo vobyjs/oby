@@ -1,34 +1,26 @@
 {
   "name": "oby",
+  "repository": "github:fabiospampinato/oby",
   "description": "A tiny Observable implementation, the brilliant primitive you need to build a powerful reactive system.",
   "version": "5.4.0",
+  "type": "module",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "benchmark": "node tasks/benchmark.js",
-    "clean": "rimraf dist",
+    "benchmark": "tsex benchmark",
+    "benchmark:watch": "tsex benchmark --watch",
+    "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
-    "compile": "tsc --skipLibCheck",
-    "compile:bundle": "esbuild --bundle --minify --format=cjs --target=es2018 '--mangle-props=^(target|create|cleanups|errors|observable|observables|computeds|effects|observer|observers|stale|unstale|emitStale|emitUnstale|registerObserver|unregisterObserver|value|parent|listenedValue|listeners|getPublic|registerCleanup|registerContext|registerError|registerObservable|registerObservables|registerObserver|registerSelf|unregisterObserver|wrap|wrapWith|wrapWithSampling)$' --mangle-quoted ./src/index.ts > ./dist/index.js",
-    "compile:watch": "tsc --skipLibCheck --watch",
+    "compile": "tsex compile",
+    "compile:bundle": "esbuild --bundle --minify --format=esm --target=es2018 '--mangle-props=^(count|target|create|cleanups|errors|observable|observables|computeds|effects|observer|observers|stale|unstale|emitStale|emitUnstale|registerObserver|unregisterObserver|value|parent|listenedValue|listeners|getPublic|registerCleanup|registerContext|registerError|registerObservable|registerObservables|registerObserver|registerSelf|unregisterObserver|wrap|wrapWith|wrapWithSampling)$' --mangle-quoted ./src/index.ts > ./dist/index.js",
+    "compile:watch": "tsex compile --watch",
     "memory": "node tasks/memory.js",
     "test:native": "fava '**/native/**'",
     "test:native:watch": "fava -w '**/native/**'",
     "test:sinuous": "bash test/sinuous/index.sh",
     "test": "npm run test:sinuous && npm run test:native",
     "prepublishOnly": "npm run clean && npm run compile && npm run test && npm run compile:bundle && npm run test"
-  },
-  "bugs": {
-    "url": "https://github.com/fabiospampinato/oby/issues"
-  },
-  "license": "MIT",
-  "author": {
-    "name": "Fabio Spampinato",
-    "email": "spampinabio@gmail.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/fabiospampinato/oby.git"
   },
   "keywords": [
     "observable",
@@ -43,9 +35,8 @@
     "esbuild": "^0.14.36",
     "fava": "^0.0.6",
     "ispy": "^0.1.2",
-    "promise-resolve-timeout": "^1.0.0",
-    "rimraf": "^3.0.2",
     "tape": "^5.5.3",
+    "tsex": "^1.1.1",
     "typescript": "^4.6.3"
   }
 }

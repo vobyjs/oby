@@ -1,5 +1,5 @@
 import test from 'tape';
-import { o, S, root } from './shim.mjs';
+import { o, S, root } from './shim.js';
 
 test('allows subcomputations to escape their parents', function(t) {
   root(function() {

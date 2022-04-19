@@ -1,5 +1,5 @@
 import test from 'tape';
-import { o, S, root, transaction } from './shim.mjs';
+import { o, S, root, transaction } from './shim.js';
 
 test('batches all changes until end', function(t) {
   var d1 = o(9);

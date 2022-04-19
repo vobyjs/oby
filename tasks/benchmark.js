@@ -1,7 +1,8 @@
 
 /* IMPORT */
 
-const {default: $} = require ( '../dist' );
+import {assert} from 'fava';
+import $ from '../dist/index.js';
 
 /* MAIN */
 
@@ -65,17 +66,23 @@ const cellx = layers => {
 
       }
 
+      const end = layer;
+
       const startTime = performance.now ();
+
+      const before = [end.prop1 (), end.prop2 (), end.prop3 (), end.prop4 ()];
 
       start.prop1 ( 4 );
       start.prop2 ( 3 );
       start.prop3 ( 2 );
       start.prop4 ( 1 );
 
+      const after = [end.prop1 (), end.prop2 (), end.prop3 (), end.prop4 ()];
+
       const endTime = performance.now ();
       const elapsedTime = endTime - startTime;
 
-      resolve ( elapsedTime );
+      resolve ([ elapsedTime, before, after ]);
 
     });
 
@@ -87,13 +94,29 @@ const benchmark = async () => {
 
   let total = 0;
 
-  for ( const layers of [10, 20, 30, 50, 100, 1000, 2500] ) {
+  const expected = {
+    10: [[3, 6, 2, -2], [2, 4, -2, -3]],
+    20: [[2, 4, -1, -6], [-2, 1, -4, -4]],
+    30: [[-1, -2, -3, -4], [-4, -3, -2, -1]],
+    50: [[-2, -4, 1, 6], [2, -1, 4, 4]],
+    100: [[-3, -6, -2, 2], [-2, -4, 2, 3]],
+    1000: [[-3, -6, -2, 2], [-2, -4, 2, 3]],
+    // 2500: [[-3, -6, -2, 2], [-2, -4, 2, 3]]
+  };
+
+  const results = {};
+
+  const runs = [1, 2, 3, 4, 5];
+
+  for ( const layers in expected ) {
 
     console.log ( '----' );
 
-    for ( const run of [1, 2, 3] ) {
+    for ( const run of runs ) {
 
-      const elapsed = await cellx ( layers );
+      const [elapsed, before, after] = await cellx ( layers );
+
+      results[layers] = [before, after];
 
       console.log ( `Layers ${layers}: ${elapsed}` );
 
@@ -103,7 +126,10 @@ const benchmark = async () => {
 
   }
 
+  console.log ( '----' );
   console.log ( `Total: ${total}` );
+
+  assert.deepEqual ( results, expected );
 
 };
 

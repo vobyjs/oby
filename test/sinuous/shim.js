@@ -1,7 +1,5 @@
 
-import oby from '../../dist/index.js';
-
-const $ = oby.default;
+import $ from '../../dist/index.js';
 
 const comparator = () => false;
 
