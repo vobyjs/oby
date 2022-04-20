@@ -898,13 +898,13 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'returns undefined', t => {
+    it ( 'returns the value being returned', t => {
 
       const o = $(0);
 
       const result = $.batch ( () => o () );
 
-      t.is ( result, undefined );
+      t.is ( result, 0 );
 
     });
 
@@ -1416,7 +1416,7 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'returns the value being set', t => {
+    it ( 'returns undefined when setting', t => {
 
       $.effect ( () => {
 
@@ -1425,7 +1425,7 @@ describe ( 'oby', it => {
 
         const ret = $.context ( ctx, value );
 
-        t.is ( ret, value );
+        t.is ( ret, undefined );
 
       });
 
