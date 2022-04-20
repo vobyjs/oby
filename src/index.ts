@@ -1,20 +1,22 @@
 
 /* IMPORT */
 
-import batch from './batch';
-import {writable} from './callable';
-import Computed from './computed';
-import context from './context';
-import disposed from './disposed';
-import Effect from './effect';
-import from from './from';
-import get from './get';
-import is from './is';
-import ObservableObject from './observable';
-import Owner from './owner';
-import Root from './root';
-import selector from './selector';
-import type {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions} from './types';
+import batch from '~/methods/batch';
+import cleanup from '~/methods/cleanup';
+import computed from '~/methods/computed';
+import context from '~/methods/context';
+import disposed from '~/methods/disposed';
+import effect from '~/methods/effect';
+import error from '~/methods/error';
+import from from '~/methods/from';
+import get from '~/methods/get';
+import is from '~/methods/is';
+import map from '~/methods/map';
+import root from '~/methods/root';
+import sample from '~/methods/sample';
+import selector from '~/methods/selector';
+import ObservableClass from '~/objects/observable';
+import type {ObservableWithoutInitial, ObservableOptions, Observable, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny} from '~/types';
 
 /* MAIN */
 
@@ -23,24 +25,25 @@ function observable <T> ( value: undefined, options?: ObservableOptions<T, T | u
 function observable <T> ( value: T, options?: ObservableOptions<T, T> ): Observable<T>;
 function observable <T> ( value?: T, options?: ObservableOptions<T, T | undefined> ) {
 
-  return writable ( ObservableObject.create ( value, options ) );
+  return new ObservableClass ( value, options ).writable ();
 
 }
 
 /* UTILITIES */
 
 observable.batch = batch;
-observable.cleanup = Owner.registerCleanup;
-observable.computed = Computed.wrap;
+observable.cleanup = cleanup;
+observable.computed = computed;
 observable.context  = context;
 observable.disposed = disposed;
-observable.effect = Effect.wrap;
-observable.error = Owner.registerError;
+observable.effect = effect;
+observable.error = error;
 observable.from = from;
 observable.get = get;
 observable.is = is;
-observable.root = Root.wrap;
-observable.sample = Owner.wrapWithSampling;
+observable.map = map;
+observable.root = root;
+observable.sample = sample;
 observable.selector = selector;
 
 /* EXPORT */

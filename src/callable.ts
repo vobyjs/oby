@@ -1,9 +1,8 @@
 
 /* IMPORT */
 
-import Observable from './observable';
-import symbol from './symbol';
-import type {ProduceFunction, SelectFunction, UpdateFunction, PlainObservable, ObservableReadonlyAbstract, Accessor, Readable, Writable} from './types';
+import {SYMBOL} from '~/constants';
+import type {IObservable, SelectFunction, ProduceFunction, UpdateFunction, ObservableReadonlyAbstract, Accessor, Readable, Writable} from '~/types';
 
 /* HELPERS */
 
@@ -12,23 +11,23 @@ const {setPrototypeOf} = Object;
 
 /* READABLE */
 
-function readableFunction <T, TI> ( this: PlainObservable<T, TI> ): T | TI;
-function readableFunction <T, TI> ( this: PlainObservable<T, TI>, arg: symbol ): PlainObservable<T, TI>;
-function readableFunction <T, TI> ( this: PlainObservable<T, TI>, arg?: symbol ) {
-  if ( arg === symbol ) return this;
-  return Observable.get ( this );
+function readableFunction <T, TI> ( this: IObservable<T, TI> ): T | TI;
+function readableFunction <T, TI> ( this: IObservable<T, TI>, arg: symbol ): IObservable<T, TI>;
+function readableFunction <T, TI> ( this: IObservable<T, TI>, arg?: symbol ) {
+  if ( arg === SYMBOL ) return this;
+  return this.get ();
 }
 
 const readablePrototype = {
-  [symbol]: true,
+  [SYMBOL]: true,
   get <T, TI> ( this: Accessor<T, TI> ): T | TI {
-    return Observable.get ( this ( symbol ) );
+    return this ( SYMBOL ).get ();
   },
   sample <T, TI> ( this: Accessor<T, TI> ): T | TI {
-    return Observable.sample ( this ( symbol ) );
+    return this ( SYMBOL ).sample ();
   },
   select <T, TI, R> ( this: Accessor<T, TI>, fn: SelectFunction<T | TI, R> ): ObservableReadonlyAbstract<R, R> {
-    return Observable.select ( this ( symbol ), fn );
+    return this ( SYMBOL ).select ( fn );
   },
   readonly <T, TI> ( this: Accessor<T, TI> ): ObservableReadonlyAbstract<T, TI> {
     return this as any; //TSC
@@ -40,35 +39,35 @@ const readablePrototype = {
 
 setPrototypeOf ( readableFunction, setPrototypeOf ( readablePrototype, prototype ) );
 
-const readable: Readable = readableFunction.bind.bind ( readableFunction as any ) as Readable; //TSC
+const readable = readableFunction.bind.bind ( readableFunction as any ) as Readable; //TSC
 
 /* WRITABLE */
 
-function writableFunction <T, TI> ( this: PlainObservable<T, TI> ): T | TI;
-function writableFunction <T, TI> ( this: PlainObservable<T, TI>, arg: symbol ): PlainObservable<T, TI>;
-function writableFunction <T, TI> ( this: PlainObservable<T, TI>, arg: T ): T;
-function writableFunction <T, TI> ( this: PlainObservable<T, TI>, arg?: symbol | T ) {
-  if ( arg === symbol ) return this;
-  if ( arguments.length ) return Observable.set ( this as any, arg ); //TSC
-  return Observable.get ( this );
+function writableFunction <T, TI> ( this: IObservable<T, TI> ): T | TI;
+function writableFunction <T, TI> ( this: IObservable<T, TI>, arg: symbol ): IObservable<T, TI>;
+function writableFunction <T, TI> ( this: IObservable<T, TI>, arg: T ): T;
+function writableFunction <T, TI> ( this: IObservable<T, TI>, arg?: symbol | T ) {
+  if ( arg === SYMBOL ) return this;
+  if ( arguments.length ) return this.set ( arg as T ); //TSC
+  return this.get ();
 }
 
 const writablePrototype = {
   ...readablePrototype,
   set <T, TI> ( this: Accessor<T, TI>, value: T ): T {
-    return Observable.set ( this ( symbol ), value );
+    return this ( SYMBOL ).set ( value );
   },
   produce <T, TI> ( this: Accessor<T, TI>, fn: ProduceFunction<T | TI, T> ): T {
-    return Observable.produce ( this ( symbol ), fn );
+    return this ( SYMBOL ).produce ( fn );
   },
   update <T, TI> ( this: Accessor<T, TI>, fn: UpdateFunction<T | TI, T> ): T {
-    return Observable.update ( this ( symbol ), fn );
+    return this ( SYMBOL ).update ( fn );
   },
   emit <T, TI> ( this: Accessor<T, TI> ): void {
-    return Observable.emit ( this ( symbol ), true );
+    return this ( SYMBOL ).emit ( true );
   },
   readonly <T, TI> ( this: Accessor<T, TI> ): ObservableReadonlyAbstract<T, TI> {
-    return readable ( this ( symbol ) );
+    return this ( SYMBOL ).readable ();
   },
   isReadonly <T, TI> ( this: Accessor<T, TI> ): false {
     return false;

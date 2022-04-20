@@ -1,7 +1,23 @@
 
+/* OBJECTS */
+
+type IComputed<T = unknown> = import ( '~/objects/computed' ).default<T>;
+
+type IEffect = import ( '~/objects/effect' ).default;
+
+type IObservable<T = unknown, TI = unknown> = import ( '~/objects/observable' ).default<T, TI>;
+
+type IObserver = import ( '~/objects/observer' ).default;
+
+type IReaction = import ( '~/objects/reaction' ).default;
+
+type IRoot = import ( '~/objects/root' ).default;
+
+type ISuperRoot = import ( '~/objects/superroot' ).default;
+
 /* FUNCTIONS */
 
-type BatchFunction = () => void;
+type BatchFunction<T = unknown> = () => T;
 
 type CleanupFunction = () => void;
 
@@ -15,65 +31,23 @@ type EffectFunction = () => CleanupFunction | void;
 
 type ErrorFunction = ( error: unknown ) => void;
 
-type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | void;
+type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | undefined;
 
-type OwnerFunction<T = unknown> = ( dispose?: DisposeFunction ) => T;
+type ObservedFunction<T = unknown> = () => T;
+
+type ObservedDisposableFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
 
 type ProduceFunction<T = unknown, R = unknown> = ( value: T ) => R | undefined;
 
+type SampleFunction<T = unknown> = () => T;
+
 type SelectFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
-type SelectorFunction<T = unknown> = (( value: T ) => boolean);
+type SelectorFunction<T = unknown> = ( value: T ) => boolean;
 
 type UpdateFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
-/* PLAIN OBJECTS */
-
-type PlainObservable<T = unknown, TI = unknown> = {
-  value: T | TI,
-  comparator: ComparatorFunction<T, TI> | null,
-  observers: Set<PlainObserver> | PlainObserver | null,
-  parent: PlainComputed<T, TI> | null,
-  disposed: boolean
-};
-
-type PlainObserverBase = {
-  cleanups: CleanupFunction[] | CleanupFunction | null,
-  context: Record<symbol, any> | null,
-  errors: ErrorFunction[] | ErrorFunction | null,
-  observables: PlainObservable[] | PlainObservable | null,
-  observers: PlainObserver[] | PlainObserver | null
-  roots: number
-};
-
-type PlainReactionBase = {
-  stale: number // The rightmost bit indicates whether the fresh boolean is set or not, the rest makes up a counter
-};
-
-type PlainComputed<T = unknown, TI = unknown> = PlainObserverBase & PlainReactionBase & {
-  parent: PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot,
-  observable: PlainObservable<T, TI>,
-  fn: ComputedFunction<T, TI>
-};
-
-type PlainEffect = PlainObserverBase & PlainReactionBase & {
-  parent: PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot,
-  fn: EffectFunction
-};
-
-type PlainReaction = PlainComputed | PlainEffect;
-
-type PlainRoot = PlainObserverBase & {
-  parent: PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot
-};
-
-type PlainSuperRoot = PlainObserverBase & {
-  parent: null
-};
-
-type PlainObserver = PlainComputed | PlainEffect | PlainRoot | PlainSuperRoot;
-
-/* OBSERVABLES */
+/* OBSERVABLE */
 
 type ObservableAbstract<T = unknown, TI = unknown> = {
   (): T | TI,
@@ -116,17 +90,25 @@ type ObservableResolved<T = unknown> = T extends Observable<infer U> ? U : T ext
 
 /* OTHERS */
 
-type Accessor<T, TI> = ( arg: symbol ) => PlainObservable<T, TI>;
+type Accessor<T, TI> = ( symbol: symbol ) => IObservable<T, TI>;
 
-type Readable = <T = unknown, TI = unknown> ( observable: PlainObservable<T, TI> ) => ObservableReadonlyAbstract<T, TI>;
+type Contexts = Record<symbol, any>;
 
-type Writable = <T = unknown, TI = unknown> ( observable: PlainObservable<T, TI> ) => ObservableAbstract<T, TI>;
+type LazyArray<T = unknown> = T[] | T | null;
 
-type Selected = { count: number, value: unknown, observable: PlainObservable<boolean, boolean> };
+type LazyObject<T = unknown> = T | null;
+
+type LazySet<T = unknown> = Set<T> | T | null;
+
+type Readable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) => ObservableReadonlyAbstract<T, TI>;
+
+type Selected = { count: number, value: unknown, observable: IObservable<boolean, boolean> };
+
+type Writable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) => ObservableAbstract<T, TI>;
 
 /* EXPORT */
 
-export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, OwnerFunction, ProduceFunction, SelectFunction, SelectorFunction, UpdateFunction};
-export type {PlainObservable, PlainObserverBase, PlainComputed, PlainEffect, PlainReaction, PlainRoot, PlainSuperRoot, PlainObserver};
+export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
+export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
 export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
-export type {Accessor, Readable, Writable, Selected};
+export type {Accessor, Contexts, LazyArray, LazyObject, LazySet, Readable, Selected, Writable};

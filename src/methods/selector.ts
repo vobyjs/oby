@@ -1,28 +1,14 @@
 
 /* IMPORT */
 
-import Effect from './effect';
-import Observable from './observable';
-import Owner from './owner';
-import type {SelectorFunction, ObservableAny, Selected} from './types';
+import {OWNER} from '~/constants';
+import effect from '~/methods/effect';
+import Observable from '~/objects/observable';
+import type {SelectorFunction, ObservableAny, Selected} from '~/types';
 
 /* MAIN */
 
 const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
-
-  /* DISPOSED SELECTOR */
-
-  if ( Observable.target ( observable ).disposed ) { // A disposed observable will never change, no need to make selecteds
-
-    const valueFixed = observable.sample ();
-
-    return ( value: T ): boolean => {
-
-      return value === valueFixed;
-
-    };
-
-  }
 
   /* SELECTEDS */
 
@@ -30,16 +16,16 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   let valuePrev: T | undefined;
 
-  Effect.create ( () => {
+  effect ( () => {
 
     const selectedPrev = selecteds.get ( valuePrev );
 
-    if ( selectedPrev ) Observable.set ( selectedPrev.observable, false );
+    if ( selectedPrev ) selectedPrev.observable.set ( false );
 
     const valueNext = observable ();
     const selectedNext = selecteds.get ( valueNext );
 
-    if ( selectedNext ) Observable.set ( selectedNext.observable, true );
+    if ( selectedNext ) selectedNext.observable.set ( true );
 
     valuePrev = valueNext;
 
@@ -51,7 +37,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     selecteds.forEach ( selected => {
 
-      Observable.dispose ( selected.observable );
+      selected.observable.dispose ();
 
     });
 
@@ -59,7 +45,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   };
 
-  Owner.registerCleanup ( cleanupAll );
+  OWNER.current.registerCleanup ( cleanupAll );
 
   /* CLENAUP SINGLE */
 
@@ -73,7 +59,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     if ( !selecteds.size ) return;
 
-    Observable.dispose ( selected.observable );
+    selected.observable.dispose ();
 
     selecteds.delete ( selected.value );
 
@@ -95,7 +81,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     } else {
 
-      const o = Observable.create<boolean, boolean> ( observable.sample () === value );
+      const o = new Observable<boolean, boolean> ( observable.sample () === value );
 
       selected = { count: 1, value, observable: o };
 
@@ -105,11 +91,11 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     /* CLEANUP */
 
-    Owner.registerCleanup ( cleanup.bind ( selected ) );
+    OWNER.current.registerCleanup ( cleanup.bind ( selected ) );
 
     /* RETURN */
 
-    return Observable.get ( selected.observable );
+    return selected.observable.get ();
 
   };
 
