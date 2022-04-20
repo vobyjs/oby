@@ -13,14 +13,15 @@
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
     "compile": "tsex compile",
-    "compile:bundle": "esbuild --bundle --minify --format=esm --target=es2018 '--mangle-props=^(count|target|create|cleanups|errors|observable|observables|computeds|effects|observer|observers|stale|unstale|emitStale|emitUnstale|registerObserver|unregisterObserver|value|parent|listenedValue|listeners|getPublic|registerCleanup|registerContext|registerError|registerObservable|registerObservables|registerObserver|registerSelf|unregisterObserver|wrap|wrapWith|wrapWithSampling)$' --mangle-quoted ./src/index.ts > ./dist/index.js",
+    "compile:bundle": "esbuild --bundle --minify --format=esm --target=es2018 '--mangle-props=^(cleanups|contexts|count|errors|flush|fn|observable|observables|observers|parent|queue|readable|registerCleanup|registerContext|registerError|registerObservable|registerObserver|registerSelf|stale|statusCount|statusFresh|unregisterObserver|unstale|value|wrap|writable)$' --mangle-quoted ./src/index.ts > ./dist/index.js",
     "compile:watch": "tsex compile --watch",
     "memory": "node tasks/memory.js",
+    "optimize": "node tasks/optimize.js",
     "test:native": "fava '**/native/**'",
     "test:native:watch": "fava -w '**/native/**'",
     "test:sinuous": "bash test/sinuous/index.sh",
     "test": "npm run test:sinuous && npm run test:native",
-    "prepublishOnly": "npm run clean && npm run compile && npm run test && npm run compile:bundle && npm run test"
+    "prepublishOnly": "npm run clean && npm run compile && npm run test && npm run compile:bundle && npm run optimize && npm run test"
   },
   "keywords": [
     "observable",
