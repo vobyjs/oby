@@ -14,18 +14,29 @@ class Observable<T = unknown, TI = unknown> {
 
   /* VARIABLES */
 
-  parent: IComputed<any> | null = null;
+  parent?: IComputed<any>;
   value: T | TI;
-  disposed: boolean = false;
-  comparator: ComparatorFunction<T, TI> | null = null;
-  observers: LazySet<IObserver> = null;
+  disposed?: true;
+  comparator?: ComparatorFunction<T, TI>;
+  observers?: LazySet<IObserver>;
 
   /* CONSTRUCTOR */
 
-  constructor ( value: T | TI, options?: ObservableOptions<T, TI> ) {
+  constructor ( value: T | TI, options?: ObservableOptions<T, TI>, parent?: IComputed<any> ) {
 
     this.value = value;
-    this.comparator = options?.comparator || null;
+
+    if ( parent ) {
+
+      this.parent = parent;
+
+    }
+
+    if ( options?.comparator ) {
+
+      this.comparator = options.comparator;
+
+    }
 
   }
 
@@ -113,7 +124,7 @@ class Observable<T = unknown, TI = unknown> {
 
       } else if ( observers === observer ) {
 
-        this.observers = null;
+        this.observers = undefined;
 
       }
 

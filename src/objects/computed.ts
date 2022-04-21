@@ -21,8 +21,7 @@ class Computed<T = unknown> extends Reaction {
     super ();
 
     this.fn = fn;
-    this.observable = new Observable ( valueInitial, options );
-    this.observable.parent = this;
+    this.observable = new Observable ( valueInitial, options, this );
 
     this.parent.registerObserver ( this );
 
