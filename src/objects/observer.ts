@@ -11,11 +11,11 @@ class Observer {
   /* VARIABLES */
 
   parent: IObserver | null = null;
-  cleanups: LazyArray<CleanupFunction> = null;
-  contexts: LazyObject<Contexts> = null;
-  errors: LazyArray<ErrorFunction> = null;
-  observables: LazyArray<IObservable> = null;
-  observers: LazyArray<IObserver> = null;
+  cleanups?: LazyArray<CleanupFunction>;
+  contexts?: LazyObject<Contexts>;
+  errors?: LazyArray<ErrorFunction>;
+  observables?: LazyArray<IObservable>;
+  observers?: LazyArray<IObserver>;
 
   /* REGISTRATION API */
 
@@ -146,7 +146,7 @@ class Observer {
     const {observers, observables, cleanups, errors, contexts} = this;
 
     if ( observers ) {
-      this.observers = null;
+      this.observers = undefined;
       if ( observers instanceof Array ) {
         for ( let i = 0, l = observers.length; i < l; i++ ) {
           observers[i].dispose ( true );
@@ -157,7 +157,7 @@ class Observer {
     }
 
     if ( observables ) {
-      this.observables = null;
+      this.observables = undefined;
       if ( observables instanceof Array ) {
         for ( let i = 0, l = observables.length; i < l; i++ ) {
           const observable = observables[i];
@@ -172,7 +172,7 @@ class Observer {
     }
 
     if ( cleanups ) {
-      this.cleanups = null;
+      this.cleanups = undefined;
       if ( cleanups instanceof Array ) {
         for ( let i = 0, l = cleanups.length; i < l; i++ ) {
           cleanups[i]();
@@ -183,11 +183,11 @@ class Observer {
     }
 
     if ( errors ) {
-      this.errors = null;
+      this.errors = undefined;
     }
 
     if ( contexts ) {
-      this.contexts = null;
+      this.contexts = undefined;
     }
 
   }
