@@ -18,6 +18,7 @@ npm install --save oby
 - [`$.effect`](#effect)
 - [`$.error`](#error)
 - [`$.batch`](#batch)
+- [`$.resolve`](#resolve)
 - [`$.root`](#root)
 - [`$.from`](#from)
 - [`$.get`](#get)
@@ -373,6 +374,40 @@ $.batch ( () => {
 });
 
 o (); // => 3, now the latest update for this observable has been flushed
+```
+
+### `$.resolve`
+
+This function recursively resolves functions in the passed value. Functions are called until they return something other than a function, and functions inside arrays are called too.
+
+You may never need to use this function yourself, but it's necessary internally at times to make sure that a child value is properly tracked by its parent computation.
+
+```ts
+import $ from 'oby';
+
+// Resolve a plain value
+
+$.resolve ( 123 ); // => 123
+
+// Resolve a function
+
+$.resolve ( () => 123 ); // => 123
+
+// Resolve a nested function
+
+$.resolve ( () => () => () => 123 ); // => 123
+
+// Resolve a plain array
+
+$.resolve ( [123] ); // => [123]
+
+// Resolve an array containing a function
+
+$.resolve ( [() => 123] ); // => [123]
+
+// Resolve an array containing arrays and functions
+
+$.resolve ( [() => 123, [() => () => [() => 123]]] ); // => [123, [[123]]]
 ```
 
 ### `$.root`

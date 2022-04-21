@@ -2199,6 +2199,54 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'resolve', it => {
+
+    it ( 'does nothing for other other typeos of values', t => {
+
+      const obj = { foo: () => 123, bar: [() => 123] };
+
+      t.deepEqual ( $.resolve ( obj ), obj );
+
+    });
+
+    it ( 'resolves a plain value', t => {
+
+      t.is ( $.resolve ( 123 ), 123 );
+
+    });
+
+    it ( 'resolves a function', t => {
+
+      t.is ( $.resolve ( () => 123 ), 123 );
+
+    });
+
+    it ( 'resolves a nested function', t => {
+
+      t.is ( $.resolve ( () => () => () => 123 ), 123 );
+
+    });
+
+    it ( 'resolves a plain array', t => {
+
+      t.deepEqual ( $.resolve ( [123] ), [123] );
+
+    });
+
+    it ( 'resolves an array containing a function', t => {
+
+      t.deepEqual ( $.resolve ( [() => 123] ), [123] );
+
+    });
+
+    it ( 'resolves an array containing arrays and functions', t => {
+
+      t.deepEqual ( $.resolve ( [() => 123, [() => () => [() => 123]]] ), [123, [[123]]] );
+
+    });
+
+  });
+
   describe ( 'root', it => {
 
     it ( 'allows child computations to escape their parents', t => {

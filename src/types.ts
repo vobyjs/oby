@@ -102,6 +102,10 @@ type LazySet<T = unknown> = Set<T> | T | null;
 
 type Readable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) => ObservableReadonlyAbstract<T, TI>;
 
+type Resolvable<R> = R | Array<Resolvable<R>> | (() => Resolvable<R>);
+
+type Resolved<R> = R | Array<Resolved<R>>;
+
 type Selected = { count: number, value: unknown, observable: IObservable<boolean, boolean> };
 
 type Writable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) => ObservableAbstract<T, TI>;
