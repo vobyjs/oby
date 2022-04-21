@@ -115,7 +115,7 @@ const benchmark = async () => {
 
     for ( const run of runs ) {
 
-      const [elapsed, before, after] = await cellx ( layers );
+      const [elapsed, before, after] = await cellx ( Number ( layers ) );
 
       results[layers] = [before, after];
 
