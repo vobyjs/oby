@@ -18,6 +18,7 @@ npm install --save oby
 - [`$.effect`](#effect)
 - [`$.error`](#error)
 - [`$.batch`](#batch)
+- [`$.map`](#map)
 - [`$.resolve`](#resolve)
 - [`$.root`](#root)
 - [`$.from`](#from)
@@ -374,6 +375,30 @@ $.batch ( () => {
 });
 
 o (); // => 3, now the latest update for this observable has been flushed
+```
+
+### `$.map`
+
+This is the reactive equivalent of the native `Array.prototype.map`, it maps over an array of values while caching results for values that didn't change.
+
+```ts
+import $ from 'oby';
+
+// Map over an array of values
+
+const o1 = $(1);
+const o2 = $(2);
+const os = $([ o1, o2 ]);
+
+const mapped = $.map ( os, o => {
+
+  return someExpensiveFunction ( o () );
+
+});
+
+// Update the "mapped" observable
+
+os ([ o1, o2, o3 ]);
 ```
 
 ### `$.resolve`

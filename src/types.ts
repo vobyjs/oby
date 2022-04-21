@@ -33,6 +33,8 @@ type ErrorFunction = ( error: unknown ) => void;
 
 type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | undefined;
 
+type MapFunction<T = unknown, R = unknown> = ( value: T ) => R;
+
 type ObservedFunction<T = unknown> = () => T;
 
 type ObservedDisposableFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
@@ -100,6 +102,8 @@ type LazyObject<T = unknown> = T | null;
 
 type LazySet<T = unknown> = Set<T> | T | null;
 
+type Mapped<T = unknown, R = unknown> = { bool: boolean, value: T, result: R, root: IObserver };
+
 type Readable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) => ObservableReadonlyAbstract<T, TI>;
 
 type Resolvable<R> = R | Array<Resolvable<R>> | (() => Resolvable<R>);
@@ -113,6 +117,6 @@ type Writable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) =
 /* EXPORT */
 
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
-export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
+export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, MapFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
 export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
-export type {Accessor, Contexts, LazyArray, LazyObject, LazySet, Readable, Selected, Writable};
+export type {Accessor, Contexts, LazyArray, LazyObject, LazySet, Mapped, Readable, Resolvable, Resolved, Selected, Writable};

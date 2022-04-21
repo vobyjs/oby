@@ -2199,6 +2199,12 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'map', it => {
+
+    it.todo ( 'works' );
+
+  });
+
   describe ( 'resolve', it => {
 
     it ( 'does nothing for other other typeos of values', t => {
