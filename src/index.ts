@@ -17,6 +17,7 @@ import resolve from '~/methods/resolve';
 import root from '~/methods/root';
 import sample from '~/methods/sample';
 import selector from '~/methods/selector';
+import _switch from '~/methods/switch';
 import ternary from '~/methods/ternary';
 import ObservableClass from '~/objects/observable';
 import type {ObservableWithoutInitial, ObservableOptions, Observable, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny} from '~/types';
@@ -50,6 +51,7 @@ observable.resolve = resolve;
 observable.root = root;
 observable.sample = sample;
 observable.selector = selector;
+observable.switch = _switch;
 observable.ternary = ternary;
 
 /* EXPORT */

@@ -2625,6 +2625,56 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'switch', it => {
+
+    it ( 'returns a computed to matching case or the default case with a functional condition', t => {
+
+      const o = $(1);
+
+      const result = $.switch ( o, [[1, '1'], [2, '2'], [1, '1.1'], ['default']] );
+
+      t.is ( result (), '1' );
+
+      o ( 2 );
+
+      t.is ( result (), '2' );
+
+      o ( 3 );
+
+      t.is ( result (), 'default' );
+
+    });
+
+    it ( 'returns the value of the default case if no case before it matches', t => {
+
+      const result = $.switch ( 2, [[1, '1'], ['default'], [2, '2'] [1, '1.1']] );
+
+      t.is ( result, 'default' );
+
+    });
+
+    it ( 'returns the value of the first matching case', t => {
+
+      const result1 = $.switch ( 1, [[1, '1'], [2, '2'], [1, '1.1']] );
+
+      t.is ( result1, '1' );
+
+      const result2 = $.switch ( 2, [[1, '1'], [2, '2'], [1, '1.1']] );
+
+      t.is ( result2, '2' );
+
+    });
+
+    it ( 'returns undefined if no condition matches and there is no default case', t => {
+
+      const result = $.switch ( 1, [[2, '2'], [3, '3']] );
+
+      t.is ( result, result );
+
+    });
+
+  });
+
   describe ( 'ternary', it => {
 
     it ( 'returns a computed to the first or second value with a functional condition', t => {
@@ -2670,7 +2720,6 @@ describe ( 'oby', it => {
     });
 
   });
-
 
   it ( 'only propagates in topological order', t => {
 

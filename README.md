@@ -26,6 +26,7 @@ npm install --save oby
 - [`$.if`](#if)
 - [`$.sample`](#sample)
 - [`$.selector`](#selector)
+- [`$.switch`](#switch)
 - [`$.ternary`](#ternary)
 - [`$.is`](#is)
 
@@ -607,6 +608,30 @@ values.forEach ( value => {
 
 select ( 1 );
 select ( 5 );
+```
+
+### `$.switch`
+
+This is the reactive version of the native `switch` statement. It returns a computed that resolves to the value of the first matching case, or the value of the default condition, or undefined otherwise.
+
+```ts
+import $ from 'oby';
+
+// Switching cases
+
+const o = $(1);
+
+const result = $.switch ( o, [[1, '1'], [2, '2'], [1, '1.1'], ['default']] );
+
+result (); // => '1'
+
+o ( 2 );
+
+result (); // => '2'
+
+o ( 3 );
+
+result (); // => 'default'
 ```
 
 ### `$.ternary`
