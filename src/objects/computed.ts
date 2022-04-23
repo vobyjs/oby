@@ -13,6 +13,7 @@ class Computed<T = unknown> extends Reaction {
 
   fn: ComputedFunction<T, T | undefined>;
   observable: IObservable<T, T | undefined>;
+  iteration: number = 0;
 
   /* CONSTRUCTOR */
 
@@ -63,10 +64,11 @@ class Computed<T = unknown> extends Reaction {
 
       try {
 
+        const lock = ( this.iteration += 1 );
         const valuePrev = this.observable.value;
         const valueNext = this.wrap ( this.fn.bind ( undefined, valuePrev ) );
 
-        if ( this.observable.disposed ) { // Maybe a computed disposed of itself via a root before returning
+        if ( this.observable.disposed || lock !== this.iteration ) { // Maybe a computed disposed of itself via a root before returning, or caused itself to re-execute
 
           this.observable.unstale ( false );
 
@@ -83,6 +85,8 @@ class Computed<T = unknown> extends Reaction {
         }
 
       } catch ( error: unknown ) {
+
+        this.iteration -= 1;
 
         this.error ( error, false );
 
