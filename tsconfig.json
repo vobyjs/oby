@@ -1,6 +1,7 @@
 {
   "extends": "tsex/tsconfig.json",
   "compilerOptions": {
+    "noImplicitReturns": false,
     "noUnusedParameters": false
   }
 }

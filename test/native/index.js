@@ -2181,6 +2181,52 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'if', it => {
+
+    it ( 'returns a computed to the value or undefined with a functional condition', t => {
+
+      const o = $(false);
+
+      const result = $.if ( o, 123 );
+
+      t.is ( result (), undefined );
+
+      o ( true );
+
+      t.is ( result (), 123 );
+
+      o ( false );
+
+      t.is ( result (), undefined );
+
+    });
+
+    it ( 'returns the value with a truthy condition', t => {
+
+      const result1 = $.if ( true, 123 );
+
+      t.is ( result1, 123 );
+
+      const result2 = $.if ( 'foo', 123 );
+
+      t.is ( result2, 123 );
+
+    });
+
+    it ( 'returns undefined value with a falsy condition', t => {
+
+      const result1 = $.if ( false, 123 );
+
+      t.is ( result1, undefined );
+
+      const result2 = $.if ( '', 123 );
+
+      t.is ( result2, undefined );
+
+    });
+
+  });
+
   describe ( 'is', it => {
 
     it ( 'checks if a value is an observable', t => {

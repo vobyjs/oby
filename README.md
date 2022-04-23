@@ -23,6 +23,7 @@ npm install --save oby
 - [`$.root`](#root)
 - [`$.from`](#from)
 - [`$.get`](#get)
+- [`$.if`](#if)
 - [`$.sample`](#sample)
 - [`$.selector`](#selector)
 - [`$.is`](#is)
@@ -526,6 +527,26 @@ $.get ( o ); // => 123
 // Getting the value out of a non-Observable
 
 $.get ( 123 ); // =>  123
+```
+
+### `$.if`
+
+This is the reactive version of the native `if` statement. It returns a computed that resolves to the passed value if the condition is truthy.
+
+```ts
+import $ from 'oby';
+
+// Toggling an if
+
+const bool = $(false);
+
+const computed = $.if ( bool, 123 );
+
+computed (); // => undefined
+
+bool ( true );
+
+computed (); // => 123
 ```
 
 ### `$.sample`
