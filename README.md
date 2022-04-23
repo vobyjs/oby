@@ -17,6 +17,7 @@ npm install --save oby
 - [`$.disposed`](#disposed)
 - [`$.effect`](#effect)
 - [`$.error`](#error)
+- [`$.errorBoundary`](#errorboundary)
 - [`$.batch`](#batch)
 - [`$.map`](#map)
 - [`$.resolve`](#resolve)
@@ -354,6 +355,42 @@ $.effect ( () => {
 });
 
 callback ( () => {} ); // Cleanups called and effect re-evaluated
+```
+
+### `$.errorBoundary`
+
+This function is a boundary that catches errors. If no errors happen the regular value function is executed, otherwise the fallback function is executed, whatever they return is returned wrapped in a computed.
+
+```ts
+import $ from 'oby';
+
+// Create an error boundary
+
+const o = $(false);
+
+const fallback = ({ error, reset }) => {
+  console.log ( error );
+  setTimeout ( () => { // Recovering after 1s
+    o ( false );
+    reset ();
+  }, 1000 );
+  return 'fallback!';
+};
+
+const regular = () => {
+  if ( o () ) throw 'whoops!';
+  return 'regular!';
+};
+
+const computed = $.errorBoundary ( fallback, regular );
+
+computed (); // => 'regular!'
+
+// Cause an error to be thrown inside the boundary
+
+o ( true );
+
+computed (); // => 'fallback!'
 ```
 
 ### `$.batch`

@@ -12,7 +12,7 @@ const _switch = <T, R> ( when: T | (() => T), values: ([T, R] | [R])[] ): Observ
 
     return computed ( () => {
 
-      const condition = when ();
+      const condition = ( when as any )(); //TSC
 
       for ( const value of values ) {
 

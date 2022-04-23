@@ -2056,6 +2056,46 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'errorBoundary', it => {
+
+    it ( 'can catch and recover from errors', t => {
+
+      const o = $(false);
+
+      let err, recover;
+
+      const fallback = ({ error, reset }) => {
+        err = error;
+        recover = reset;
+        return 'fallback';
+      };
+
+      const regular = () => {
+        if ( o () ) throw 'whoops';
+        return 'regular';
+      };
+
+      const computed = $.errorBoundary ( fallback, regular );
+
+      t.is ( computed (), 'regular' );
+
+      o ( true );
+
+      t.true ( err instanceof Error );
+      t.is ( err.message, 'whoops' );
+
+      t.is ( computed (), 'fallback' );
+
+      o ( false );
+
+      recover ();
+
+      t.is ( computed (), 'regular' );
+
+    });
+
+  });
+
   describe ( 'from', it => {
 
     it ( 'makes an observable passed immediately to the function', t => {
