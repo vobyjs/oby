@@ -26,6 +26,7 @@ npm install --save oby
 - [`$.if`](#if)
 - [`$.sample`](#sample)
 - [`$.selector`](#selector)
+- [`$.ternary`](#ternary)
 - [`$.is`](#is)
 
 ## Usage
@@ -606,6 +607,26 @@ values.forEach ( value => {
 
 select ( 1 );
 select ( 5 );
+```
+
+### `$.ternary`
+
+This is the reactive version of the native ternary operator. It returns a computed that resolves to the first value if the condition is truthy, or the second value otherwise.
+
+```ts
+import $ from 'oby';
+
+// Toggling an ternary
+
+const bool = $(false);
+
+const computed = $.ternary ( bool, 123, 'foo' );
+
+computed (); // => 'foo'
+
+bool ( true );
+
+computed (); // => 123
 ```
 
 ### `$.is`

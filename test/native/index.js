@@ -2625,6 +2625,53 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'ternary', it => {
+
+    it ( 'returns a computed to the first or second value with a functional condition', t => {
+
+      const o = $(false);
+
+      const result = $.ternary ( o, 123, 321 );
+
+      t.is ( result (), 321 );
+
+      o ( true );
+
+      t.is ( result (), 123 );
+
+      o ( false );
+
+      t.is ( result (), 321 );
+
+    });
+
+    it ( 'returns the first value with a truthy condition', t => {
+
+      const result1 = $.ternary ( true, 123, 321 );
+
+      t.is ( result1, 123 );
+
+      const result2 = $.ternary ( 'foo', 123, 321 );
+
+      t.is ( result2, 123 );
+
+    });
+
+    it ( 'returns the second value with a falsy condition', t => {
+
+      const result1 = $.ternary ( false, 123, 321 );
+
+      t.is ( result1, 321 );
+
+      const result2 = $.ternary ( '', 123, 321 );
+
+      t.is ( result2, 321 );
+
+    });
+
+  });
+
+
   it ( 'only propagates in topological order', t => {
 
     //    c1
