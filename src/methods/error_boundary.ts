@@ -18,7 +18,7 @@ const errorBoundary = <T, F> ( fallback: ErrorBoundaryFallbackFunction<F>, value
 
     if ( observable.get () ) {
 
-      const error = observable.get ()!;
+      const error = observable.sample ()!;
       const reset = () => observable.set ( null );
       const options = { error, reset };
 

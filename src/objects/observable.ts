@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {readable, writable} from '~/callable';
-import {OWNER, SAMPLING} from '~/constants';
+import {FALSE, OWNER, SAMPLING} from '~/constants';
 import batch from '~/methods/batch';
 import computed from '~/methods/computed';
 import produce from '~/methods/produce';
@@ -18,7 +18,7 @@ class Observable<T = unknown, TI = unknown> {
   parent?: IComputed<any>;
   value: T | TI;
   disposed?: true;
-  equals?: EqualsFunction<T, TI> | false;
+  equals?: EqualsFunction<T, TI>;
   observers?: LazySet<IObserver>;
 
   /* CONSTRUCTOR */
@@ -35,7 +35,7 @@ class Observable<T = unknown, TI = unknown> {
 
     if ( options?.equals !== undefined ) {
 
-      this.equals = options.equals;
+      this.equals = options.equals || FALSE;
 
     }
 
@@ -169,8 +169,8 @@ class Observable<T = unknown, TI = unknown> {
 
     } else {
 
-      const equals = this.equals ?? Object.is;
-      const fresh = equals ? !equals ( value, this.value ) : true;
+      const equals = this.equals || Object.is;
+      const fresh = !equals ( value, this.value );
 
       if ( !this.parent ) {
 
