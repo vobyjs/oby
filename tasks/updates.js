@@ -7,11 +7,13 @@ import $ from '../dist/index.js';
 
 console.time ( 'create' );
 
-const o = $(0);
+const a = $(0);
+const b = $(0);
 
 for ( let i = 0, l = 100000; i < l; i++ ) {
   $.computed ( () => {
-    o ();
+    a ();
+    // b ();
   });
 }
 
@@ -20,7 +22,7 @@ console.timeEnd ( 'create' );
 console.time ( 'updates' );
 
 for ( let i = 1, l = 100; i < l; i++ ) {
-  o ( i );
+  a ( i );
 }
 
 console.timeEnd ( 'updates' );
