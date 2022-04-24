@@ -17,7 +17,7 @@ class Root extends Observer {
 
   wrap <T> ( fn: ObservedDisposableFunction<T> ): T {
 
-    const dispose = this.dispose.bind ( this, true );
+    const dispose = this.dispose.bind ( this, true, true );
     const fnWithDispose = fn.bind ( undefined, dispose );
 
     return super.wrap ( fnWithDispose );

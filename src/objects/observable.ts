@@ -94,7 +94,7 @@ class Observable<T = unknown, TI = unknown> {
 
       const isNewObserver = this.registerObserver ( OWNER.current );
 
-      if ( isNewObserver ) {
+      if ( isNewObserver || !OWNER.current.observables ) {
 
         OWNER.current.registerObservable ( this as IObservable<any, any> ); //TSC
 

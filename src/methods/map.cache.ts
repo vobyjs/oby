@@ -39,7 +39,7 @@ class Cache<T, R> {
 
       if ( mapped.bool === bool ) return;
 
-      mapped.root.dispose ();
+      mapped.root.dispose ( true, true );
 
       cache.delete ( mapped.value );
 
@@ -51,7 +51,7 @@ class Cache<T, R> {
 
     this.cache.forEach ( mapped => {
 
-      mapped.root.dispose ();
+      mapped.root.dispose ( true, true );
 
     });
 

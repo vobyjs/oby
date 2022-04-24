@@ -105,6 +105,8 @@ type LazyObject<T = unknown> = T | undefined;
 
 type LazySet<T = unknown> = Set<T> | T | undefined;
 
+type LazyValue<T = unknown> = T | undefined;
+
 type Mapped<T = unknown, R = unknown> = { bool: boolean, value: T, result: R, root: IObserver };
 
 type Readable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) => ObservableReadonlyAbstract<T, TI>;
@@ -122,4 +124,4 @@ type Writable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) =
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, ErrorBoundaryFallbackFunction, EqualsFunction, MapFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
 export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
-export type {Accessor, Contexts, FunctionMaybe, LazyArray, LazyObject, LazySet, Mapped, Readable, Resolvable, Resolved, Selected, Writable};
+export type {Accessor, Contexts, FunctionMaybe, LazyArray, LazyObject, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Selected, Writable};

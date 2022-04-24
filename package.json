@@ -13,7 +13,7 @@
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
     "compile": "tsex compile",
-    "compile:bundle": "esbuild --bundle --minify --format=esm --target=es2018 '--mangle-props=^(after|before|bool|cache|cleanups|contexts|count|errors|flush|fn|iteration|nextCount|observable|observables|observers|parent|prevCount|queue|readable|registerCleanup|registerContext|registerError|registerObservable|registerObserver|registerSelf|result|stale|statusCount|statusFresh|unregisterObserver|unstale|value|wrap|writable)$' --mangle-quoted ./src/index.ts > ./dist/index.js",
+    "compile:bundle": "esbuild --bundle --minify --format=esm --target=es2018 '--mangle-props=^(after|before|bool|cache|cleanups|postdispose|observablesLeftover|observersLeftover|contexts|count|errors|flush|fn|iteration|nextCount|observable|observables|observers|parent|prevCount|queue|readable|registerCleanup|registerContext|registerError|registerObservable|registerObserver|registerSelf|result|stale|statusCount|statusFresh|unregisterObserver|unstale|value|wrap|writable)$' --mangle-quoted ./src/index.ts > ./dist/index.js",
     "compile:watch": "tsex compile --watch",
     "memory": "node tasks/memory.js",
     "optimize": "node tasks/optimize.js",

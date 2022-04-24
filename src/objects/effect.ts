@@ -34,6 +34,12 @@ class Effect extends Reaction {
 
     if ( fresh ) { // Something might change
 
+      if ( this.iteration ) { // Currently executing, cleaning up any leftovers
+
+        this.postdispose ();
+
+      }
+
       this.dispose ();
 
       try {
@@ -41,17 +47,19 @@ class Effect extends Reaction {
         const iteration = ( this.iteration += 1 );
         const cleanup = this.wrap ( this.fn );
 
+        this.postdispose ();
+
         if ( iteration === this.iteration ) { // No other instance of this effect currently running
 
-        if ( cleanup ) {
+          if ( cleanup ) {
 
-          this.registerCleanup ( cleanup );
+            this.registerCleanup ( cleanup );
 
-        } else {
+          } else {
 
-          if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
+            if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
 
-            this.dispose ( true );
+              this.dispose ( true, true );
 
             }
 
@@ -60,6 +68,8 @@ class Effect extends Reaction {
         }
 
       } catch ( error: unknown ) {
+
+        this.postdispose ();
 
         this.error ( castError ( error ), false );
 

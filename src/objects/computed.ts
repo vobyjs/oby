@@ -33,7 +33,7 @@ class Computed<T = unknown> extends Reaction {
 
   /* API */
 
-  dispose ( deep?: boolean ): void {
+  dispose ( deep?: boolean, immediate?: boolean ): void {
 
     if ( deep ) {
 
@@ -41,7 +41,7 @@ class Computed<T = unknown> extends Reaction {
 
     }
 
-    super.dispose ( deep );
+    super.dispose ( deep, immediate );
 
   }
 
@@ -61,6 +61,12 @@ class Computed<T = unknown> extends Reaction {
 
     if ( fresh && !this.observable.disposed ) { // The resulting value might change
 
+      if ( this.iteration ) { // Currently executing, cleaning up any potential leftovers
+
+        this.postdispose ();
+
+      }
+
       this.dispose ();
 
       try {
@@ -68,6 +74,8 @@ class Computed<T = unknown> extends Reaction {
         const iteration = ( this.iteration += 1 );
         const valuePrev = this.observable.value;
         const valueNext = this.wrap ( this.fn.bind ( undefined, valuePrev ) );
+
+        this.postdispose ();
 
         if ( this.observable.disposed || iteration !== this.iteration ) { // Maybe a computed disposed of itself via a root before returning, or caused itself to re-execute
 
@@ -81,12 +89,13 @@ class Computed<T = unknown> extends Reaction {
 
         if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
 
-          this.dispose ( true );
+          this.dispose ( true, true );
 
         }
 
       } catch ( error: unknown ) {
 
+        this.postdispose ();
 
         this.error ( castError ( error ), false );
 

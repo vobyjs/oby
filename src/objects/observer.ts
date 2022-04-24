@@ -3,7 +3,7 @@
 
 import {OWNER} from '~/constants';
 import {castError} from '~/utils';
-import type {IObservable, IObserver, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyObject} from '~/types';
+import type {IObservable, IObserver, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyObject, LazyValue} from '~/types';
 
 /* MAIN */
 
@@ -16,7 +16,9 @@ class Observer {
   contexts?: LazyObject<Contexts>;
   errors?: LazyArray<ErrorFunction>;
   observables?: LazyArray<IObservable>;
+  observablesLeftover?: LazyValue<IObservable>;
   observers?: LazyArray<IObserver>;
+  observersLeftover?: LazyArray<IObserver>;
 
   /* REGISTRATION API */
 
@@ -142,7 +144,7 @@ class Observer {
 
   }
 
-  dispose ( deep?: boolean ): void {
+  dispose ( deep?: boolean, immediate?: boolean ): void {
 
     const {observers, observables, cleanups, errors, contexts} = this;
 
@@ -150,10 +152,13 @@ class Observer {
       this.observers = undefined;
       if ( observers instanceof Array ) {
         for ( let i = 0, l = observers.length; i < l; i++ ) {
-          observers[i].dispose ( true );
+          observers[i].dispose ( true, immediate );
         }
       } else {
-        observers.dispose ( true );
+        observers.dispose ( true, immediate );
+      }
+      if ( !immediate ) {
+        this.observersLeftover = observers;
       }
     }
 
@@ -168,7 +173,11 @@ class Observer {
         }
       } else {
         if ( !observables.disposed ) {
-          observables.unregisterObserver ( this );
+          if ( immediate ) {
+            observables.unregisterObserver ( this );
+          } else {
+            this.observablesLeftover = observables;
+          }
         }
       }
     }
@@ -226,6 +235,30 @@ class Observer {
 
       }
 
+    }
+
+  }
+
+  postdispose (): void {
+
+    const {observablesLeftover, observables, observersLeftover} = this;
+
+    if ( observablesLeftover ) {
+      this.observablesLeftover = undefined;
+      if ( observablesLeftover !== observables && !observablesLeftover.disposed ) {
+        observablesLeftover.unregisterObserver ( this );
+      }
+    }
+
+    if ( observersLeftover ) {
+      this.observersLeftover = undefined;
+      if ( observersLeftover instanceof Array ) {
+        for ( let i = 0, l = observersLeftover.length; i < l; i++ ) {
+          observersLeftover[i].postdispose ();
+        }
+      } else {
+        observersLeftover.postdispose ();
+      }
     }
 
   }

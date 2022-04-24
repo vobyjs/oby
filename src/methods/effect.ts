@@ -10,7 +10,7 @@ const effect = ( fn: EffectFunction ): DisposeFunction => {
 
   const effect = new Effect ( fn );
 
-  return effect.dispose.bind ( effect, true );
+  return effect.dispose.bind ( effect, true, true );
 
 };
 
