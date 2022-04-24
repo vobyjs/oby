@@ -6,11 +6,10 @@ import type {IObserver} from '~/types';
 
 /* MAIN */
 
-const SYMBOL = Symbol ( 'Observable' );
-const SUPEROWNER = new SuperRoot ();
-const OWNER: { current: IObserver } = { current: SUPEROWNER };
+const OWNER: { current: IObserver } = { current: new SuperRoot () };
 const SAMPLING = { current: false };
+const SYMBOL = Symbol ( 'Observable' );
 
 /* EXPORT */
 
-export {SYMBOL, SUPEROWNER, OWNER, SAMPLING};
+export {OWNER, SAMPLING, SYMBOL};
