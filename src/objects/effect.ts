@@ -12,6 +12,7 @@ class Effect extends Reaction {
   /* VARIABLES */
 
   fn: EffectFunction;
+  iteration: number = 0; //FIXME: This shouldn't be necessary
 
   /* CONSTRUCTOR */
 
@@ -37,7 +38,10 @@ class Effect extends Reaction {
 
       try {
 
+        const iteration = ( this.iteration += 1 );
         const cleanup = this.wrap ( this.fn );
+
+        if ( iteration === this.iteration ) { // No other instance of this effect currently running
 
         if ( cleanup ) {
 
@@ -48,6 +52,8 @@ class Effect extends Reaction {
           if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
 
             this.dispose ( true );
+
+            }
 
           }
 

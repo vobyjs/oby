@@ -14,7 +14,7 @@ class Computed<T = unknown> extends Reaction {
 
   fn: ComputedFunction<T, T | undefined>;
   observable: IObservable<T, T | undefined>;
-  iteration: number = 0;
+  iteration: number = 0; //FIXME: This shouldn't be necessary
 
   /* CONSTRUCTOR */
 
@@ -87,7 +87,6 @@ class Computed<T = unknown> extends Reaction {
 
       } catch ( error: unknown ) {
 
-        this.iteration -= 1;
 
         this.error ( castError ( error ), false );
 
