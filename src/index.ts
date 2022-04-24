@@ -25,10 +25,10 @@ import type {ObservableWithoutInitial, ObservableOptions, Observable, Observable
 
 /* MAIN */
 
-function observable <T> (): ObservableWithoutInitial<T>;
-function observable <T> ( value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableWithoutInitial<T>;
-function observable <T> ( value: T, options?: ObservableOptions<T, T> ): Observable<T>;
-function observable <T> ( value?: T, options?: ObservableOptions<T, T | undefined> ) {
+function $ <T> (): ObservableWithoutInitial<T>;
+function $ <T> ( value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableWithoutInitial<T>;
+function $ <T> ( value: T, options?: ObservableOptions<T, T> ): Observable<T>;
+function $ <T> ( value?: T, options?: ObservableOptions<T, T | undefined> ) {
 
   return new ObservableClass ( value, options ).writable ();
 
@@ -36,27 +36,27 @@ function observable <T> ( value?: T, options?: ObservableOptions<T, T | undefine
 
 /* UTILITIES */
 
-observable.batch = batch;
-observable.cleanup = cleanup;
-observable.computed = computed;
-observable.context  = context;
-observable.disposed = disposed;
-observable.effect = effect;
-observable.error = error;
-observable.errorBoundary = errorBoundary;
-observable.from = from;
-observable.get = get;
-observable.if = _if;
-observable.is = is;
-observable.map = map;
-observable.resolve = resolve;
-observable.root = root;
-observable.sample = sample;
-observable.selector = selector;
-observable.switch = _switch;
-observable.ternary = ternary;
+$.batch = batch;
+$.cleanup = cleanup;
+$.computed = computed;
+$.context  = context;
+$.disposed = disposed;
+$.effect = effect;
+$.error = error;
+$.errorBoundary = errorBoundary;
+$.from = from;
+$.get = get;
+$.if = _if;
+$.is = is;
+$.map = map;
+$.resolve = resolve;
+$.root = root;
+$.sample = sample;
+$.selector = selector;
+$.switch = _switch;
+$.ternary = ternary;
 
 /* EXPORT */
 
-export default observable;
+export default $;
 export type {Observable, ObservableWithoutInitial, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny, ObservableOptions};
