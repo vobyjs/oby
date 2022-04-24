@@ -1,9 +1,8 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
 import resolve from '~/methods/resolve';
-import root from '~/methods/root';
+import Observer from '~/objects/observer';
 import type {MapFunction, Mapped, Resolved} from '~/types';
 
 /* MAIN */
@@ -91,9 +90,10 @@ class Cache<T, R> {
 
     } else {
 
-      return root ( () => {
+      const root = new Observer (); // Slightly cheaper root-like to make
 
-        const root = OWNER.current;
+      return root.wrap ( () => {
+
         const result = resolve ( this.fn ( value ) );
         const mapped = { bool, value, result, root };
 
