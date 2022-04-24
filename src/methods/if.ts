@@ -1,26 +1,14 @@
 
 /* IMPORT */
 
-import computed from '~/methods/computed';
-import type {ObservableReadonly} from '~/types';
+import ternary from '~/methods/ternary';
+import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
 
-const _if = <T> ( when: boolean | (() => boolean), value: T ): ObservableReadonly<T | undefined> | T | undefined => {
+const _if = <T> ( when: FunctionMaybe<boolean>, value: T ): ObservableReadonly<Resolved<T | undefined>> => {
 
-  if ( typeof when === 'function' ) {
-
-    return computed ( () => {
-
-      if ( when () ) return value;
-
-    });
-
-  } else {
-
-    if ( when ) return value;
-
-  }
+  return ternary ( when, value, undefined );
 
 };
 

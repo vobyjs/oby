@@ -1,16 +1,16 @@
 
 /* IMPORT */
 
-import Observable from '~/objects/observable';
 import computed from '~/methods/computed';
 import error from '~/methods/error';
 import resolve from '~/methods/resolve';
+import Observable from '~/objects/observable';
 import {castError} from '~/utils';
-import type {DisposeFunction, ObservableReadonly, Resolved} from '~/types';
+import type {ErrorBoundaryFunction, ObservableReadonly, Resolved} from '~/types';
 
 /* MAIN */
 
-const ErrorBoundary = <T, F> ( fallback: (({ error, reset }: { error: Error, reset: DisposeFunction }) => F), value: (() => T) ): ObservableReadonly<Resolved<T | F>> => {
+const errorBoundary = <T, F> ( fallback: ErrorBoundaryFunction<F>, value: T ): ObservableReadonly<Resolved<T | F>> => {
 
   const observable = new Observable<Error | null, Error | null> ( null );
 
@@ -20,12 +20,9 @@ const ErrorBoundary = <T, F> ( fallback: (({ error, reset }: { error: Error, res
 
       const error = observable.get ()!;
       const reset = () => observable.set ( null );
-      const props = { error, reset };
+      const options = { error, reset };
 
-      const res = resolve ( fallback ( props ) );
-
-      return res;
-
+      return resolve ( fallback ( options ) );
 
     } else {
 
@@ -45,4 +42,4 @@ const ErrorBoundary = <T, F> ( fallback: (({ error, reset }: { error: Error, res
 
 /* EXPORT */
 
-export default ErrorBoundary;
+export default errorBoundary;

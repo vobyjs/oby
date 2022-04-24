@@ -4,38 +4,31 @@
 import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
 import Cache from '~/methods/map.cache';
-import type {MapFunction, ObservableReadonly, Resolved} from '~/types';
+import {isFunction} from '~/utils';
+import type {MapFunction, ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
 
-const map = <T, R> ( values: T[] | (() => T[]), fn: MapFunction<T, R>): ObservableReadonly<Resolved<R>[]> | Resolved<R>[] => {
+const map = <T, R> ( values: FunctionMaybe<T[]>, fn: MapFunction<T, R> ): ObservableReadonly<Resolved<R>[]> => {
 
-  if ( typeof values === 'function' ) {
+  const cache = new Cache ( fn );
+  const {dispose, before, after, map} = cache;
 
-    const cache = new Cache ( fn );
-    const {dispose, before, after, map} = cache;
+  cleanup ( dispose );
 
-    cleanup ( dispose );
+  return computed ( () => {
 
-    return computed ( () => {
+    const array = isFunction ( values ) ? values () : values;
 
-      const array = values ();
+    before ( array );
 
-      before ( array );
+    const result = array.map ( map );
 
-      const result = array.map ( map );
+    after ( array );
 
-      after ( array );
+    return result;
 
-      return result;
-
-    });
-
-  } else {
-
-    return values.map ( fn );
-
-  }
+  });
 
 };
 

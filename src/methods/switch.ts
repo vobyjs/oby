@@ -2,39 +2,28 @@
 /* IMPORT */
 
 import computed from '~/methods/computed';
-import type {ObservableReadonly} from '~/types';
+import resolve from '~/methods/resolve';
+import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
 
-const _switch = <T, R> ( when: T | (() => T), values: ([T, R] | [R])[] ): ObservableReadonly<R | undefined> | R | undefined => {
+const _switch = <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): ObservableReadonly<Resolved<R | undefined>> => {
 
-  if ( typeof when === 'function' ) {
+  return computed ( () => {
 
-    return computed ( () => {
+    const condition = resolve ( when );
 
-      const condition = ( when as any )(); //TSC
+    for ( let i = 0, l = values.length; i < l; i++ ) {
 
-      for ( const value of values ) {
+      const value = values[i];
 
-        if ( value.length === 1 ) return value[0];
+      if ( value.length === 1 ) return resolve ( value[0] );
 
-        if ( value[0] === condition ) return value[1];
-
-      }
-
-    });
-
-  } else {
-
-    for ( const value of values ) {
-
-      if ( value.length === 1 ) return value[0];
-
-      if ( value[0] === when ) return value[1];
+      if ( value[0] === condition ) return resolve ( value[1] );
 
     }
 
-  }
+  });
 
 };
 

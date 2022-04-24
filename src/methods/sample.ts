@@ -8,11 +8,11 @@ import type {SampleFunction} from '~/types';
 
 const sample = <T> ( fn: SampleFunction<T> ): T => {
 
-  if ( SAMPLING.current ) {
+  if ( SAMPLING.current ) { // Already sampling
 
     return fn ();
 
-  } else {
+  } else { // Starting sampling
 
     SAMPLING.current = true;
 

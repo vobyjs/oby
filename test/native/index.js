@@ -2241,30 +2241,6 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'returns the value with a truthy condition', t => {
-
-      const result1 = $.if ( true, 123 );
-
-      t.is ( result1, 123 );
-
-      const result2 = $.if ( 'foo', 123 );
-
-      t.is ( result2, 123 );
-
-    });
-
-    it ( 'returns undefined value with a falsy condition', t => {
-
-      const result1 = $.if ( false, 123 );
-
-      t.is ( result1, undefined );
-
-      const result2 = $.if ( '', 123 );
-
-      t.is ( result2, undefined );
-
-    });
-
   });
 
   describe ( 'is', it => {
@@ -2685,34 +2661,6 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'returns the value of the default case if no case before it matches', t => {
-
-      const result = $.switch ( 2, [[1, '1'], ['default'], [2, '2'] [1, '1.1']] );
-
-      t.is ( result, 'default' );
-
-    });
-
-    it ( 'returns the value of the first matching case', t => {
-
-      const result1 = $.switch ( 1, [[1, '1'], [2, '2'], [1, '1.1']] );
-
-      t.is ( result1, '1' );
-
-      const result2 = $.switch ( 2, [[1, '1'], [2, '2'], [1, '1.1']] );
-
-      t.is ( result2, '2' );
-
-    });
-
-    it ( 'returns undefined if no condition matches and there is no default case', t => {
-
-      const result = $.switch ( 1, [[2, '2'], [3, '3']] );
-
-      t.is ( result, result );
-
-    });
-
   });
 
   describe ( 'ternary', it => {
@@ -2732,30 +2680,6 @@ describe ( 'oby', it => {
       o ( false );
 
       t.is ( result (), 321 );
-
-    });
-
-    it ( 'returns the first value with a truthy condition', t => {
-
-      const result1 = $.ternary ( true, 123, 321 );
-
-      t.is ( result1, 123 );
-
-      const result2 = $.ternary ( 'foo', 123, 321 );
-
-      t.is ( result2, 123 );
-
-    });
-
-    it ( 'returns the second value with a falsy condition', t => {
-
-      const result1 = $.ternary ( false, 123, 321 );
-
-      t.is ( result1, 321 );
-
-      const result2 = $.ternary ( '', 123, 321 );
-
-      t.is ( result2, 321 );
 
     });
 

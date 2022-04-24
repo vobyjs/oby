@@ -2,29 +2,20 @@
 /* IMPORT */
 
 import computed from '~/methods/computed';
-import type {ObservableReadonly} from '~/types';
+import resolve from '~/methods/resolve';
+import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
 
-const ternary = <T, F> ( when: boolean | (() => boolean), valueTrue: T, valueFalse: F ): ObservableReadonly<T | F> | T | F => {
+const ternary = <T, F> ( when: FunctionMaybe<boolean>, valueTrue: T, valueFalse: F ): ObservableReadonly<Resolved<T | F>> => {
 
-  if ( typeof when === 'function' ) {
+  return computed ( () => {
 
-    return computed ( () => {
+    if ( resolve ( when ) ) return resolve ( valueTrue );
 
-      if ( when () ) return valueTrue;
+    return resolve ( valueFalse );
 
-      return valueFalse;
-
-    });
-
-  } else {
-
-    if ( when ) return valueTrue;
-
-    return valueFalse;
-
-  }
+  });
 
 };
 

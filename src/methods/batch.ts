@@ -21,7 +21,7 @@ const batch = <T> ( fn: BatchFunction<T> ): T => {
 
     } finally {
 
-      batch.queue = null;
+      batch.queue = undefined;
 
       queue.forEach ( batch.flush );
 
@@ -35,7 +35,7 @@ const batch = <T> ( fn: BatchFunction<T> ): T => {
 
 batch.flush = <T> ( value: T, observable: IObservable<T> ): T => observable.set ( value );
 
-batch.queue = <Map<IObservable<any, any>, unknown> | null> null;
+batch.queue = <Map<IObservable<any, any>, unknown> | undefined> undefined;
 
 /* MAIN */
 

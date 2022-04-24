@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import cleanup from '~/methods/cleanup';
 import effect from '~/methods/effect';
 import Observable from '~/objects/observable';
 import type {SelectorFunction, ObservableAny, Selected} from '~/types';
@@ -45,11 +45,11 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
   };
 
-  OWNER.current.registerCleanup ( cleanupAll );
+  cleanup ( cleanupAll );
 
-  /* CLENAUP SINGLE */
+  /* CLENAUP ONE */
 
-  const cleanup = function ( this: Selected ): void {
+  const cleanupOne = function ( this: Selected ): void {
 
     const selected = this;
 
@@ -91,7 +91,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     /* CLEANUP */
 
-    OWNER.current.registerCleanup ( cleanup.bind ( selected ) );
+    cleanup ( cleanupOne.bind ( selected ) );
 
     /* RETURN */
 

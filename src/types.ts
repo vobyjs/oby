@@ -29,9 +29,11 @@ type DisposeFunction = () => void;
 
 type EffectFunction = () => CleanupFunction | void;
 
-type ErrorFunction = ( error: unknown ) => void;
+type ErrorFunction = ( error: Error ) => void;
 
-type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | undefined;
+type ErrorBoundaryFunction<T = unknown> = ({ error, reset }: { error: Error, reset: DisposeFunction }) => T;
+
+type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | void;
 
 type MapFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
@@ -96,11 +98,13 @@ type Accessor<T, TI> = ( symbol: symbol ) => IObservable<T, TI>;
 
 type Contexts = Record<symbol, any>;
 
-type LazyArray<T = unknown> = T[] | T | null;
+type FunctionMaybe<T = unknown> = (() => T) | T;
 
-type LazyObject<T = unknown> = T | null;
+type LazyArray<T = unknown> = T[] | T | undefined;
 
-type LazySet<T = unknown> = Set<T> | T | null;
+type LazyObject<T = unknown> = T | undefined;
+
+type LazySet<T = unknown> = Set<T> | T | undefined;
 
 type Mapped<T = unknown, R = unknown> = { bool: boolean, value: T, result: R, root: IObserver };
 
@@ -117,6 +121,6 @@ type Writable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) =
 /* EXPORT */
 
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
-export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, MapFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
+export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, ErrorBoundaryFunction, MapFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
 export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
-export type {Accessor, Contexts, LazyArray, LazyObject, LazySet, Mapped, Readable, Resolvable, Resolved, Selected, Writable};
+export type {Accessor, Contexts, FunctionMaybe, LazyArray, LazyObject, LazySet, Mapped, Readable, Resolvable, Resolved, Selected, Writable};
