@@ -149,7 +149,7 @@ class Observable<T = unknown, TI = unknown> {
 
   }
 
-  select <R> ( fn: SelectFunction<T | TI, R>, options?: ObservableOptions<R, R | undefined> ): ObservableReadonly<R> {
+  computed <R> ( fn: SelectFunction<T | TI, R>, options?: ObservableOptions<R, R | undefined> ): ObservableReadonly<R> {
 
     const update = (): R => fn ( this.get () );
 

@@ -12,7 +12,7 @@ const isReadable = ( t, value ) => {
   t.true ( $.is ( value ) );
   t.true ( typeof value.get === 'function' );
   t.true ( typeof value.sample === 'function' );
-  t.true ( typeof value.select === 'function' );
+  t.true ( typeof value.computed === 'function' );
   t.true ( typeof value.set === 'undefined' );
   t.true ( typeof value.produce === 'undefined' );
   t.true ( typeof value.update === 'undefined' );
@@ -27,7 +27,7 @@ const isWritable = ( t, value ) => {
   t.true ( $.is ( value ) );
   t.true ( typeof value.get === 'function' );
   t.true ( typeof value.sample === 'function' );
-  t.true ( typeof value.select === 'function' );
+  t.true ( typeof value.computed === 'function' );
   t.true ( typeof value.set === 'function' );
   t.true ( typeof value.produce === 'function' );
   t.true ( typeof value.update === 'function' );
@@ -234,21 +234,21 @@ describe ( 'oby', it => {
 
     });
 
-    describe ( 'select', it => {
+    describe ( 'computed', it => {
 
       it ( 'creates a selected readonly observable out of a writable observable', t => {
 
         const o = $({ foo: { bar: 123 } });
 
-        const selected = o.select ( value => value.foo.bar );
+        const computed = o.computed ( value => value.foo.bar );
 
-        t.is ( selected (), 123 );
+        t.is ( computed (), 123 );
 
         o ({ foo: { bar: 321 } });
 
-        t.is ( selected (), 321 );
+        t.is ( computed (), 321 );
 
-        isReadable ( t, selected );
+        isReadable ( t, computed );
 
       });
 
@@ -256,11 +256,11 @@ describe ( 'oby', it => {
 
         const o = $({ foo: { bar: 123 } }).readonly ();
 
-        const selected = o.select ( value => value.foo.bar );
+        const computed = o.computed ( value => value.foo.bar );
 
-        t.is ( selected (), 123 );
+        t.is ( computed (), 123 );
 
-        isReadable ( t, selected );
+        isReadable ( t, computed );
 
       });
 
@@ -268,13 +268,13 @@ describe ( 'oby', it => {
 
         const o = $({ foo: { bar: 123 } });
 
-        const selected = o.select ( value => value );
+        const computed = o.computed ( value => value );
 
-        t.deepEqual ( selected (), o () );
+        t.deepEqual ( computed (), o () );
 
-        isReadable ( t, selected );
+        isReadable ( t, computed );
 
-        t.not ( o, selected );
+        t.not ( o, computed );
 
       });
 
@@ -282,13 +282,13 @@ describe ( 'oby', it => {
 
         const o = $({ foo: { bar: 123 } }).readonly ();
 
-        const selected = o.select ( value => value );
+        const computed = o.computed ( value => value );
 
-        t.deepEqual ( selected (), o () );
+        t.deepEqual ( computed (), o () );
 
-        isReadable ( t, selected );
+        isReadable ( t, computed );
 
-        t.not ( o, selected );
+        t.not ( o, computed );
 
       });
 
@@ -297,17 +297,17 @@ describe ( 'oby', it => {
         const a = $(1);
         const b = $(2);
 
-        const selected = a.select ( a => a * b () );
+        const computed = a.computed ( a => a * b () );
 
-        t.is ( selected (), 2 );
+        t.is ( computed (), 2 );
 
         a ( 10 );
 
-        t.is ( selected (), 20 );
+        t.is ( computed (), 20 );
 
         b ( 5 );
 
-        t.is ( selected (), 50 );
+        t.is ( computed (), 50 );
 
       });
 

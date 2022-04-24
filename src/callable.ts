@@ -26,8 +26,8 @@ const readablePrototype = {
   sample <T, TI> ( this: Accessor<T, TI> ): T | TI {
     return this ( SYMBOL ).sample ();
   },
-  select <T, TI, R> ( this: Accessor<T, TI>, fn: SelectFunction<T | TI, R> ): ObservableReadonlyAbstract<R, R> {
-    return this ( SYMBOL ).select ( fn );
+  computed <T, TI, R> ( this: Accessor<T, TI>, fn: SelectFunction<T | TI, R> ): ObservableReadonlyAbstract<R, R> {
+    return this ( SYMBOL ).computed ( fn );
   },
   readonly <T, TI> ( this: Accessor<T, TI> ): ObservableReadonlyAbstract<T, TI> {
     return this as any; //TSC
