@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import Reaction from '~/objects/reaction';
-import {castError} from '~/utils';
+import {castError, isFunction} from '~/utils';
 import type {EffectFunction} from '~/types';
 
 /* MAIN */
@@ -51,7 +51,7 @@ class Effect extends Reaction {
 
         if ( iteration === this.iteration ) { // No other instance of this effect currently running
 
-          if ( cleanup ) {
+          if ( isFunction ( cleanup ) ) {
 
             this.registerCleanup ( cleanup );
 
