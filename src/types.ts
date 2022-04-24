@@ -21,8 +21,6 @@ type BatchFunction<T = unknown> = () => T;
 
 type CleanupFunction = () => void;
 
-type ComparatorFunction<T = unknown, TI = unknown> = ( value: T, valuePrev: T | TI ) => boolean;
-
 type ComputedFunction<T = unknown, TI = unknown> = ( valuePrev: T | TI ) => T;
 
 type DisposeFunction = () => void;
@@ -32,6 +30,8 @@ type EffectFunction = () => CleanupFunction | void;
 type ErrorFunction = ( error: Error ) => void;
 
 type ErrorBoundaryFallbackFunction<T = unknown> = ({ error, reset }: { error: Error, reset: DisposeFunction }) => T;
+
+type EqualsFunction<T = unknown, TI = unknown> = ( value: T, valuePrev: T | TI ) => boolean;
 
 type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | void;
 
@@ -86,7 +86,7 @@ type ObservableReadonly<T = unknown> = ObservableReadonlyAbstract<T, T>;
 type ObservableAny<T = unknown> = ObservableWithoutInitial<T> | Observable<T> | ObservableReadonlyWithoutInitial<T> | ObservableReadonly<T>;
 
 type ObservableOptions<T = unknown, TI = unknown> = {
-  comparator?: ComparatorFunction<T, TI>
+  equals?: EqualsFunction<T, TI>
 };
 
 type ObservableResolved<T = unknown> = T extends Observable<infer U> ? U : T extends ObservableWithoutInitial<infer U> ? U | undefined : T extends ObservableReadonly<infer U> ? U : T extends ObservableReadonlyWithoutInitial<infer U> ? U | undefined : T;
@@ -120,6 +120,6 @@ type Writable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) =
 /* EXPORT */
 
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
-export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, ErrorBoundaryFallbackFunction, MapFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
+export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, ErrorBoundaryFallbackFunction, EqualsFunction, MapFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
 export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
 export type {Accessor, Contexts, FunctionMaybe, LazyArray, LazyObject, LazySet, Mapped, Readable, Resolvable, Resolved, Selected, Writable};

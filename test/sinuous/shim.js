@@ -1,20 +1,20 @@
 
 import $ from '../../dist/index.js';
 
-const comparator = () => false;
+const equals = () => false;
 
 const observable = value => {
-  return $ ( value, { comparator } );
+  return $ ( value, { equals } );
 };
 
 const computed = ( fn, value ) => {
-  const observable = $.computed ( fn, value, { comparator } );
+  const observable = $.computed ( fn, value, { equals } );
   return () => observable.get ();
 };
 
 const subscribe = fn => {
   const dispose = $.root ( dispose => {
-    $.computed ( fn, undefined, { comparator } );
+    $.computed ( fn, undefined, { equals } );
     return dispose;
   });
   $.cleanup ( dispose );

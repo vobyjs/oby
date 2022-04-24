@@ -6,7 +6,7 @@ import {OWNER, SAMPLING} from '~/constants';
 import batch from '~/methods/batch';
 import computed from '~/methods/computed';
 import Reaction from '~/objects/reaction';
-import type {IObservable, IObserver, IComputed, ComparatorFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableAbstract, ObservableReadonlyAbstract, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
+import type {IObservable, IObserver, IComputed, EqualsFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableAbstract, ObservableReadonlyAbstract, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -17,7 +17,7 @@ class Observable<T = unknown, TI = unknown> {
   parent?: IComputed<any>;
   value: T | TI;
   disposed?: true;
-  comparator?: ComparatorFunction<T, TI>;
+  equals?: EqualsFunction<T, TI>;
   observers?: LazySet<IObserver>;
 
   /* CONSTRUCTOR */
@@ -32,9 +32,9 @@ class Observable<T = unknown, TI = unknown> {
 
     }
 
-    if ( options?.comparator ) {
+    if ( options?.equals ) {
 
-      this.comparator = options.comparator;
+      this.equals = options.equals;
 
     }
 
@@ -168,8 +168,8 @@ class Observable<T = unknown, TI = unknown> {
 
     } else {
 
-      const comparator = this.comparator || Object.is;
-      const fresh = !comparator ( value, this.value );
+      const equals = this.equals || Object.is;
+      const fresh = !equals ( value, this.value );
 
       if ( !this.parent ) {
 

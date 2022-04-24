@@ -365,14 +365,14 @@ describe ( 'oby', it => {
 
       });
 
-      it ( 'supports a custom comparator', t => {
+      it ( 'supports a custom equality function', t => {
 
-        const comparator = ( next, prev ) => next[0] === prev[0];
+        const equals = ( next, prev ) => next[0] === prev[0];
 
         const valuePrev = [1];
         const valueNext = [2];
 
-        const o = $( valuePrev, { comparator } );
+        const o = $( valuePrev, { equals } );
 
         o.set ( valuePrev );
 
@@ -1055,11 +1055,11 @@ describe ( 'oby', it => {
 
     });
 
-    it ( 'supports a custom comparator', t => {
+    it ( 'supports a custom equality function', t => {
 
       const o = $(2);
-      const comparator = value => ( value % 2 === 0 );
-      const oPlus1 = $.computed ( () => o () + 1, undefined, { comparator } );
+      const equals = value => ( value % 2 === 0 );
+      const oPlus1 = $.computed ( () => o () + 1, undefined, { equals } );
 
       t.is ( oPlus1 (), 3 );
 
