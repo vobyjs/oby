@@ -1,11 +1,11 @@
 
 /* IMPORT */
 
+import $ from '~';
 import {readable, writable} from '~/callable';
 import {FALSE, OWNER, SAMPLING} from '~/constants';
 import batch from '~/methods/batch';
 import computed from '~/methods/computed';
-import produce from '~/methods/produce';
 import Reaction from '~/objects/reaction';
 import type {IObservable, IObserver, IComputed, EqualsFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableAbstract, ObservableReadonlyAbstract, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
 
@@ -190,7 +190,7 @@ class Observable<T = unknown, TI = unknown> {
 
   produce ( fn: ProduceFunction<T | TI, T> ): T {
 
-    const valueNext = produce ( this.value, fn ) as T; //TSC
+    const valueNext = $.produce ( this.value, fn ) as T; //TSC
 
     return this.set ( valueNext );
 
