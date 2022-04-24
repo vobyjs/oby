@@ -18,7 +18,6 @@ class Observer {
   observables?: LazyArray<IObservable>;
   observablesLeftover?: LazyValue<IObservable>;
   observers?: LazyArray<IObserver>;
-  observersLeftover?: LazyArray<IObserver>;
 
   /* REGISTRATION API */
 
@@ -157,9 +156,6 @@ class Observer {
       } else {
         observers.dispose ( true, immediate );
       }
-      if ( !immediate ) {
-        this.observersLeftover = observers;
-      }
     }
 
     if ( observables ) {
@@ -241,23 +237,12 @@ class Observer {
 
   postdispose (): void {
 
-    const {observablesLeftover, observables, observersLeftover} = this;
+    const {observablesLeftover} = this;
 
     if ( observablesLeftover ) {
       this.observablesLeftover = undefined;
-      if ( observablesLeftover !== observables && !observablesLeftover.disposed ) {
+      if ( observablesLeftover !== this.observables && !observablesLeftover.disposed ) {
         observablesLeftover.unregisterObserver ( this );
-      }
-    }
-
-    if ( observersLeftover ) {
-      this.observersLeftover = undefined;
-      if ( observersLeftover instanceof Array ) {
-        for ( let i = 0, l = observersLeftover.length; i < l; i++ ) {
-          observersLeftover[i].postdispose ();
-        }
-      } else {
-        observersLeftover.postdispose ();
       }
     }
 
