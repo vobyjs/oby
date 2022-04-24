@@ -2227,6 +2227,21 @@ describe ( 'oby', it => {
 
   });
 
+  describe ( 'produce', it => {
+
+    it ( 'supports updating with in-place mutations', t => {
+
+      const valuePrev = { foo: { bar: true } };
+      const valueNext = { foo: { bar: false } };
+
+      t.not ( $.produce ( valuePrev, prev => { prev.foo.bar = false } ), valuePrev );
+
+      t.not ( $.produce ( valuePrev, prev => { prev.foo.bar = true } ), valuePrev );
+
+    });
+
+  });
+
   describe ( 'resolve', it => {
 
     it ( 'does nothing for other other typeos of values', t => {

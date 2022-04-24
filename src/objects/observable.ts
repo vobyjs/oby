@@ -5,6 +5,7 @@ import {readable, writable} from '~/callable';
 import {OWNER, SAMPLING} from '~/constants';
 import batch from '~/methods/batch';
 import computed from '~/methods/computed';
+import produce from '~/methods/produce';
 import Reaction from '~/objects/reaction';
 import type {IObservable, IObserver, IComputed, EqualsFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableAbstract, ObservableReadonlyAbstract, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
 
@@ -189,11 +190,7 @@ class Observable<T = unknown, TI = unknown> {
 
   produce ( fn: ProduceFunction<T | TI, T> ): T {
 
-    //TODO: Implement this properly, with good performance and ~arbitrary values support (using immer?)
-
-    const valueClone: T = JSON.parse ( JSON.stringify ( this.value ) );
-    const valueResult = fn ( valueClone );
-    const valueNext = ( valueResult === undefined ? valueClone : valueResult );
+    const valueNext = produce ( this.value, fn ) as T; //TSC
 
     return this.set ( valueNext );
 
