@@ -15,6 +15,7 @@ function readableFunction <T, TI> ( this: IObservable<T, TI> ): T | TI;
 function readableFunction <T, TI> ( this: IObservable<T, TI>, arg: symbol ): IObservable<T, TI>;
 function readableFunction <T, TI> ( this: IObservable<T, TI>, arg?: symbol ) {
   if ( arg === SYMBOL ) return this;
+  if ( arguments.length ) throw new Error ( 'A readonly Observable can not be updated' );
   return this.get ();
 }
 

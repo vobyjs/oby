@@ -20,6 +20,8 @@ const isReadable = ( t, value ) => {
   t.true ( typeof value.isReadonly === 'function' );
   t.true ( typeof value.registerSelf === 'undefined' );
 
+  t.throws ( () => value ( Math.random () ), { message: 'A readonly Observable can not be updated' } );
+
 };
 
 const isWritable = ( t, value ) => {
