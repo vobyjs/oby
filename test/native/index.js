@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {describe} from 'fava';
+import {produce} from 'immer';
 import {setTimeout as delay} from 'node:timers/promises';
 import $ from '../../dist/index.js';
 
@@ -39,18 +40,125 @@ const isWritable = ( t, value ) => {
 
 };
 
-const isOwner = ( t, value ) => {
-
-  t.false ( $.is ( value ) );
-  t.true ( typeof value.dispose === 'function' );
-
-};
-
 /* MAIN */
 
-describe ( 'oby', it => {
+describe ( 'oby', () => {
 
-  describe ( 'observable', it => {
+  describe ( 'observable', () => {
+
+    describe ( 'auto-accessor', it => {
+
+      it ( 'is both a getter and a setter', t => {
+
+        const o = $();
+
+        t.is ( o (), undefined );
+
+        o ( 123 );
+
+        t.is ( o (), 123 );
+
+        o ( 321 );
+
+        t.is ( o (), 321 );
+
+        o ( undefined );
+
+        t.is ( o (), undefined );
+
+      });
+
+      it ( 'creates a dependency in a computed when getting', t => {
+
+        const o = $(1);
+
+        let calls = 0;
+
+        $.computed ( () => {
+          calls += 1;
+          o ();
+        });
+
+        t.is ( calls, 1 );
+
+        o ( 2 );
+
+        t.is ( calls, 2 );
+
+        o ( 3 );
+
+        t.is ( calls, 3 );
+
+      });
+
+      it ( 'creates a dependency in an effect when getting', t => {
+
+        const o = $(1);
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          o ();
+        });
+
+        t.is ( calls, 1 );
+
+        o ( 2 );
+
+        t.is ( calls, 2 );
+
+        o ( 3 );
+
+        t.is ( calls, 3 );
+
+      });
+
+      it ( 'does not create a dependency in a computed when setting', t => {
+
+        let o;
+        let calls = 0;
+
+        $.computed ( () => {
+          calls += 1;
+          o = $(1);
+        });
+
+        t.is ( calls, 1 );
+
+        o ( 2 );
+
+        t.is ( calls, 1 );
+
+      });
+
+      it ( 'does not create a dependency in an effect when setting', t => {
+
+        let o;
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          o = $(1);
+        });
+
+        t.is ( calls, 1 );
+
+        o ( 2 );
+
+        t.is ( calls, 1 );
+
+      });
+
+      it ( 'supports an initial value', t => {
+
+        const o = $(123);
+
+        t.is ( o (), 123 );
+
+      });
+
+    });
 
     describe ( 'get', it => {
 
@@ -238,7 +346,7 @@ describe ( 'oby', it => {
 
     describe ( 'computed', it => {
 
-      it ( 'creates a selected readonly observable out of a writable observable', t => {
+      it ( 'creates a computed readonly observable out of a writable observable', t => {
 
         const o = $({ foo: { bar: 123 } });
 
@@ -254,7 +362,7 @@ describe ( 'oby', it => {
 
       });
 
-      it ( 'creates a selected readonly observable out of a readable observable', t => {
+      it ( 'creates a computed readonly observable out of a readable observable', t => {
 
         const o = $({ foo: { bar: 123 } }).readonly ();
 
@@ -263,6 +371,34 @@ describe ( 'oby', it => {
         t.is ( computed (), 123 );
 
         isReadable ( t, computed );
+
+      });
+
+      it ( 'can receive an options object', t => {
+
+        const equals = ( a, b ) => ( ( a - 1 ) % 2 ) === ( b % 2 );
+
+        const o = $( 0, { equals });
+
+        const computed = o.computed ( value => value );
+
+        t.is ( computed (), 0 );
+
+        o ( 1 );
+
+        t.is ( computed (), 0 );
+
+        o ( 2 );
+
+        t.is ( computed (), 2 );
+
+        o ( 3 );
+
+        t.is ( computed (), 2 );
+
+        o ( 4 );
+
+        t.is ( computed (), 4 );
 
       });
 
@@ -364,6 +500,18 @@ describe ( 'oby', it => {
         const o = $();
 
         t.is ( o.set ( 123 ), 123 );
+
+      });
+
+      it ( 'returns the value being set even if equal to the previous value', t => {
+
+        const equals = () => true;
+
+        const o = $( 0, { equals } );
+
+        t.is ( o (), 0 );
+        t.is ( o.set ( 123 ), 123 )
+        t.is ( o (), 0 );
 
       });
 
@@ -565,6 +713,31 @@ describe ( 'oby', it => {
 
       });
 
+      it ( 'supports updating with in-place mutations with a custom produce method', t => {
+
+        const _produce = $.produce;
+
+        $.produce = produce;
+
+        const valuePrev = { foo: { bar: true } };
+        const valueNext = { foo: { bar: false } };
+
+        const o = $(valuePrev);
+
+        t.not ( o.produce ( prev => { prev.foo.bar = false } ), valuePrev );
+        t.deepEqual ( o (), valueNext );
+
+        t.not ( o.produce ( prev => { prev.foo.bar = true } ), valuePrev );
+        t.deepEqual ( o (), valuePrev );
+
+        $.produce = () => { throw new Error ( 'custom' ) };
+
+        t.throws ( () => o.produce (), { message: 'custom' } );
+
+        $.produce = _produce;
+
+      });
+
     });
 
     describe ( 'update', it => {
@@ -662,6 +835,14 @@ describe ( 'oby', it => {
 
       });
 
+      it ( 'throws when attempting to set', t => {
+
+        const ro = $().readonly ();
+
+        t.throws ( () => ro ( 1 ), { message: 'A readonly Observable can not be updated' } );
+
+      });
+
     });
 
     describe ( 'isReadonly', it => {
@@ -675,116 +856,6 @@ describe ( 'oby', it => {
         t.true ( ro.isReadonly () );
 
       });
-
-    });
-
-    it ( 'is both a getter and a setter', t => {
-
-      const o = $();
-
-      t.is ( o (), undefined );
-
-      o ( 123 );
-
-      t.is ( o (), 123 );
-
-      o ( 321 );
-
-      t.is ( o (), 321 );
-
-      o ( undefined );
-
-      t.is ( o (), undefined );
-
-    });
-
-    it ( 'creates a dependency in a computed when getting', t => {
-
-      const o = $(1);
-
-      let calls = 0;
-
-      $.computed ( () => {
-        calls += 1;
-        o ();
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 2 );
-
-      t.is ( calls, 2 );
-
-      o ( 3 );
-
-      t.is ( calls, 3 );
-
-    });
-
-    it ( 'creates a dependency in an effect when getting', t => {
-
-      const o = $(1);
-
-      let calls = 0;
-
-      $.effect ( () => {
-        calls += 1;
-        o ();
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 2 );
-
-      t.is ( calls, 2 );
-
-      o ( 3 );
-
-      t.is ( calls, 3 );
-
-    });
-
-    it ( 'does not create a dependency in a computed when setting', t => {
-
-      let o;
-      let calls = 0;
-
-      $.computed ( () => {
-        calls += 1;
-        o = $(1);
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 2 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'does not create a dependency in an effect when setting', t => {
-
-      let o;
-      let calls = 0;
-
-      $.effect ( () => {
-        calls += 1;
-        o = $(1);
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 2 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'supports an initial value', t => {
-
-      const o = $(123);
-
-      t.is ( o (), 123 );
 
     });
 
@@ -1019,6 +1090,55 @@ describe ( 'oby', it => {
 
   describe ( 'computed', it => {
 
+    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.computed ( () => {
+
+        calls += 1;
+
+        if ( !a.sample () ) a ( a () + 1 );
+
+        b ();
+
+      });
+
+      t.is ( calls, 2 );
+
+      a ( 2 );
+
+      t.is ( calls, 2 );
+
+      b ( 1 );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'does not throw when disposing of itself', t => {
+
+      t.notThrows ( () => {
+
+        $.root ( dispose => {
+
+          $.computed ( () => {
+
+            dispose ();
+
+            return 1;
+
+          });
+
+        });
+
+      });
+
+    });
+
     it ( 'returns a readable observable', t => {
 
       const o = $.computed ( () => {} );
@@ -1227,6 +1347,24 @@ describe ( 'oby', it => {
       t.is ( a (), 4 );
       t.is ( b (), 4 );
       t.is ( aPrev (), 3 );
+
+    });
+
+    it ( 'updates the observable with the last value when causing itself to re-execute', t => {
+
+      const o = $(0);
+
+      const computed = $.computed ( () => {
+
+        let value = o ();
+
+        if ( !o () ) o ( 1 );
+
+        return value;
+
+      });
+
+      t.is ( computed (), 1 );
 
     });
 
@@ -1517,6 +1655,45 @@ describe ( 'oby', it => {
 
   describe ( 'effect', it => {
 
+    it ( 'checks if the returned value is actually a function', t => {
+
+      t.notThrows ( () => {
+
+        $.effect ( () => 123 );
+
+      });
+
+    });
+
+    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        if ( !a.sample () ) a ( a () + 1 );
+
+        b ();
+
+      });
+
+      t.is ( calls, 2 );
+
+      a ( 2 );
+
+      t.is ( calls, 2 );
+
+      b ( 1 );
+
+      t.is ( calls, 3 );
+
+    });
+
     it ( 'returns a disposer', t => {
 
       const a = $(1);
@@ -1743,6 +1920,57 @@ describe ( 'oby', it => {
   });
 
   describe ( 'error', it => {
+
+    it ( 'casts an error thrown inside a parent computation to an Error instance', t => {
+
+      $.computed ( () => {
+
+        $.error ( error => {
+
+          t.true ( error instanceof Error );
+          t.is ( error.message, 'err' );
+
+        });
+
+        throw 'err';
+
+      });
+
+    });
+
+    it ( 'casts an error thrown inside a parent effect to an Error instance', t => {
+
+      $.effect ( () => {
+
+        $.error ( error => {
+
+          t.true ( error instanceof Error );
+          t.is ( error.message, 'err' );
+
+        });
+
+        throw 'err';
+
+      });
+
+    });
+
+    it ( 'casts an error thrown inside a parent root to an Error instance', t => {
+
+      $.root ( () => {
+
+        $.error ( error => {
+
+          t.true ( error instanceof Error );
+          t.is ( error.message, 'err' );
+
+        });
+
+        throw 'err';
+
+      });
+
+    });
 
     it ( 'registers a function to be called when the parent computation throws', t => {
 
@@ -2056,9 +2284,67 @@ describe ( 'oby', it => {
 
     });
 
+    it ( 'casts thrown errors to Error instances', t => {
+
+      const fallback = ({ error }) => {
+        t.true ( error instanceof Error );
+        t.is ( error.message, 'err' );
+      };
+
+      const regular = () => {
+        throw 'err';
+      };
+
+      $.errorBoundary ( fallback, regular );
+
+    });
+
+    it ( 'resolves the fallback before returning it', t => {
+
+      const computed = $.errorBoundary ( () => () => () => 123, () => { throw 'err' } );
+
+      t.is ( computed (), 123 );
+
+    });
+
+    it ( 'resolves the value before returning it', t => {
+
+      const computed = $.errorBoundary ( () => {}, () => () => () => 123 );
+
+      t.is ( computed (), 123 );
+
+    });
+
   });
 
   describe ( 'from', it => {
+
+    it ( 'can receive an options object', t => {
+
+      const equals = ( a, b ) => ( ( a - 1 ) % 2 ) === ( b % 2 );
+
+      const o1 = $(0);
+      const o2 = $.from ( observable => observable ( o1 () ), { equals } );
+
+      t.is ( o2 (), 0 );
+
+      o1 ( 1 );
+
+      t.is ( o2 (), 0 );
+
+      o1 ( 2 );
+
+      t.is ( o2 (), 2 );
+
+      o1 ( 3 );
+
+      t.is ( o2 (), 2 );
+
+      o1 ( 4 );
+
+      t.is ( o2 (), 4 );
+
+    });
 
     it ( 'makes an observable passed immediately to the function', t => {
 
@@ -2185,6 +2471,12 @@ describe ( 'oby', it => {
 
   describe ( 'if', it => {
 
+    it ( 'resolves the value before returning it', t => {
+
+      t.is ( $.if ( true, () => () => 123 )(), 123 );
+
+    });
+
     it ( 'returns a computed to the value or undefined with a functional condition', t => {
 
       const o = $(false);
@@ -2200,6 +2492,20 @@ describe ( 'oby', it => {
       o ( false );
 
       t.is ( result (), undefined );
+
+    });
+
+    it ( 'returns a computed to the value with a truthy condition', t => {
+
+      t.is ( $.if ( true, 123 )(), 123 );
+      t.is ( $.if ( 'true', 123 )(), 123 );
+
+    });
+
+    it ( 'returns a computed to the value with a falsy condition', t => {
+
+      t.is ( $.if ( false, 123 )(), undefined );
+      t.is ( $.if ( 0, 123 )(), undefined );
 
     });
 
@@ -2237,8 +2543,33 @@ describe ( 'oby', it => {
       const valueNext = { foo: { bar: false } };
 
       t.not ( $.produce ( valuePrev, prev => { prev.foo.bar = false } ), valuePrev );
+      t.deepEqual ( $.produce ( valuePrev, prev => { prev.foo.bar = false } ), valueNext );
 
       t.not ( $.produce ( valuePrev, prev => { prev.foo.bar = true } ), valuePrev );
+      t.deepEqual ( $.produce ( valuePrev, prev => { prev.foo.bar = true } ), valuePrev );
+
+    });
+
+    it ( 'supports updating with in-place mutations with a custom produce method', t => {
+
+      const _produce = $.produce;
+
+      $.produce = produce;
+
+      const valuePrev = { foo: { bar: true } };
+      const valueNext = { foo: { bar: false } };
+
+      t.not ( $.produce ( valuePrev, prev => { prev.foo.bar = false } ), valuePrev );
+      t.deepEqual ( $.produce ( valuePrev, prev => { prev.foo.bar = false } ), valueNext );
+
+      t.is ( $.produce ( valuePrev, prev => { prev.foo.bar = true } ), valuePrev );
+      t.deepEqual ( $.produce ( valuePrev, prev => { prev.foo.bar = true } ), valuePrev );
+
+      $.produce = () => { throw new Error ( 'custom' ) };
+
+      t.throws ( () => $.produce (), { message: 'custom' } );
+
+      $.produce = _produce;
 
     });
 
@@ -2246,7 +2577,7 @@ describe ( 'oby', it => {
 
   describe ( 'resolve', it => {
 
-    it ( 'does nothing for other other typeos of values', t => {
+    it ( 'does nothing for other other types of values', t => {
 
       const obj = { foo: () => 123, bar: [() => 123] };
 
@@ -2620,6 +2951,22 @@ describe ( 'oby', it => {
 
   describe ( 'switch', it => {
 
+    it ( 'resolves the value of a case before returning it', t => {
+
+        const result = $.switch ( 1, [[1, () => () => '1'], [2, '2'], [1, '1.1']] );
+
+        t.is ( result (), '1' );
+
+    });
+
+    it ( 'resolves the value of the default case before returning it', t => {
+
+      const result = $.switch ( 2, [[1, '1'], [() => () => 'default'], [2, '2'] [1, '1.1']] );
+
+      t.is ( result (), 'default' );
+
+    });
+
     it ( 'returns a computed to matching case or the default case with a functional condition', t => {
 
       const o = $(1);
@@ -2638,9 +2985,49 @@ describe ( 'oby', it => {
 
     });
 
+    it ( 'returns a computed to the value of the default case if no case before it matches', t => {
+
+      const result = $.switch ( 2, [[1, '1'], ['default'], [2, '2'] [1, '1.1']] );
+
+      t.is ( result (), 'default' );
+
+    });
+
+    it ( 'returns a computed to the value of the first matching case', t => {
+
+      const result1 = $.switch ( 1, [[1, '1'], [2, '2'], [1, '1.1']] );
+
+      t.is ( result1 (), '1' );
+
+      const result2 = $.switch ( 2, [[1, '1'], [2, '2'], [1, '1.1']] );
+
+      t.is ( result2 (), '2' );
+
+    });
+
+    it ( 'returns a computed to undefined if no condition matches and there is no default case', t => {
+
+      const result = $.switch ( 1, [[2, '2'], [3, '3']] );
+
+      t.is ( result (), undefined );
+
+    });
+
   });
 
   describe ( 'ternary', it => {
+
+    it ( 'resolves the first value before returning it', t => {
+
+      t.is ( $.ternary ( true, () => () => 123, 321 )(), 123 );
+
+    });
+
+    it ( 'resolves the second value before returning it', t => {
+
+      t.is ( $.ternary ( false, 123, () => () => 321 )(), 321 );
+
+    });
 
     it ( 'returns a computed to the first or second value with a functional condition', t => {
 
@@ -2660,283 +3047,301 @@ describe ( 'oby', it => {
 
     });
 
-  });
+    it ( 'returns a computed to the first value with a truthy condition', t => {
 
-  it ( 'only propagates in topological order', t => {
+      t.is ( $.ternary ( true, 123, 321 )(), 123 );
+      t.is ( $.ternary ( 'true', 123, 321 )(), 123 );
 
-    //    c1
-    //   /  \
-    //  /    \
-    // b1     b2
-    //  \    /
-    //   \  /
-    //    a1
-
-    let sequence = '';
-
-    const a1 = $(0);
-
-    const b1 = $.computed ( () => {
-      sequence += 'b1';
-      const val = a1 () + 1;
-      return val;
     });
 
-    const b2 = $.computed ( () => {
-      sequence += 'b2';
-      return a1 () + 1;
+    it ( 'returns a computed to the value with a falsy condition', t => {
+
+      t.is ( $.ternary ( false, 123, 321 )(), 321 );
+      t.is ( $.ternary ( 0, 123, 321 )(), 321 );
+
     });
-
-    const c1 = $.computed ( () => {
-      b1 ();
-      b2 ();
-      sequence += 'c1';
-    });
-
-    sequence = '';
-
-    a1 ( 1 );
-
-    t.is ( sequence, 'b1b2c1' );
 
   });
 
-  it ( 'only propagates once with linear convergences', t => {
+  describe ( 'S-like propagation', it => {
 
-    //         d
-    //         |
-    // +---+---+---+---+
-    // v   v   v   v   v
-    // f1  f2  f3  f4  f5
-    // |   |   |   |   |
-    // +---+---+---+---+
-    //         v
-    //         g
+    it ( 'only propagates in topological order', t => {
 
-    const d = $(0);
+      //    c1
+      //   /  \
+      //  /    \
+      // b1     b2
+      //  \    /
+      //   \  /
+      //    a1
 
-    let calls = 0;
+      let sequence = '';
 
-    const f1 = $.computed ( () => {
-      return d ();
+      const a1 = $(0);
+
+      const b1 = $.computed ( () => {
+        sequence += 'b1';
+        const val = a1 () + 1;
+        return val;
+      });
+
+      const b2 = $.computed ( () => {
+        sequence += 'b2';
+        return a1 () + 1;
+      });
+
+      const c1 = $.computed ( () => {
+        b1 ();
+        b2 ();
+        sequence += 'c1';
+      });
+
+      sequence = '';
+
+      a1 ( 1 );
+
+      t.is ( sequence, 'b1b2c1' );
+
     });
 
-    const f2 = $.computed ( () => {
-      return d ();
-    });
+    it ( 'only propagates once with linear convergences', t => {
 
-    const f3 = $.computed ( () => {
-      return d ();
-    });
+      //         d
+      //         |
+      // +---+---+---+---+
+      // v   v   v   v   v
+      // f1  f2  f3  f4  f5
+      // |   |   |   |   |
+      // +---+---+---+---+
+      //         v
+      //         g
 
-    const f4 = $.computed ( () => {
-      return d ();
-    });
+      const d = $(0);
 
-    const f5 = $.computed ( () => {
-      return d ();
-    });
+      let calls = 0;
 
-    const g = $.computed ( () => {
-      calls += 1;
-      return f1 () + f2 () + f3 () + f4 () + f5 ();
-    });
+      const f1 = $.computed ( () => {
+        return d ();
+      });
 
-    calls = 0;
+      const f2 = $.computed ( () => {
+        return d ();
+      });
 
-    d ( 1 );
+      const f3 = $.computed ( () => {
+        return d ();
+      });
 
-    t.is ( calls, 1 );
+      const f4 = $.computed ( () => {
+        return d ();
+      });
 
-  });
+      const f5 = $.computed ( () => {
+        return d ();
+      });
 
-  it ( 'only propagates once with exponential convergence', t => {
-
-    //     d
-    //     |
-    // +---+---+
-    // v   v   v
-    // f1  f2 f3
-    //   \ | /
-    //     O
-    //   / | \
-    // v   v   v
-    // g1  g2  g3
-    // +---+---+
-    //     v
-    //     h
-
-    const d = $(0);
-
-    let calls = 0;
-
-    const f1 = $.computed ( () => {
-      return d ();
-    });
-
-    const f2 = $.computed ( () => {
-      return d ();
-    });
-
-    const f3 = $.computed ( () => {
-      return d ();
-    });
-
-    const g1 = $.computed ( () => {
-      return f1 () + f2 () + f3 ();
-    });
-
-    const g2 = $.computed ( () => {
-      return f1 () + f2 () + f3 ();
-    });
-
-    const g3 = $.computed ( () => {
-      return f1 () + f2 () + f3 ();
-    });
-
-    const h = $.computed ( () => {
-      calls += 1;
-      return g1 () + g2 () + g3 ();
-    });
-
-    calls = 0;
-
-    d ( 1 );
-
-    t.is ( calls, 1 );
-
-  });
-
-  it ( 'parent cleans up inner subscriptions', t => {
-
-    const o = $(null);
-    const cache = $(false);
-
-    let calls = 0;
-    let childValue;
-    let childValue2;
-
-    const child = o => {
-      $.computed ( () => {
-        childValue = o ();
+      const g = $.computed ( () => {
         calls += 1;
+        return f1 () + f2 () + f3 () + f4 () + f5 ();
       });
-    };
 
-    const child2 = o => {
-      $.computed ( () => {
-        childValue2 = o ();
-      });
-    };
+      calls = 0;
 
-    $.computed ( () => {
-      const value = !!o ();
-      cache ( value );
-      return value;
+      d ( 1 );
+
+      t.is ( calls, 1 );
+
     });
 
-    // 1st
+    it ( 'only propagates once with exponential convergence', t => {
 
-    $.computed ( () => {
-      cache ();
-      child2 ( o );
-      child ( o );
-    });
+      //     d
+      //     |
+      // +---+---+
+      // v   v   v
+      // f1  f2 f3
+      //   \ | /
+      //     O
+      //   / | \
+      // v   v   v
+      // g1  g2  g3
+      // +---+---+
+      //     v
+      //     h
 
-    t.is ( childValue, null );
-    t.is ( childValue2, null );
+      const d = $(0);
 
-    t.is ( calls, 1 );
+      let calls = 0;
 
-    // 2nd
+      const f1 = $.computed ( () => {
+        return d ();
+      });
 
-    o ( 'name' );
+      const f2 = $.computed ( () => {
+        return d ();
+      });
 
-    t.is ( childValue, 'name' );
-    t.is ( childValue2, 'name' );
+      const f3 = $.computed ( () => {
+        return d ();
+      });
 
-    t.is ( calls, 2 );
+      const g1 = $.computed ( () => {
+        return f1 () + f2 () + f3 ();
+      });
 
-    // 3rd
+      const g2 = $.computed ( () => {
+        return f1 () + f2 () + f3 ();
+      });
 
-    o ( null );
+      const g3 = $.computed ( () => {
+        return f1 () + f2 () + f3 ();
+      });
 
-    t.is ( childValue, null );
-    t.is ( childValue2, null );
-
-    t.is ( calls, 3 );
-
-    // 4th
-
-    o ( 'name2' );
-
-    t.is ( childValue, 'name2' );
-    t.is ( childValue2, 'name2' );
-
-    t.is ( calls, 4 );
-
-  });
-
-  it ( 'parent cleans up inner conditional subscriptions', t => {
-
-    const o = $(null);
-    const cache = $(false);
-
-    let calls = 0;
-    let childValue;
-
-    const child = o => {
-      $.computed ( () => {
-        childValue = o ();
+      const h = $.computed ( () => {
         calls += 1;
+        return g1 () + g2 () + g3 ();
       });
-      return 'Hi';
-    };
 
-    $.computed ( () => {
-      const value = !!o ();
-      cache ( value );
-      return value;
+      calls = 0;
+
+      d ( 1 );
+
+      t.is ( calls, 1 );
+
     });
 
-    const memo = $.computed ( () => {
-      const cached = cache ();
-      return cached ? child ( o ) : undefined;
+    it ( 'parent cleans up inner subscriptions', t => {
+
+      const o = $(null);
+      const cache = $(false);
+
+      let calls = 0;
+      let childValue;
+      let childValue2;
+
+      const child = o => {
+        $.computed ( () => {
+          childValue = o ();
+          calls += 1;
+        });
+      };
+
+      const child2 = o => {
+        $.computed ( () => {
+          childValue2 = o ();
+        });
+      };
+
+      $.computed ( () => {
+        const value = !!o ();
+        cache ( value );
+        return value;
+      });
+
+      // 1st
+
+      $.computed ( () => {
+        cache ();
+        child2 ( o );
+        child ( o );
+      });
+
+      t.is ( childValue, null );
+      t.is ( childValue2, null );
+
+      t.is ( calls, 1 );
+
+      // 2nd
+
+      o ( 'name' );
+
+      t.is ( childValue, 'name' );
+      t.is ( childValue2, 'name' );
+
+      t.is ( calls, 2 );
+
+      // 3rd
+
+      o ( null );
+
+      t.is ( childValue, null );
+      t.is ( childValue2, null );
+
+      t.is ( calls, 3 );
+
+      // 4th
+
+      o ( 'name2' );
+
+      t.is ( childValue, 'name2' );
+      t.is ( childValue2, 'name2' );
+
+      t.is ( calls, 4 );
+
     });
 
-    let view;
+    it ( 'parent cleans up inner conditional subscriptions', t => {
 
-    $.computed ( () => {
-      view = memo ();
-      return view;
+      const o = $(null);
+      const cache = $(false);
+
+      let calls = 0;
+      let childValue;
+
+      const child = o => {
+        $.computed ( () => {
+          childValue = o ();
+          calls += 1;
+        });
+        return 'Hi';
+      };
+
+      $.computed ( () => {
+        const value = !!o ();
+        cache ( value );
+        return value;
+      });
+
+      const memo = $.computed ( () => {
+        const cached = cache ();
+        return cached ? child ( o ) : undefined;
+      });
+
+      let view;
+
+      $.computed ( () => {
+        view = memo ();
+        return view;
+      });
+
+      t.is ( view, undefined );
+
+      // 1st
+
+      o ( 'name' );
+
+      t.is ( childValue, 'name' );
+
+      t.is ( view, 'Hi' );
+
+      // 2nd
+
+      o ( 'name2' );
+
+      t.is ( childValue, 'name2' );
+
+      // 3rd
+      // data is null -> cache is false -> child is not run here
+
+      o ( null );
+
+      t.is ( childValue, 'name2' );
+
+      t.is ( view, undefined );
+
+      t.is ( calls, 2 );
+
     });
-
-    t.is ( view, undefined );
-
-    // 1st
-
-    o ( 'name' );
-
-    t.is ( childValue, 'name' );
-
-    t.is ( view, 'Hi' );
-
-    // 2nd
-
-    o ( 'name2' );
-
-    t.is ( childValue, 'name2' );
-
-    // 3rd
-    // data is null -> cache is false -> child is not run here
-
-    o ( null );
-
-    t.is ( childValue, 'name2' );
-
-    t.is ( view, undefined );
-
-    t.is ( calls, 2 );
 
   });
 

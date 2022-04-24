@@ -36,6 +36,7 @@
   "devDependencies": {
     "esbuild": "^0.14.36",
     "fava": "^0.0.6",
+    "immer": "^9.0.12",
     "ispy": "^0.1.2",
     "tape": "^5.5.3",
     "tsex": "^1.1.1",
