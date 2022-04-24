@@ -2246,77 +2246,6 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'errorBoundary', it => {
-
-    it ( 'can catch and recover from errors', t => {
-
-      const o = $(false);
-
-      let err, recover;
-
-      const fallback = ({ error, reset }) => {
-        err = error;
-        recover = reset;
-        return 'fallback';
-      };
-
-      const regular = () => {
-        if ( o () ) throw 'whoops';
-        return 'regular';
-      };
-
-      const computed = $.errorBoundary ( fallback, regular );
-
-      t.is ( computed (), 'regular' );
-
-      o ( true );
-
-      t.true ( err instanceof Error );
-      t.is ( err.message, 'whoops' );
-
-      t.is ( computed (), 'fallback' );
-
-      o ( false );
-
-      recover ();
-
-      t.is ( computed (), 'regular' );
-
-    });
-
-    it ( 'casts thrown errors to Error instances', t => {
-
-      const fallback = ({ error }) => {
-        t.true ( error instanceof Error );
-        t.is ( error.message, 'err' );
-      };
-
-      const regular = () => {
-        throw 'err';
-      };
-
-      $.errorBoundary ( fallback, regular );
-
-    });
-
-    it ( 'resolves the fallback before returning it', t => {
-
-      const computed = $.errorBoundary ( () => () => () => 123, () => { throw 'err' } );
-
-      t.is ( computed (), 123 );
-
-    });
-
-    it ( 'resolves the value before returning it', t => {
-
-      const computed = $.errorBoundary ( () => {}, () => () => () => 123 );
-
-      t.is ( computed (), 123 );
-
-    });
-
-  });
-
   describe ( 'from', it => {
 
     it ( 'can receive an options object', t => {
@@ -3225,6 +3154,77 @@ describe ( 'oby', () => {
 
       t.is ( $.ternary ( false, 123, 321 )(), 321 );
       t.is ( $.ternary ( 0, 123, 321 )(), 321 );
+
+    });
+
+  });
+
+  describe ( 'tryCatch', it => {
+
+    it ( 'can catch and recover from errors', t => {
+
+      const o = $(false);
+
+      let err, recover;
+
+      const fallback = ({ error, reset }) => {
+        err = error;
+        recover = reset;
+        return 'fallback';
+      };
+
+      const regular = () => {
+        if ( o () ) throw 'whoops';
+        return 'regular';
+      };
+
+      const computed = $.tryCatch ( regular, fallback );
+
+      t.is ( computed (), 'regular' );
+
+      o ( true );
+
+      t.true ( err instanceof Error );
+      t.is ( err.message, 'whoops' );
+
+      t.is ( computed (), 'fallback' );
+
+      o ( false );
+
+      recover ();
+
+      t.is ( computed (), 'regular' );
+
+    });
+
+    it ( 'casts thrown errors to Error instances', t => {
+
+      const fallback = ({ error }) => {
+        t.true ( error instanceof Error );
+        t.is ( error.message, 'err' );
+      };
+
+      const regular = () => {
+        throw 'err';
+      };
+
+      $.tryCatch ( regular, fallback );
+
+    });
+
+    it ( 'resolves the fallback before returning it', t => {
+
+      const computed = $.tryCatch ( () => { throw 'err' }, () => () => () => 123 );
+
+      t.is ( computed (), 123 );
+
+    });
+
+    it ( 'resolves the value before returning it', t => {
+
+      const computed = $.tryCatch ( () => () => () => 123, () => {} );
+
+      t.is ( computed (), 123 );
 
     });
 

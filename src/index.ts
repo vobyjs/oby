@@ -8,7 +8,6 @@ import context from '~/methods/context';
 import disposed from '~/methods/disposed';
 import effect from '~/methods/effect';
 import error from '~/methods/error';
-import errorBoundary from '~/methods/error_boundary';
 import from from '~/methods/from';
 import get from '~/methods/get';
 import _if from '~/methods/if';
@@ -21,6 +20,7 @@ import sample from '~/methods/sample';
 import selector from '~/methods/selector';
 import _switch from '~/methods/switch';
 import ternary from '~/methods/ternary';
+import tryCatch from '~/methods/try_catch';
 import ObservableClass from '~/objects/observable';
 import type {ObservableWithoutInitial, ObservableOptions, Observable, ObservableReadonly, ObservableReadonlyWithoutInitial, ObservableAny} from '~/types';
 
@@ -44,7 +44,6 @@ $.context  = context;
 $.disposed = disposed;
 $.effect = effect;
 $.error = error;
-$.errorBoundary = errorBoundary;
 $.from = from;
 $.get = get;
 $.if = _if;
@@ -57,6 +56,7 @@ $.sample = sample;
 $.selector = selector;
 $.switch = _switch;
 $.ternary = ternary;
+$.tryCatch = tryCatch;
 
 /* EXPORT */
 

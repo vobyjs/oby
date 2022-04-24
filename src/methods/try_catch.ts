@@ -6,11 +6,11 @@ import error from '~/methods/error';
 import resolve from '~/methods/resolve';
 import Observable from '~/objects/observable';
 import {castError} from '~/utils';
-import type {ErrorBoundaryFallbackFunction, ObservableReadonly, Resolved} from '~/types';
+import type {TryCatchFunction, ObservableReadonly, Resolved} from '~/types';
 
 /* MAIN */
 
-const errorBoundary = <T, F> ( fallback: ErrorBoundaryFallbackFunction<F>, value: T ): ObservableReadonly<Resolved<T | F>> => {
+const tryCatch = <T, F> ( value: T, catchFn: TryCatchFunction<F> ): ObservableReadonly<Resolved<T | F>> => {
 
   const observable = new Observable<Error | null, Error | null> ( null );
 
@@ -22,7 +22,7 @@ const errorBoundary = <T, F> ( fallback: ErrorBoundaryFallbackFunction<F>, value
       const reset = () => observable.set ( null );
       const options = { error, reset };
 
-      return resolve ( fallback ( options ) );
+      return resolve ( catchFn ( options ) );
 
     } else {
 
@@ -42,4 +42,4 @@ const errorBoundary = <T, F> ( fallback: ErrorBoundaryFallbackFunction<F>, value
 
 /* EXPORT */
 
-export default errorBoundary;
+export default tryCatch;
