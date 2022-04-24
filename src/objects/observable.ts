@@ -207,13 +207,6 @@ class Observable<T = unknown, TI = unknown> {
 
   }
 
-  emit ( fresh: boolean ): void {
-
-    this.stale ( fresh );
-    this.unstale ( fresh );
-
-  }
-
   stale ( fresh: boolean ): void {
 
     if ( this.disposed ) return;

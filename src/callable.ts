@@ -63,9 +63,6 @@ const writablePrototype = {
   update <T, TI> ( this: Accessor<T, TI>, fn: UpdateFunction<T | TI, T> ): T {
     return this ( SYMBOL ).update ( fn );
   },
-  emit <T, TI> ( this: Accessor<T, TI> ): void {
-    return this ( SYMBOL ).emit ( true );
-  },
   readonly <T, TI> ( this: Accessor<T, TI> ): ObservableReadonlyAbstract<T, TI> {
     return this ( SYMBOL ).readable ();
   },

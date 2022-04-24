@@ -62,7 +62,6 @@ type ObservableAbstract<T = unknown, TI = unknown> = {
   set ( value: T ): T,
   produce ( fn: ( value: T | TI ) => T | undefined ): T,
   update ( fn: ( value: T | TI ) => T ): T,
-  emit (): void,
   readonly (): ObservableReadonlyAbstract<T, TI>,
   isReadonly (): false
 };

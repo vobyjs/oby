@@ -16,7 +16,6 @@ const isReadable = ( t, value ) => {
   t.true ( typeof value.set === 'undefined' );
   t.true ( typeof value.produce === 'undefined' );
   t.true ( typeof value.update === 'undefined' );
-  t.true ( typeof value.emit === 'undefined' );
   t.true ( typeof value.readonly === 'function' );
   t.true ( typeof value.isReadonly === 'function' );
   t.true ( typeof value.registerSelf === 'undefined' );
@@ -32,7 +31,6 @@ const isWritable = ( t, value ) => {
   t.true ( typeof value.set === 'function' );
   t.true ( typeof value.produce === 'function' );
   t.true ( typeof value.update === 'function' );
-  t.true ( typeof value.emit === 'function' );
   t.true ( typeof value.readonly === 'function' );
   t.true ( typeof value.isReadonly === 'function' );
   t.true ( typeof value.registerSelf === 'undefined' );
@@ -602,71 +600,6 @@ describe ( 'oby', it => {
 
         t.is ( o.update ( () => valueNext ), valueNext );
         t.is ( o (), valueNext );
-
-      });
-
-    });
-
-    describe ( 'emit', it => {
-
-      it.skip ( 'calls computeds before effects', t => {
-
-        const o = $(0);
-
-        let sequence = '';
-
-        $.effect ( () => {
-          sequence += 'e';
-          o ();
-        });
-
-        $.computed ( () => {
-          sequence += 'c';
-          o ();
-        });
-
-        t.is ( sequence, 'ec' );
-
-        o ( 1 );
-
-        t.is ( sequence, 'ecce' );
-
-        o ( 2 );
-
-        t.is ( sequence, 'eccece' );
-
-      });
-
-      it ( 'calls subscribers manually, even if nothing changed', t => {
-
-        const obj = $({ foo: { bar: 123 } });
-
-        let calls = 0;
-        let value;
-
-        $.effect ( () => {
-
-          value = obj ();
-
-          calls += 1;
-
-        });
-
-        t.is ( calls, 1 );
-        t.is ( value, obj () );
-        t.is ( value.foo.bar, 123 );
-
-        obj ().foo.bar = 321;
-
-        t.is ( calls, 1 );
-        t.is ( value, obj () );
-        t.is ( value.foo.bar, 321 );
-
-        obj.emit ();
-
-        t.is ( calls, 2 );
-        t.is ( value, obj () );
-        t.is ( value.foo.bar, 321 );
 
       });
 
