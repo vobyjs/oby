@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {OWNER} from '~/constants';
+import {castError} from '~/utils';
 import type {IObservable, IObserver, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyObject} from '~/types';
 
 /* MAIN */
@@ -161,8 +162,9 @@ class Observer {
       if ( observables instanceof Array ) {
         for ( let i = 0, l = observables.length; i < l; i++ ) {
           const observable = observables[i];
-          if ( observable.disposed ) continue;
-          observable.unregisterObserver ( this );
+          if ( !observable.disposed ) {
+            observable.unregisterObserver ( this );
+          }
         }
       } else {
         if ( !observables.disposed ) {
@@ -192,7 +194,7 @@ class Observer {
 
   }
 
-  error ( error: unknown, silent: boolean ): boolean {
+  error ( error: Error, silent: boolean ): boolean {
 
     const {errors} = this;
 
@@ -242,7 +244,7 @@ class Observer {
 
     } catch ( error: unknown ) {
 
-      this.error ( error, false );
+      this.error ( castError ( error ), false );
 
     } finally {
 

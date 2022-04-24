@@ -101,7 +101,7 @@ class Observable<T = unknown, TI = unknown> {
 
     }
 
-    if ( this.parent?.statusCount ) {
+    if ( this.parent?.statusCount ) { // Potentially stale value, forcing a refresh
 
       this.parent.statusCount = 0;
       this.parent.statusFresh = false;

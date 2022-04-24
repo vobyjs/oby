@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import Reaction from '~/objects/reaction';
+import {castError} from '~/utils';
 import type {EffectFunction} from '~/types';
 
 /* MAIN */
@@ -54,7 +55,7 @@ class Effect extends Reaction {
 
       } catch ( error: unknown ) {
 
-        this.error ( error, false );
+        this.error ( castError ( error ), false );
 
       }
 

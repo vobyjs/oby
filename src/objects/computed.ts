@@ -3,6 +3,7 @@
 
 import Observable from '~/objects/observable';
 import Reaction from '~/objects/reaction';
+import {castError} from '~/utils';
 import type {IObservable, ComputedFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
@@ -64,11 +65,11 @@ class Computed<T = unknown> extends Reaction {
 
       try {
 
-        const lock = ( this.iteration += 1 );
+        const iteration = ( this.iteration += 1 );
         const valuePrev = this.observable.value;
         const valueNext = this.wrap ( this.fn.bind ( undefined, valuePrev ) );
 
-        if ( this.observable.disposed || lock !== this.iteration ) { // Maybe a computed disposed of itself via a root before returning, or caused itself to re-execute
+        if ( this.observable.disposed || iteration !== this.iteration ) { // Maybe a computed disposed of itself via a root before returning, or caused itself to re-execute
 
           this.observable.unstale ( false );
 
@@ -88,7 +89,7 @@ class Computed<T = unknown> extends Reaction {
 
         this.iteration -= 1;
 
-        this.error ( error, false );
+        this.error ( castError ( error ), false );
 
         this.observable.unstale ( false );
 
