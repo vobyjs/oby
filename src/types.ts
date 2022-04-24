@@ -86,7 +86,7 @@ type ObservableReadonly<T = unknown> = ObservableReadonlyAbstract<T, T>;
 type ObservableAny<T = unknown> = ObservableWithoutInitial<T> | Observable<T> | ObservableReadonlyWithoutInitial<T> | ObservableReadonly<T>;
 
 type ObservableOptions<T = unknown, TI = unknown> = {
-  equals?: EqualsFunction<T, TI>
+  equals?: EqualsFunction<T, TI> | false
 };
 
 type ObservableResolved<T = unknown> = T extends Observable<infer U> ? U : T extends ObservableWithoutInitial<infer U> ? U | undefined : T extends ObservableReadonly<infer U> ? U : T extends ObservableReadonlyWithoutInitial<infer U> ? U | undefined : T;

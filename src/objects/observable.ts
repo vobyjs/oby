@@ -17,7 +17,7 @@ class Observable<T = unknown, TI = unknown> {
   parent?: IComputed<any>;
   value: T | TI;
   disposed?: true;
-  equals?: EqualsFunction<T, TI>;
+  equals?: EqualsFunction<T, TI> | false;
   observers?: LazySet<IObserver>;
 
   /* CONSTRUCTOR */
@@ -32,7 +32,7 @@ class Observable<T = unknown, TI = unknown> {
 
     }
 
-    if ( options?.equals ) {
+    if ( options?.equals !== undefined ) {
 
       this.equals = options.equals;
 
@@ -168,8 +168,8 @@ class Observable<T = unknown, TI = unknown> {
 
     } else {
 
-      const equals = this.equals || Object.is;
-      const fresh = !equals ( value, this.value );
+      const equals = this.equals ?? Object.is;
+      const fresh = equals ? !equals ( value, this.value ) : true;
 
       if ( !this.parent ) {
 

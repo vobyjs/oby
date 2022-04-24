@@ -392,6 +392,33 @@ describe ( 'oby', it => {
 
       });
 
+      it ( 'supports a false equality function', t => {
+
+        const equals = false;
+
+        const o = $( { foo: true }, { equals } );
+
+        let calls = 0;
+
+        $.effect ( () => {
+
+          calls += 1;
+          o ();
+
+        });
+
+        t.is ( calls, 1 );
+
+        o.update ( value => value.foo = true );
+
+        t.is ( calls, 2 );
+
+        o ( o () );
+
+        t.is ( calls, 3 );
+
+      });
+
       it ( 'supports ignoring setters that do not change the value', t => {
 
         const o = $(1);
