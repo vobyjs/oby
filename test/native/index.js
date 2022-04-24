@@ -2531,7 +2531,174 @@ describe ( 'oby', () => {
 
   describe ( 'map', it => {
 
-    it.todo ( 'works' );
+    it ( 'assumes a function returning an array of unique values', t => {
+
+      const array = [1, 2, 3, 1, 2, 3];
+      const args = [];
+
+      $.map ( () => array, value => {
+        args.push ( value );
+      });
+
+      t.deepEqual ( args, [1, 2, 3] );
+
+    });
+
+    it ( 'assumes an array of unique values', t => {
+
+      const array = [1, 2, 3, 1, 2, 3];
+      const args = [];
+
+      $.map ( array, value => {
+        args.push ( value );
+      });
+
+      t.deepEqual ( args, [1, 2, 3] );
+
+    });
+
+    it ( 'disposes of any reactivity when the parent computation is disposed', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      const dispose = $.root ( dispose => {
+        $.computed ( () => {
+          $.map ( array, value => {
+            $.computed ( () => {
+              args.push ( value () );
+            });
+          });
+        });
+        return dispose;
+      });
+
+      dispose ();
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2] );
+
+    });
+
+    it ( 'disposes of any reactivity when the parent effect is disposed', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      const dispose = $.root ( dispose => {
+        $.effect ( () => {
+          $.map ( array, value => {
+            $.computed ( () => {
+              args.push ( value () );
+            });
+          });
+        });
+        return dispose;
+      });
+
+      dispose ();
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2] );
+
+    });
+
+    it ( 'disposes of any reactivity when the parent root is disposed', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      const dispose = $.root ( dispose => {
+        $.map ( array, value => {
+          $.computed ( () => {
+            args.push ( value () );
+          });
+        });
+        return dispose;
+      });
+
+      dispose ();
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2] );
+
+    });
+
+    it ( 'disposes of any reactivity created for items that got deleted', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      $.map ( array, value => {
+        $.computed ( () => {
+          args.push ( value () );
+        });
+      });
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+
+      t.deepEqual ( args, [1, 2, 11] );
+
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2, 11, 22] );
+
+      array ([ o1 ]);
+
+      t.deepEqual ( args, [1, 2, 11, 22] );
+
+      o1 ( 111 );
+
+      t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+    });
+
+    it ( 'renders only results for unknown values', t => {
+
+      const array = $([1, 2, 3]);
+      const args = [];
+
+      $.map ( array, value => {
+        args.push ( value );
+      });
+
+      t.deepEqual ( args, [1, 2, 3] );
+
+      array ([ 1, 2, 3, 4 ]);
+
+      t.deepEqual ( args, [1, 2, 3, 4] );
+
+      array ([ 1, 2, 3, 4, 5 ]);
+
+      t.deepEqual ( args, [1, 2, 3, 4, 5] );
+
+    });
 
   });
 
