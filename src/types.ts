@@ -31,7 +31,7 @@ type EffectFunction = () => CleanupFunction | void;
 
 type ErrorFunction = ( error: Error ) => void;
 
-type ErrorBoundaryFunction<T = unknown> = ({ error, reset }: { error: Error, reset: DisposeFunction }) => T;
+type ErrorBoundaryFallbackFunction<T = unknown> = ({ error, reset }: { error: Error, reset: DisposeFunction }) => T;
 
 type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | void;
 
@@ -120,6 +120,6 @@ type Writable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) =
 /* EXPORT */
 
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
-export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, ErrorBoundaryFunction, MapFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
+export type {BatchFunction, CleanupFunction, ComparatorFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, ErrorBoundaryFallbackFunction, MapFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, UpdateFunction};
 export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
 export type {Accessor, Contexts, FunctionMaybe, LazyArray, LazyObject, LazySet, Mapped, Readable, Resolvable, Resolved, Selected, Writable};

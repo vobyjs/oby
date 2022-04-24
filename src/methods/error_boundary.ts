@@ -6,11 +6,11 @@ import error from '~/methods/error';
 import resolve from '~/methods/resolve';
 import Observable from '~/objects/observable';
 import {castError} from '~/utils';
-import type {ErrorBoundaryFunction, ObservableReadonly, Resolved} from '~/types';
+import type {ErrorBoundaryFallbackFunction, ObservableReadonly, Resolved} from '~/types';
 
 /* MAIN */
 
-const errorBoundary = <T, F> ( fallback: ErrorBoundaryFunction<F>, value: T ): ObservableReadonly<Resolved<T | F>> => {
+const errorBoundary = <T, F> ( fallback: ErrorBoundaryFallbackFunction<F>, value: T ): ObservableReadonly<Resolved<T | F>> => {
 
   const observable = new Observable<Error | null, Error | null> ( null );
 
