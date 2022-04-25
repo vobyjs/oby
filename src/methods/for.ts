@@ -3,13 +3,13 @@
 
 import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
-import Cache from '~/methods/map.cache';
+import Cache from '~/methods/for.cache';
 import {isFunction} from '~/utils';
 import type {MapFunction, ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
 
-const map = <T, R> ( values: FunctionMaybe<T[]>, fn: MapFunction<T, R> ): ObservableReadonly<Resolved<R>[]> => {
+const _for = <T, R> ( values: FunctionMaybe<T[]>, fn: MapFunction<T, R> ): ObservableReadonly<Resolved<R>[]> => {
 
   const cache = new Cache ( fn );
   const {dispose, before, after, map} = cache;
@@ -34,4 +34,4 @@ const map = <T, R> ( values: FunctionMaybe<T[]>, fn: MapFunction<T, R> ): Observ
 
 /* EXPORT */
 
-export default map;
+export default _for;
