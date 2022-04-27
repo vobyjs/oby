@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {SYMBOL} from '~/constants';
+import {isFunction} from '~/utils';
 import type {IObservable, UpdateFunction, Readable, Writable} from '~/types';
 
 /* HELPERS */
@@ -18,7 +19,10 @@ function readableFunction <T> ( this: IObservable<T> ): T {
 }
 
 function writableFunction <T> ( this: IObservable<T>, fn?: UpdateFunction<T> | T ): T {
-  if ( arguments.length ) return this.write ( fn! );
+  if ( arguments.length ) {
+    if ( isFunction ( fn ) ) return this.update ( fn as UpdateFunction<T> ); //TSC
+    return this.write ( fn as T ); //TSC
+  }
   return this.read ();
 }
 

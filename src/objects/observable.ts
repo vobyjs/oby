@@ -4,7 +4,6 @@
 import {BATCH, FALSE, OWNER, SAMPLING} from '~/constants';
 import {readable, writable} from '~/objects/callable';
 import Reaction from '~/objects/reaction';
-import {isFunction} from '~/utils';
 import type {IObservable, IObserver, IComputed, EqualsFunction, UpdateFunction, Observable as ObservableWritable, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
 
 /* MAIN */
@@ -141,11 +140,9 @@ class Observable<T = unknown> {
 
   }
 
-  write ( fn: UpdateFunction<T> | T ): T {
+  write ( value: T ): T {
 
     if ( this.disposed ) throw new Error ( 'A disposed Observable can not be updated' );
-
-    const value = ( isFunction ( fn ) ? fn ( this.value ) : fn ) as T; //TSC
 
     if ( BATCH.current ) {
 
@@ -171,6 +168,14 @@ class Observable<T = unknown> {
       return value;
 
     }
+
+  }
+
+  update ( fn: UpdateFunction<T> ): T {
+
+    const valueNext = fn ( this.value );
+
+    return this.write ( valueNext );
 
   }
 
