@@ -1,7 +1,8 @@
 
 /* IMPORT */
 
-import {BATCH, FALSE, NOOP, OWNER, SAMPLING, SYMBOL} from '~/constants';
+import {BATCH, FALSE, OWNER, SAMPLING} from '~/constants';
+import {readable, writable} from '~/objects/callable';
 import Reaction from '~/objects/reaction';
 import {isFunction} from '~/utils';
 import type {IObservable, IObserver, IComputed, EqualsFunction, UpdateFunction, Observable as ObservableWritable, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
@@ -15,7 +16,6 @@ class Observable<T = unknown> {
   parent?: IComputed<T>;
   value: T;
   disposed?: true;
-  readonly?: true;
   equals?: EqualsFunction<T>;
   observers?: LazySet<IObserver>;
 
@@ -131,38 +131,6 @@ class Observable<T = unknown> {
 
   }
 
-  /* PROXY API */
-
-  get ( target: any, property: string | symbol | number ): true | undefined {
-
-    if ( property === SYMBOL ) return true;
-
-  }
-
-  apply ( target: any, thisArg: any, args: [UpdateFunction<T>] | [T] | [] ): T {
-
-    if ( !args.length ) return this.read ();
-
-    if ( this.readonly ) throw new Error ( 'A readonly Observable can not be updated' );
-
-    return this.write ( args[0] );
-
-  }
-
-  readable (): ObservableReadonly<T> {
-
-    this.readonly = true;
-
-    return new Proxy ( NOOP, this );
-
-  }
-
-  writable (): ObservableWritable<T> {
-
-    return new Proxy ( NOOP, this );
-
-  }
-
   /* API */
 
   read (): T {
@@ -255,6 +223,18 @@ class Observable<T = unknown> {
       }
 
     }
+
+  }
+
+  readable (): ObservableReadonly<T> {
+
+    return readable ( this );
+
+  }
+
+  writable (): ObservableWritable<T> {
+
+    return writable ( this );
 
   }
 

@@ -9,12 +9,12 @@ import $ from '../../dist/index.js';
 
 const isReadable = ( t, value ) => {
 
-  t.true ( $.is ( value ), 'a1' );
-  t.true ( typeof value.read === 'undefined', 'a2' );
-  t.true ( typeof value.write === 'undefined', 'a3' );
-  t.true ( typeof value.bind === 'undefined', 'a4' );
-  t.true ( typeof value.apply === 'undefined', 'a5' );
-  t.true ( typeof value.value === 'undefined', 'a6' );
+  t.true ( $.is ( value ) );
+  t.true ( typeof value.read === 'undefined' );
+  t.true ( typeof value.write === 'undefined' );
+  t.true ( typeof value.value === 'undefined' );
+  t.true ( typeof value.bind === 'function' );
+  t.true ( typeof value.apply === 'function' );
 
   t.throws ( () => value ( Math.random () ), { message: 'A readonly Observable can not be updated' } );
 
@@ -25,9 +25,9 @@ const isWritable = ( t, value ) => {
   t.true ( $.is ( value ) );
   t.true ( typeof value.read === 'undefined' );
   t.true ( typeof value.write === 'undefined' );
-  t.true ( typeof value.bind === 'undefined' );
-  t.true ( typeof value.apply === 'undefined' );
   t.true ( typeof value.value === 'undefined' );
+  t.true ( typeof value.bind === 'function' );
+  t.true ( typeof value.apply === 'function' );
 
 };
 

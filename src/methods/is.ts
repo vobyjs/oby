@@ -9,7 +9,7 @@ import type {ObservableAny} from '~/types';
 
 const is = <T = unknown> ( value: unknown ): value is ObservableAny<T> => {
 
-  return isFunction ( value ) && !!( value as any )[SYMBOL]; //TSC
+  return isFunction ( value ) && ( SYMBOL in value );
 
 };
 
