@@ -7,11 +7,11 @@ import type {ComputedFunction, ObservableReadonly, ObservableOptions} from '~/ty
 /* MAIN */
 
 function computed <T> ( fn: ComputedFunction<T | undefined, T> ): ObservableReadonly<T>;
-function computed <T> ( fn: ComputedFunction<T | undefined, T>, value?: undefined, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
-function computed <T> ( fn: ComputedFunction<T, T>, value: T, options?: ObservableOptions<T> ): ObservableReadonly<T>;
-function computed <T> ( fn: ComputedFunction<T | undefined, T>, value?: T, options?: ObservableOptions<T | undefined> ) {
+function computed <T> ( fn: ComputedFunction<T | undefined, T>, valueInitial?: undefined, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
+function computed <T> ( fn: ComputedFunction<T, T>, valueInitial: T, options?: ObservableOptions<T> ): ObservableReadonly<T>;
+function computed <T> ( fn: ComputedFunction<T | undefined, T>, valueInitial?: T, options?: ObservableOptions<T | undefined> ) {
 
-  return new Computed ( fn, value, options ).observable.readable ();
+  return new Computed ( fn, valueInitial, options ).observable.readable ();
 
 }
 

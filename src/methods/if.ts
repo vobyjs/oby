@@ -6,9 +6,9 @@ import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
 
-const _if = <T, F> ( when: FunctionMaybe<unknown>, value: T, fallback?: T ): ObservableReadonly<Resolved<T | F | undefined>> => {
+const _if = <T, F> ( when: FunctionMaybe<unknown>, valueTrue: T, valueFalse?: T ): ObservableReadonly<Resolved<T | F | undefined>> => {
 
-  return ternary ( when, value, fallback );
+  return ternary ( when, valueTrue, valueFalse );
 
 };
 
