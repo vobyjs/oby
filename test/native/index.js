@@ -2618,6 +2618,16 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'treats 0 and -0 as the same value values', t => {
+
+      const selected = $(0);
+      const isSelected = $.selector ( selected );
+
+      t.true ( isSelected ( 0 ) );
+      t.true ( isSelected ( -0 ) );
+
+    });
+
   });
 
   describe ( 'switch', it => {
@@ -2717,6 +2727,20 @@ describe ( 'oby', () => {
       const result = $.switch ( 1, [[2, '2'], [3, '3']] );
 
       t.is ( result (), undefined );
+
+    });
+
+    it ( 'treats 0 and -0 as different values', t => {
+
+      const condition = $(0);
+
+      const computed = $.switch ( condition, [[0, '0'], [-0, '-0']] );
+
+      t.is ( computed (), '0' );
+
+      condition ( -0 );
+
+      t.is ( computed (), '-0' );
 
     });
 
