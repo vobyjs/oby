@@ -9,7 +9,7 @@ const observable = value => {
 
 const computed = ( fn, value ) => {
   const observable = $.computed ( fn, value, { equals } );
-  return () => observable.get ();
+  return () => observable ();
 };
 
 const subscribe = fn => {

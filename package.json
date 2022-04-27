@@ -13,7 +13,7 @@
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
     "compile": "tsex compile",
-    "compile:bundle": "esbuild --bundle --minify --format=esm --target=es2018 '--mangle-props=^(after|before|bool|cache|cleanups|postdispose|observablesLeftover|observersLeftover|contexts|count|errors|flush|fn|iteration|nextCount|observable|observables|observers|parent|prevCount|queue|readable|registerCleanup|registerContext|registerError|registerObservable|registerObserver|registerSelf|result|stale|statusCount|statusFresh|unregisterObserver|unstale|value|wrap|writable)$' --mangle-quoted ./src/index.ts > ./dist/index.js",
+    "compile:bundle": "esbuild --bundle --minify --format=esm --target=es2018 '--mangle-props=^(fn|bool|read|wrap|after|cache|count|stale|value|write|before|errors|parent|result|update|dispose|unstale|cleanups|contexts|readable|writable|iteration|nextCount|observers|prevCount|observable|observables|postdispose|statusCount|statusFresh|registerSelf|registerError|registerCleanup|registerContext|registerObserver|registerObservable|unregisterObserver|observablesLeftover)$' --mangle-quoted ./src/index.ts > ./dist/index.js",
     "compile:watch": "tsex compile --watch",
     "memory": "node tasks/memory.js",
     "optimize": "node tasks/optimize.js",
@@ -36,7 +36,6 @@
   "devDependencies": {
     "esbuild": "^0.14.36",
     "fava": "^0.0.6",
-    "immer": "^9.0.12",
     "ispy": "^0.1.2",
     "tape": "^5.5.3",
     "tsex": "^1.1.1",

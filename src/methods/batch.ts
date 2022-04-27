@@ -1,19 +1,24 @@
 
 /* IMPORT */
 
+import {BATCH} from '~/constants';
 import type {IObservable, BatchFunction} from '~/types';
+
+/* HELPERS */
+
+const flush = <T> ( value: T, observable: IObservable<T> ): T => observable.write ( value );
 
 /* MAIN */
 
 const batch = <T> ( fn: BatchFunction<T> ): T => {
 
-  if ( batch.queue ) { // Already batching
+  if ( BATCH.current ) { // Already batching
 
     return fn ();
 
   } else { // Starting batching
 
-    const queue = batch.queue = new Map ();
+    const queue = BATCH.current = new Map ();
 
     try {
 
@@ -21,21 +26,15 @@ const batch = <T> ( fn: BatchFunction<T> ): T => {
 
     } finally {
 
-      batch.queue = undefined;
+      BATCH.current = undefined;
 
-      queue.forEach ( batch.flush );
+      queue.forEach ( flush );
 
     }
 
   }
 
 };
-
-/* UTILITIES */
-
-batch.flush = <T> ( value: T, observable: IObservable<T> ): T => observable.set ( value );
-
-batch.queue = <Map<IObservable<any, any>, unknown> | undefined> undefined;
 
 /* MAIN */
 

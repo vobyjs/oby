@@ -2,7 +2,6 @@
 /* IMPORT */
 
 import {describe} from 'fava';
-import {produce} from 'immer';
 import {setTimeout as delay} from 'node:timers/promises';
 import $ from '../../dist/index.js';
 
@@ -10,16 +9,12 @@ import $ from '../../dist/index.js';
 
 const isReadable = ( t, value ) => {
 
-  t.true ( $.is ( value ) );
-  t.true ( typeof value.get === 'function' );
-  t.true ( typeof value.sample === 'function' );
-  t.true ( typeof value.computed === 'function' );
-  t.true ( typeof value.set === 'undefined' );
-  t.true ( typeof value.produce === 'undefined' );
-  t.true ( typeof value.update === 'undefined' );
-  t.true ( typeof value.readonly === 'function' );
-  t.true ( typeof value.isReadonly === 'function' );
-  t.true ( typeof value.registerSelf === 'undefined' );
+  t.true ( $.is ( value ), 'a1' );
+  t.true ( typeof value.read === 'undefined', 'a2' );
+  t.true ( typeof value.write === 'undefined', 'a3' );
+  t.true ( typeof value.bind === 'undefined', 'a4' );
+  t.true ( typeof value.apply === 'undefined', 'a5' );
+  t.true ( typeof value.value === 'undefined', 'a6' );
 
   t.throws ( () => value ( Math.random () ), { message: 'A readonly Observable can not be updated' } );
 
@@ -28,15 +23,11 @@ const isReadable = ( t, value ) => {
 const isWritable = ( t, value ) => {
 
   t.true ( $.is ( value ) );
-  t.true ( typeof value.get === 'function' );
-  t.true ( typeof value.sample === 'function' );
-  t.true ( typeof value.computed === 'function' );
-  t.true ( typeof value.set === 'function' );
-  t.true ( typeof value.produce === 'function' );
-  t.true ( typeof value.update === 'function' );
-  t.true ( typeof value.readonly === 'function' );
-  t.true ( typeof value.isReadonly === 'function' );
-  t.true ( typeof value.registerSelf === 'undefined' );
+  t.true ( typeof value.read === 'undefined' );
+  t.true ( typeof value.write === 'undefined' );
+  t.true ( typeof value.bind === 'undefined' );
+  t.true ( typeof value.apply === 'undefined' );
+  t.true ( typeof value.value === 'undefined' );
 
 };
 
@@ -44,818 +35,331 @@ const isWritable = ( t, value ) => {
 
 describe ( 'oby', () => {
 
-  describe ( 'observable', () => {
+  describe ( 'observable', it => {
 
-    describe ( 'auto-accessor', it => {
+    it ( 'is both a getter and a setter', t => {
 
-      it ( 'is both a getter and a setter', t => {
+      const o = $();
 
-        const o = $();
+      t.is ( o (), undefined );
 
-        t.is ( o (), undefined );
+      o ( 123 );
 
-        o ( 123 );
+      t.is ( o (), 123 );
 
-        t.is ( o (), 123 );
+      o ( 321 );
 
-        o ( 321 );
+      t.is ( o (), 321 );
 
-        t.is ( o (), 321 );
+      o ( undefined );
 
-        o ( undefined );
-
-        t.is ( o (), undefined );
-
-      });
-
-      it ( 'creates a dependency in a computed when getting', t => {
-
-        const o = $(1);
-
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o ();
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 2 );
-
-        t.is ( calls, 2 );
-
-        o ( 3 );
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a dependency in an effect when getting', t => {
-
-        const o = $(1);
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o ();
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 2 );
-
-        t.is ( calls, 2 );
-
-        o ( 3 );
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'does not create a dependency in a computed when setting', t => {
-
-        let o;
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o = $(1);
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 2 );
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does not create a dependency in an effect when setting', t => {
-
-        let o;
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o = $(1);
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 2 );
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'supports an initial value', t => {
-
-        const o = $(123);
-
-        t.is ( o (), 123 );
-
-      });
+      t.is ( o (), undefined );
 
     });
 
-    describe ( 'get', it => {
+    it ( 'creates a dependency in a computed when getting', t => {
 
-      it ( 'creates a dependency in a computed', t => {
+      const o = $(1);
 
-        const o = $(1);
+      let calls = 0;
 
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o.get ();
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 2 );
-
-        t.is ( calls, 2 );
-
-        o ( 3 );
-
-        t.is ( calls, 3 );
-
+      $.computed ( () => {
+        calls += 1;
+        o ();
       });
 
-      it ( 'creates a dependency in an effect', t => {
+      t.is ( calls, 1 );
 
-        const o = $(1);
+      o ( 2 );
 
-        let calls = 0;
+      t.is ( calls, 2 );
 
-        $.effect ( () => {
-          calls += 1;
-          o.get ();
-        });
+      o ( 3 );
 
-        t.is ( calls, 1 );
-
-        o ( 2 );
-
-        t.is ( calls, 2 );
-
-        o ( 3 );
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a single dependency in a computed even if called multiple times', t => {
-
-        const o = $(1);
-
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o.get ();
-          o.get ();
-          o.get ();
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 2 );
-
-        t.is ( calls, 2 );
-
-        o ( 3 );
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a single dependency in an effect even if called multiple times', t => {
-
-        const o = $(1);
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.get ();
-          o.get ();
-          o.get ();
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 2 );
-
-        t.is ( calls, 2 );
-
-        o ( 3 );
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'returns the current value', t => {
-
-        const o = $(123);
-
-        t.is ( o.get (), 123 );
-
-        o ( 321 );
-
-        t.is ( o.get (), 321 );
-
-      });
+      t.is ( calls, 3 );
 
     });
 
-    describe ( 'sample', it => {
+    it ( 'creates a dependency in an effect when getting', t => {
 
-      it ( 'does not create a dependency in a computed', t => {
+      const o = $(1);
 
-        const a = $(1);
-        const b = $(2);
+      let calls = 0;
 
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          a ();
-          b.sample ();
-          b.sample ();
-          b.sample ();
-        });
-
-        t.is ( calls, 1 );
-
-        b ( 3 );
-
-        t.is ( calls, 1 );
-
-        a ( 4 );
-        a ( 5 );
-
-        t.is ( calls, 3 );
-
+      $.effect ( () => {
+        calls += 1;
+        o ();
       });
 
-      it ( 'does not create a dependency in an effect', t => {
+      t.is ( calls, 1 );
 
-        const a = $(1);
-        const b = $(2);
+      o ( 2 );
 
-        let calls = 0;
+      t.is ( calls, 2 );
 
-        $.effect ( () => {
-          calls += 1;
-          a ();
-          b.sample ();
-          b.sample ();
-          b.sample ();
-        });
+      o ( 3 );
 
-        t.is ( calls, 1 );
-
-        b ( 3 );
-
-        t.is ( calls, 1 );
-
-        a ( 4 );
-        a ( 5 );
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'returns the current value', t => {
-
-        const o = $(123);
-
-        t.is ( o.sample (), 123 );
-
-        o ( 321 );
-
-        t.is ( o.sample (), 321 );
-
-      });
+      t.is ( calls, 3 );
 
     });
 
-    describe ( 'computed', it => {
+    it ( 'creates a single dependency in a computed even if getting multiple times', t => {
 
-      it ( 'creates a computed readonly observable out of a writable observable', t => {
+      const o = $(1);
 
-        const o = $({ foo: { bar: 123 } });
+      let calls = 0;
 
-        const computed = o.computed ( value => value.foo.bar );
-
-        t.is ( computed (), 123 );
-
-        o ({ foo: { bar: 321 } });
-
-        t.is ( computed (), 321 );
-
-        isReadable ( t, computed );
-
+      $.computed ( () => {
+        calls += 1;
+        o ();
+        o ();
+        o ();
       });
 
-      it ( 'creates a computed readonly observable out of a readable observable', t => {
+      t.is ( calls, 1 );
 
-        const o = $({ foo: { bar: 123 } }).readonly ();
+      o ( 2 );
 
-        const computed = o.computed ( value => value.foo.bar );
+      t.is ( calls, 2 );
 
-        t.is ( computed (), 123 );
+      o ( 3 );
 
-        isReadable ( t, computed );
-
-      });
-
-      it ( 'can receive an options object', t => {
-
-        const equals = ( a, b ) => ( ( a - 1 ) % 2 ) === ( b % 2 );
-
-        const o = $( 0, { equals });
-
-        const computed = o.computed ( value => value );
-
-        t.is ( computed (), 0 );
-
-        o ( 1 );
-
-        t.is ( computed (), 0 );
-
-        o ( 2 );
-
-        t.is ( computed (), 2 );
-
-        o ( 3 );
-
-        t.is ( computed (), 2 );
-
-        o ( 4 );
-
-        t.is ( computed (), 4 );
-
-      });
-
-      it ( 'can select the entire value out of a writable observable', t => {
-
-        const o = $({ foo: { bar: 123 } });
-
-        const computed = o.computed ( value => value );
-
-        t.deepEqual ( computed (), o () );
-
-        isReadable ( t, computed );
-
-        t.not ( o, computed );
-
-      });
-
-      it ( 'can select the entire value out of a readable observable', t => {
-
-        const o = $({ foo: { bar: 123 } }).readonly ();
-
-        const computed = o.computed ( value => value );
-
-        t.deepEqual ( computed (), o () );
-
-        isReadable ( t, computed );
-
-        t.not ( o, computed );
-
-      });
-
-      it ( 'subscribes to other observables too', t => {
-
-        const a = $(1);
-        const b = $(2);
-
-        const computed = a.computed ( a => a * b () );
-
-        t.is ( computed (), 2 );
-
-        a ( 10 );
-
-        t.is ( computed (), 20 );
-
-        b ( 5 );
-
-        t.is ( computed (), 50 );
-
-      });
+      t.is ( calls, 3 );
 
     });
 
-    describe ( 'set', it => {
+    it ( 'creates a single dependency in an effect even if getting multiple times', t => {
 
-      it ( 'does not create a dependency in a computed', t => {
+      const o = $(1);
 
-        const o = $(1);
+      let calls = 0;
 
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o.set ( 2 );
-          o.set ( 3 );
-          o.set ( 4 );
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 5 );
-
-        t.is ( calls, 1 );
-
+      $.effect ( () => {
+        calls += 1;
+        o ();
+        o ();
+        o ();
       });
 
-      it ( 'does not create a dependency in an effect', t => {
+      t.is ( calls, 1 );
 
-        const o = $(1);
+      o ( 2 );
 
-        let calls = 0;
+      t.is ( calls, 2 );
 
-        $.computed ( () => {
-          calls += 1;
-          o.set ( 2 );
-          o.set ( 3 );
-          o.set ( 4 );
-        });
+      o ( 3 );
 
-        t.is ( calls, 1 );
-
-        o ( 5 );
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'returns the value being set', t => {
-
-        const o = $();
-
-        t.is ( o.set ( 123 ), 123 );
-
-      });
-
-      it ( 'returns the value being set even if equal to the previous value', t => {
-
-        const equals = () => true;
-
-        const o = $( 0, { equals } );
-
-        t.is ( o (), 0 );
-        t.is ( o.set ( 123 ), 123 )
-        t.is ( o (), 0 );
-
-      });
-
-      it ( 'supports a custom equality function', t => {
-
-        const equals = ( next, prev ) => next[0] === prev[0];
-
-        const valuePrev = [1];
-        const valueNext = [2];
-
-        const o = $( valuePrev, { equals } );
-
-        o.set ( valuePrev );
-
-        t.is ( o (), valuePrev );
-
-        o.set ( [1] );
-
-        t.is ( o (), valuePrev );
-
-        o.set ( valueNext );
-
-        t.is ( o (), valueNext );
-
-        o.set ( [2] );
-
-        t.is ( o (), valueNext );
-
-      });
-
-      it ( 'supports a false equality function', t => {
-
-        const equals = false;
-
-        const o = $( { foo: true }, { equals } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-
-          calls += 1;
-          o ();
-
-        });
-
-        t.is ( calls, 1 );
-
-        o.update ( value => value.foo = true );
-
-        t.is ( calls, 2 );
-
-        o ( o () );
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'supports ignoring setters that do not change the value', t => {
-
-        const o = $(1);
-
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o ();
-        });
-
-        const filteredValues = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, () => {}, Symbol ()];
-
-        for ( const [index, value] of filteredValues.entries () ) {
-
-          const callsExpected = index + 2;
-
-          o.set ( value );
-
-          t.is ( calls, callsExpected );
-
-          o.set ( value );
-
-          t.is ( calls, callsExpected );
-
-        }
-
-      });
-
-      it ( 'updates the current value', t => {
-
-        const o = $();
-
-        o.set ( 123 );
-
-        t.is ( o (), 123 );
-
-        const noop1 = () => {};
-
-        o.set ( noop1 );
-
-        t.is ( o (), noop1 );
-
-        const noop2 = () => {};
-
-        o.set ( noop2 );
-
-        t.is ( o (), noop2 );
-
-      });
+      t.is ( calls, 3 );
 
     });
 
-    describe ( 'produce', it => {
+    it ( 'does not create a dependency in a computed when setting', t => {
 
-      it ( 'does not create a dependency in a computed', t => {
+      let o;
+      let calls = 0;
 
-        const o = $(1);
-
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o.produce ( prev => prev + 1 );
-          o.produce ( prev => prev + 1 );
-          o.produce ( prev => prev + 1 );
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 5 );
-
-        t.is ( calls, 1 );
-
+      $.computed ( () => {
+        calls += 1;
+        o = $(1);
       });
 
-      it ( 'does not create a dependency in an effect', t => {
+      t.is ( calls, 1 );
 
-        const o = $(1);
+      o ( 2 );
 
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o.produce ( prev => prev + 1 );
-          o.produce ( prev => prev + 1 );
-          o.produce ( prev => prev + 1 );
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 5 );
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'supports updating with a new primitive value', t => {
-
-        const o = $(1);
-
-        t.is ( o.produce ( prev => prev + 1 ), 2 );
-        t.is ( o (), 2 );
-
-      });
-
-      it ( 'supports updating with a new object value', t => {
-
-        const valuePrev = [];
-        const valueNext = [];
-
-        const o = $(valuePrev);
-
-        t.is ( o.produce ( () => valueNext ), valueNext );
-        t.is ( o (), valueNext );
-
-      });
-
-      it ( 'supports updating with nothing', t => {
-
-        const valuePrev = [];
-
-        const o = $(valuePrev);
-
-        t.not ( o.produce ( () => {} ), valuePrev );
-        t.deepEqual ( o (), valuePrev );
-
-      });
-
-      it ( 'supports updating with in-place mutations', t => {
-
-        const valuePrev = { foo: { bar: true } };
-        const valueNext = { foo: { bar: false } };
-
-        const o = $(valuePrev);
-
-        t.not ( o.produce ( prev => { prev.foo.bar = false } ), valuePrev );
-        t.deepEqual ( o (), valueNext );
-
-        t.not ( o.produce ( prev => { prev.foo.bar = true } ), valuePrev );
-        t.deepEqual ( o (), valuePrev );
-
-      });
-
-      it ( 'supports updating with in-place mutations with a custom produce method', t => {
-
-        const _produce = $.produce;
-
-        $.produce = produce;
-
-        const valuePrev = { foo: { bar: true } };
-        const valueNext = { foo: { bar: false } };
-
-        const o = $(valuePrev);
-
-        t.not ( o.produce ( prev => { prev.foo.bar = false } ), valuePrev );
-        t.deepEqual ( o (), valueNext );
-
-        t.not ( o.produce ( prev => { prev.foo.bar = true } ), valuePrev );
-        t.deepEqual ( o (), valuePrev );
-
-        $.produce = () => { throw new Error ( 'custom' ) };
-
-        t.throws ( () => o.produce (), { message: 'custom' } );
-
-        $.produce = _produce;
-
-      });
+      t.is ( calls, 1 );
 
     });
 
-    describe ( 'update', it => {
+    it ( 'does not create a dependency in an effect when setting', t => {
 
-      it ( 'does not create a dependency in a computed', t => {
+      let o;
+      let calls = 0;
 
-        const o = $(1);
-
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o.update ( prev => prev + 1 );
-          o.update ( prev => prev + 1 );
-          o.update ( prev => prev + 1 );
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 5 );
-
-        t.is ( calls, 1 );
-
+      $.effect ( () => {
+        calls += 1;
+        o = $(1);
       });
 
-      it ( 'does not create a dependency in an effect', t => {
+      t.is ( calls, 1 );
 
-        const o = $(1);
+      o ( 2 );
 
-        let calls = 0;
-
-        $.computed ( () => {
-          calls += 1;
-          o.update ( prev => prev + 1 );
-          o.update ( prev => prev + 1 );
-          o.update ( prev => prev + 1 );
-        });
-
-        t.is ( calls, 1 );
-
-        o ( 5 );
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'supports updating with a new primitive value', t => {
-
-        const o = $(1);
-
-        t.is ( o.update ( prev => prev + 1 ), 2 );
-        t.is ( o (), 2 );
-
-      });
-
-      it ( 'supports updating with a new object value', t => {
-
-        const valuePrev = [];
-        const valueNext = [];
-
-        const o = $(valuePrev);
-
-        t.is ( o.update ( () => valueNext ), valueNext );
-        t.is ( o (), valueNext );
-
-      });
+      t.is ( calls, 1 );
 
     });
 
-    describe ( 'readonly', it => {
+    it ( 'does not create a dependency in a computed when setting with a function', t => {
 
-      it ( 'returns a readonly observable out of the current one', t => {
+      const o = $(1);
 
-        const o = $(1);
-        const ro = o.readonly ();
+      let calls = 0;
 
-        isReadable ( t, ro );
-
-        t.is ( o (), 1 );
-        t.is ( ro (), 1 );
-
-        o ( 2 );
-
-        t.is ( o (), 2 );
-        t.is ( ro (), 2 );
-
-        const ro2 = o.readonly ();
-        const rro = ro.readonly ();
-
-        t.is ( ro2 (), 2 );
-        t.is ( rro (), 2 );
-
-        t.true ( ro !== ro2 );
-        t.true ( ro === rro );
-
+      $.computed ( () => {
+        calls += 1;
+        o ( prev => prev + 1 );
+        o ( prev => prev + 1 );
+        o ( prev => prev + 1 );
       });
 
-      it ( 'throws when attempting to set', t => {
+      t.is ( calls, 1 );
 
-        const ro = $().readonly ();
+      o ( 5 );
 
-        t.throws ( () => ro ( 1 ), { message: 'A readonly Observable can not be updated' } );
-
-      });
+      t.is ( calls, 1 );
 
     });
 
-    describe ( 'isReadonly', it => {
+    it ( 'does not create a dependency in an effect when setting with a function', t => {
 
-      it ( 'checks if a value is a readonly observable', t => {
+      const o = $(1);
 
-        const o = $(1);
-        const ro = o.readonly ();
+      let calls = 0;
 
-        t.false ( o.isReadonly () );
-        t.true ( ro.isReadonly () );
+      $.computed ( () => {
+        calls += 1;
+        o ( prev => prev + 1 );
+        o ( prev => prev + 1 );
+        o ( prev => prev + 1 );
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 5 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'does not emit when the setter does not change the value', t => {
+
+      const o = $(1);
+
+      let calls = 0;
+
+      $.computed ( () => {
+        calls += 1;
+        o ();
+      });
+
+      const filteredValues = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, () => {}, Symbol ()];
+
+      for ( const [index, value] of filteredValues.entries () ) {
+
+        const callsExpected = index + 2;
+
+        o ( () => value );
+
+        t.is ( calls, callsExpected );
+
+        o ( () => value );
+
+        t.is ( calls, callsExpected );
+
+      }
+
+    });
+
+    it ( 'returns the value being set', t => {
+
+      const o = $();
+
+      t.is ( o ( 123 ), 123 );
+
+    });
+
+    it ( 'returns the value being set even if equal to the previous value', t => {
+
+      const equals = () => true;
+
+      const o = $( 0, { equals } );
+
+      t.is ( o (), 0 );
+      t.is ( o ( 123 ), 123 )
+      t.is ( o (), 0 );
+
+    });
+
+    it ( 'supports an initial value', t => {
+
+      const o = $(123);
+
+      t.is ( o (), 123 );
+
+    });
+
+    it ( 'supports a custom equality function', t => {
+
+      const equals = ( next, prev ) => next[0] === prev[0];
+
+      const valuePrev = [1];
+      const valueNext = [2];
+
+      const o = $( valuePrev, { equals } );
+
+      o ( valuePrev );
+
+      t.is ( o (), valuePrev );
+
+      o ( [1] );
+
+      t.is ( o (), valuePrev );
+
+      o ( valueNext );
+
+      t.is ( o (), valueNext );
+
+      o ( [2] );
+
+      t.is ( o (), valueNext );
+
+    });
+
+    it ( 'supports a false equality function', t => {
+
+      const equals = false;
+
+      const o = $( { foo: true }, { equals } );
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+        o ();
 
       });
+
+      t.is ( calls, 1 );
+
+      o ( value => value.foo = true );
+
+      t.is ( calls, 2 );
+
+      o ( o () );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'supports updating with a new primitive value', t => {
+
+      const o = $(1);
+
+      t.is ( o ( prev => prev + 1 ), 2 );
+      t.is ( o (), 2 );
+
+    });
+
+    it ( 'supports updating with a new object value', t => {
+
+      const valuePrev = [];
+      const valueNext = [];
+
+      const o = $(valuePrev);
+
+      t.is ( o ( () => valueNext ), valueNext );
+      t.is ( o (), valueNext );
 
     });
 
@@ -967,6 +471,32 @@ describe ( 'oby', () => {
 
   describe ( 'cleanup', it => {
 
+    it ( 'registers a function to be called when the parent computation is disposed', t => {
+
+      let sequence = '';
+
+      $.root ( dispose => {
+
+        $.computed ( () => {
+
+          $.cleanup ( () => {
+            sequence += 'a';
+          });
+
+          $.cleanup ( () => {
+            sequence += 'b';
+          });
+
+        });
+
+        dispose ();
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+    });
+
     it ( 'registers a function to be called when the parent computation updates', t => {
 
       const o = $(0);
@@ -1000,6 +530,32 @@ describe ( 'oby', () => {
       o ( 3 );
 
       t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'registers a function to be called when the parent computation is disposed', t => {
+
+      let sequence = '';
+
+      $.root ( dispose => {
+
+        $.effect ( () => {
+
+          $.cleanup ( () => {
+            sequence += 'a';
+          });
+
+          $.cleanup ( () => {
+            sequence += 'b';
+          });
+
+        });
+
+        dispose ();
+
+      });
+
+      t.is ( sequence, 'ab' );
 
     });
 
@@ -1101,7 +657,7 @@ describe ( 'oby', () => {
 
         calls += 1;
 
-        if ( !a.sample () ) a ( a () + 1 );
+        if ( !$.sample ( a ) ) a ( a () + 1 );
 
         b ();
 
@@ -1645,7 +1201,7 @@ describe ( 'oby', () => {
 
     it ( 'returns a readable observable', t => {
 
-      const o = $.from ( () => {} );
+      const o = $.disposed ();
 
       isReadable ( t, o );
 
@@ -1676,7 +1232,7 @@ describe ( 'oby', () => {
 
         calls += 1;
 
-        if ( !a.sample () ) a ( a () + 1 );
+        if ( !$.sample ( a ) ) a ( a () + 1 );
 
         b ();
 
@@ -2419,94 +1975,6 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'from', it => {
-
-    it ( 'can receive an options object', t => {
-
-      const equals = ( a, b ) => ( ( a - 1 ) % 2 ) === ( b % 2 );
-
-      const o1 = $(0);
-      const o2 = $.from ( observable => observable ( o1 () ), { equals } );
-
-      t.is ( o2 (), 0 );
-
-      o1 ( 1 );
-
-      t.is ( o2 (), 0 );
-
-      o1 ( 2 );
-
-      t.is ( o2 (), 2 );
-
-      o1 ( 3 );
-
-      t.is ( o2 (), 2 );
-
-      o1 ( 4 );
-
-      t.is ( o2 (), 4 );
-
-    });
-
-    it ( 'makes an observable passed immediately to the function', t => {
-
-      const o1 = $.from ( () => {} );
-
-      t.true ( $.is ( o1 ) );
-      t.is ( o1 (), undefined );
-
-      const o2 = $.from ( o => o ( 123 ) );
-
-      t.true ( $.is ( o2 ) );
-      t.is ( o2 (), 123 );
-
-    });
-
-    it ( 'passes a writable observable to the function', t => {
-
-      $.from ( o => {
-
-        isWritable ( t, o );
-
-      });
-
-    });
-
-    it ( 'returns a readable observable', t => {
-
-      const o = $.from ( () => {} );
-
-      isReadable ( t, o );
-
-    });
-
-    it ( 'supports automatically registering a disposer function', t => {
-
-      let calls = 0;
-
-      const disposer = () => calls += 1;
-
-      const a = $(0);
-      const b = $.from ( () => { a (); return disposer; } );
-
-      t.true ( $.is ( b ) );
-
-      t.is ( calls, 0 );
-
-      a ( 1 );
-
-      t.is ( calls, 1 );
-
-      a ( 2 );
-      a ( 3 );
-      a ( 4 );
-
-      t.is ( calls, 4 );
-
-    });
-
-  });
-
   describe ( 'get', it => {
 
     it ( 'creates a dependency in a computed', t => {
@@ -2631,41 +2099,39 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'produce', it => {
+  describe ( 'readonly', it => {
 
-    it ( 'supports updating with in-place mutations', t => {
+    it ( 'returns a readonly observable out of the passed one', t => {
 
-      const valuePrev = { foo: { bar: true } };
-      const valueNext = { foo: { bar: false } };
+      const o = $(1);
+      const ro = $.readonly ( o );
 
-      t.not ( $.produce ( valuePrev, prev => { prev.foo.bar = false } ), valuePrev );
-      t.deepEqual ( $.produce ( valuePrev, prev => { prev.foo.bar = false } ), valueNext );
+      isReadable ( t, ro );
 
-      t.not ( $.produce ( valuePrev, prev => { prev.foo.bar = true } ), valuePrev );
-      t.deepEqual ( $.produce ( valuePrev, prev => { prev.foo.bar = true } ), valuePrev );
+      t.is ( o (), 1 );
+      t.is ( ro (), 1 );
+
+      o ( 2 );
+
+      t.is ( o (), 2 );
+      t.is ( ro (), 2 );
+
+      const ro2 = $.readonly ( o );
+      const rro = $.readonly ( ro );
+
+      t.is ( ro2 (), 2 );
+      t.is ( rro (), 2 );
+
+      t.true ( ro !== ro2 );
+      t.true ( ro !== rro );
 
     });
 
-    it ( 'supports updating with in-place mutations with a custom produce method', t => {
+    it ( 'throws when attempting to set', t => {
 
-      const _produce = $.produce;
+      const ro = $.readonly ( $() );
 
-      $.produce = produce;
-
-      const valuePrev = { foo: { bar: true } };
-      const valueNext = { foo: { bar: false } };
-
-      t.not ( $.produce ( valuePrev, prev => { prev.foo.bar = false } ), valuePrev );
-      t.deepEqual ( $.produce ( valuePrev, prev => { prev.foo.bar = false } ), valueNext );
-
-      t.is ( $.produce ( valuePrev, prev => { prev.foo.bar = true } ), valuePrev );
-      t.deepEqual ( $.produce ( valuePrev, prev => { prev.foo.bar = true } ), valuePrev );
-
-      $.produce = () => { throw new Error ( 'custom' ) };
-
-      t.throws ( () => $.produce (), { message: 'custom' } );
-
-      $.produce = _produce;
+      t.throws ( () => ro ( 1 ), { message: 'A readonly Observable can not be updated' } );
 
     });
 
@@ -2965,7 +2431,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports getting without creating dependencies', t => {
+    it ( 'supports getting without creating dependencies in a computed', t => {
 
       const a = $(1);
       const b = $(2);
@@ -2977,10 +2443,44 @@ describe ( 'oby', () => {
       $.computed ( () => {
         calls += 1;
         a ();
-        a.get ();
+        a ();
         d ( $.sample ( () => b () ) );
         c ();
-        c.get ();
+        c ();
+      });
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      b ( 4 );
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      a ( 5 );
+      c ( 6 );
+
+      t.is ( calls, 3 );
+      t.is ( d (), 4 );
+
+    });
+
+    it ( 'supports getting without creating dependencies in an effect', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $(3);
+      const d = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        a ();
+        d ( $.sample ( () => b () ) );
+        c ();
+        c ();
       });
 
       t.is ( calls, 1 );

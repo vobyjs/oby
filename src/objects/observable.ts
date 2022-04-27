@@ -1,29 +1,27 @@
 
 /* IMPORT */
 
-import $ from '~';
-import {readable, writable} from '~/callable';
-import {FALSE, OWNER, SAMPLING} from '~/constants';
-import batch from '~/methods/batch';
-import computed from '~/methods/computed';
+import {BATCH, FALSE, NOOP, OWNER, SAMPLING, SYMBOL} from '~/constants';
 import Reaction from '~/objects/reaction';
-import type {IObservable, IObserver, IComputed, EqualsFunction, ProduceFunction, SelectFunction, UpdateFunction, ObservableAbstract, ObservableReadonlyAbstract, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
+import {isFunction} from '~/utils';
+import type {IObservable, IObserver, IComputed, EqualsFunction, UpdateFunction, Observable as ObservableWritable, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
 
 /* MAIN */
 
-class Observable<T = unknown, TI = unknown> {
+class Observable<T = unknown> {
 
   /* VARIABLES */
 
-  parent?: IComputed<any>;
-  value: T | TI;
+  parent?: IComputed<T>;
+  value: T;
   disposed?: true;
-  equals?: EqualsFunction<T, TI>;
+  readonly?: true;
+  equals?: EqualsFunction<T>;
   observers?: LazySet<IObserver>;
 
   /* CONSTRUCTOR */
 
-  constructor ( value: T | TI, options?: ObservableOptions<T, TI>, parent?: IComputed<any> ) {
+  constructor ( value: T, options?: ObservableOptions<T>, parent?: IComputed<T> ) {
 
     this.value = value;
 
@@ -96,7 +94,7 @@ class Observable<T = unknown, TI = unknown> {
 
       if ( isNewObserver || !OWNER.current.observables ) {
 
-        OWNER.current.registerObservable ( this as IObservable<any, any> ); //TSC
+        OWNER.current.registerObservable ( this as IObservable<any> ); //TSC
 
       }
 
@@ -133,9 +131,41 @@ class Observable<T = unknown, TI = unknown> {
 
   }
 
+  /* PROXY API */
+
+  get ( target: any, property: string | symbol | number ): true | undefined {
+
+    if ( property === SYMBOL ) return true;
+
+  }
+
+  apply ( target: any, thisArg: any, args: [UpdateFunction<T>] | [T] | [] ): T {
+
+    if ( !args.length ) return this.read ();
+
+    if ( this.readonly ) throw new Error ( 'A readonly Observable can not be updated' );
+
+    return this.write ( args[0] );
+
+  }
+
+  readable (): ObservableReadonly<T> {
+
+    this.readonly = true;
+
+    return new Proxy ( NOOP, this );
+
+  }
+
+  writable (): ObservableWritable<T> {
+
+    return new Proxy ( NOOP, this );
+
+  }
+
   /* API */
 
-  get (): T | TI {
+  read (): T {
 
     this.registerSelf ();
 
@@ -143,27 +173,15 @@ class Observable<T = unknown, TI = unknown> {
 
   }
 
-  sample (): T | TI {
-
-    return this.value;
-
-  }
-
-  computed <R> ( fn: SelectFunction<T | TI, R>, options?: ObservableOptions<R, R | undefined> ): ObservableReadonly<R> {
-
-    const update = (): R => fn ( this.get () );
-
-    return computed ( update, undefined, options );
-
-  }
-
-  set ( value: T ): T {
+  write ( fn: UpdateFunction<T> | T ): T {
 
     if ( this.disposed ) throw new Error ( 'A disposed Observable can not be updated' );
 
-    if ( batch.queue ) {
+    const value = ( isFunction ( fn ) ? fn ( this.value ) : fn ) as T; //TSC
 
-      batch.queue.set ( this, value );
+    if ( BATCH.current ) {
+
+      BATCH.current.set ( this, value );
 
       return value;
 
@@ -185,22 +203,6 @@ class Observable<T = unknown, TI = unknown> {
       return value;
 
     }
-
-  }
-
-  produce ( fn: ProduceFunction<T | TI, T> ): T {
-
-    const valueNext = $.produce ( this.value, fn ) as T; //TSC
-
-    return this.set ( valueNext );
-
-  }
-
-  update ( fn: UpdateFunction<T | TI, T> ): T {
-
-    const valueNext = fn ( this.value );
-
-    return this.set ( valueNext );
 
   }
 
@@ -253,18 +255,6 @@ class Observable<T = unknown, TI = unknown> {
       }
 
     }
-
-  }
-
-  readable (): ObservableReadonlyAbstract<T, TI> {
-
-    return readable ( this );
-
-  }
-
-  writable (): ObservableAbstract<T, TI> {
-
-    return writable ( this );
 
   }
 

@@ -12,13 +12,13 @@ class Computed<T = unknown> extends Reaction {
 
   /* VARIABLES */
 
-  fn: ComputedFunction<T, T | undefined>;
-  observable: IObservable<T, T | undefined>;
+  fn: ComputedFunction<T, T>;
+  observable: IObservable<T>;
   iteration: number = 0; //FIXME: This shouldn't be necessary
 
   /* CONSTRUCTOR */
 
-  constructor ( fn: ComputedFunction<T, T | undefined>, valueInitial?: T, options?: ObservableOptions<T, T | undefined> ) {
+  constructor ( fn: ComputedFunction<T, T>, valueInitial: T, options?: ObservableOptions<T> ) {
 
     super ();
 
@@ -83,7 +83,7 @@ class Computed<T = unknown> extends Reaction {
 
         } else {
 
-          this.observable.set ( valueNext );
+          this.observable.write ( valueNext );
 
         }
 

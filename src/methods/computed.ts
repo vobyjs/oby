@@ -6,10 +6,10 @@ import type {ComputedFunction, ObservableReadonly, ObservableOptions} from '~/ty
 
 /* MAIN */
 
-function computed <T> ( fn: ComputedFunction<T, T | undefined> ): ObservableReadonly<T>;
-function computed <T> ( fn: ComputedFunction<T, T | undefined>, value: undefined, options?: ObservableOptions<T, T | undefined> ): ObservableReadonly<T>;
-function computed <T> ( fn: ComputedFunction<T, T>, value: T, options?: ObservableOptions<T, T> ): ObservableReadonly<T>;
-function computed <T> ( fn: ComputedFunction<T, T | undefined>, value?: T, options?: ObservableOptions<T, T | undefined> ) {
+function computed <T> ( fn: ComputedFunction<T | undefined, T> ): ObservableReadonly<T>;
+function computed <T> ( fn: ComputedFunction<T | undefined, T>, value?: undefined, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
+function computed <T> ( fn: ComputedFunction<T, T>, value: T, options?: ObservableOptions<T> ): ObservableReadonly<T>;
+function computed <T> ( fn: ComputedFunction<T | undefined, T>, value?: T, options?: ObservableOptions<T | undefined> ) {
 
   return new Computed ( fn, value, options ).observable.readable ();
 

@@ -5,7 +5,7 @@ type IComputed<T = unknown> = import ( '~/objects/computed' ).default<T>;
 
 type IEffect = import ( '~/objects/effect' ).default;
 
-type IObservable<T = unknown, TI = unknown> = import ( '~/objects/observable' ).default<T, TI>;
+type IObservable<T = unknown> = import ( '~/objects/observable' ).default<T>;
 
 type IObserver = import ( '~/objects/observer' ).default;
 
@@ -21,7 +21,7 @@ type BatchFunction<T = unknown> = () => T;
 
 type CleanupFunction = () => void;
 
-type ComputedFunction<T = unknown, TI = unknown> = ( valuePrev: T | TI ) => T;
+type ComputedFunction<P = unknown, R = unknown> = ( valuePrev: P ) => R;
 
 type DisposeFunction = () => void;
 
@@ -29,9 +29,7 @@ type EffectFunction = () => CleanupFunction | void;
 
 type ErrorFunction = ( error: Error ) => void;
 
-type EqualsFunction<T = unknown, TI = unknown> = ( value: T, valuePrev: T | TI ) => boolean;
-
-type FromFunction<T = unknown> = ( observable: ObservableWithoutInitial<T> ) => CleanupFunction | void;
+type EqualsFunction<T = unknown> = ( value: T, valuePrev: T ) => boolean;
 
 type MapFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
@@ -39,61 +37,35 @@ type ObservedFunction<T = unknown> = () => T;
 
 type ObservedDisposableFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
 
-type ProduceFunction<T = unknown, R = unknown> = ( value: T ) => R | undefined;
-
 type SampleFunction<T = unknown> = () => T;
-
-type SelectFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
 type SelectorFunction<T = unknown> = ( value: T ) => boolean;
 
 type TryCatchFunction<T = unknown> = ({ error, reset }: { error: Error, reset: DisposeFunction }) => T;
 
-type UpdateFunction<T = unknown, R = unknown> = ( value: T ) => R;
+type UpdateFunction<T = unknown> = ( value: T ) => T;
 
 /* OBSERVABLE */
 
-type ObservableAbstract<T = unknown, TI = unknown> = {
-  (): T | TI,
+type Observable<T = unknown> = {
+  (): T,
   ( value: T ): T,
-  get (): T | TI,
-  sample (): T | TI,
-  computed <R> ( fn: ( value: T | TI ) => R, options?: ObservableOptions<R, R> ): ObservableReadonly<R>,
-  set ( value: T ): T,
-  produce ( fn: ( value: T | TI ) => T | undefined ): T,
-  update ( fn: ( value: T | TI ) => T ): T,
-  readonly (): ObservableReadonlyAbstract<T, TI>,
-  isReadonly (): false
+  ( fn: ( value: T ) => T ): T
 };
 
-type ObservableWithoutInitial<T = unknown> = ObservableAbstract<T, T | undefined>;
-
-type Observable<T = unknown> = ObservableAbstract<T, T>;
-
-type ObservableReadonlyAbstract<T = unknown, TI = unknown> = {
-  (): T | TI,
-  get (): T | TI,
-  sample (): T | TI,
-  computed <R> ( fn: ( value: T | TI ) => R, options?: ObservableOptions<R, R> ): ObservableReadonly<R>,
-  readonly (): ObservableReadonlyAbstract<T, TI>,
-  isReadonly (): true
+type ObservableReadonly<T = unknown> = {
+  (): T
 };
 
-type ObservableReadonlyWithoutInitial<T = unknown> = ObservableReadonlyAbstract<T, T | undefined>;
+type ObservableAny<T = unknown> = Observable<T> | ObservableReadonly<T>;
 
-type ObservableReadonly<T = unknown> = ObservableReadonlyAbstract<T, T>;
-
-type ObservableAny<T = unknown> = ObservableWithoutInitial<T> | Observable<T> | ObservableReadonlyWithoutInitial<T> | ObservableReadonly<T>;
-
-type ObservableOptions<T = unknown, TI = unknown> = {
-  equals?: EqualsFunction<T, TI> | false
+type ObservableOptions<T = unknown> = {
+  equals?: EqualsFunction<T> | false
 };
 
-type ObservableResolved<T = unknown> = T extends Observable<infer U> ? U : T extends ObservableWithoutInitial<infer U> ? U | undefined : T extends ObservableReadonly<infer U> ? U : T extends ObservableReadonlyWithoutInitial<infer U> ? U | undefined : T;
+type ObservableResolved<T = unknown> = T extends ObservableReadonly<infer U> ? U : T;
 
 /* OTHERS */
-
-type Accessor<T, TI> = ( symbol: symbol ) => IObservable<T, TI>;
 
 type Contexts = Record<symbol, any>;
 
@@ -101,27 +73,25 @@ type FunctionMaybe<T = unknown> = (() => T) | T;
 
 type LazyArray<T = unknown> = T[] | T | undefined;
 
-type LazyObject<T = unknown> = T | undefined;
-
 type LazySet<T = unknown> = Set<T> | T | undefined;
 
 type LazyValue<T = unknown> = T | undefined;
 
 type Mapped<T = unknown, R = unknown> = { bool: boolean, value: T, result: R, root: IObserver };
 
-type Readable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) => ObservableReadonlyAbstract<T, TI>;
+type Readable = <T = unknown> ( observable: IObservable<T> ) => ObservableReadonly<T>;
 
-type Resolvable<R> = R | Array<Resolvable<R>> | (() => Resolvable<R>);
+type Resolvable<R = unknown> = R | Array<Resolvable<R>> | (() => Resolvable<R>);
 
-type Resolved<R> = R | Array<Resolved<R>>;
+type Resolved<R = unknown> = R | Array<Resolved<R>>;
 
-type Selected = { count: number, value: unknown, observable: IObservable<boolean, boolean> };
+type Selected = { count: number, value: unknown, observable: IObservable<boolean> };
 
-type Writable = <T = unknown, TI = unknown> ( observable: IObservable<T, TI> ) => ObservableAbstract<T, TI>;
+type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 /* EXPORT */
 
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
-export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, FromFunction, ObservedFunction, ObservedDisposableFunction, ProduceFunction, SampleFunction, SelectFunction, SelectorFunction, TryCatchFunction, UpdateFunction};
-export type {ObservableAbstract, ObservableWithoutInitial, Observable, ObservableReadonlyAbstract, ObservableReadonlyWithoutInitial, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
-export type {Accessor, Contexts, FunctionMaybe, LazyArray, LazyObject, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Selected, Writable};
+export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, TryCatchFunction, UpdateFunction};
+export type {Observable, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
+export type {Contexts, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Selected, Writable};

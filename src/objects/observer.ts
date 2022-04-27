@@ -3,7 +3,7 @@
 
 import {OWNER} from '~/constants';
 import {castError} from '~/utils';
-import type {IObservable, IObserver, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyObject, LazyValue} from '~/types';
+import type {IObservable, IObserver, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyValue} from '~/types';
 
 /* MAIN */
 
@@ -13,7 +13,7 @@ class Observer {
 
   parent: IObserver | null = null;
   cleanups?: LazyArray<CleanupFunction>;
-  contexts?: LazyObject<Contexts>;
+  contexts?: LazyValue<Contexts>;
   errors?: LazyArray<ErrorFunction>;
   observables?: LazyArray<IObservable>;
   observablesLeftover?: LazyValue<IObservable>;
@@ -199,6 +199,19 @@ class Observer {
 
   }
 
+  postdispose (): void {
+
+    const {observablesLeftover} = this;
+
+    if ( observablesLeftover ) {
+      this.observablesLeftover = undefined;
+      if ( observablesLeftover !== this.observables && !observablesLeftover.disposed ) {
+        observablesLeftover.unregisterObserver ( this );
+      }
+    }
+
+  }
+
   error ( error: Error, silent: boolean ): boolean {
 
     const {errors} = this;
@@ -231,19 +244,6 @@ class Observer {
 
       }
 
-    }
-
-  }
-
-  postdispose (): void {
-
-    const {observablesLeftover} = this;
-
-    if ( observablesLeftover ) {
-      this.observablesLeftover = undefined;
-      if ( observablesLeftover !== this.observables && !observablesLeftover.disposed ) {
-        observablesLeftover.unregisterObserver ( this );
-      }
     }
 
   }

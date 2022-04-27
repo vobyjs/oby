@@ -1,11 +1,11 @@
 
 /* MAIN */
 
-const castError = ( exception: unknown ): Error => {
+const castError = ( error: unknown ): Error => {
 
-  if ( isError ( exception ) ) return exception;
+  if ( isError ( error ) ) return error;
 
-  if ( isString ( exception ) ) return new Error ( exception );
+  if ( isString ( error ) ) return new Error ( error );
 
   return new Error ( 'Unknown error' );
 
@@ -19,7 +19,7 @@ const isError = ( value: unknown ): value is Error => {
 
 };
 
-const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => {
+const isFunction = ( value: unknown ): value is (( ...args: any[] ) => unknown) => {
 
   return typeof value === 'function';
 

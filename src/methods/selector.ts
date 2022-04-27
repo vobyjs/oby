@@ -3,6 +3,7 @@
 
 import cleanup from '~/methods/cleanup';
 import effect from '~/methods/effect';
+import sample from '~/methods/sample';
 import Observable from '~/objects/observable';
 import type {SelectorFunction, ObservableAny, Selected} from '~/types';
 
@@ -20,12 +21,12 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     const selectedPrev = selecteds.get ( valuePrev );
 
-    if ( selectedPrev ) selectedPrev.observable.set ( false );
+    if ( selectedPrev ) selectedPrev.observable.write ( false );
 
     const valueNext = observable ();
     const selectedNext = selecteds.get ( valueNext );
 
-    if ( selectedNext ) selectedNext.observable.set ( true );
+    if ( selectedNext ) selectedNext.observable.write ( true );
 
     valuePrev = valueNext;
 
@@ -81,7 +82,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     } else {
 
-      const o = new Observable<boolean, boolean> ( observable.sample () === value );
+      const o = new Observable<boolean> ( sample ( observable ) === value );
 
       selected = { count: 1, value, observable: o };
 
@@ -95,7 +96,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     /* RETURN */
 
-    return selected.observable.get ();
+    return selected.observable.read ();
 
   };
 

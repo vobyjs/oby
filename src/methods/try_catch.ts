@@ -12,14 +12,14 @@ import type {TryCatchFunction, ObservableReadonly, Resolved} from '~/types';
 
 const tryCatch = <T, F> ( value: T, catchFn: TryCatchFunction<F> ): ObservableReadonly<Resolved<T | F>> => {
 
-  const observable = new Observable<Error | null, Error | null> ( null );
+  const observable = new Observable<Error | undefined> ( undefined );
 
   return computed ( () => {
 
-    if ( observable.get () ) {
+    if ( observable.read () ) {
 
-      const error = observable.sample ()!;
-      const reset = () => observable.set ( null );
+      const error = observable.value!;
+      const reset = () => observable.write ( undefined );
       const options = { error, reset };
 
       return resolve ( catchFn ( options ) );
@@ -28,7 +28,7 @@ const tryCatch = <T, F> ( value: T, catchFn: TryCatchFunction<F> ): ObservableRe
 
       error ( error => {
 
-        observable.set ( castError ( error ) );
+        observable.write ( castError ( error ) );
 
       });
 
