@@ -1973,6 +1973,30 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'resolves the fallback value before returning it', t => {
+
+      t.is ( $.for ( [], () => () => 123, () => () => 123 )(), 123 );
+
+    });
+
+    it ( 'resolves the mapped value before returning it', t => {
+
+      t.is ( $.for ( [1], () => () => 123 )()[0], 123 );
+
+    });
+
+    it ( 'returns a computed to an empty array for an empty array and missing fallback', t => {
+
+      t.deepEqual ( $.for ( [], () => () => 123 )(), [] );
+
+    });
+
+    it ( 'returns a computed to fallback for an empty array and a provided fallback', t => {
+
+      t.is ( $.for ( [], () => () => 123, 123 )(), 123 );
+
+    });
+
   });
 
   describe ( 'get', it => {
