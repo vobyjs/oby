@@ -107,6 +107,14 @@ o ( () => noop );
 
 This function holds onto updates within its scope and flushes them out at once once it exits, it's useful as a performance optimizations when updating Observables multiple times whitin its scope while causing other Observables/computations/effects that depend on them to be re-evaluated only once.
 
+Interface:
+
+```ts
+function batch <T> ( fn: () => T ): T;
+```
+
+Usage:
+
 ```ts
 import $ from 'oby';
 
