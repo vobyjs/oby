@@ -18,7 +18,7 @@ const batch = <T> ( fn: BatchFunction<T> ): T => {
 
   } else { // Starting batching
 
-    const queue = BATCH.current = new Map ();
+    const batch = BATCH.current = new Map ();
 
     try {
 
@@ -28,7 +28,7 @@ const batch = <T> ( fn: BatchFunction<T> ): T => {
 
       BATCH.current = undefined;
 
-      queue.forEach ( flush );
+      batch.forEach ( flush );
 
     }
 
