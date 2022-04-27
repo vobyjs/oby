@@ -10,66 +10,54 @@ npm install --save oby
 
 ## APIs
 
-- [`$()`](#usage)
-- [`$.computed`](#computed)
-- [`$.context`](#context)
-- [`$.cleanup`](#cleanup)
-- [`$.disposed`](#disposed)
-- [`$.effect`](#effect)
-- [`$.error`](#error)
-- [`$.errorBoundary`](#errorboundary)
-- [`$.batch`](#batch)
-- [`$.map`](#map)
-- [`$.resolve`](#resolve)
-- [`$.root`](#root)
-- [`$.from`](#from)
-- [`$.get`](#get)
-- [`$.if`](#if)
-- [`$.sample`](#sample)
-- [`$.selector`](#selector)
-- [`$.switch`](#switch)
-- [`$.ternary`](#ternary)
-- [`$.is`](#is)
+| [Core](#core)             | [Flow](#flow)             | [Utilities](#utilities)   |
+| ------------------------- | ------------------------- | ------------------------- |
+| [`$()`](#core)            | [`$.if`](#if)             | [`$.disposed`](#disposed) |
+| [`$.batch`](#batch)       | [`$.for`](#for)           | [`$.get`](#get)           |
+| [`$.cleanup`](#cleanup)   | [`$.switch`](#switch)     | [`$.readonly`](#readonly) |
+| [`$.computed`](#computed) | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)   |
+| [`$.context`](#context)   | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector) |
+| [`$.effect`](#effect)     |                           |                           |
+| [`$.error`](#error)       |                           |                           |
+| [`$.is`](#is)             |                           |                           |
+| [`$.root`](#root)         |                           |                           |
+| [`$.sample`](#sample)     |                           |                           |
 
 ## Usage
 
-### `$()`
+The following functions are provided. They are just grouped and ordered alphabetically, the documentation for this library is fairly dry at the moment.
+
+### Core
+
+The following core functions are provided. These are functions which can't be implemented on top of the library itself, and on top of which everything else is constructed.
+
+#### `$()`
 
 The main exported function wraps a value into an Observable, basically wrapping the value in a reactive shell.
 
-An Observable is a function that works both as a getter and as a setter, with some extra methods attached to it, it has the following interface:
+An Observable is a function that works both as a getter and as a setter, and it can be writable or read-only, it has the following interface:
 
 ```ts
 type Observable<T> = {
   (): T,
   ( value: T ): T,
-  get (): T,
-  sample (): T,
-  computed <R> ( fn: ( value: T ) => R ): ObservableReadonly<R>,
-  set ( value: T ): T,
-  produce ( fn: ( value: T ) => T | void ): T,
-  update ( fn: ( value: T ) => T ): T,
-  readonly (): ObservableReadonly<T>,
-  isReadonly (): false
+  ( fn: ( value: T ) => T ): T
 };
 
 type ObservableReadonly<T> = {
-  (): T,
-  get (): T,
-  sample (): T,
-  computed <R> ( fn: ( value: T ) => R ): ObservableReadonly<R>,
-  readonly (): ObservableReadonly<T>,
-  isReadonly (): true
+  (): T
 };
 ```
 
-`$()` has the following interface:
+The `$()` function has the following interface:
 
 ```ts
-type $ = <T> ( value?: T, options?: ObservableOptions<T> ) => Observable<T>;
+function $ <T> (): Observable<T | undefined>;
+function $ <T> ( value: undefined, options?: ObservableOptions<T | undefined> ): Observable<T | undefined>;
+function $ <T> ( value: T, options?: ObservableOptions<T> ): Observable<T>;
 
 type ObservableOptions<T> = {
-  ComparatorFunction<T = unknown, TI = unknown> = ( value: T, valuePrev: T | TI ) => boolean;
+  equals?: (( value: T, valuePrev: T ) => boolean) | false
 };
 ```
 
@@ -80,142 +68,76 @@ import $ from 'oby';
 
 // Create an Observable without an initial value
 
-$<number>();
+$<number> ();
 
 // Create an Observable with an initial value
 
 $(1);
 
-// Create an Observable with an initial value and a custom comparator
+// Create an Observable with an initial value and a custom equality function
 
-const comparator = ( value, valuePrev ) => Object.is ( value, valuePrev );
+const equals = ( value, valuePrev ) => Object.is ( value, valuePrev );
 
-const o = $( 1, { comparator } );
+const o = $( 1, { equals } );
 
-// Implicit, convenient, getter
+// Create an Observable with an initial value and a special "false" equality function, which is a shorthand for `() => false`, which causes the Observable to always emit when its setter is called
+
+const oFalse = $( 1, { equals: false } );
+
+// Getter
 
 o (); // => 1
 
-// Implicit, convenient, setter
+// Setter
 
 o ( 2 ); // => 2
 
-// "get" method for explicit getting
+// Setter via a function, which gets called with the current value
 
-o.get (); // => 2
+o ( value => value + 1 ); // => 3
 
-// "sample" method for explicit getting, without causing the sampled Observable to be automatically tracked as a dependency of the parent computation (read below)
+// Setter that sets a function, it has to be wrapped in another function because the above form exists
 
-o.sample (); // => 2
+const noop = () => {};
 
-// "set" method for explicit setting
-
-o.set ( 3 ); // => 3
-
-// "update" method for setting while receiving the previous value
-
-o.update ( prev => prev + 1 ); // => 4
-
-// "produce" method for setting by mutating the previous value, the old value is actually transparently cloned for you so it's not actually mutated
-
-const obj = $( { foo: { bar: true } } );
-
-obj.produce ( prev => {
-  prev.foo.bar = false;
-}); // => { foo: { bar: false } }
-
-// "computed" method for creating a readonly Observable out of the return of the passed function
-
-const objComputed = obj.computed ( obj => obj.foo.bar ); // => ObservableReadonly<boolean>
-
-// "readonly" method for getting a readonly Observable out of the current one, readonly Observables provide no APIs for changing the value they are pointing to
-
-const ro = o.readonly ();
-
-ro (); // => 4
-
-// "isReadonly" method for checking if the Observable is readonly
-
-o.isReadonly (); // => false
-ro.isReadonly (); // => true
+o ( () => noop );
 ```
 
-### `$.computed`
+#### `$.batch`
 
-This is the library method where the magic happens, it generates a new read-only Observable with the result of the function passed to it, the function is automatically re-executed whenever it's dependencies change, and dependencies are tracked and disposed of automatically.
-
-There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
-
-Note that the Observable returned by a computed could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+This function holds onto updates within its scope and flushes them out at once once it exits, it's useful as a performance optimizations when updating Observables multiple times whitin its scope while causing other Observables/computations/effects that depend on them to be re-evaluated only once.
 
 ```ts
 import $ from 'oby';
 
-// Make a new computed Observable
+// Batch updates
 
-const a = $(1);
-const b = $(2);
-const c = $(3);
+const o = $(0);
 
-const sum = $.computed ( () => {
-  return a () + b () + c ();
+$.batch ( () => {
+
+  o ( 1 );
+  o ( 2 );
+  o ( 3 );
+
+  o (); // => 0, updates have not been flushed out yet
+
 });
 
-sum (); // => 6
-
-a ( 2 );
-
-sum (); // => 7
-
-b ( 3 );
-
-sum (); // => 8
-
-c ( 4 );
-
-sum (); // => 9
-
-// Make a new computed Observable while using the previous value
-
-const invocations = $.computed ( prev => {
-  a ();
-  return prev + 1;
-}, 0 );
-
-invocations (); // => 1
-
-a ( 10 );
-a ( 11 );
-a ( 12 );
-
-invocations (); // => 4
+o (); // => 3, now the latest update for this observable has been flushed out
 ```
 
-### `$.context`
+#### `$.cleanup`
 
-This function provides a dependency injection mechanism, through wich an arbitrary value can be registered with the current parent computation which can later on be retrieved from anywhere inside it via the provided token.
+This function allows you to register cleanup functions, which are executed automatically whenever the parent computation/effect/root is disposed of, which also happens before re-evaluating it.
+
+Interface:
 
 ```ts
-$.root ( () => {
-
-  const ctx = Symbol ( 'Some Context' );
-
-  $.context ( ctx, { foo: 123 } );
-
-  $.effect ( () => {
-
-    const value = $.context ( ctx );
-
-    console.log ( value.foo ); // => 123
-
-  });
-
-});
+function cleanup ( cleanup: () => void ): void;
 ```
 
-### `$.cleanup`
-
-This is an essential function that allows you to register cleanup functions, which are executed automatically whenever the parent computation/effect/root is disposed of, which also happens before re-evaluating it.
+Usage:
 
 ```ts
 import $ from 'oby';
@@ -244,12 +166,488 @@ $.computed ( () => {
 
 });
 
-callback ( () => {} ); // Cleanups called and computed re-evaluated
+callback ( () => () => {} ); // Cleanups called and computed re-evaluated
 ```
 
-### `$.disposed`
+#### `$.computed`
 
-This is a convenience function that returns a read-only Observable that tells you if the parent computation got disposed of or not.
+This is the function where the magic happens, it generates a new read-only Observable with the result of the function passed to it, the function is automatically re-executed whenever it's dependencies change, and dependencies are tracked automatically.
+
+There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
+
+Note that the Observable returned by a computed could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+
+Interface:
+
+```ts
+function computed <T> ( fn: ( valuePrev: T | undefined ) => T ): ObservableReadonly<T>;
+function computed <T> ( fn: ( valuePrev: T | undefined ) => T, valueInitial?: undefined, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
+function computed <T> ( fn: ( valuePrev: T ) => T, valueInitial: T, options?: ObservableOptions<T> ): ObservableReadonly<T>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Make a new computed Observable
+
+const a = $(1);
+const b = $(2);
+const c = $(3);
+
+const sum = $.computed ( () => {
+  return a () + b () + c ();
+});
+
+sum (); // => 6
+
+a ( 2 );
+
+sum (); // => 7
+
+b ( 3 );
+
+sum (); // => 8
+
+c ( 4 );
+
+sum (); // => 9
+
+// Make a new computed Observable with an initial value and while using the previous value
+
+const invocations = $.computed ( prev => {
+  a ();
+  return prev + 1;
+}, 0 );
+
+invocations (); // => 1
+
+a ( 10 );
+a ( 11 );
+a ( 12 );
+
+invocations (); // => 4
+```
+
+#### `$.context`
+
+This function provides a dependency injection mechanism, you can use it to register arbitrary values with the parent computation, and those values can be read, or overridden, at any point inside that computation.
+
+Interface:
+
+```ts
+function context <T> ( symbol: symbol ): T | undefined;
+function context <T> ( symbol: symbol, value: T ): undefined;
+```
+
+Usage:
+
+```ts
+$.root ( () => {
+
+  const token = Symbol ( 'Some Context' );
+
+  $.context ( token, { foo: 123 } ); // Writing some context
+
+  $.effect ( () => {
+
+    const value = $.context ( token ); // Reading some context
+
+    console.log ( value.foo ); // => 123
+
+    $.effect ( () => {
+
+      $.context ( token, { foo: 321 } ); // Overriding some context
+
+      const value = $.context ( token ); // Reading again
+
+      console.log ( value.foo ); // => 321
+
+    });
+
+  });
+
+});
+```
+
+#### `$.effect`
+
+An effect is similar to a computed, but it returns a function for manually disposing of it instead of an Observable, and if you return a function from inside it that's automatically registered as a cleanup function.
+
+Interface:
+
+```ts
+function effect ( fn: () => (() => void) | void ): (() => void);
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Create an effect with an automatically registered cleanup function
+
+const callback = $( () => {} );
+
+$.effect ( () => {
+
+  const cb = callback ();
+
+  document.body.addEventListener ( 'click', cb );
+
+  return () => { // Automatically-registered cleanup function
+
+    document.body.removeEventListener ( 'click', cb );
+
+  };
+
+});
+
+callback ( () => () => {} ); // Cleanups called and effect re-evaluated
+```
+
+#### `$.error`
+
+This function allows you to register error handler functions, which are executed automatically whenever the parent computation/effect/root throws. If any error handlers are present the error is caught automatically and is passed to error handlers. Errors bubble up across computations.
+
+Remember to register your error handlers before doing anything else, or the computation may throw before error handlers are registered, in which case you won't be able to catch the error with that.
+
+Interface:
+
+```ts
+function error ( error: ( error: Error ) => void ): void;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Register an error handler function to a computed
+
+const o = $( 0 );
+
+$.computed ( () => {
+
+  $.error ( error => {
+
+    console.log ( 'Error caught!' );
+    console.log ( error );
+
+  });
+
+  if ( o () === 2 ) {
+
+    throw new Error ( 'Some error' );
+
+  }
+
+});
+
+o ( 1 ); // No error is thrown, error handlers are not called
+
+o ( 2 ); // An error is thrown, so it's caught and passed to the registered error handlers
+```
+
+#### `$.is`
+
+This function allows you to tell apart Observables from other values.
+
+Interface:
+
+```ts
+function is <T = unknown> ( value: unknown ): value is Observable<T> | ObservableReadonly<T>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Checking
+
+$.is ( $() ); // => true
+$.is ( {} ); // => false
+```
+
+#### `$.root`
+
+This function creates a computation root, computation roots are detached from parent roots/computeds/effects and will outlive them, so they must be manually disposed of, disposing them ends all the reactvity inside them, except for any eventual nested root.
+The value returned by the function is returned by the root itself.
+
+Note that the value returned by the root could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+
+Interface:
+
+```ts
+function root <T> ( fn: () => T ): T;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Create a root and dispose of it
+
+$.root ( dispose => {
+
+  let calls = 0;
+
+  const a = $(0);
+  const b = $.computed ( () => {
+    calls += 1;
+    return a ();
+  });
+
+  console.log ( calls ); // => 1
+  b (); // => 0
+
+  a ( 1 );
+
+  console.log ( calls ); // => 2
+  b (); // => 1
+
+  dispose (); // Now all the reactivity inside this root stops
+
+  a ( 2 );
+
+  console.log ( calls ); // => 2
+  b (); // => 1
+
+});
+```
+
+#### `$.sample`
+
+This function allows for reading Observables without creating dependencies on them.
+
+Interface:
+
+```ts
+function sample <T> ( fn: () => T ): T;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Sampling a single Observable
+
+const o = $(0);
+
+$.sample ( 0 ); // => 0
+
+// Sampling multiple Observables
+
+const a = $(1);
+const b = $(2);
+const c = $(3);
+
+const sum = $.sample ( () => {
+  return a () + b () + c ();
+});
+
+console.log ( sum ); // => 6
+
+a ( 2 );
+b ( 3 );
+c ( 4 );
+
+console.log ( sum ); // => 6, it's just a value, not a reactive Observable
+```
+
+### Flow
+
+The following flow functions are provided. These functions are like the reactive versions of native constructs in the language.
+
+#### `$.if`
+
+This is the reactive version of the native `if` statement. It returns a computed that resolves to the passed value if the condition is truthy, or to the optional fallback otherwise.
+
+Interface:
+
+```ts
+function if <T, F> ( when: (() => boolean) | boolean, valueTrue: T, valueFalse?: T ): ObservableReadonly<Resolved<T | F | undefined>>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Toggling an if
+
+const bool = $(false);
+
+const computed = $.if ( bool, 123, 321 );
+
+computed (); // => 321
+
+bool ( true );
+
+computed (); // => 123
+```
+
+#### `$.for`
+
+This is the reactive version of the native `Array.prototype.map`, it maps over an array of values while caching results for values that didn't change.
+
+Interface:
+
+```ts
+function for <T, R, F> ( values: (() => T[]) | T[], fn: (( value: T ) => R), fallback: F | [] = [] ): ObservableReadonly<Resolved<R>[] | Resolved<F | undefined>>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Map over an array of values
+
+const o1 = $(1);
+const o2 = $(2);
+const os = $([ o1, o2 ]);
+
+const mapped = $.for ( os, o => {
+
+  return someExpensiveFunction ( o () );
+
+});
+
+// Update the "mapped" Observable
+
+os ([ o1, o2, o3 ]);
+```
+
+#### `$.switch`
+
+This is the reactive version of the native `switch` statement. It returns a computed that resolves to the value of the first matching case, or the value of the default condition, or undefined otherwise.
+
+Interface:
+
+```ts
+type SwitchCase<T, R> = [T, R];
+type SwitchDefault<R> = [R];
+type SwitchValue<T, R> = SwitchCase<T, R> | SwitchDefault<R>;
+
+function switch <T, R> ( when: (() => T) | T, values: SwitchValue[] ): ObservableReadonly<Resolved<R | undefined>>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Switching cases
+
+const o = $(1);
+
+const result = $.switch ( o, [[1, '1'], [2, '2'], [1, '1.1'], ['default']] );
+
+result (); // => '1'
+
+o ( 2 );
+
+result (); // => '2'
+
+o ( 3 );
+
+result (); // => 'default'
+```
+
+#### `$.ternary`
+
+This is the reactive version of the native ternary operator. It returns a computed that resolves to the first value if the condition is truthy, or the second value otherwise.
+
+Interface:
+
+```ts
+function ternary <T, F> ( when: (() => boolean) | boolean, valueTrue: T, valueFalse: T ): ObservableReadonly<Resolved<T | F>>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Toggling an ternary
+
+const bool = $(false);
+
+const computed = $.ternary ( bool, 123, 321 );
+
+computed (); // => 321
+
+bool ( true );
+
+computed (); // => 123
+```
+
+#### `$.tryCatch`
+
+This is the reactive version of the native `try..catch` block. If no errors happen the regular value function is executed, otherwise the fallback function is executed, whatever they return is returned wrapped in a computed.
+
+This is also commonly referred to as an "error boundary".
+
+Interface:
+
+```ts
+function tryCatch <T, F> ( value: T, catchFn: ({ error, reset }: { error: Error, reset: () => void }) => F ): ObservableReadonly<Resolved<T | F>>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Create an tryCatch boundary
+
+const o = $(false);
+
+const fallback = ({ error, reset }) => {
+  console.log ( error );
+  setTimeout ( () => { // Attempting to recovering after 1s
+    o ( false );
+    reset ();
+  }, 1000 );
+  return 'fallback!';
+};
+
+const regular = () => {
+  if ( o () ) throw 'whoops!';
+  return 'regular!';
+};
+
+const computed = $.tryCatch ( fallback, regular );
+
+computed (); // => 'regular!'
+
+// Cause an error to be thrown inside the boundary
+
+o ( true );
+
+computed (); // => 'fallback!'
+```
+
+### Utilities
+
+The following utilities functions are provided. These functions are either simple to implement and pretty handy, or pretty useful in edge scenarios and hard to implement, so they are provided for you.
+
+#### `$.disposed`
+
+This function returns a read-only Observable that tells you if the parent computation got disposed of or not.
+
+Interface:
+
+```ts
+function disposed (): ObservableReadonly<boolean>;
+```
+
+Usage:
 
 ```ts
 import $ from 'oby';
@@ -282,161 +680,83 @@ $.effect ( () => {
 
 });
 
-url ( 'https://my.api2' ); // This causes the effect to be re-executed, and the previous `disposed` observable will be set to `true`
+url ( 'https://my.api2' ); // This causes the effect to be re-executed, and the previous `disposed` Observable will be set to `true`
 ```
 
-### `$.error`
+#### `$.get`
 
-This is an essential function that allows you to register error handler functions, which are executed automatically whenever the parent computation/effect/root throws. If any error handlers are present the error is caught automatically and is passed to error handlers. Errors bubble up.
+This function gets the value out of something, if it gets passed an Observable then it calls its getter, otherwise it just returns the value.
 
-Remember to register your error handlers before doing anything else, or the computation may throw before error handlers are registered.
+Interface:
+
+```ts
+function get <T> ( value: T ): ObservableResolved<T>;
+```
+
+Usage:
 
 ```ts
 import $ from 'oby';
 
-// Attach an error handler function to a computed
+// Getting the value out of an Observable
 
-const o = $( 0 );
+const o = $(123);
 
-$.computed ( () => {
+$.get ( o ); // => 123
 
-  $.error ( error => {
+// Getting the value out of a non-Observable
 
-    console.log ( 'Error caught!' );
-    console.log ( error );
-
-  });
-
-  if ( o () === 2 ) {
-
-    throw new Error ( 'Some error' );
-
-  }
-
-});
-
-o ( 1 ); // No error is thrown, error handlers are not called
-
-o ( 2 ); // An error is thrown, so it's caught and passed to the registered error handlers
+$.get ( 123 ); // => 123
+$.get ( () => 123 ); // => () => 123
 ```
 
-### `$.effect`
+#### `$.readonly`
 
-An effect is a special kind of computed, it returns a function for manually disposing of it, and if you return a function from inside it that's automatically registered as a cleanup function.
+This function makes a read-only Observable out of any Observable you pass it. It's useful when you want to pass an Observable around but you want to be sure that they can't change it's value but only read it.
+
+Interface:
+
+```ts
+function readonly <T> ( observable: Observable<T> | ObservableReadonly<T> ): ObservableReadonly<T>;
+```
+
+Usage:
 
 ```ts
 import $ from 'oby';
 
-// Create an effect with an automatically attached cleanup function
+// Making a read-only Observable
 
-const callback = $( () => {} );
+const o = $(123);
+const ro = $.readonly ( o );
 
-$.effect ( () => {
+// Getting
 
-  const cb = callback ();
+ro (); // => 123
 
-  document.body.addEventListener ( 'click', cb );
+// Setting throws
 
-  return () => {
-
-    document.body.removeEventListener ( 'click', cb );
-
-  };
-
-});
-
-callback ( () => {} ); // Cleanups called and effect re-evaluated
+ro ( 321 ); // An error will be thrown, read-only Observables can't be set
 ```
 
-### `$.errorBoundary`
-
-This function is a boundary that catches errors. If no errors happen the regular value function is executed, otherwise the fallback function is executed, whatever they return is returned wrapped in a computed.
-
-```ts
-import $ from 'oby';
-
-// Create an error boundary
-
-const o = $(false);
-
-const fallback = ({ error, reset }) => {
-  console.log ( error );
-  setTimeout ( () => { // Recovering after 1s
-    o ( false );
-    reset ();
-  }, 1000 );
-  return 'fallback!';
-};
-
-const regular = () => {
-  if ( o () ) throw 'whoops!';
-  return 'regular!';
-};
-
-const computed = $.errorBoundary ( fallback, regular );
-
-computed (); // => 'regular!'
-
-// Cause an error to be thrown inside the boundary
-
-o ( true );
-
-computed (); // => 'fallback!'
-```
-
-### `$.batch`
-
-This function holds onto updates within its scope and flushes them out at once once it exits, it's useful as a performance optimizations when updating Observables multiple times while causing other Observables/computations/effects that depend on them to be re-evaluated only once.
-
-```ts
-import $ from 'oby';
-
-// Batch updates
-
-const o = $(0);
-
-$.batch ( () => {
-
-  o ( 1 );
-  o ( 2 );
-  o ( 3 );
-
-  o (); // => 0, updates have not been flushed yet
-
-});
-
-o (); // => 3, now the latest update for this observable has been flushed
-```
-
-### `$.map`
-
-This is the reactive equivalent of the native `Array.prototype.map`, it maps over an array of values while caching results for values that didn't change.
-
-```ts
-import $ from 'oby';
-
-// Map over an array of values
-
-const o1 = $(1);
-const o2 = $(2);
-const os = $([ o1, o2 ]);
-
-const mapped = $.map ( os, o => {
-
-  return someExpensiveFunction ( o () );
-
-});
-
-// Update the "mapped" observable
-
-os ([ o1, o2, o3 ]);
-```
-
-### `$.resolve`
+#### `$.resolve`
 
 This function recursively resolves functions in the passed value. Functions are called until they return something other than a function, and functions inside arrays are called too.
 
 You may never need to use this function yourself, but it's necessary internally at times to make sure that a child value is properly tracked by its parent computation.
+
+This function is used internally by `$.if`, `$.for`, `$.switch`, `$.ternary`, `$.tryCatch`, as they need to resolve values to make sure the computed they give you can properly keep track of dependencies.
+
+Interface:
+
+```ts
+type Resolvable<R> = R | Array<Resolvable<R>> | (() => Resolvable<R>);
+type Resolved<R> = R | Array<Resolved<R>>;
+
+function resolve <T> ( value: Resolvable<T> ): Resolved<T>;
+```
+
+Usage:
 
 ```ts
 import $ from 'oby';
@@ -466,150 +786,19 @@ $.resolve ( [() => 123] ); // => [123]
 $.resolve ( [() => 123, [() => () => [() => 123]]] ); // => [123, [[123]]]
 ```
 
-### `$.root`
-
-This is an important function which creates a computation root, computation roots are detached from parent roots or computations and can be disposed, disposing them ends all the reactvity inside them.
-
-The value returned by the function is returned by the root itself.
-
-Note that the value returned by the root could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
-
-```ts
-import $ from 'oby';
-
-// Create a root and dispose of it
-
-$.root ( dispose => {
-
-  let calls = 0;
-
-  const a = $(0);
-  const b = $.computed ( () => {
-    calls += 1;
-    return a ();
-  });
-
-  calls; // => 1
-  b (); // => 0
-
-  a ( 1 );
-
-  calls; // => 2
-  b (); // => 1
-
-  dispose (); // Now all the reactivity inside this root stops
-
-  a ( 2 );
-
-  calls; // => 2
-  b (); // => 1
-});
-```
-
-### `$.from`
-
-This is a convenient function for encapsulating values that may change over time into an Observable. It's basically an effect that receives a brand new Observable inside it and returns it.
-
-```ts
-import $ from 'oby';
-
-// Encapsulating click coordinates into an Observable
-
-const coordinates = $.from ( observable => {
-
-  const onClick = event => {
-    const coordinates = { x: e.clientX, y: e.clientY };
-    observable ( coordinates );
-  });
-
-  window.addEventListener ( 'click', onClick );
-
-  return () => {
-
-    window.removeEventListener ( 'click', onClick );
-
-  };
-
-});
-
-$.effect ( () => {
-
-  if ( !coordinates () ) return; // It will start empty as we did not set an initial value
-
-  console.log ( 'click at coordinates:', coordinates () );
-
-});
-```
-
-### `$.get`
-
-This is a convenient function for getting the value out of something, if it gets passed an Observable then it calls `.get` on it, otherwise it just returns the value.
-
-```ts
-import $ from 'oby';
-
-// Getting the value out of an Observable
-
-const o = $(123);
-
-$.get ( o ); // => 123
-
-// Getting the value out of a non-Observable
-
-$.get ( 123 ); // =>  123
-```
-
-### `$.if`
-
-This is the reactive version of the native `if` statement. It returns a computed that resolves to the passed value if the condition is truthy.
-
-```ts
-import $ from 'oby';
-
-// Toggling an if
-
-const bool = $(false);
-
-const computed = $.if ( bool, 123 );
-
-computed (); // => undefined
-
-bool ( true );
-
-computed (); // => 123
-```
-
-### `$.sample`
-
-This is a convenient function for computing a value out of Observables without creating dependencies on them. It's equivalent to calling `.sample` on all of them manually.
-
-```ts
-import $ from 'oby';
-
-// Sampling
-
-const a = $(1);
-const b = $(2);
-const c = $(3);
-
-const sum = $.sample ( () => {
-  return a () + b () + c ();
-});
-
-sum; // => 6
-
-a ( 2 );
-b ( 3 );
-c ( 4 );
-
-sum; // => 6, it's just a value, not a reactive Observable
-```
-
-### `$.selector`
+#### `$.selector`
 
 This function is useful for optimizing performance when you need to, for example, know when an item within a set is the selected one.
 
-This way when a new item should be the selected one the old one is unselected, and the new one is selected, directly, without checking if each element in the set is the currently selected one. This turns a `O(n)` operation into an `O(2)` one.
+If you use this function then when a new item should be the selected one the old one is unselected, and the new one is selected, directly, without checking if each element in the set is the currently selected one. This turns a `O(n)` operation into an `O(2)` one.
+
+Interface:
+
+```ts
+function selector <T> ( observable: Observable<T> | ObservableReadonly<T> ): (( value: T ) => boolean);
+```
+
+Usage:
 
 ```ts
 import $ from 'oby';
@@ -634,71 +823,15 @@ values.forEach ( value => {
 
 });
 
-select ( 1 );
-select ( 5 );
-```
-
-### `$.switch`
-
-This is the reactive version of the native `switch` statement. It returns a computed that resolves to the value of the first matching case, or the value of the default condition, or undefined otherwise.
-
-```ts
-import $ from 'oby';
-
-// Switching cases
-
-const o = $(1);
-
-const result = $.switch ( o, [[1, '1'], [2, '2'], [1, '1.1'], ['default']] );
-
-result (); // => '1'
-
-o ( 2 );
-
-result (); // => '2'
-
-o ( 3 );
-
-result (); // => 'default'
-```
-
-### `$.ternary`
-
-This is the reactive version of the native ternary operator. It returns a computed that resolves to the first value if the condition is truthy, or the second value otherwise.
-
-```ts
-import $ from 'oby';
-
-// Toggling an ternary
-
-const bool = $(false);
-
-const computed = $.ternary ( bool, 123, 'foo' );
-
-computed (); // => 'foo'
-
-bool ( true );
-
-computed (); // => 123
-```
-
-### `$.is`
-
-This essential function tells you if a value is an Observable or not.
-
-```ts
-import $ from 'oby';
-
-// Checking
-
-$.is ( $() ); // => true
-$.is ( {} ); // => false
+select ( 1 ); // It causes only 2 effect to re-execute, not 5 or however many there are
+select ( 5 ); // It causes only 2 effect to re-execute, not 5 or however many there are
 ```
 
 ## Thanks
 
 - **[S](https://github.com/adamhaile/S)**: for paving the way to this awesome reactive way of writing software.
 - **[sinuous/observable](https://github.com/luwes/sinuous/tree/master/packages/sinuous/observable)**: for making me fall in love with Observables and providing a good implementation that this library is based of.
+- **[solid](https://www.solidjs.com)**: for being a great sort of reference implementation, popularizing Signal-based reactivity, and having built a great community.
 - **[trkl](https://github.com/jbreckmckye/trkl)**: for being so inspiringly small.
 
 ## License
