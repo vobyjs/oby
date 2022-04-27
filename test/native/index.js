@@ -2065,6 +2065,39 @@ describe ( 'oby', () => {
 
   describe ( 'if', it => {
 
+    it ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
+
+      let sequence = '';
+
+      const condition = $(1);
+
+      const valueTrue = () => {
+        sequence += 't';
+      };
+
+      const valueFalse = () => {
+        sequence += 'f';
+      };
+
+      $.if ( condition, valueTrue, valueFalse );
+
+      condition ( 2 );
+      condition ( 3 );
+
+      t.is ( sequence, 't' );
+
+      condition ( 0 );
+      condition ( false );
+
+      t.is ( sequence, 'tf' );
+
+      condition ( 4 );
+      condition ( 5 );
+
+      t.is ( sequence, 'tft' );
+
+    });
+
     it ( 'resolves the fallback value before returning it', t => {
 
       t.is ( $.if ( false, 123, () => () => 123 )(), 123 );
@@ -2589,6 +2622,42 @@ describe ( 'oby', () => {
 
   describe ( 'switch', it => {
 
+    it ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {
+
+      let sequence = '';
+
+      const condition = $(0);
+
+      const value0 = () => {
+        sequence += '0';
+      };
+
+      const value1 = () => {
+        sequence += '1';
+      };
+
+      const valueDefault = () => {
+        sequence += 'd';
+      };
+
+      $.switch ( condition, [[0, value0], [1, value1], [valueDefault]] );
+
+      condition ( 0 );
+
+      t.is ( sequence, '0' );
+
+      condition ( 1 );
+      condition ( 1 );
+
+      t.is ( sequence, '01' );
+
+      condition ( 2 );
+      condition ( 3 );
+
+      t.is ( sequence, '01d' );
+
+    });
+
     it ( 'resolves the value of a case before returning it', t => {
 
         const result = $.switch ( 1, [[1, () => () => '1'], [2, '2'], [1, '1.1']] );
@@ -2654,6 +2723,39 @@ describe ( 'oby', () => {
   });
 
   describe ( 'ternary', it => {
+
+    it ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
+
+      let sequence = '';
+
+      const condition = $(1);
+
+      const valueTrue = () => {
+        sequence += 't';
+      };
+
+      const valueFalse = () => {
+        sequence += 'f';
+      };
+
+      $.ternary ( condition, valueTrue, valueFalse );
+
+      condition ( 2 );
+      condition ( 3 );
+
+      t.is ( sequence, 't' );
+
+      condition ( 0 );
+      condition ( false );
+
+      t.is ( sequence, 'tf' );
+
+      condition ( 4 );
+      condition ( 5 );
+
+      t.is ( sequence, 'tft' );
+
+    });
 
     it ( 'resolves the first value before returning it', t => {
 

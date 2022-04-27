@@ -9,7 +9,7 @@ import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 const _switch = <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): ObservableReadonly<Resolved<R | undefined>> => {
 
-  return computed ( () => {
+  const value = computed ( () => {
 
     const condition = resolve ( when );
 
@@ -17,11 +17,17 @@ const _switch = <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): Obs
 
       const value = values[i];
 
-      if ( value.length === 1 ) return resolve ( value[0] );
+      if ( value.length === 1 ) return value[0];
 
-      if ( value[0] === condition ) return resolve ( value[1] );
+      if ( Object.is ( value[0], condition ) ) return value[1];
 
     }
+
+  });
+
+  return computed ( () => {
+
+    return resolve ( value );
 
   });
 
