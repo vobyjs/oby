@@ -2065,6 +2065,12 @@ describe ( 'oby', () => {
 
   describe ( 'if', it => {
 
+    it ( 'resolves the fallback value before returning it', t => {
+
+      t.is ( $.if ( false, 123, () => () => 123 )(), 123 );
+
+    });
+
     it ( 'resolves the value before returning it', t => {
 
       t.is ( $.if ( true, () => () => 123 )(), 123 );
@@ -2100,6 +2106,18 @@ describe ( 'oby', () => {
 
       t.is ( $.if ( false, 123 )(), undefined );
       t.is ( $.if ( 0, 123 )(), undefined );
+
+    });
+
+    it ( 'returns a computed to undefined for a falsy condition and missing fallback', t => {
+
+      t.is ( $.if ( false, 123 )(), undefined );
+
+    });
+
+    it ( 'returns a computed to fallback for a falsy condition and a provided fallback', t => {
+
+      t.is ( $.if ( false, 123, 321 )(), 321 );
 
     });
 
