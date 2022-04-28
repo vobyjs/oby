@@ -49,13 +49,15 @@ class Cache<T, R> {
 
   dispose = (): void => {
 
+    if ( !this.cache.size ) return; // Nothing to dispose of
+
     this.cache.forEach ( mapped => {
 
       mapped.root.dispose ( true, true );
 
     });
 
-    this.cache.clear ();
+    this.cache = new Map ();
 
   };
 
