@@ -9,7 +9,7 @@ class SuperRoot extends Observer {
 
   /* VARIABLES */
 
-  parent: null = null;
+  parent: undefined = undefined;
 
 }
 

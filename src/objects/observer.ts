@@ -11,7 +11,7 @@ class Observer {
 
   /* VARIABLES */
 
-  parent: IObserver | null = null;
+  parent: IObserver | undefined = undefined;
   cleanups?: LazyArray<CleanupFunction>;
   contexts?: LazyValue<Contexts>;
   errors?: LazyArray<ErrorFunction>;
