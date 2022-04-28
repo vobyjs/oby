@@ -10,7 +10,7 @@ import type {MapFunction, ObservableReadonly, FunctionMaybe, Resolved} from '~/t
 
 /* MAIN */
 
-const _for = <T, R, F> ( values: FunctionMaybe<T[]>, fn: MapFunction<T, R>, fallback: F | [] = [] ): ObservableReadonly<Resolved<R>[] | Resolved<F | undefined>> => {
+const _for = <T, R, F> ( values: FunctionMaybe<T[]>, fn: MapFunction<T, R>, fallback: F | [] = [] ): ObservableReadonly<Resolved<R>[] | Resolved<F>> => {
 
   const cache = new Cache ( fn );
   const {dispose, before, after, map} = cache;

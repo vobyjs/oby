@@ -506,7 +506,7 @@ This is the reactive version of the native `Array.prototype.map`, it maps over a
 Interface:
 
 ```ts
-function for <T, R, F> ( values: (() => T[]) | T[], fn: (( value: T ) => R), fallback: F | [] = [] ): ObservableReadonly<Resolved<R>[] | Resolved<F | undefined>>;
+function for <T, R, F> ( values: (() => T[]) | T[], fn: (( value: T ) => R), fallback: F | [] = [] ): ObservableReadonly<Resolved<R>[] | Resolved<F>>;
 ```
 
 Usage:
@@ -542,7 +542,7 @@ type SwitchCase<T, R> = [T, R];
 type SwitchDefault<R> = [R];
 type SwitchValue<T, R> = SwitchCase<T, R> | SwitchDefault<R>;
 
-function switch <T, R> ( when: (() => T) | T, values: SwitchValue[] ): ObservableReadonly<Resolved<R | undefined>>;
+function switch <T, R> ( when: (() => T) | T, values: SwitchValue<T, R>[] ): ObservableReadonly<Resolved<R | undefined>>;
 ```
 
 Usage:
@@ -698,7 +698,7 @@ This function gets the value out of something, if it gets passed an Observable t
 Interface:
 
 ```ts
-function get <T> ( value: T ): ObservableResolved<T>;
+function get <T> ( value: T ): (T extends ObservableReadonly<infer U> ? U : T);
 ```
 
 Usage:
