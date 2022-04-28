@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import Reaction from '~/objects/reaction';
-import {castError, isFunction} from '~/utils';
+import {castError, isFunction, max} from '~/utils';
 import type {EffectFunction} from '~/types';
 
 /* MAIN */
@@ -12,7 +12,6 @@ class Effect extends Reaction {
   /* VARIABLES */
 
   fn: EffectFunction;
-  iteration: number = 0; //FIXME: This shouldn't be necessary
 
   /* CONSTRUCTOR */
 
@@ -34,22 +33,23 @@ class Effect extends Reaction {
 
     if ( fresh ) { // Something might change
 
-      if ( this.iteration ) { // Currently executing, cleaning up any leftovers
+      const status = this.statusExecution;
 
-        this.postdispose ();
+      if ( status ) { // Currently executing or pending
 
-      }
+        this.statusExecution = fresh ? 3 : max ( status, 2 );
 
-      this.dispose ();
+      } else { // Currently sleeping
 
-      try {
+        this.statusExecution = 1;
 
-        const iteration = ( this.iteration += 1 );
-        const cleanup = this.wrap ( this.fn );
+        this.dispose ();
 
-        this.postdispose ();
+        try {
 
-        if ( iteration === this.iteration ) { // No other instance of this effect currently running
+          const cleanup = this.wrap ( this.fn );
+
+          this.postdispose ();
 
           if ( isFunction ( cleanup ) ) {
 
@@ -65,13 +65,25 @@ class Effect extends Reaction {
 
           }
 
+        } catch ( error: unknown ) {
+
+          this.postdispose ();
+
+          this.error ( castError ( error ), false );
+
+        } finally {
+
+          const status = this.statusExecution as ( 1 | 2 | 3 ); //TSC
+
+          this.statusExecution = 0;
+
+          if ( status > 1 ) {
+
+            this.update ( status === 3 );
+
+          }
+
         }
-
-      } catch ( error: unknown ) {
-
-        this.postdispose ();
-
-        this.error ( castError ( error ), false );
 
       }
 

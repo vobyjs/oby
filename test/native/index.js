@@ -646,6 +646,38 @@ describe ( 'oby', () => {
 
   describe ( 'computed', it => {
 
+    it ( 'can not be running multiple times concurrently', t => {
+
+      const o = $(0);
+
+      let executions = 0;
+
+      const result = $.computed ( () => {
+
+        executions += 1;
+
+        const value = o ();
+
+        t.is ( executions, 1 );
+
+        if ( value === 0 ) o ( 1 );
+        if ( value === 1 ) o ( 2 );
+        if ( value === 2 ) o ( 3 );
+
+        t.is ( executions, 1 );
+
+        executions -= 1;
+
+        t.is ( executions, 0 );
+
+        return value;
+
+      });
+
+      t.is ( result (), 3 );
+
+    });
+
     it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
 
       const a = $(0);
@@ -1210,6 +1242,34 @@ describe ( 'oby', () => {
   });
 
   describe ( 'effect', it => {
+
+    it ( 'can not be running multiple times concurrently', t => {
+
+      const o = $(0);
+
+      let executions = 0;
+
+      $.effect ( () => {
+
+        executions += 1;
+
+        const value = o ();
+
+        t.is ( executions, 1 );
+
+        if ( value === 0 ) o ( 1 );
+        if ( value === 1 ) o ( 2 );
+        if ( value === 2 ) o ( 3 );
+
+        t.is ( executions, 1 );
+
+        executions -= 1;
+
+        t.is ( executions, 0 );
+
+      });
+
+    });
 
     it ( 'checks if the returned value is actually a function', t => {
 

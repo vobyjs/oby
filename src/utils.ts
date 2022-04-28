@@ -31,6 +31,12 @@ const isString = ( value: unknown ): value is string => {
 
 };
 
+const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
+
+  return Math.max ( a, b ) as T | U; //TSC
+
+};
+
 /* EXPORT */
 
-export {castError, isArray, isError, isFunction, isString};
+export {castError, isArray, isError, isFunction, isString, max};

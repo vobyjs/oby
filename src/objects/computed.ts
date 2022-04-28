@@ -3,7 +3,7 @@
 
 import Observable from '~/objects/observable';
 import Reaction from '~/objects/reaction';
-import {castError} from '~/utils';
+import {castError, max} from '~/utils';
 import type {IObservable, ComputedFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
@@ -14,7 +14,6 @@ class Computed<T = unknown> extends Reaction {
 
   fn: ComputedFunction<T, T>;
   observable: IObservable<T>;
-  iteration: number = 0; //FIXME: This shouldn't be necessary
 
   /* CONSTRUCTOR */
 
@@ -61,45 +60,68 @@ class Computed<T = unknown> extends Reaction {
 
     if ( fresh && !this.observable.disposed ) { // The resulting value might change
 
-      if ( this.iteration ) { // Currently executing, cleaning up any potential leftovers
+      const status = this.statusExecution;
 
-        this.postdispose ();
+      if ( status ) { // Currently executing or pending
 
-      }
+        this.statusExecution = fresh ? 3 : max ( status, 2 );
 
-      this.dispose ();
-
-      try {
-
-        const iteration = ( this.iteration += 1 );
-        const valuePrev = this.observable.value;
-        const valueNext = this.wrap ( this.fn.bind ( undefined, valuePrev ) );
-
-        this.postdispose ();
-
-        if ( this.observable.disposed || iteration !== this.iteration ) { // Maybe a computed disposed of itself via a root before returning, or caused itself to re-execute
+        if ( status > 1 ) {
 
           this.observable.unstale ( false );
 
-        } else {
-
-          this.observable.write ( valueNext );
-
         }
 
-        if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
+      } else { // Currently sleeping
 
-          this.dispose ( true, true );
+        this.statusExecution = 1;
+
+        this.dispose ();
+
+        try {
+
+          const valuePrev = this.observable.value;
+          const valueNext = this.wrap ( this.fn.bind ( undefined, valuePrev ) );
+
+          this.postdispose ();
+
+          if ( this.observable.disposed ) { // Maybe a computed disposed of itself via a root before returning, or caused itself to re-execute
+
+            this.observable.unstale ( false );
+
+          } else {
+
+            this.observable.write ( valueNext );
+
+          }
+
+          if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
+
+            this.dispose ( true, true );
+
+          }
+
+        } catch ( error: unknown ) {
+
+          this.postdispose ();
+
+          this.error ( castError ( error ), false );
+
+          this.observable.unstale ( false );
+
+        } finally {
+
+          const status = this.statusExecution as ( 1 | 2 | 3 ); //TSC
+
+          this.statusExecution = 0;
+
+          if ( status > 1 ) {
+
+            this.update ( status === 3 );
+
+          }
 
         }
-
-      } catch ( error: unknown ) {
-
-        this.postdispose ();
-
-        this.error ( castError ( error ), false );
-
-        this.observable.unstale ( false );
 
       }
 

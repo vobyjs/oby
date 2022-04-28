@@ -12,7 +12,8 @@ class Reaction extends Observer {
   /* VARIABLES */
 
   parent: IObserver = OWNER.current;
-  statusCount: number = 0;
+  statusCount: number = 0; // The count is incremented on stale messages and decremented on unstale messages
+  statusExecution: 0 | 1 | 2 | 3 = 0; // 0: SLEEPING, 1: EXECUTING, 2: PENDING_NO_FRESH, 3: PENDING_FRESH
   statusFresh: boolean = false;
 
   /* API */
