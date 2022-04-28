@@ -10,18 +10,18 @@ npm install --save oby
 
 ## APIs
 
-| [Core](#core)             | [Flow](#flow)             | [Utilities](#utilities)   |
-| ------------------------- | ------------------------- | ------------------------- |
-| [`$()`](#core)            | [`$.if`](#if)             | [`$.disposed`](#disposed) |
-| [`$.batch`](#batch)       | [`$.for`](#for)           | [`$.get`](#get)           |
-| [`$.cleanup`](#cleanup)   | [`$.switch`](#switch)     | [`$.readonly`](#readonly) |
-| [`$.computed`](#computed) | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)   |
-| [`$.context`](#context)   | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector) |
-| [`$.effect`](#effect)     |                           |                           |
-| [`$.error`](#error)       |                           |                           |
-| [`$.is`](#is)             |                           |                           |
-| [`$.root`](#root)         |                           |                           |
-| [`$.sample`](#sample)     |                           |                           |
+| [Core](#core)             | [Flow](#flow)             | [Utilities](#utilities)   | [Types](#types)                             |
+| ------------------------- | ------------------------- | ------------------------- | ------------------------------------------- |
+| [`$()`](#core)            | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
+| [`$.batch`](#batch)       | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
+| [`$.cleanup`](#cleanup)   | [`$.switch`](#switch)     | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
+| [`$.computed`](#computed) | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)   |                                             |
+| [`$.context`](#context)   | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector) |                                             |
+| [`$.effect`](#effect)     |                           |                           |                                             |
+| [`$.error`](#error)       |                           |                           |                                             |
+| [`$.is`](#is)             |                           |                           |                                             |
+| [`$.root`](#root)         |                           |                           |                                             |
+| [`$.sample`](#sample)     |                           |                           |                                             |
 
 ## Usage
 
@@ -833,6 +833,48 @@ values.forEach ( value => {
 
 select ( 1 ); // It causes only 2 effect to re-execute, not 5 or however many there are
 select ( 5 ); // It causes only 2 effect to re-execute, not 5 or however many there are
+```
+
+### Types
+
+The following TypeScript types are provided.
+
+#### `Observable`
+
+This type describes a regular writable Observable, like what you'd get from `$()`.
+
+Interface:
+
+```ts
+type Observable<T> = {
+  (): T,
+  ( value: T ): T,
+  ( fn: ( value: T ) => T ): T
+};
+```
+
+#### `ObservableReadonly`
+
+This type describes a read-only Observable, like what you'd get from `$.computed` or `$.readonly`.
+
+Interface:
+
+```ts
+type ObservableReadonly<T> = {
+  (): T
+};
+```
+
+#### `ObservableOptions`
+
+This type describes the options object that various functions can accept to tweak how the underlying Observable works.
+
+Interface:
+
+```ts
+type ObservableOptions<T> = {
+  equals?: (( value: T, valuePrev: T ) => boolean) | false
+};
 ```
 
 ## Thanks
