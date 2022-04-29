@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import {OWNER, SAMPLING} from '~/constants';
 import {castError} from '~/utils';
 import type {IObservable, IObserver, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyValue} from '~/types';
 
@@ -253,6 +253,7 @@ class Observer {
     const ownerPrev = OWNER.current;
 
     OWNER.current = this;
+    SAMPLING.current = false;
 
     let result: T;
 

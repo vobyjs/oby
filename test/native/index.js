@@ -2634,6 +2634,40 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'works on the top-level computation', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.effect ( () => {
+
+        sequence += 'p';
+
+        $.sample ( () => {
+
+          o ();
+
+          $.effect ( () => {
+
+            sequence += 'c';
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, 'pc' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'pcc' );
+
+    });
+
   });
 
   describe ( 'selector', it => {
