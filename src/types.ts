@@ -50,11 +50,13 @@ type UpdateFunction<T = unknown> = ( value: T ) => T;
 type Observable<T = unknown> = {
   (): T,
   ( value: T ): T,
-  ( fn: ( value: T ) => T ): T
+  ( fn: ( value: T ) => T ): T,
+  readonly [ObservableSymbol]: true
 };
 
 type ObservableReadonly<T = unknown> = {
-  (): T
+  (): T,
+  readonly [ObservableSymbol]: true
 };
 
 type ObservableAny<T = unknown> = Observable<T> | ObservableReadonly<T>;
@@ -64,6 +66,8 @@ type ObservableOptions<T = unknown> = {
 };
 
 type ObservableResolved<T = unknown> = T extends ObservableReadonly<infer U> ? U : T;
+
+declare const ObservableSymbol: unique symbol;
 
 /* OTHERS */
 
