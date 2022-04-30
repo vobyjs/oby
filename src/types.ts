@@ -85,9 +85,7 @@ type Mapped<T = unknown, R = unknown> = { bool: boolean, value: T, result: R, ro
 
 type Readable = <T = unknown> ( observable: IObservable<T> ) => ObservableReadonly<T>;
 
-type Resolvable<R = unknown> = R | Array<Resolvable<R>> | (() => Resolvable<R>);
-
-type Resolved<R = unknown> = R | Array<Resolved<R>>;
+type Resolved<T = unknown> = T extends (() => infer U) ? Resolved<U> : T extends Array<infer U> ? Resolved<U>[] : T;
 
 type Selected = { count: number, value: unknown, observable: IObservable<boolean> };
 
@@ -98,4 +96,4 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, TryCatchFunction, UpdateFunction};
 export type {Observable, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
-export type {Contexts, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Selected, Writable};
+export type {Contexts, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolved, Selected, Writable};

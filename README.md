@@ -758,10 +758,9 @@ This function is used internally by `$.if`, `$.for`, `$.switch`, `$.ternary`, `$
 Interface:
 
 ```ts
-type Resolvable<R> = R | Array<Resolvable<R>> | (() => Resolvable<R>);
-type Resolved<R> = R | Array<Resolved<R>>;
+type Resolved<T = unknown> = T extends (() => infer U) ? Resolved<U> : T extends Array<infer U> ? Resolved<U>[] : T;
 
-function resolve <T> ( value: Resolvable<T> ): Resolved<T>;
+function resolve <T> ( value: T ): Resolved<T>;
 ```
 
 Usage:

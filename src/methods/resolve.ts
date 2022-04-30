@@ -2,25 +2,27 @@
 /* IMPORT */
 
 import {isArray, isFunction} from '~/utils';
-import type {Resolvable, Resolved} from '~/types';
+import type {Resolved} from '~/types';
 
 /* MAIN */
 
-const resolve = <T> ( value: Resolvable<T> ): Resolved<T> => {
+const resolve = <T> ( value: T ): Resolved<T> => {
 
-  while ( isFunction ( value ) ) {
+  let resolved: any = value; //TSC
 
-    value = value ();
+  while ( isFunction ( resolved ) ) {
+
+    resolved = resolved ();
 
   }
 
-  if ( isArray ( value ) ) {
+  if ( isArray ( resolved ) ) {
 
-    return value.map ( resolve );
+    return resolved.map ( resolve ) as Resolved<T>; //TSC
 
   } else {
 
-    return value;
+    return resolved as Resolved<T>; //TSC
 
   }
 
