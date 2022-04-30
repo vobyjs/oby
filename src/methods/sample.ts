@@ -2,29 +2,40 @@
 /* IMPORT */
 
 import {SAMPLING} from '~/constants';
+import {isFunction} from '~/utils';
 import type {SampleFunction} from '~/types';
 
 /* MAIN */
 
-const sample = <T> ( fn: SampleFunction<T> ): T => {
+function sample <T> ( fn: SampleFunction<T> ): T;
+function sample <T> ( fn: T ): T;
+function sample <T> ( fn: SampleFunction<T> | T ) {
 
-  if ( SAMPLING.current ) { // Already sampling
+  if ( isFunction ( fn ) ) {
 
-    return fn ();
-
-  } else { // Starting sampling
-
-    SAMPLING.current = true;
-
-    try {
+    if ( SAMPLING.current ) { // Already sampling
 
       return fn ();
 
-    } finally {
+    } else { // Starting sampling
 
-      SAMPLING.current = false;
+      SAMPLING.current = true;
+
+      try {
+
+        return fn ();
+
+      } finally {
+
+        SAMPLING.current = false;
+
+      }
 
     }
+
+  } else {
+
+    return fn;
 
   }
 

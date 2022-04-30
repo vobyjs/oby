@@ -2566,6 +2566,18 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'returns non-functions as is', t => {
+
+      const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
+
+      for ( const value of values ) {
+
+        t.is ( value, $.sample ( value ) );
+
+      }
+
+    });
+
     it ( 'supports getting without creating dependencies in a computed', t => {
 
       const a = $(1);
