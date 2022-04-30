@@ -2,11 +2,10 @@
 /* IMPORT */
 
 import {isArray, isFunction} from '~/utils';
-import type {Resolved} from '~/types';
 
 /* MAIN */
 
-const resolve = <T> ( value: T ): Resolved<T> => {
+const resolve = <T> ( value: T ): any => { //FIXME: Type instantiation is excessively deep and possibly infinite. ts(2589)
 
   let resolved: any = value; //TSC
 
@@ -18,11 +17,11 @@ const resolve = <T> ( value: T ): Resolved<T> => {
 
   if ( isArray ( resolved ) ) {
 
-    return resolved.map ( resolve ) as Resolved<T>; //TSC
+    return resolved.map ( resolve );
 
   } else {
 
-    return resolved as Resolved<T>; //TSC
+    return resolved;
 
   }
 
