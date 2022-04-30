@@ -85,7 +85,8 @@ type Mapped<T = unknown, R = unknown> = { bool: boolean, value: T, result: R, ro
 
 type Readable = <T = unknown> ( observable: IObservable<T> ) => ObservableReadonly<T>;
 
-type Resolved<T = unknown> = T extends (() => infer U) ? Resolved<U> : T extends Array<infer U> ? Resolved<U>[] : T;
+// type Resolved<T = unknown> = T extends (() => infer U) ? Resolved<U> : T extends Array<infer U> ? Resolved<U>[] : T; //FIXME: Type instantiation is excessively deep and possibly infinite. ts(2589)
+type Resolved<T = unknown> = any;
 
 type Selected = { count: number, value: unknown, observable: IObservable<boolean> };
 
