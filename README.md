@@ -435,6 +435,7 @@ Interface:
 
 ```ts
 function sample <T> ( fn: () => T ): T;
+function sample <T> ( value: T ): T;
 ```
 
 Usage:
@@ -446,7 +447,7 @@ import $ from 'oby';
 
 const o = $(0);
 
-$.sample ( 0 ); // => 0
+$.sample ( o ); // => 0
 
 // Sampling multiple Observables
 
@@ -465,6 +466,10 @@ b ( 3 );
 c ( 4 );
 
 console.log ( sum ); // => 6, it's just a value, not a reactive Observable
+
+// Sampling a non function, it's just returned as is
+
+$.sample ( 123 ); // => 123
 ```
 
 ### Flow
