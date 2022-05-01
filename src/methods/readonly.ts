@@ -2,11 +2,11 @@
 /* IMPORT */
 
 import computed from '~/methods/computed';
-import type {ObservableReadonly, ObservableAny} from '~/types';
+import type {Observable, ObservableReadonly} from '~/types';
 
 /* MAIN */
 
-const readonly = <T> ( observable: ObservableAny<T> ): ObservableReadonly<T> => {
+const readonly = <T> ( observable: Observable<T> | ObservableReadonly<T> ): ObservableReadonly<T> => {
 
   return computed<T> ( () => {
 

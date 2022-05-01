@@ -59,8 +59,6 @@ type ObservableReadonly<T = unknown> = {
   readonly [ObservableSymbol]: true
 };
 
-type ObservableAny<T = unknown> = Observable<T> | ObservableReadonly<T>;
-
 type ObservableOptions<T = unknown> = {
   equals?: EqualsFunction<T> | false
 };
@@ -96,5 +94,5 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, TryCatchFunction, UpdateFunction};
-export type {Observable, ObservableReadonly, ObservableAny, ObservableOptions, ObservableResolved};
 export type {Contexts, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolved, Selected, Writable};
+export type {Observable, ObservableReadonly, ObservableOptions, ObservableResolved};

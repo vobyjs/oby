@@ -3,11 +3,11 @@
 
 import {SYMBOL} from '~/constants';
 import {isFunction} from '~/utils';
-import type {ObservableAny} from '~/types';
+import type {Observable, ObservableReadonly} from '~/types';
 
 /* MAIN */
 
-const is = <T = unknown> ( value: unknown ): value is ObservableAny<T> => {
+const is = <T = unknown> ( value: unknown ): value is Observable<T> | ObservableReadonly<T> => {
 
   return isFunction ( value ) && ( SYMBOL in value );
 

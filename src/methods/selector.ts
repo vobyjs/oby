@@ -4,12 +4,12 @@
 import cleanup from '~/methods/cleanup';
 import effect from '~/methods/effect';
 import sample from '~/methods/sample';
-import Observable from '~/objects/observable';
-import type {SelectorFunction, ObservableAny, Selected} from '~/types';
+import ObservableClass from '~/objects/observable';
+import type {SelectorFunction, Observable, ObservableReadonly, Selected} from '~/types';
 
 /* MAIN */
 
-const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
+const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): SelectorFunction<T> => {
 
   /* SELECTEDS */
 
@@ -82,7 +82,7 @@ const selector = <T> ( observable: ObservableAny<T> ): SelectorFunction<T> => {
 
     } else {
 
-      const o = new Observable<boolean> ( sample ( observable ) === value );
+      const o = new ObservableClass<boolean> ( sample ( observable ) === value );
 
       selected = { count: 1, value, observable: o };
 
