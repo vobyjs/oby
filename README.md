@@ -394,7 +394,7 @@ Note that the value returned by the root could always potentially resolve to `un
 Interface:
 
 ```ts
-function root <T> ( fn: () => T ): T;
+function root <T> ( fn: ( dispose: () => void ) => T ): T;
 ```
 
 Usage:
