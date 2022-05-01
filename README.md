@@ -188,7 +188,8 @@ This is the function where the magic happens, it generates a new read-only Obser
 
 There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
 
-Note that the Observable returned by a computed could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+- **Note**: the Observable returned by a computed could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+- **Note**: this function should not have side effects other than potentially updating some Observables, for side effects you should use `$.effect`.
 
 Interface:
 
@@ -287,6 +288,8 @@ $.root ( () => {
 #### `$.effect`
 
 An effect is similar to a computed, but it returns a function for manually disposing of it instead of an Observable, and if you return a function from inside it that's automatically registered as a cleanup function.
+
+- **Note**: this function is inteded for side effects that interact with the outside world, if you need to derive some value out of some Observables or if you need to update Observables it's recommended to instead use `$.computed`.
 
 Interface:
 
@@ -389,7 +392,7 @@ $.is ( {} ); // => false
 This function creates a computation root, computation roots are detached from parent roots/computeds/effects and will outlive them, so they must be manually disposed of, disposing them ends all the reactvity inside them, except for any eventual nested root.
 The value returned by the function is returned by the root itself.
 
-Note that the value returned by the root could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+- **Note**: the value returned by the root could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
 
 Interface:
 
