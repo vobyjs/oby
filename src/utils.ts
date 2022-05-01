@@ -19,7 +19,7 @@ const isError = ( value: unknown ): value is Error => {
 
 };
 
-const isFunction = ( value: unknown ): value is (( ...args: any[] ) => unknown) => {
+const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => {
 
   return typeof value === 'function';
 

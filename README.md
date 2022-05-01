@@ -774,7 +774,7 @@ type ResolvableObject = { [Key in string | number | symbol]?: Resolvable };
 type ResolvableFunction = () => Resolvable;
 type Resolvable = ResolvablePrimitive | ResolvableObject | ResolvableArray | ResolvableFunction;
 
-const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never;
+const resolve = <T> ( value: T ): T extends Resolvable ? T : never;
 ```
 
 Usage:

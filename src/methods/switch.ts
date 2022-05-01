@@ -3,6 +3,7 @@
 
 import computed from '~/methods/computed';
 import resolve from '~/methods/resolve';
+import {isFunction} from '~/utils';
 import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
@@ -13,7 +14,7 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): Ob
 
   const value = computed ( () => {
 
-    const condition = resolve ( when );
+    const condition = isFunction ( when ) ? when () : when;
 
     for ( let i = 0, l = values.length; i < l; i++ ) {
 
@@ -29,7 +30,7 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): Ob
 
   return computed ( () => {
 
-    return resolve ( value );
+    return resolve ( value () );
 
   });
 

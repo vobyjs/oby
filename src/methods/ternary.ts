@@ -2,17 +2,17 @@
 /* IMPORT */
 
 import computed from '~/methods/computed';
-import resolve from '~/methods/resolve';
 import _switch from '~/methods/switch';
+import {isFunction} from '~/utils';
 import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
 
 const ternary = <T, F> ( when: FunctionMaybe<unknown>, valueTrue: T, valueFalse: F ): ObservableReadonly<Resolved<T | F>> => {
 
-  const condition = computed ( () => !!resolve ( when ) );
+  const condition = computed ( () => isFunction ( when ) ? !!when () : !!when );
 
-  return _switch ( condition, [[true, valueTrue], [valueFalse]] );
+  return _switch<boolean, T | F> ( condition, [[true, valueTrue], [valueFalse]] );
 
 };
 

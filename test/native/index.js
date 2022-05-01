@@ -2047,13 +2047,25 @@ describe ( 'oby', () => {
 
     it ( 'resolves the fallback value before returning it', t => {
 
-      t.is ( $.for ( [], () => () => 123, () => () => 123 )(), 123 );
+      const result = $.for ( [], () => () => 123, () => () => 321 );
+
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 321 );
 
     });
 
     it ( 'resolves the mapped value before returning it', t => {
 
-      t.is ( $.for ( [1], () => () => 123 )()[0], 123 );
+      const result = $.for ( [1], () => () => () => 123 );
+
+      isReadable ( t, result );
+      isReadable ( t, result ()[0] );
+      isReadable ( t, result ()[0]() );
+
+      t.is ( result ()[0]()(), 123 );
 
     });
 
@@ -2172,13 +2184,25 @@ describe ( 'oby', () => {
 
     it ( 'resolves the fallback value before returning it', t => {
 
-      t.is ( $.if ( false, 123, () => () => 123 )(), 123 );
+      const result = $.if ( false, 123, () => () => 123 );
+
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 123 );
 
     });
 
     it ( 'resolves the value before returning it', t => {
 
-      t.is ( $.if ( true, () => () => 123 )(), 123 );
+      const result = $.if ( true, () => () => 123 );
+
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 123 );
 
     });
 
@@ -2283,6 +2307,8 @@ describe ( 'oby', () => {
     });
 
   });
+
+  describe ( 'resolve', it => {
 
     it ( 'properly disposes of inner computeds', t => {
 
@@ -2923,9 +2949,13 @@ describe ( 'oby', () => {
 
     it ( 'resolves the value of a case before returning it', t => {
 
-        const result = $.switch ( 1, [[1, () => () => '1'], [2, '2'], [1, '1.1']] );
+      const result = $.switch ( 1, [[1, () => () => '1'], [2, '2'], [1, '1.1']] );
 
-        t.is ( result (), '1' );
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), '1' );
 
     });
 
@@ -2933,7 +2963,11 @@ describe ( 'oby', () => {
 
       const result = $.switch ( 2, [[1, '1'], [() => () => 'default'], [2, '2'] [1, '1.1']] );
 
-      t.is ( result (), 'default' );
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 'default' );
 
     });
 
@@ -3036,13 +3070,25 @@ describe ( 'oby', () => {
 
     it ( 'resolves the first value before returning it', t => {
 
-      t.is ( $.ternary ( true, () => () => 123, 321 )(), 123 );
+      const result = $.ternary ( true, () => () => 123, 321 );
+
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 123 );
 
     });
 
     it ( 'resolves the second value before returning it', t => {
 
-      t.is ( $.ternary ( false, 123, () => () => 321 )(), 321 );
+      const result = $.ternary ( false, 123, () => () => 321 );
+
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 321 );
 
     });
 
@@ -3101,7 +3147,7 @@ describe ( 'oby', () => {
 
       const computed = $.tryCatch ( regular, fallback );
 
-      t.is ( computed (), 'regular' );
+      t.is ( computed ()(), 'regular' );
 
       o ( true );
 
@@ -3114,7 +3160,7 @@ describe ( 'oby', () => {
 
       recover ();
 
-      t.is ( computed (), 'regular' );
+      t.is ( computed ()(), 'regular' );
 
     });
 
@@ -3135,17 +3181,25 @@ describe ( 'oby', () => {
 
     it ( 'resolves the fallback before returning it', t => {
 
-      const computed = $.tryCatch ( () => { throw 'err' }, () => () => () => 123 );
+      const result = $.tryCatch ( () => { throw 'err' }, () => () => () => 123 );
 
-      t.is ( computed (), 123 );
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 123 );
 
     });
 
     it ( 'resolves the value before returning it', t => {
 
-      const computed = $.tryCatch ( () => () => () => 123, () => {} );
+      const result = $.tryCatch ( () => () => 123, () => {} );
 
-      t.is ( computed (), 123 );
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 123 );
 
     });
 
