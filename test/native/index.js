@@ -2909,6 +2909,130 @@ describe ( 'oby', () => {
 
   });
 
+  describe ( 'suspense', it => {
+
+    it ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {
+
+      let sequence = '';
+
+      const condition = $(0);
+
+      const value0 = () => {
+        sequence += '0';
+      };
+
+      const value1 = () => {
+        sequence += '1';
+      };
+
+      const valueDefault = () => {
+        sequence += 'd';
+      };
+
+      $.suspense ( condition, [[0, value0], [1, value1], [valueDefault]] );
+
+      condition ( 0 );
+
+      t.is ( sequence, '01d' );
+
+      condition ( 1 );
+      condition ( 1 );
+
+      t.is ( sequence, '01d' );
+
+      condition ( 2 );
+      condition ( 3 );
+
+      t.is ( sequence, '01d' );
+
+    });
+
+    it ( 'resolves the value of a case before returning it', t => {
+
+      const result = $.suspense ( 1, [[1, () => () => '1'], [2, '2'], [1, '1.1']] );
+
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), '1' );
+
+    });
+
+    it ( 'resolves the value of the default case before returning it', t => {
+
+      const result = $.suspense ( 2, [[1, '1'], [() => () => 'default'], [2, '2'] [1, '1.1']] );
+
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 'default' );
+
+    });
+
+    it ( 'returns a computed to matching case or the default case with a functional condition', t => {
+
+      const o = $(1);
+
+      const result = $.suspense ( o, [[1, '1'], [2, '2'], [1, '1.1'], ['default']] );
+
+      t.is ( result (), '1' );
+
+      o ( 2 );
+
+      t.is ( result (), '2' );
+
+      o ( 3 );
+
+      t.is ( result (), 'default' );
+
+    });
+
+    it ( 'returns a computed to the value of the default case if no case before it matches', t => {
+
+      const result = $.suspense ( 2, [[1, '1'], ['default'], [2, '2'] [1, '1.1']] );
+
+      t.is ( result (), 'default' );
+
+    });
+
+    it ( 'returns a computed to the value of the first matching case', t => {
+
+      const result1 = $.suspense ( 1, [[1, '1'], [2, '2'], [1, '1.1']] );
+
+      t.is ( result1 (), '1' );
+
+      const result2 = $.suspense ( 2, [[1, '1'], [2, '2'], [1, '1.1']] );
+
+      t.is ( result2 (), '2' );
+
+    });
+
+    it ( 'returns a computed to undefined if no condition matches and there is no default case', t => {
+
+      const result = $.suspense ( 1, [[2, '2'], [3, '3']] );
+
+      t.is ( result (), undefined );
+
+    });
+
+    it ( 'treats 0 and -0 as different values', t => {
+
+      const condition = $(0);
+
+      const computed = $.suspense ( condition, [[0, '0'], [-0, '-0']] );
+
+      t.is ( computed (), '0' );
+
+      condition ( -0 );
+
+      t.is ( computed (), '-0' );
+
+    });
+
+  });
+
   describe ( 'switch', it => {
 
     it ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {

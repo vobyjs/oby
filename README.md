@@ -14,10 +14,10 @@ npm install --save oby
 | ------------------------- | ------------------------- | ------------------------- | ------------------------------------------- |
 | [`$()`](#core)            | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
 | [`$.batch`](#batch)       | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
-| [`$.cleanup`](#cleanup)   | [`$.switch`](#switch)     | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
-| [`$.computed`](#computed) | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)   |                                             |
-| [`$.context`](#context)   | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector) |                                             |
-| [`$.effect`](#effect)     |                           |                           |                                             |
+| [`$.cleanup`](#cleanup)   | [`$.suspense`](#suspense) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
+| [`$.computed`](#computed) | [`$.switch`](#switch)     | [`$.resolve`](#resolve)   |                                             |
+| [`$.context`](#context)   | [`$.ternary`](#ternary)   | [`$.selector`](#selector) |                                             |
+| [`$.effect`](#effect)     | [`$.tryCatch`](#trycatch) |                           |                                             |
 | [`$.error`](#error)       |                           |                           |                                             |
 | [`$.is`](#is)             |                           |                           |                                             |
 | [`$.root`](#root)         |                           |                           |                                             |
@@ -491,7 +491,7 @@ This is the reactive version of the native `if` statement. It returns a computed
 Interface:
 
 ```ts
-function if <T, F> ( when: (() => boolean) | boolean, valueTrue: T, valueFalse?: T ): ObservableReadonly<Resolved<T | F | undefined>>;
+function if <T, F> ( when: (() => boolean) | boolean, valueTrue: T, valueFalse?: T ): ObservableReadonly<T | F | undefined>;
 ```
 
 Usage:
@@ -519,7 +519,7 @@ This is the reactive version of the native `Array.prototype.map`, it maps over a
 Interface:
 
 ```ts
-function for <T, R, F> ( values: (() => T[]) | T[], fn: (( value: T ) => R), fallback: F | [] = [] ): ObservableReadonly<Resolved<R>[] | Resolved<F>>;
+function for <T, R, F> ( values: (() => T[]) | T[], fn: (( value: T ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
 ```
 
 Usage:
@@ -544,6 +544,42 @@ const mapped = $.for ( os, o => {
 os ([ o1, o2, o3 ]);
 ```
 
+#### `$.suspense`
+
+This is a generalization of `$.switch`, where all possible branches are kept alive under the hood, not just the currently active one.
+
+Interface:
+
+```ts
+type SuspenseCase<T, R> = [T, R];
+type SuspenseDefault<R> = [R];
+type SuspenseValue<T, R> = SuspenseCase<T, R> | SuspenseDefault<R>;
+
+function suspense <T, R> ( when: (() => T) | T, values: SuspenseValue<T, R>[] ): ObservableReadonly<R | undefined>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Switching cases
+
+const o = $(1);
+
+const result = $.suspense ( o, [[1, '1'], [2, '2'], [1, '1.1'], ['default']] );
+
+result (); // => '1'
+
+o ( 2 );
+
+result (); // => '2'
+
+o ( 3 );
+
+result (); // => 'default'
+```
+
 #### `$.switch`
 
 This is the reactive version of the native `switch` statement. It returns a computed that resolves to the value of the first matching case, or the value of the default condition, or undefined otherwise.
@@ -555,7 +591,7 @@ type SwitchCase<T, R> = [T, R];
 type SwitchDefault<R> = [R];
 type SwitchValue<T, R> = SwitchCase<T, R> | SwitchDefault<R>;
 
-function switch <T, R> ( when: (() => T) | T, values: SwitchValue<T, R>[] ): ObservableReadonly<Resolved<R | undefined>>;
+function switch <T, R> ( when: (() => T) | T, values: SwitchValue<T, R>[] ): ObservableReadonly<R | undefined>;
 ```
 
 Usage:
@@ -587,7 +623,7 @@ This is the reactive version of the native ternary operator. It returns a comput
 Interface:
 
 ```ts
-function ternary <T, F> ( when: (() => boolean) | boolean, valueTrue: T, valueFalse: T ): ObservableReadonly<Resolved<T | F>>;
+function ternary <T, F> ( when: (() => boolean) | boolean, valueTrue: T, valueFalse: T ): ObservableReadonly<T | F>;
 ```
 
 Usage:
@@ -617,7 +653,7 @@ This is also commonly referred to as an "error boundary".
 Interface:
 
 ```ts
-function tryCatch <T, F> ( value: T, catchFn: ({ error, reset }: { error: Error, reset: () => void }) => F ): ObservableReadonly<Resolved<T | F>>;
+function tryCatch <T, F> ( value: T, catchFn: ({ error, reset }: { error: Error, reset: () => void }) => F ): ObservableReadonly<T | F>;
 ```
 
 Usage:
