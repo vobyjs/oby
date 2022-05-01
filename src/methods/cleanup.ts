@@ -6,9 +6,9 @@ import type {CleanupFunction} from '~/types';
 
 /* MAIN */
 
-const cleanup = ( cleanup: CleanupFunction ): void => {
+const cleanup = ( fn: CleanupFunction ): void => {
 
-  OWNER.current.registerCleanup ( cleanup );
+  OWNER.current.registerCleanup ( fn );
 
 };
 

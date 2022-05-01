@@ -147,7 +147,7 @@ This function allows you to register cleanup functions, which are executed autom
 Interface:
 
 ```ts
-function cleanup ( cleanup: () => void ): void;
+function cleanup ( fn: () => void ): void;
 ```
 
 Usage:
