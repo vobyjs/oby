@@ -1,28 +1,36 @@
 
 /* IMPORT */
 
+import {SYMBOL} from '~/constants';
+import computed from '~/methods/computed';
 import {isArray, isFunction} from '~/utils';
-import type {Resolved} from '~/types';
+import type {Resolvable, Resolved} from '../types';
 
 /* MAIN */
 
-const resolve = <T> ( value: T ): Resolved<T> => {
+const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never => {
 
-  let resolved: any = value; //TSC
+  if ( isFunction ( value ) ) {
 
-  while ( isFunction ( resolved ) ) {
+    if ( SYMBOL in value ) {
 
-    resolved = resolved ();
+      return value as any; //TSC
+
+    } else {
+
+      return computed ( () => resolve ( value () ) ) as any; //TSC
+
+    }
 
   }
 
-  if ( isArray ( resolved ) ) {
+  if ( isArray ( value ) ) {
 
-    return resolved.map ( resolve );
+    return value.map ( resolve ) as any; //TSC
 
   } else {
 
-    return resolved;
+    return value as any; //TSC
 
   }
 

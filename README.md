@@ -759,7 +759,7 @@ ro ( 321 ); // An error will be thrown, read-only Observables can't be set
 
 #### `$.resolve`
 
-This function recursively resolves functions in the passed value. Functions are called until they return something other than a function, and functions inside arrays are called too.
+This function recursively resolves reactivity in the passed value. Basically it replaces each function it can find with the result of `$.computed ( () => $.resolve ( fn () ) )`.
 
 You may never need to use this function yourself, but it's necessary internally at times to make sure that a child value is properly tracked by its parent computation.
 
@@ -768,9 +768,13 @@ This function is used internally by `$.if`, `$.for`, `$.switch`, `$.ternary`, `$
 Interface:
 
 ```ts
-type Resolved<T = unknown> = T extends (() => infer U) ? Resolved<U> : T extends Array<infer U> ? Resolved<U>[] : T;
+type ResolvablePrimitive = null | undefined | boolean | number | bigint | string | symbol;
+type ResolvableArray = Resolvable[];
+type ResolvableObject = { [Key in string | number | symbol]?: Resolvable };
+type ResolvableFunction = () => Resolvable;
+type Resolvable = ResolvablePrimitive | ResolvableObject | ResolvableArray | ResolvableFunction;
 
-function resolve <T> ( value: T ): Resolved<T>;
+const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never;
 ```
 
 Usage:
@@ -784,11 +788,11 @@ $.resolve ( 123 ); // => 123
 
 // Resolve a function
 
-$.resolve ( () => 123 ); // => 123
+$.resolve ( () => 123 ); // => ObservableReadonly<123>
 
 // Resolve a nested function
 
-$.resolve ( () => () => () => 123 ); // => 123
+$.resolve ( () => () => 123 ); // => ObservableReadonly<ObservableReadonly<123>>
 
 // Resolve a plain array
 
@@ -796,11 +800,19 @@ $.resolve ( [123] ); // => [123]
 
 // Resolve an array containing a function
 
-$.resolve ( [() => 123] ); // => [123]
+$.resolve ( [() => 123] ); // => [ObservableReadonly<123>]
 
 // Resolve an array containing arrays and functions
 
-$.resolve ( [() => 123, [() => () => [() => 123]]] ); // => [123, [[123]]]
+$.resolve ( [() => 123, [() => [() => 123]]] ); // => [ObservableReadonly<123>, [ObservableReadonly<[ObservableReadonly<123>]>]]
+
+// Resolve a plain object
+
+$.resolve ( { foo: 123 } ); // => { foo: 123 }
+
+// Resolve a plain object containing a function, plain objects are simply returned as is
+
+$.resolve ( { foo: () => 123 } ); // => { foo: () => 123 }
 ```
 
 #### `$.selector`

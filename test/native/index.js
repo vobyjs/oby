@@ -2286,47 +2286,114 @@ describe ( 'oby', () => {
 
   describe ( 'resolve', it => {
 
-    it ( 'does nothing for other other types of values', t => {
+    it ( 'resolves an array', t => {
 
-      const obj = { foo: () => 123, bar: [() => 123] };
+      const arr = [() => 123];
+      const resolved = $.resolve ( arr );
 
-      t.deepEqual ( $.resolve ( obj ), obj );
+      isReadable ( t, resolved[0] );
+
+      t.is ( resolved[0](), 123 );
 
     });
 
-    it ( 'resolves a plain value', t => {
+    it ( 'resolves a nested array', t => {
 
+      const arr = [123, [() => 123]];
+      const resolved = $.resolve ( arr );
+
+      isReadable ( t, resolved[1][0] );
+
+      t.is ( resolved[1][0](), 123 );
+
+    });
+
+    it ( 'resolves an observable', t => {
+
+      const o = $(123);
+      const resolved = $.resolve ( o );
+
+      t.is ( resolved, o );
+
+    });
+
+    it ( 'resolves nested observable', t => {
+
+      const a = $(123);
+      const b = $(a);
+      const resolved = $.resolve ( b );
+
+      t.is ( resolved, b );
+      t.is ( resolved (), a );
+
+    });
+
+    it ( 'resolves a plain object', t => {
+
+      const ia = { foo: true };
+      const ib = { foo: () => true };
+      const ic = { foo: [() => true] };
+
+      const oa = $.resolve ( ia );
+      const ob = $.resolve ( ib );
+      const oc = $.resolve ( ic );
+
+      t.is ( oa, ia );
+      t.is ( ob, ib );
+      t.is ( oc, ic );
+
+      t.false ( $.is ( ob.foo ) );
+      t.false ( $.is ( oc.foo[0] ) );
+
+    });
+
+    it ( 'resolves a primitive', t => {
+
+      const symbol = Symbol ();
+
+      t.is ( $.resolve ( null ), null );
+      t.is ( $.resolve ( undefined ), undefined );
+      t.is ( $.resolve ( true ), true );
+      t.is ( $.resolve ( false ), false );
       t.is ( $.resolve ( 123 ), 123 );
+      t.is ( $.resolve ( 123n ), 123n );
+      t.is ( $.resolve ( 'foo' ), 'foo' );
+      t.is ( $.resolve ( symbol ), symbol );
 
     });
 
     it ( 'resolves a function', t => {
 
-      t.is ( $.resolve ( () => 123 ), 123 );
+      const fn = () => 123;
+      const resolved = $.resolve ( fn );
+
+      isReadable ( t, resolved );
+
+      t.is ( resolved (), 123 );
 
     });
 
-    it ( 'resolves a nested function', t => {
+    it ( 'resolves nested functions', t => {
 
-      t.is ( $.resolve ( () => () => () => 123 ), 123 );
+      const fn = () => () => 123;
+      const resolved = $.resolve ( fn );
 
-    });
+      isReadable ( t, resolved );
+      isReadable ( t, resolved () );
 
-    it ( 'resolves a plain array', t => {
-
-      t.deepEqual ( $.resolve ( [123] ), [123] );
-
-    });
-
-    it ( 'resolves an array containing a function', t => {
-
-      t.deepEqual ( $.resolve ( [() => 123] ), [123] );
+      t.is ( resolved ()(), 123 );
 
     });
 
-    it ( 'resolves an array containing arrays and functions', t => {
+    it ( 'resolves mixed nested arrays and functions', t => {
 
-      t.deepEqual ( $.resolve ( [() => 123, [() => () => [() => 123]]] ), [123, [[123]]] );
+      const arr = [() => [() => 123]];
+      const resolved = $.resolve ( arr );
+
+      isReadable ( t, resolved[0] );
+      isReadable ( t, resolved[0]()[0] );
+
+      t.is ( resolved[0]()[0](), 123 );
 
     });
 
