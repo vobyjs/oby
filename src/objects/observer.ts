@@ -251,6 +251,7 @@ class Observer {
   wrap <T> ( fn: ObservedFunction<T> ): T {
 
     const ownerPrev = OWNER.current;
+    const samplingPrev = SAMPLING.current;
 
     OWNER.current = this;
     SAMPLING.current = false;
@@ -268,6 +269,7 @@ class Observer {
     } finally {
 
       OWNER.current = ownerPrev;
+      SAMPLING.current = samplingPrev;
 
     }
 

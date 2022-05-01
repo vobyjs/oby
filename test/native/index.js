@@ -2819,6 +2819,109 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'works with functions containing a computed', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        $.sample ( () => {
+
+          o ();
+
+          $.computed ( () => {
+
+            o ();
+
+          });
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'works with functions containing an effect', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        $.sample ( () => {
+
+          o ();
+
+          $.effect ( () => {
+
+            o ();
+
+          });
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'works with functions containing a root', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        $.sample ( () => {
+
+          o ();
+
+          $.root ( () => {
+
+            o ();
+
+          });
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
+
     it ( 'works on the top-level computation', t => {
 
       const o = $(0);
