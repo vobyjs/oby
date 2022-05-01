@@ -9,7 +9,7 @@ import type {ObservableReadonly} from '~/types';
 
 const disposed = (): ObservableReadonly<boolean> => {
 
-  const observable = new Observable<boolean> ( false );
+  const observable = new Observable ( false );
 
   cleanup ( () => {
 
