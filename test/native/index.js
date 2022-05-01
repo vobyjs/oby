@@ -3014,6 +3014,44 @@ describe ( 'oby', () => {
 
   describe ( 'suspense', it => {
 
+    it ( 'can switch back and worth between branches without re-executing them', t => {
+
+      let sequence = '';
+
+      const o = $(true);
+
+      const valueTrue = () => {
+        sequence += 't';
+        return 'true';
+      };
+
+      const valueFalse = () => {
+        sequence += 'f';
+        return 'false';
+      };
+
+      const result = $.suspense ( o, [[true, valueTrue], [false, valueFalse]] );
+
+      t.is ( sequence, 'tf' );
+      t.is ( result ()(), 'true' );
+
+      o ( false );
+
+      t.is ( sequence, 'tf' );
+      t.is ( result ()(), 'false' );
+
+      o ( true );
+
+      t.is ( sequence, 'tf' );
+      t.is ( result ()(), 'true' );
+
+      o ( -1 );
+
+      t.is ( sequence, 'tf' );
+      t.is ( result (), undefined );
+
+    });
+
     it ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {
 
       let sequence = '';
