@@ -2284,7 +2284,75 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'resolve', it => {
+    it ( 'properly disposes of inner computeds', t => {
+
+      const o = $(2);
+
+      let calls = 0;
+
+      const dispose = $.root ( dispose => {
+
+        const fn = () => {
+          $.computed ( () => {
+            calls += 1;
+            return o () ** 2;
+          });
+        };
+
+        $.resolve ( fn );
+
+        return dispose;
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 3 );
+
+      t.is ( calls, 2 );
+
+      dispose ();
+
+      o ( 4 );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'properly disposes of inner effects', t => {
+
+      const o = $(2);
+
+      let calls = 0;
+
+      const dispose = $.root ( dispose => {
+
+        const fn = () => {
+          $.effect ( () => {
+            calls += 1;
+            o () ** 2;
+          });
+        };
+
+        $.resolve ( fn );
+
+        return dispose;
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 3 );
+
+      t.is ( calls, 2 );
+
+      dispose ();
+
+      o ( 4 );
+
+      t.is ( calls, 2 );
+
+    });
 
     it ( 'resolves an array', t => {
 
