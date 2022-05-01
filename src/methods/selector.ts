@@ -82,7 +82,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     } else {
 
-      const o = new ObservableClass<boolean> ( sample ( observable ) === value );
+      const o = new ObservableClass ( sample ( observable ) === value );
 
       selected = { count: 1, value, observable: o };
 
