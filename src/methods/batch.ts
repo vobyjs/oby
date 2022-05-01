@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {BATCH} from '~/constants';
+import {isFunction} from '~/utils';
 import type {IObservable, BatchFunction} from '~/types';
 
 /* HELPERS */
@@ -10,27 +11,37 @@ const flush = <T> ( value: T, observable: IObservable<T> ): T => observable.writ
 
 /* MAIN */
 
-const batch = <T> ( fn: BatchFunction<T> ): T => {
+function batch <T> ( fn: BatchFunction<T> ): T;
+function batch <T> ( fn: T ): T;
+function batch <T> ( fn: BatchFunction<T> | T ) {
 
-  if ( BATCH.current ) { // Already batching
+  if ( isFunction ( fn ) ) {
 
-    return fn ();
-
-  } else { // Starting batching
-
-    const batch = BATCH.current = new Map ();
-
-    try {
+    if ( BATCH.current ) { // Already batching
 
       return fn ();
 
-    } finally {
+    } else { // Starting batching
 
-      BATCH.current = undefined;
+      const batch = BATCH.current = new Map ();
 
-      batch.forEach ( flush );
+      try {
+
+        return fn ();
+
+      } finally {
+
+        BATCH.current = undefined;
+
+        batch.forEach ( flush );
+
+      }
 
     }
+
+  } else {
+
+    return fn;
 
   }
 
