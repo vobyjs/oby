@@ -329,7 +329,7 @@ Remember to register your error handlers before doing anything else, or the comp
 Interface:
 
 ```ts
-function error ( error: ( error: Error ) => void ): void;
+function error ( fn: ( error: Error ) => void ): void;
 ```
 
 Usage:

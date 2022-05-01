@@ -6,9 +6,9 @@ import type {ErrorFunction} from '~/types';
 
 /* MAIN */
 
-const error = ( error: ErrorFunction ): void => {
+const error = ( fn: ErrorFunction ): void => {
 
-  OWNER.current.registerError ( error );
+  OWNER.current.registerError ( fn );
 
 };
 
