@@ -2,15 +2,15 @@
 /* IMPORT */
 
 import is from '~/methods/is';
-import type {ObservableResolved} from '~/types';
+import type {ObservableReadonly} from '~/types';
 
 /* MAIN */
 
-const get = <T> ( value: T ): ObservableResolved<T> => {
+const get = <T> ( value: T ): T extends ObservableReadonly<infer U> ? U : T => {
 
-  if ( is<ObservableResolved<T>> ( value ) ) return value ();
+  if ( is ( value ) ) return value () as any; //TSC
 
-  return value as ObservableResolved<T>; //TSC
+  return value as any; //TSC
 
 };
 

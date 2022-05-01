@@ -63,8 +63,6 @@ type ObservableOptions<T = unknown> = {
   equals?: EqualsFunction<T> | false
 };
 
-type ObservableResolved<T = unknown> = T extends ObservableReadonly<infer U> ? U : T;
-
 declare const ObservableSymbol: unique symbol;
 
 /* OTHERS */
@@ -95,4 +93,4 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, TryCatchFunction, UpdateFunction};
 export type {Contexts, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolved, Selected, Writable};
-export type {Observable, ObservableReadonly, ObservableOptions, ObservableResolved};
+export type {Observable, ObservableReadonly, ObservableOptions};
