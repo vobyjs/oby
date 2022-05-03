@@ -26,7 +26,15 @@ const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never => 
 
   if ( isArray ( value ) ) {
 
-    return value.map ( resolve ) as any; //TSC
+    const resolved = new Array ( value.length );
+
+    for ( let i = 0, l = resolved.length; i < l; i++ ) {
+
+      resolved[i] = resolve ( value[i] );
+
+    }
+
+    return resolved as any; //TSC
 
   } else {
 
