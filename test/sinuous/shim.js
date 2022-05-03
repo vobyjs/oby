@@ -8,13 +8,15 @@ const observable = value => {
 };
 
 const computed = ( fn, value ) => {
-  const observable = $.computed ( fn, value, { equals } );
+  let prev = value;
+  const observable = $.computed ( () => prev = fn ( prev ), { equals } );
   return () => observable ();
 };
 
 const subscribe = fn => {
   const dispose = $.root ( dispose => {
-    $.computed ( fn, undefined, { equals } );
+    let prev = undefined;
+    $.computed ( () => prev = fn ( prev ), { equals } );
     return dispose;
   });
   $.cleanup ( dispose );
