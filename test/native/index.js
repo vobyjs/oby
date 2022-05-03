@@ -767,48 +767,11 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns the previous value to the function', t => {
-
-      const a = $(1);
-      const aPrev = $();
-
-      const b = $.computed ( prev => {
-
-        aPrev ( prev );
-
-        return a ();
-
-      });
-
-      t.is ( a (), 1 );
-      t.is ( b (), 1 );
-      t.is ( aPrev (), undefined );
-
-      a ( 2 );
-
-      t.is ( a (), 2 );
-      t.is ( b (), 2 );
-      t.is ( aPrev (), 1 );
-
-      a ( 3 );
-
-      t.is ( a (), 3 );
-      t.is ( b (), 3 );
-      t.is ( aPrev (), 2 );
-
-      a ( 4 );
-
-      t.is ( a (), 4 );
-      t.is ( b (), 4 );
-      t.is ( aPrev (), 3 );
-
-    });
-
     it ( 'supports a custom equality function', t => {
 
       const o = $(2);
       const equals = value => ( value % 2 === 0 );
-      const oPlus1 = $.computed ( () => o () + 1, undefined, { equals } );
+      const oPlus1 = $.computed ( () => o () + 1, { equals } );
 
       t.is ( oPlus1 (), 3 );
 
@@ -910,43 +873,6 @@ describe ( 'oby', () => {
       o ( 3 );
 
       t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'supports receiving an initial value', t => {
-
-      const a = $(1);
-      const aPrev = $();
-
-      const b = $.computed ( prev => {
-
-        aPrev ( prev );
-
-        return a ();
-
-      }, 0 );
-
-      t.is ( a (), 1 );
-      t.is ( b (), 1 );
-      t.is ( aPrev (), 0 );
-
-      a ( 2 );
-
-      t.is ( a (), 2 );
-      t.is ( b (), 2 );
-      t.is ( aPrev (), 1 );
-
-      a ( 3 );
-
-      t.is ( a (), 3 );
-      t.is ( b (), 3 );
-      t.is ( aPrev (), 2 );
-
-      a ( 4 );
-
-      t.is ( a (), 4 );
-      t.is ( b (), 4 );
-      t.is ( aPrev (), 3 );
 
     });
 

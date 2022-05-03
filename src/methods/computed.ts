@@ -12,12 +12,9 @@ const DUMMY_OBSERVABLE = new Observable<any> ( undefined );
 
 /* MAIN */
 
-function computed <T> ( fn: ComputedFunction<T | undefined, T> ): ObservableReadonly<T>;
-function computed <T> ( fn: ComputedFunction<T | undefined, T>, valueInitial?: undefined, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
-function computed <T> ( fn: ComputedFunction<T, T>, valueInitial: T, options?: ObservableOptions<T> ): ObservableReadonly<T>;
-function computed <T> ( fn: ComputedFunction<T | undefined, T>, valueInitial?: T, options?: ObservableOptions<T | undefined> ) {
+const computed = <T> ( fn: ComputedFunction<T>, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T> => {
 
-  const computed = new Computed ( fn, valueInitial, options );
+  const computed = new Computed ( fn, options );
   const {observable} = computed;
 
   if ( !computed.observables ) { // It can never run again, freeing up some memory and returning a cheaper frozen observable
@@ -33,7 +30,7 @@ function computed <T> ( fn: ComputedFunction<T | undefined, T>, valueInitial?: T
 
   }
 
-}
+};
 
 /* EXPORT */
 

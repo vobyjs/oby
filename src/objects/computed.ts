@@ -12,17 +12,17 @@ class Computed<T = unknown> extends Reaction {
 
   /* VARIABLES */
 
-  fn: ComputedFunction<T, T>;
+  fn: ComputedFunction<T>;
   observable: IObservable<T>;
 
   /* CONSTRUCTOR */
 
-  constructor ( fn: ComputedFunction<T, T>, valueInitial: T, options?: ObservableOptions<T> ) {
+  constructor ( fn: ComputedFunction<T>, options?: ObservableOptions<T> ) {
 
     super ();
 
     this.fn = fn;
-    this.observable = new Observable ( valueInitial, options, this );
+    this.observable = new Observable ( undefined as any, options, this ); //TSC
 
     this.parent.registerObserver ( this );
 
@@ -80,8 +80,7 @@ class Computed<T = unknown> extends Reaction {
 
         try {
 
-          const valuePrev = this.observable.value;
-          const valueNext = this.wrap ( this.fn.bind ( undefined, valuePrev ) );
+          const value = this.wrap ( this.fn );
 
           this.postdispose ();
 
@@ -91,7 +90,7 @@ class Computed<T = unknown> extends Reaction {
 
           } else {
 
-            this.observable.write ( valueNext );
+            this.observable.write ( value );
 
           }
 

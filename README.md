@@ -194,9 +194,7 @@ There are no restrictions, you can nest these freely, create new Observables ins
 Interface:
 
 ```ts
-function computed <T> ( fn: ( valuePrev: T | undefined ) => T ): ObservableReadonly<T>;
-function computed <T> ( fn: ( valuePrev: T | undefined ) => T, valueInitial?: undefined, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
-function computed <T> ( fn: ( valuePrev: T ) => T, valueInitial: T, options?: ObservableOptions<T> ): ObservableReadonly<T>;
+function computed <T> ( fn: () => T, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
 ```
 
 Usage:
@@ -227,21 +225,6 @@ sum (); // => 8
 c ( 4 );
 
 sum (); // => 9
-
-// Make a new computed Observable with an initial value and while using the previous value
-
-const invocations = $.computed ( prev => {
-  a ();
-  return prev + 1;
-}, 0 );
-
-invocations (); // => 1
-
-a ( 10 );
-a ( 11 );
-a ( 12 );
-
-invocations (); // => 4
 ```
 
 #### `$.context`

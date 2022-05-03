@@ -21,7 +21,7 @@ type BatchFunction<T = unknown> = () => T;
 
 type CleanupFunction = () => void;
 
-type ComputedFunction<P = unknown, R = unknown> = ( valuePrev: P ) => R;
+type ComputedFunction<T = unknown> = () => T;
 
 type DisposeFunction = () => void;
 
