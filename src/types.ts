@@ -69,6 +69,8 @@ declare const ObservableSymbol: unique symbol;
 
 type Contexts = Record<symbol, any>;
 
+type Frozen = <T = unknown> ( value: T ) => ObservableReadonly<T>;
+
 type FunctionMaybe<T = unknown> = (() => T) | T;
 
 type LazyArray<T = unknown> = T[] | T | undefined;
@@ -98,4 +100,4 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, TryCatchFunction, UpdateFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
-export type {Contexts, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Selected, Writable};
+export type {Contexts, Frozen, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Selected, Writable};

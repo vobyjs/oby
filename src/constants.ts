@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import SuperRoot from '~/objects/superroot';
-import type {IObservable, IObserver} from '~/types';
+import type { IObservable, IObserver } from '~/types';
 
 /* MAIN */
 
