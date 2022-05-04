@@ -13,7 +13,7 @@ class Cache<T, R> {
   /* VARIABLES */
 
   fn: MapFunction<T, R>;
-  cache: Map<T, Mapped<T, Resolved<R>>> = new Map ();
+  cache: Map<T, Mapped<Resolved<R>>> = new Map ();
   bool = false; // The bool is flipped with each iteration, the roots that don't have the updated one are disposed, it's like a cheap counter basically
   prevCount: number = 0; // Number of previous items
   nextCount: number = 0; // Number of next items
@@ -36,13 +36,13 @@ class Cache<T, R> {
 
     const {cache, bool} = this;
 
-    cache.forEach ( mapped => {
+    cache.forEach ( ( mapped, value ) => {
 
       if ( mapped.bool === bool ) return;
 
       mapped.root.dispose ( true, true );
 
-      cache.delete ( mapped.value );
+      cache.delete ( value );
 
     });
 
@@ -97,7 +97,7 @@ class Cache<T, R> {
 
         const root = OWNER.current;
         const result = resolve ( this.fn ( value ) );
-        const mapped = { bool, value, result, root };
+        const mapped = { bool, result, root };
 
         cache.set ( value, mapped );
 

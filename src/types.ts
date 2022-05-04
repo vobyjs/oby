@@ -79,7 +79,7 @@ type LazySet<T = unknown> = Set<T> | T | undefined;
 
 type LazyValue<T = unknown> = T | undefined;
 
-type Mapped<T = unknown, R = unknown> = { bool: boolean, value: T, result: R, root: IObserver };
+type Mapped<T = unknown> = { bool: boolean, result: T, root: IObserver };
 
 type Readable = <T = unknown> ( observable: IObservable<T> ) => ObservableReadonly<T>;
 
