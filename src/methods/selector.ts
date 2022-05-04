@@ -5,7 +5,13 @@ import cleanup from '~/methods/cleanup';
 import effect from '~/methods/effect';
 import sample from '~/methods/sample';
 import ObservableClass from '~/objects/observable';
-import type {SelectorFunction, Observable, ObservableReadonly, Selected} from '~/types';
+import type {SelectorFunction, Observable, ObservableReadonly} from '~/types';
+
+/* HELPERS */
+
+class SelectedObservableClass extends ObservableClass<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata
+  count: number = 0;
+}
 
 /* MAIN */
 
@@ -13,7 +19,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   /* SELECTEDS */
 
-  let selecteds: Map<unknown, Selected> = new Map ();
+  let selecteds: Map<unknown, SelectedObservableClass> = new Map ();
 
   let valuePrev: T | undefined;
 
@@ -21,12 +27,12 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     const selectedPrev = selecteds.get ( valuePrev );
 
-    if ( selectedPrev ) selectedPrev.observable.write ( false );
+    if ( selectedPrev ) selectedPrev.write ( false );
 
     const valueNext = observable ();
     const selectedNext = selecteds.get ( valueNext );
 
-    if ( selectedNext ) selectedNext.observable.write ( true );
+    if ( selectedNext ) selectedNext.write ( true );
 
     valuePrev = valueNext;
 
@@ -38,7 +44,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     selecteds.forEach ( selected => {
 
-      selected.observable.dispose ();
+      selected.dispose ();
 
     });
 
@@ -50,19 +56,19 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   /* CLENAUP ONE */
 
-  const cleanupOne = function ( this: Selected ): void {
+  const cleanupOne = function ( this: T ): void {
 
-    const selected = this;
+    const selected = selecteds.get ( this );
+
+    if ( !selected ) return;
 
     selected.count -= 1;
 
     if ( selected.count ) return;
 
-    if ( !selecteds.size ) return;
+    selected.dispose ();
 
-    selected.observable.dispose ();
-
-    selecteds.delete ( selected.value );
+    selecteds.delete ( this );
 
   };
 
@@ -72,31 +78,30 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     /* INIT */
 
-    let selected: Selected;
+    let selected: SelectedObservableClass;
     let selectedPrev = selecteds.get ( value );
 
     if ( selectedPrev ) {
 
       selected = selectedPrev;
-      selected.count += 1;
 
     } else {
 
-      const o = new ObservableClass ( sample ( observable ) === value );
-
-      selected = { count: 1, value, observable: o };
+      selected = new SelectedObservableClass ( sample ( observable ) === value );
 
       selecteds.set ( value, selected );
 
     }
 
+    selected.count += 1;
+
     /* CLEANUP */
 
-    cleanup ( cleanupOne.bind ( selected ) );
+    cleanup ( cleanupOne.bind ( value ) );
 
     /* RETURN */
 
-    return selected.observable.read ();
+    return selected.read ();
 
   };
 
