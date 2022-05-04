@@ -1,8 +1,9 @@
 
 /* IMPORT */
 
-import {SYMBOL} from '~/constants';
+import {SYMBOL_OBSERVABLE, SYMBOL_SAMPLED} from '~/constants';
 import computed from '~/methods/computed';
+import {frozen} from '~/objects/callable';
 import {isArray, isFunction} from '~/utils';
 import type {Resolvable, Resolved} from '../types';
 
@@ -12,7 +13,11 @@ const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never => 
 
   if ( isFunction ( value ) ) {
 
-    if ( SYMBOL in value ) {
+    if ( SYMBOL_SAMPLED in value ) {
+
+      return frozen ( resolve ( value () ) ) as any; //TSC
+
+    } else if ( SYMBOL_OBSERVABLE in value ) {
 
       return value as any; //TSC
 

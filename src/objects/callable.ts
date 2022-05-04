@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL} from '~/constants';
+import {SYMBOL_OBSERVABLE} from '~/constants';
 import {isFunction} from '~/utils';
 import type {IObservable, UpdateFunction, Frozen, Readable, Writable} from '~/types';
 
@@ -9,7 +9,7 @@ import type {IObservable, UpdateFunction, Frozen, Readable, Writable} from '~/ty
 
 const {bind, prototype} = Function;
 const {setPrototypeOf} = Object;
-const proto = setPrototypeOf ( { [SYMBOL]: true }, prototype );
+const proto = setPrototypeOf ( { [SYMBOL_OBSERVABLE]: true }, prototype );
 
 /* MAIN */
 

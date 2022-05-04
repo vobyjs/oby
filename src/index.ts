@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {SYMBOL_OBSERVABLE, SYMBOL_SAMPLED} from '~/constants';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
@@ -61,4 +62,5 @@ $.tryCatch = tryCatch;
 /* EXPORT */
 
 export default $;
+export {SYMBOL_OBSERVABLE, SYMBOL_SAMPLED};
 export type {Observable, ObservableReadonly, ObservableOptions};
