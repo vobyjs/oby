@@ -1,10 +1,16 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
 import resolve from '~/methods/resolve';
-import root from '~/methods/root';
-import type {MapFunction, Mapped, Resolved} from '~/types';
+import Root from '~/objects/root';
+import type {MapFunction, Resolved} from '~/types';
+
+/* HELPERS */
+
+class MappedRoot<T = unknown> extends Root { // This saves some memory compared to making a dedicated standalone object for metadata
+  bool?: boolean;
+  result?: T;
+}
 
 /* MAIN */
 
@@ -13,7 +19,7 @@ class Cache<T, R> {
   /* VARIABLES */
 
   fn: MapFunction<T, R>;
-  cache: Map<T, Mapped<Resolved<R>>> = new Map ();
+  cache: Map<T, MappedRoot<Resolved<R>>> = new Map ();
   bool = false; // The bool is flipped with each iteration, the roots that don't have the updated one are disposed, it's like a cheap counter basically
   prevCount: number = 0; // Number of previous items
   nextCount: number = 0; // Number of next items
@@ -40,7 +46,7 @@ class Cache<T, R> {
 
       if ( mapped.bool === bool ) return;
 
-      mapped.root.dispose ( true, true );
+      mapped.dispose ( true, true );
 
       cache.delete ( value );
 
@@ -54,7 +60,7 @@ class Cache<T, R> {
 
     this.cache.forEach ( mapped => {
 
-      mapped.root.dispose ( true, true );
+      mapped.dispose ( true, true );
 
     });
 
@@ -89,15 +95,18 @@ class Cache<T, R> {
 
       cached.bool = bool;
 
-      return cached.result;
+      return cached.result!; //TSC
 
     } else {
 
-      return root ( () => {
+      const mapped = new MappedRoot<R> ();
 
-        const root = OWNER.current;
+      return mapped.wrap ( () => {
+
         const result = resolve ( this.fn ( value ) );
-        const mapped = { bool, result, root };
+
+        mapped.bool = bool;
+        mapped.result = result;
 
         cache.set ( value, mapped );
 
