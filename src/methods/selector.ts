@@ -9,7 +9,7 @@ import type {SelectorFunction, Observable, ObservableReadonly} from '~/types';
 
 /* HELPERS */
 
-class SelectedObservableClass extends ObservableClass<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata
+class SelectedObservable extends ObservableClass<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata
   count: number = 0;
 }
 
@@ -19,7 +19,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   /* SELECTEDS */
 
-  let selecteds: Map<unknown, SelectedObservableClass> = new Map ();
+  let selecteds: Map<unknown, SelectedObservable> = new Map ();
 
   let valuePrev: T | undefined;
 
@@ -78,7 +78,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     /* INIT */
 
-    let selected: SelectedObservableClass;
+    let selected: SelectedObservable;
     let selectedPrev = selecteds.get ( value );
 
     if ( selectedPrev ) {
@@ -87,7 +87,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     } else {
 
-      selected = new SelectedObservableClass ( sample ( observable ) === value );
+      selected = new SelectedObservable ( sample ( observable ) === value );
 
       selecteds.set ( value, selected );
 
