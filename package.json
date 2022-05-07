@@ -1,6 +1,6 @@
 {
   "name": "oby",
-  "repository": "github:fabiospampinato/oby",
+  "repository": "github:vobyjs/oby",
   "description": "A tiny Observable implementation, the brilliant primitive you need to build a powerful reactive system.",
   "version": "7.0.4",
   "type": "module",
