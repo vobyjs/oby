@@ -435,6 +435,64 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'coalesces multiple updates for a computed together', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.computed ( () => {
+
+        calls += 1;
+
+        a ();
+        b ();
+
+      });
+
+      t.is ( calls, 1 );
+
+      $.batch ( () => {
+        a ( 1 );
+        a ( 2 );
+        b ( 1 );
+        b ( 2 );
+      });
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'coalesces multiple updates for an effect together', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        a ();
+        b ();
+
+      });
+
+      t.is ( calls, 1 );
+
+      $.batch ( () => {
+        a ( 1 );
+        a ( 2 );
+        b ( 1 );
+        b ( 2 );
+      });
+
+      t.is ( calls, 2 );
+
+    });
+
     it ( 'returns non-functions as is', t => {
 
       const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
