@@ -157,6 +157,8 @@ class Observable<T = unknown> {
 
       if ( !this.parent ) {
 
+        if ( !fresh ) return value;
+
         this.stale ( fresh );
 
       }
