@@ -2,7 +2,7 @@
   "name": "oby",
   "repository": "github:vobyjs/oby",
   "description": "A tiny Observable implementation, the brilliant primitive you need to build a powerful reactive system.",
-  "version": "7.0.5",
+  "version": "7.0.6",
   "type": "module",
   "main": "dist/index.js",
   "exports": "./dist/index.js",
