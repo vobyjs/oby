@@ -35,7 +35,13 @@ function batch <T> ( fn: BatchFunction<T> | T ) {
 
         BATCH.current = undefined;
 
-        batch.forEach ( stale );
+        const isMultiBatch = ( batch.size > 1 );
+
+        if ( isMultiBatch ) {
+
+          batch.forEach ( stale );
+
+        }
 
         try {
 
@@ -43,7 +49,11 @@ function batch <T> ( fn: BatchFunction<T> | T ) {
 
         } finally {
 
-          batch.forEach ( unstale );
+          if ( isMultiBatch ) {
+
+            batch.forEach ( unstale );
+
+          }
 
         }
 
