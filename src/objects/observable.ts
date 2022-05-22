@@ -1,10 +1,10 @@
 
 /* IMPORT */
 
-import {BATCH, FALSE, OWNER, SAMPLING} from '~/constants';
+import {BATCH, FALSE, OWNER, ROOT, SAMPLING} from '~/constants';
 import {frozen, readable, writable} from '~/objects/callable';
 import Reaction from '~/objects/reaction';
-import type {IObservable, IObserver, IComputed, EqualsFunction, UpdateFunction, Observable as ObservableWritable, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
+import type {IObservable, IObserver, IComputed, ISignal, EqualsFunction, UpdateFunction, Observable as ObservableWritable, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -13,6 +13,7 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   parent?: IComputed<T>;
+  signal: ISignal = ROOT.current.signal;
   value: T;
   disposed?: true;
   equals?: EqualsFunction<T>;
@@ -85,7 +86,7 @@ class Observable<T = unknown> {
 
   registerSelf (): void {
 
-    if ( this.disposed ) return;
+    if ( this.disposed || this.signal.disposed ) return;
 
     if ( !SAMPLING.current && OWNER.current instanceof Reaction ) {
 
@@ -159,13 +160,21 @@ class Observable<T = unknown> {
 
         if ( !fresh ) return value;
 
-        this.stale ( fresh );
+        if ( !this.signal.disposed ) {
+
+          this.stale ( fresh );
+
+        }
 
       }
 
       this.value = ( fresh ? value : this.value );
 
-      this.unstale ( fresh );
+      if ( !this.signal.disposed ) {
+
+        this.unstale ( fresh );
+
+      }
 
       return value;
 
@@ -183,7 +192,7 @@ class Observable<T = unknown> {
 
   stale ( fresh: boolean ): void {
 
-    if ( this.disposed ) return;
+    if ( this.disposed || this.signal.disposed ) return;
 
     const reactions = this.observers as LazySet<Reaction>; //TSC
 
@@ -209,7 +218,7 @@ class Observable<T = unknown> {
 
   unstale ( fresh: boolean ): void {
 
-    if ( this.disposed ) return;
+    if ( this.disposed || this.signal.disposed ) return;
 
     const reactions = this.observers as LazySet<Reaction>; //TSC
 

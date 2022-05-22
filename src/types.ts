@@ -13,6 +13,8 @@ type IReaction = import ( '~/objects/reaction' ).default;
 
 type IRoot = import ( '~/objects/root' ).default;
 
+type ISignal = import ( '~/objects/signal' ).default;
+
 type ISuperRoot = import ( '~/objects/superroot' ).default;
 
 /* FUNCTIONS */
@@ -95,7 +97,7 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 /* EXPORT */
 
-export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot};
+export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISignal, ISuperRoot};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, TryCatchFunction, UpdateFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Contexts, Frozen, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};

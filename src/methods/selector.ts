@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {ROOT} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import effect from '~/methods/effect';
 import sample from '~/methods/sample';
@@ -16,6 +17,10 @@ class SelectedObservable extends ObservableClass<boolean> { // This saves some m
 /* MAIN */
 
 const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): SelectorFunction<T> => {
+
+  /* SIGNAL */
+
+  const signal = ROOT.current.signal;
 
   /* SELECTEDS */
 
@@ -42,11 +47,15 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   const cleanupAll = (): void => {
 
-    selecteds.forEach ( selected => {
+    if ( !signal.disposed ) {
 
-      selected.dispose ();
+      selecteds.forEach ( selected => {
 
-    });
+        selected.dispose ();
+
+      });
+
+    }
 
     selecteds = new Map ();
 

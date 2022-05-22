@@ -163,12 +163,12 @@ class Observer {
       if ( observables instanceof Array ) {
         for ( let i = 0, l = observables.length; i < l; i++ ) {
           const observable = observables[i];
-          if ( !observable.disposed ) {
+          if ( !observable.disposed && !observable.signal.disposed ) {
             observable.unregisterObserver ( this );
           }
         }
       } else {
-        if ( !observables.disposed ) {
+        if ( !observables.disposed && !observables.signal.disposed ) {
           if ( immediate ) {
             observables.unregisterObserver ( this );
           } else {
@@ -205,7 +205,7 @@ class Observer {
 
     if ( observablesLeftover ) {
       this.observablesLeftover = undefined;
-      if ( observablesLeftover !== this.observables && !observablesLeftover.disposed ) {
+      if ( observablesLeftover !== this.observables && !observablesLeftover.disposed && !observablesLeftover.signal.disposed ) {
         observablesLeftover.unregisterObserver ( this );
       }
     }

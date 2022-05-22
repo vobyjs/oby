@@ -58,7 +58,7 @@ class Computed<T = unknown> extends Reaction {
 
   update ( fresh: boolean ): void {
 
-    if ( fresh && !this.observable.disposed ) { // The resulting value might change
+    if ( fresh && !this.observable.disposed && !this.observable.signal.disposed ) { // The resulting value might change
 
       const status = this.statusExecution;
 
@@ -84,7 +84,7 @@ class Computed<T = unknown> extends Reaction {
 
           this.postdispose ();
 
-          if ( this.observable.disposed ) { // Maybe a computed disposed of itself via a root before returning, or caused itself to re-execute
+          if ( this.observable.disposed || this.observable.signal.disposed ) { // Maybe a computed disposed of itself via a root before returning, or caused itself to re-execute
 
             this.observable.unstale ( false );
 
