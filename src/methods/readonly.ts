@@ -8,11 +8,7 @@ import type {Observable, ObservableReadonly} from '~/types';
 
 const readonly = <T> ( observable: Observable<T> | ObservableReadonly<T> ): ObservableReadonly<T> => {
 
-  return computed<T> ( () => {
-
-    return observable ();
-
-  });
+  return computed<T> ( observable );
 
 };
 
