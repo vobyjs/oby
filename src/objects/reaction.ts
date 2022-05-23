@@ -1,9 +1,9 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import {OWNER, ROOT} from '~/constants';
 import Observer from '~/objects/observer';
-import type {IObserver} from '~/types';
+import type {IObserver, ISignal} from '~/types';
 
 /* MAIN */
 
@@ -12,6 +12,7 @@ class Reaction extends Observer {
   /* VARIABLES */
 
   parent: IObserver = OWNER.current;
+  signal: ISignal = ROOT.current.signal;
   statusCount: number = 0; // The count is incremented on stale messages and decremented on unstale messages
   statusExecution: 0 | 1 | 2 | 3 = 0; // 0: SLEEPING, 1: EXECUTING, 2: PENDING_NO_FRESH, 3: PENDING_FRESH
   statusFresh: boolean = false;

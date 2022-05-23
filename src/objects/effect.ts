@@ -31,7 +31,7 @@ class Effect extends Reaction {
 
   update ( fresh: boolean ): void {
 
-    if ( fresh ) { // Something might change
+    if ( fresh && !this.signal.disposed ) { // Something might change
 
       const status = this.statusExecution;
 

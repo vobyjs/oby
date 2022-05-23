@@ -34,7 +34,7 @@ class Computed<T = unknown> extends Reaction {
 
   dispose ( deep?: boolean, immediate?: boolean ): void {
 
-    if ( deep ) {
+    if ( deep && !this.signal.disposed ) {
 
       this.observable.dispose ();
 
