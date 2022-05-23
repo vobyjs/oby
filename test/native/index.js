@@ -3671,6 +3671,39 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'parent supports going from one to two subscriptions', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.computed ( () => {
+
+        calls += 1;
+
+        if ( !a () ) return;
+
+        b ();
+
+      });
+
+      t.is ( calls, 1 );
+
+      a ( 1 );
+
+      t.is ( calls, 2 );
+
+      a ( 2 );
+
+      t.is ( calls, 3 );
+
+      b ( 1 );
+
+      t.is ( calls, 4 );
+
+    });
+
     it ( 'parent cleans up inner conditional subscriptions', t => {
 
       const o = $(null);

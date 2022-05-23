@@ -205,9 +205,13 @@ class Observer {
 
     if ( observablesLeftover ) {
       this.observablesLeftover = undefined;
-      if ( observablesLeftover !== this.observables && !observablesLeftover.disposed && !observablesLeftover.signal.disposed ) {
-        observablesLeftover.unregisterObserver ( this );
+      if ( observablesLeftover.disposed || observablesLeftover.signal.disposed ) return;
+      if ( this.observables instanceof Array ) {
+        if ( this.observables.indexOf ( observablesLeftover ) >= 0 ) return; // The `indexOf` call here could potentially be problematic for performance, but it should be worth it on average
+      } else {
+        if ( observablesLeftover === this.observables ) return;
       }
+      observablesLeftover.unregisterObserver ( this );
     }
 
   }
