@@ -5,7 +5,7 @@ class Signal {
 
   /* VARIABLES */
 
-  disposed: boolean = false;
+  disposed?: true;
 
   /* API */
 
