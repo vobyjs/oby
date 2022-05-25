@@ -45,7 +45,7 @@ type SampleFunction<T = unknown> = () => T;
 
 type SelectorFunction<T = unknown> = ( value: T ) => boolean;
 
-type SuspenseFunction = () => void;
+type SuspenseFunction<T = unknown> = () => T;
 
 type TryCatchFunction<T = unknown> = ({ error, reset }: { error: Error, reset: DisposeFunction }) => T;
 

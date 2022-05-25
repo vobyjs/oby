@@ -538,7 +538,7 @@ A parent suspense boundary will also recursively pause children suspense boundar
 Interface:
 
 ```ts
-function suspense ( suspended: FunctionMaybe<unknown>, fn: () => void ): void;
+function suspense <T> ( suspended: FunctionMaybe<unknown>, fn: () => T ): T;
 ```
 
 Usage:

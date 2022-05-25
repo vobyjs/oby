@@ -9,7 +9,7 @@ import type {SuspenseFunction, FunctionMaybe} from '~/types';
 
 /* MAIN */
 
-const suspense = ( when: FunctionMaybe<unknown>, fn: SuspenseFunction ): void => {
+const suspense = <T> ( when: FunctionMaybe<unknown>, fn: SuspenseFunction<T> ): T => {
 
   const suspense = new Suspense ();
   const condition = computed ( () => isFunction ( when ) ? !!when () : !!when );
@@ -20,7 +20,7 @@ const suspense = ( when: FunctionMaybe<unknown>, fn: SuspenseFunction ): void =>
 
   });
 
-  suspense.wrap ( fn );
+  return suspense.wrap ( fn );
 
 };
 

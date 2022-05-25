@@ -1,61 +1,26 @@
 
 /* IMPORT */
 
-import {SUSPENSE} from '~/constants';
-import cleanup from '~/methods/cleanup';
-import type {IEffect, ISuspense, SuspenseFunction} from '~/types';
+import {OWNER, SUSPENSE} from '~/constants';
+import Effect from '~/objects/effect';
+import Observer from '~/objects/observer';
+import type {IObserver, SuspenseFunction, LazyArray} from '~/types';
 
 /* MAIN */
 
-class Suspense {
+class Suspense extends Observer {
 
   /* VARIABLES */
 
-  effects: Set<IEffect> = new Set (); //TODO: Try to delete this set, relying instead on other already existing properties of observers, perhaps
-  suspenses: Set<ISuspense> = new Set ();
-  suspended: number = 0; // 0: UNSUSPENDED, 1: THIS_SUSPENDED, 2+: THIS_AND_PARENT_SUSPENDED
+  suspended: number = SUSPENSE.current?.suspended || 0; // 0: UNSUSPENDED, 1: THIS_SUSPENDED, 2+: THIS_AND_PARENT_SUSPENDED
 
   /* CONSTRUCTOR */
 
   constructor () {
 
-    const parent = SUSPENSE.current;
+    super ();
 
-    if ( parent ) {
-
-      parent.registerSuspense ( this );
-
-      cleanup ( () => parent.unregisterSuspense ( this ) );
-
-      this.suspended = parent.suspended;
-
-    }
-
-  }
-
-  /* REGISTRATION API */
-
-  registerEffect ( effect: IEffect ): void {
-
-    this.effects.add ( effect );
-
-  }
-
-  registerSuspense ( suspense: ISuspense ): void {
-
-    this.suspenses.add ( suspense );
-
-  }
-
-  unregisterEffect ( effect: IEffect ): void {
-
-    this.effects.delete ( effect );
-
-  }
-
-  unregisterSuspense ( suspense: ISuspense ): void {
-
-    this.suspenses.delete ( suspense );
+    OWNER.current.registerObserver ( this );
 
   }
 
@@ -65,29 +30,47 @@ class Suspense {
 
     if ( !this.suspended && !force ) return; // Already suspended, this can happen at instantion time
 
+    const suspendedPrev = this.suspended;
+
     this.suspended += force ? 1 : -1;
 
-    if ( this.suspended === 0 ) { // Resuming
+    if ( suspendedPrev >= 2 ) return; // No pausing or resuming
 
-      for ( const effect of this.effects ) {
-        effect.unstale ( false );
+    /* NOTIFYING EFFECTS AND SUSPENSES */
+
+    const notifyObservers = ( observers: LazyArray<IObserver>, cb: Function ): void => {
+      if ( observers instanceof Array ) {
+        for ( let i = 0, l = observers.length; i < l; i++ ) {
+          cb ( observers[i] );
+        }
+      } else if ( observers ) {
+        cb ( observers );
       }
+    };
 
-    } else if ( this.suspended === 1 ) { // Pausing
-
-      for ( const effect of this.effects ) {
-        effect.stale ( false );
+    const notifyObserver = ( observer: IObserver ): void => {
+      if ( observer instanceof Suspense ) return;
+      if ( observer instanceof Effect ) {
+        if ( force ) {
+          observer.stale ( false );
+        } else {
+          observer.unstale ( false );
+        }
       }
+      notifyObservers ( observer.observers, notifyObserver );
+    };
 
-    }
+    const notifySuspense = ( observer: IObserver ): void => {
+      if ( !( observer instanceof Suspense ) ) return;
+      observer.toggle ( force );
+    };
 
-    for ( const suspense of this.suspenses ) {
-      suspense.toggle ( force );
-    }
+    notifyObservers ( this.observers, notifyObserver );
+    notifyObservers ( this.observers, notifySuspense );
 
   }
 
-  wrap ( fn: SuspenseFunction ): void {
+  wrap <T> ( fn: SuspenseFunction<T> ): T {
 
     const suspensePrev = SUSPENSE.current;
 
@@ -95,7 +78,7 @@ class Suspense {
 
     try {
 
-      fn ();
+      return super.wrap ( fn );
 
     } finally {
 

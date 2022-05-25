@@ -3277,7 +3277,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a root', t => {
+    it.skip ( 'can suspend and unsuspend the execution of an effect created in a root', t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -3416,7 +3416,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns undefined', t => {
+    it ( 'returns whatever the function returns', t => {
 
       const result = $.suspense ( false, () => {
 
@@ -3424,7 +3424,7 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( result, undefined );
+      t.is ( result, 123 );
 
     });
 
