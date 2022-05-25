@@ -1043,6 +1043,21 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'can read and write context values inside a suspense', t => {
+
+      $.suspense ( false, () => {
+
+        const ctx = Symbol ();
+        const value = { foo: 123 };
+
+        $.context ( ctx, value );
+
+        t.is ( $.context ( ctx ), value );
+
+      });
+
+    });
+
     it ( 'can read and write context values inside a deep effect', t => {
 
       $.effect ( () => {
@@ -1091,6 +1106,25 @@ describe ( 'oby', () => {
         $.context ( ctx, value );
 
         $.root ( () => {
+
+          t.is ( $.context ( ctx ), value );
+
+        });
+
+      });
+
+    });
+
+    it ( 'can read and write context values inside a deep suspense', t => {
+
+      $.suspense ( false, () => {
+
+        const ctx = Symbol ();
+        const value = { foo: 123 };
+
+        $.context ( ctx, value );
+
+        $.suspense ( false, () => {
 
           t.is ( $.context ( ctx ), value );
 

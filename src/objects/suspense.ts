@@ -12,6 +12,7 @@ class Suspense extends Observer {
 
   /* VARIABLES */
 
+  parent: IObserver = OWNER.current;
   suspended: number = Suspense.suspended (); // 0: UNSUSPENDED, 1: THIS_SUSPENDED, 2+: THIS_AND_PARENT_SUSPENDED
 
   /* CONSTRUCTOR */
