@@ -13,7 +13,7 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   parent?: IComputed<T>;
-  signal: ISignal = ROOT.current.signal;
+  signal: ISignal = OWNER.current.signal || ROOT.current.signal;
   value: T;
   disposed?: true;
   equals?: EqualsFunction<T>;

@@ -3,7 +3,7 @@
 
 import {OWNER, SAMPLING} from '~/constants';
 import {castError} from '~/utils';
-import type {IObservable, IObserver, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyValue} from '~/types';
+import type {IObservable, IObserver, ISignal, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyValue} from '~/types';
 
 /* MAIN */
 
@@ -12,6 +12,7 @@ class Observer {
   /* VARIABLES */
 
   parent?: IObserver;
+  signal?: ISignal;
   cleanups?: LazyArray<CleanupFunction>;
   contexts?: LazyValue<Contexts>;
   errors?: LazyArray<ErrorFunction>;

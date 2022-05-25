@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {ROOT} from '~/constants';
+import {OWNER, ROOT} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import effect from '~/methods/effect';
 import sample from '~/methods/sample';
@@ -20,7 +20,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   /* SIGNAL */
 
-  const signal = ROOT.current.signal;
+  const signal = OWNER.current.signal || ROOT.current.signal;
 
   /* SELECTEDS */
 
