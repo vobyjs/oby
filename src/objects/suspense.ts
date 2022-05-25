@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER, SUSPENSE, SYMBOL_SUSPENSE} from '~/constants';
+import {OWNER, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_SUSPENSE} from '~/constants';
 import Effect from '~/objects/effect';
 import Observer from '~/objects/observer';
 import type {IObserver, ISuspense, SuspenseFunction, LazyArray} from '~/types';
@@ -19,6 +19,8 @@ class Suspense extends Observer {
   constructor () {
 
     super ();
+
+    SUSPENSE_ENABLED.current = true;
 
     OWNER.current.registerObserver ( this );
 
@@ -93,6 +95,8 @@ class Suspense extends Observer {
   /* STATIC API */
 
   static suspended (): number {
+
+    if ( !SUSPENSE_ENABLED.current ) return 0;
 
     const suspense = SUSPENSE.current || OWNER.current.context<ISuspense> ( SYMBOL_SUSPENSE );
 
