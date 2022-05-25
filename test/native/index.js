@@ -3277,7 +3277,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'can suspend and unsuspend the execution of an effect created in a root', t => {
+    it.skip ( 'can suspend and unsuspend the execution of an effect created in a root', t => { //FIXME: Effects in roots must be suspended too, hopefully it can be done efficiently
 
       const o = $(0);
       const suspended = $(false);
