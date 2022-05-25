@@ -3035,161 +3035,655 @@ describe ( 'oby', () => {
 
   describe ( 'suspense', it => {
 
-    it ( 'can switch back and worth between branches without re-executing them', t => {
+    it ( 'can accept a primitive falsy condition', t => {
 
-      let sequence = '';
+      const o = $(0);
+      const suspended = 0;
 
-      const o = $(true);
+      let calls = 0;
 
-      const valueTrue = () => {
-        sequence += 't';
-        return 'true';
-      };
+      $.suspense ( suspended, () => {
 
-      const valueFalse = () => {
-        sequence += 'f';
-        return 'false';
-      };
+        $.effect ( () => {
 
-      const result = $.suspense ( o, [[true, valueTrue], [false, valueFalse]] );
+          calls += 1;
 
-      t.is ( sequence, 'tf' );
-      t.is ( result ()(), 'true' );
+          o ();
 
-      o ( false );
+        });
 
-      t.is ( sequence, 'tf' );
-      t.is ( result ()(), 'false' );
+      });
 
-      o ( true );
+      t.is ( calls, 1 );
 
-      t.is ( sequence, 'tf' );
-      t.is ( result ()(), 'true' );
+      o ( 1 );
 
-      o ( -1 );
-
-      t.is ( sequence, 'tf' );
-      t.is ( result (), undefined );
+      t.is ( calls, 2 );
 
     });
 
-    it ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {
+    it ( 'can accept a primitive truthy condition', t => {
 
-      let sequence = '';
+      const o = $(0);
+      const suspended = 1;
 
-      const condition = $(0);
+      let calls = 0;
 
-      const value0 = () => {
-        sequence += '0';
-      };
+      $.suspense ( suspended, () => {
 
-      const value1 = () => {
-        sequence += '1';
-      };
+        $.effect ( () => {
 
-      const valueDefault = () => {
-        sequence += 'd';
-      };
+          calls += 1;
 
-      $.suspense ( condition, [[0, value0], [1, value1], [valueDefault]] );
+          o ();
 
-      condition ( 0 );
+        });
 
-      t.is ( sequence, '01d' );
+      });
 
-      condition ( 1 );
-      condition ( 1 );
+      t.is ( calls, 0 );
 
-      t.is ( sequence, '01d' );
+      o ( 1 );
 
-      condition ( 2 );
-      condition ( 3 );
-
-      t.is ( sequence, '01d' );
+      t.is ( calls, 0 );
 
     });
 
-    it ( 'resolves the value of a case before returning it', t => {
+    it ( 'can accept a function condition', t => {
 
-      const result = $.suspense ( 1, [[1, () => () => '1'], [2, '2'], [1, '1.1']] );
+      const o = $(0);
+      const suspended = $(true);
+      const condition = () => !suspended ();
 
-      isReadable ( t, result );
-      isReadable ( t, result () );
-      isReadable ( t, result ()() );
+      let calls = 0;
 
-      t.is ( result ()()(), '1' );
+      $.suspense ( condition, () => {
+
+        $.effect ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      suspended ( false );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'resolves the value of the default case before returning it', t => {
+    it ( 'can suspend and unsuspend again when the condition changes', t => {
 
-      const result = $.suspense ( 2, [[1, '1'], [() => () => 'default'], [2, '2'] [1, '1.1']] );
+      const o = $(0);
+      const suspended = $(false);
 
-      isReadable ( t, result );
-      isReadable ( t, result () );
-      isReadable ( t, result ()() );
+      let calls = 0;
 
-      t.is ( result ()()(), 'default' );
+      $.suspense ( suspended, () => {
 
-    });
+        $.effect ( () => {
 
-    it ( 'returns a computed to matching case or the default case with a functional condition', t => {
+          calls += 1;
 
-      const o = $(1);
+          o ();
 
-      const result = $.suspense ( o, [[1, '1'], [2, '2'], [1, '1.1'], ['default']] );
+        });
 
-      t.is ( result (), '1' );
+      });
+
+      t.is ( calls, 1 );
+
+      suspended ( true );
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+      suspended ( false );
+      suspended ( false );
+
+      t.is ( calls, 2 );
+
+      suspended ( 1 );
+      suspended ( 1 );
 
       o ( 2 );
 
-      t.is ( result (), '2' );
+      t.is ( calls, 2 );
 
-      o ( 3 );
+      suspended ( 0 );
+      suspended ( 0 );
 
-      t.is ( result (), 'default' );
-
-    });
-
-    it ( 'returns a computed to the value of the default case if no case before it matches', t => {
-
-      const result = $.suspense ( 2, [[1, '1'], ['default'], [2, '2'] [1, '1.1']] );
-
-      t.is ( result (), 'default' );
+      t.is ( calls, 3 );
 
     });
 
-    it ( 'returns a computed to the value of the first matching case', t => {
+    it ( 'can suspend and unsuspend the execution of a an effect', t => {
 
-      const result1 = $.suspense ( 1, [[1, '1'], [2, '2'], [1, '1.1']] );
+      const o = $(0);
+      const suspended = $(false);
 
-      t.is ( result1 (), '1' );
+      let calls = 0;
 
-      const result2 = $.suspense ( 2, [[1, '1'], [2, '2'], [1, '1.1']] );
+      $.suspense ( suspended, () => {
 
-      t.is ( result2 (), '2' );
+        $.effect ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+      suspended ( false );
+
+      t.is ( calls, 2 );
 
     });
 
-    it ( 'returns a computed to undefined if no condition matches and there is no default case', t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in an effect', t => {
 
-      const result = $.suspense ( 1, [[2, '2'], [3, '3']] );
+      const o = $(0);
+      const suspended = $(false);
 
-      t.is ( result (), undefined );
+      let sequence = '';
+
+      $.suspense ( suspended, () => {
+
+        $.effect ( () => {
+
+          sequence += 'a';
+
+          $.effect ( () => {
+
+            sequence += 'b';
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      suspended ( false );
+
+      t.is ( sequence, 'abb' );
 
     });
 
-    it ( 'treats 0 and -0 as different values', t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a computed', t => {
 
-      const condition = $(0);
+      const o = $(0);
+      const suspended = $(false);
 
-      const computed = $.suspense ( condition, [[0, '0'], [-0, '-0']] );
+      let sequence = '';
 
-      t.is ( computed (), '0' );
+      $.suspense ( suspended, () => {
 
-      condition ( -0 );
+        $.computed ( () => {
 
-      t.is ( computed (), '-0' );
+          sequence += 'a';
+
+          $.effect ( () => {
+
+            sequence += 'b';
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      suspended ( false );
+
+      t.is ( sequence, 'abb' );
+
+    });
+
+    it ( 'can suspend and unsuspend the execution of an effect created in a root', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let sequence = '';
+
+      $.suspense ( suspended, () => {
+
+        $.root ( () => {
+
+          sequence += 'a';
+
+          $.effect ( () => {
+
+            sequence += 'b';
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      suspended ( false );
+
+      t.is ( sequence, 'abb' );
+
+    });
+
+    it ( 'can suspend and unsuspend the execution of an effect created in a suspense', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let sequence = '';
+
+      $.suspense ( suspended, () => {
+
+        $.suspense ( false, () => {
+
+          sequence += 'a';
+
+          $.effect ( () => {
+
+            sequence += 'b';
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      suspended ( false );
+
+      t.is ( sequence, 'abb' );
+
+    });
+
+    it ( 'can unsuspend only when all parents are unsuspended too', t => {
+
+      const o = $(0);
+      const a = $(true);
+      const b = $(true);
+      const c = $(true);
+
+      let sequence = '';
+
+      $.suspense ( a, () => {
+
+        $.effect ( () => {
+
+          sequence += 'a';
+
+          o ();
+
+        });
+
+        $.suspense ( b, () => {
+
+          $.effect ( () => {
+
+            sequence += 'b';
+
+            o ();
+
+          });
+
+          $.suspense ( c, () => {
+
+            $.effect ( () => {
+
+              sequence += 'c';
+
+              o ();
+
+            });
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, '' );
+
+      c ( false );
+
+      t.is ( sequence, '' );
+
+      b ( false );
+
+      t.is ( sequence, '' );
+
+      a ( false );
+
+      t.is ( sequence, 'abc' );
+
+    });
+
+    it ( 'returns undefined', t => {
+
+      const result = $.suspense ( false, () => {
+
+        return 123;
+
+      });
+
+      t.is ( result, undefined );
+
+    });
+
+    it ( 'starts unsuspended with no parent and a false condition', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.effect ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+      suspended ( false );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'starts unsuspended with an unsuspended parent and a false condition', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let calls = 0;
+
+      $.suspense ( false, () => {
+
+        $.suspense ( suspended, () => {
+
+          $.effect ( () => {
+
+            calls += 1;
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+      suspended ( false );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'starts suspended with a suspended parent and a false condition', t => {
+
+      const o = $(0);
+      const suspended = $(true);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.suspense ( false, () => {
+
+          $.effect ( () => {
+
+            calls += 1;
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( calls, 0 );
+
+      suspended ( false );
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'starts suspended with an unuspended parent and a true condition', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.suspense ( true, () => {
+
+          $.effect ( () => {
+
+            calls += 1;
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( calls, 0 );
+
+      suspended ( false );
+
+      t.is ( calls, 0 );
+
+    });
+
+    it ( 'starts suspended with a suspended parent and a true condition', t => {
+
+      const o = $(0);
+      const suspended = $(true);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.suspense ( true, () => {
+
+          $.effect ( () => {
+
+            calls += 1;
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( calls, 0 );
+
+      suspended ( false );
+
+      t.is ( calls, 0 );
+
+    });
+
+    it ( 'supports cleaning up suspended, but executed, effects', t => {
+
+      const suspended = $(false);
+
+      let calls = 0;
+
+      $.root ( dispose => {
+
+        $.suspense ( suspended, () => {
+
+          $.effect ( () => {
+
+            $.cleanup ( () => {
+
+              calls += 1;
+
+            });
+
+          });
+
+        });
+
+        suspended ( true );
+
+        t.is ( calls, 0 );
+
+        dispose ();
+
+        t.is ( calls, 1 );
+
+      });
+
+    });
+
+    it ( 'supports not cleaning suspended, and never executed, effects', t => {
+
+      const suspended = $(true);
+
+      let calls = 0;
+
+      $.root ( dispose => {
+
+        $.suspense ( suspended, () => {
+
+          $.effect ( () => {
+
+            $.cleanup ( () => {
+
+              calls += 1;
+
+            });
+
+          });
+
+        });
+
+        dispose ();
+
+        t.is ( calls, 0 );
+
+      });
+
+    });
+
+    it ( 'supports unsuspending with a disposed always-suspended effect without causing the effect to be executed', t => {
+
+      const suspended = $(true);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.root ( dispose => {
+
+          $.effect ( () => {
+
+            calls += 1;
+
+          });
+
+          dispose ();
+
+          suspended ( false );
+
+          t.is ( calls, 0 );
+
+        });
+
+      });
 
     });
 

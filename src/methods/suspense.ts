@@ -1,57 +1,26 @@
 
 /* IMPORT */
 
-import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
-import resolve from '~/methods/resolve';
-import root from '~/methods/root';
+import effect from '~/methods/effect';
+import Suspense from '~/objects/suspense';
 import {isFunction} from '~/utils';
-import type {DisposeFunction, ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
+import type {SuspenseFunction, FunctionMaybe} from '~/types';
 
 /* MAIN */
 
-function suspense <T, R> ( when: FunctionMaybe<T>, values: [...[T, R][], [R]] ): ObservableReadonly<Resolved<R>>;
-function suspense <T, R> ( when: FunctionMaybe<T>, values: [T, R][] ): ObservableReadonly<Resolved<R | undefined>>;
-function suspense <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): ObservableReadonly<Resolved<R | undefined>> {
+const suspense = ( when: FunctionMaybe<unknown>, fn: SuspenseFunction ): void => {
 
-  const branches: Resolved<R | undefined>[] = [];
-  const disposers: DisposeFunction[] = [];
+  const suspense = new Suspense ();
+  const condition = computed ( () => isFunction ( when ) ? !!when () : !!when );
 
-  for ( let i = 0, l = values.length; i < l; i++ ) {
+  effect ( () => {
 
-    root ( dispose => {
-
-      const value = values[i];
-      const result = ( value.length === 1 ) ? value[0] : value[1];
-
-      branches.push ( resolve ( result ) );
-      disposers.push ( dispose );
-
-    });
-
-  }
-
-  cleanup ( () => {
-
-    disposers.forEach ( dispose => dispose () );
+    suspense.toggle ( condition () );
 
   });
 
-  return computed ( () => {
-
-    const condition = isFunction ( when ) ? when () : when;
-
-    for ( let i = 0, l = values.length; i < l; i++ ) {
-
-      const value = values[i];
-
-      if ( value.length === 1 ) return branches[i];
-
-      if ( Object.is ( value[0], condition ) ) return branches[i];
-
-    }
-
-  });
+  suspense.wrap ( fn );
 
 };
 

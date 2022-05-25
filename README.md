@@ -529,16 +529,16 @@ os ([ o1, o2, o3 ]);
 
 #### `$.suspense`
 
-This is a generalization of `$.switch`, where all possible branches are kept alive under the hood, not just the currently active one.
+This function allows you to recursively pause and resume the execution of all, current and future, effects created inside it.
+
+This is very useful in some scenarios, for example you may want to keep a particular branch of computation around, if it'd be expensive to dispose of it and re-create it again, but you don't want its effects to be executing as they would probably interact with the rest of your application.
+
+A parent suspense boundary will also recursively pause children suspense boundaries.
 
 Interface:
 
 ```ts
-type SuspenseCase<T, R> = [T, R];
-type SuspenseDefault<R> = [R];
-type SuspenseValue<T, R> = SuspenseCase<T, R> | SuspenseDefault<R>;
-
-function suspense <T, R> ( when: (() => T) | T, values: SuspenseValue<T, R>[] ): ObservableReadonly<R | undefined>;
+function suspense ( suspended: FunctionMaybe<unknown>, fn: () => void ): void;
 ```
 
 Usage:
@@ -546,21 +546,30 @@ Usage:
 ```ts
 import $ from 'oby';
 
-// Switching cases
+// Create a suspendable branch of computation
 
-const o = $(1);
+const title = $('Some Title');
+const suspended = $(false);
 
-const result = $.suspense ( o, [[1, '1'], [2, '2'], [1, '1.1'], ['default']] );
+$.suspense ( suspended, () => {
 
-result (); // => '1'
+  $.effect ( () => {
 
-o ( 2 );
+    document.title = title (); // Changing something in the outside world, in other words performing a side effect
 
-result (); // => '2'
+  });
 
-o ( 3 );
+});
 
-result (); // => 'default'
+// Pausing effects inside the suspense boundary
+
+suspended ( true );
+
+title ( 'Some Other Title' ); // This won't cause the effect to be re-executed, since it's paused
+
+// Resuming effects inside the suspense boundary
+
+suspended ( false ); // This will cause the effect to be re-executed, as it had pending updates
 ```
 
 #### `$.switch`

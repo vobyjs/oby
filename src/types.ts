@@ -17,6 +17,8 @@ type ISignal = import ( '~/objects/signal' ).default;
 
 type ISuperRoot = import ( '~/objects/superroot' ).default;
 
+type ISuspense = import ( '~/objects/suspense' ).default;
+
 /* FUNCTIONS */
 
 type BatchFunction<T = unknown> = () => T;
@@ -42,6 +44,8 @@ type ObservedDisposableFunction<T = unknown> = ( dispose: DisposeFunction ) => T
 type SampleFunction<T = unknown> = () => T;
 
 type SelectorFunction<T = unknown> = ( value: T ) => boolean;
+
+type SuspenseFunction = () => void;
 
 type TryCatchFunction<T = unknown> = ({ error, reset }: { error: Error, reset: DisposeFunction }) => T;
 
@@ -97,7 +101,7 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 /* EXPORT */
 
-export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISignal, ISuperRoot};
-export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, TryCatchFunction, UpdateFunction};
+export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISignal, ISuperRoot, ISuspense};
+export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Contexts, Frozen, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};

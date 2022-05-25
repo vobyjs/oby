@@ -1,9 +1,10 @@
 
 /* IMPORT */
 
+import {SUSPENSE} from '~/constants';
 import Reaction from '~/objects/reaction';
 import {castError, isFunction, max} from '~/utils';
-import type {EffectFunction} from '~/types';
+import type {ISuspense, EffectFunction} from '~/types';
 
 /* MAIN */
 
@@ -12,6 +13,7 @@ class Effect extends Reaction {
   /* VARIABLES */
 
   fn: EffectFunction;
+  suspense?: ISuspense; //TODO: Try to delete this, it may not be strictly necessary if the regular tree of observers is traversed
 
   /* CONSTRUCTOR */
 
@@ -23,11 +25,38 @@ class Effect extends Reaction {
 
     this.parent.registerObserver ( this );
 
-    this.update ( true );
+    if ( SUSPENSE.current ) {
+
+      this.suspense = SUSPENSE.current;
+      this.suspense.registerEffect ( this );
+
+    }
+
+    if ( this.suspense?.suspended ) {
+
+      this.stale ( true );
+
+    } else {
+
+      this.update ( true );
+
+    }
 
   }
 
   /* API */
+
+  dispose ( deep?: boolean, immediate?: boolean ): void {
+
+    if ( deep ) {
+
+      this.suspense?.unregisterEffect ( this );
+
+    }
+
+    super.dispose ( deep, immediate );
+
+  }
 
   update ( fresh: boolean ): void {
 
