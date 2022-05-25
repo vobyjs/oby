@@ -702,6 +702,32 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'registers a function to be called when the parent suspense is disposed', t => {
+
+      let sequence = '';
+
+      $.root ( dispose => {
+
+        $.suspense ( false, () => {
+
+          $.cleanup ( () => {
+            sequence += 'a';
+          });
+
+          $.cleanup ( () => {
+            sequence += 'b';
+          });
+
+        });
+
+        dispose ();
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+    });
+
     it ( 'returns undefined', t => {
 
       const result1 = $.cleanup ( () => {} );
@@ -1618,6 +1644,23 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'casts an error thrown inside a parent suspense to an Error instance', t => {
+
+      $.suspense ( false, () => {
+
+        $.error ( error => {
+
+          t.true ( error instanceof Error );
+          t.is ( error.message, 'err' );
+
+        });
+
+        throw 'err';
+
+      });
+
+    });
+
     it ( 'registers a function to be called when the parent computation throws', t => {
 
       const o = $(0);
@@ -1695,6 +1738,28 @@ describe ( 'oby', () => {
       let sequence = '';
 
       $.root ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        throw 'err';
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+    });
+
+    it ( 'registers a function to be called when the parent suspense throws', t => {
+
+      let sequence = '';
+
+      $.suspense ( false, () => {
 
         $.error ( () => {
           sequence += 'a';
@@ -1826,6 +1891,32 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'registers a function to be called when a child suspense throws', t => {
+
+      let sequence = '';
+
+      $.suspense ( false, () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        $.suspense ( false, () => {
+
+          throw 'err';
+
+        });
+
+      });
+
+      t.is ( sequence, 'ab' );
+
+    });
+
     it ( 'returns undefined', t => {
 
       const result1 = $.error ( () => {} );
@@ -1877,6 +1968,24 @@ describe ( 'oby', () => {
       t.throws ( () => {
 
         $.root ( () => {
+
+          $.error ( () => {
+            throw new Error ( 'Inner error' );
+          });
+
+          throw 'err';
+
+        });
+
+      }, { message: 'Inner error' } );
+
+    });
+
+    it ( 'throws if the error handler in a suspense throws', t => {
+
+      t.throws ( () => {
+
+        $.suspense ( false, () => {
 
           $.error ( () => {
             throw new Error ( 'Inner error' );
@@ -2938,7 +3047,6 @@ describe ( 'oby', () => {
       t.is ( calls, 1 );
 
     });
-
 
     it ( 'works on the top-level computation', t => {
 
