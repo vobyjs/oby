@@ -1,9 +1,6 @@
 
 /* IMPORT */
 
-import _for from '~/methods/for';
-import _if from '~/methods/if';
-import _switch from '~/methods/switch';
 import ObservableClass from '~/objects/observable';
 import type {ObservableOptions, Observable} from '~/types';
 
