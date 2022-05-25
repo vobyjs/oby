@@ -13,6 +13,7 @@ import _for from '~/methods/for';
 import get from '~/methods/get';
 import _if from '~/methods/if';
 import is from '~/methods/is';
+import observable from '~/methods/observable';
 import readonly from '~/methods/readonly';
 import resolve from '~/methods/resolve';
 import root from '~/methods/root';
@@ -62,5 +63,6 @@ $.tryCatch = tryCatch;
 /* EXPORT */
 
 export default $;
+export {batch, cleanup, computed, context, disposed, effect, error, _for as for, get, _if as if, is, observable, readonly, resolve, root, sample, selector, suspense, _switch as switch, ternary, tryCatch};
 export {SYMBOL_OBSERVABLE, SYMBOL_SAMPLED};
 export type {Observable, ObservableReadonly, ObservableOptions};
