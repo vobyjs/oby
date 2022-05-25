@@ -97,6 +97,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
     } else {
 
       selected = new SelectedObservable ( sample ( observable ) === value );
+      selected.signal = signal;
 
       selecteds.set ( value, selected );
 

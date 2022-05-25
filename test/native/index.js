@@ -2984,6 +2984,43 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'survives checking a value inside a discarded root', t => {
+
+      const selected = $(-1);
+      const isSelected = $.selector ( selected );
+
+      let calls = 0;
+
+      $.root ( dispose => {
+
+        isSelected ( 1 );
+
+        $.root ( () => {
+
+          isSelected ( 1 );
+
+        });
+
+        dispose ();
+
+      });
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        isSelected ( 1 );
+
+      });
+
+      t.is ( calls, 1 );
+
+      selected ( 1 );
+
+      t.is ( calls, 2 );
+
+    });
+
     it ( 'treats 0 and -0 as the same value values', t => {
 
       const selected = $(0);
