@@ -3,9 +3,9 @@
 
 const castError = ( error: unknown ): Error => {
 
-  if ( isError ( error ) ) return error;
+  if ( error instanceof Error ) return error;
 
-  if ( isString ( error ) ) return new Error ( error );
+  if ( typeof error === 'string' ) return new Error ( error );
 
   return new Error ( 'Unknown error' );
 
@@ -13,21 +13,9 @@ const castError = ( error: unknown ): Error => {
 
 const {isArray} = Array;
 
-const isError = ( value: unknown ): value is Error => {
-
-  return value instanceof Error;
-
-};
-
-const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => {
+const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => { //TODO: optimize wrapper computeds away
 
   return typeof value === 'function';
-
-};
-
-const isString = ( value: unknown ): value is string => {
-
-  return typeof value === 'string';
 
 };
 
@@ -39,4 +27,4 @@ const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
 
 /* EXPORT */
 
-export {castError, isArray, isError, isFunction, isString, max};
+export {castError, isArray, isFunction, max};
