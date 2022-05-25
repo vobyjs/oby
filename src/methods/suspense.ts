@@ -1,10 +1,9 @@
 
 /* IMPORT */
 
-import computed from '~/methods/computed';
+import boolean from '~/methods/boolean';
 import effect from '~/methods/effect';
 import Suspense from '~/objects/suspense';
-import {isFunction} from '~/utils';
 import type {SuspenseFunction, FunctionMaybe} from '~/types';
 
 /* MAIN */
@@ -12,7 +11,7 @@ import type {SuspenseFunction, FunctionMaybe} from '~/types';
 const suspense = <T> ( when: FunctionMaybe<unknown>, fn: SuspenseFunction<T> ): T => {
 
   const suspense = new Suspense ();
-  const condition = computed ( () => isFunction ( when ) ? !!when () : !!when );
+  const condition = boolean ( when );
 
   effect ( () => {
 
