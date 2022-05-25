@@ -1,10 +1,10 @@
 
 /* IMPORT */
 
-import {OWNER, SUSPENSE} from '~/constants';
+import {OWNER, SUSPENSE, SYMBOL_SUSPENSE} from '~/constants';
 import Effect from '~/objects/effect';
 import Observer from '~/objects/observer';
-import type {IObserver, SuspenseFunction, LazyArray} from '~/types';
+import type {IObserver, ISuspense, SuspenseFunction, LazyArray} from '~/types';
 
 /* MAIN */
 
@@ -12,7 +12,7 @@ class Suspense extends Observer {
 
   /* VARIABLES */
 
-  suspended: number = SUSPENSE.current?.suspended || 0; // 0: UNSUSPENDED, 1: THIS_SUSPENDED, 2+: THIS_AND_PARENT_SUSPENDED
+  suspended: number = Suspense.suspended (); // 0: UNSUSPENDED, 1: THIS_SUSPENDED, 2+: THIS_AND_PARENT_SUSPENDED
 
   /* CONSTRUCTOR */
 
@@ -21,6 +21,8 @@ class Suspense extends Observer {
     super ();
 
     OWNER.current.registerObserver ( this );
+
+    this.registerContext ( SYMBOL_SUSPENSE, this );
 
   }
 
@@ -85,6 +87,16 @@ class Suspense extends Observer {
       SUSPENSE.current = suspensePrev;
 
     }
+
+  }
+
+  /* STATIC API */
+
+  static suspended (): number {
+
+    const suspense = SUSPENSE.current || OWNER.current.context<ISuspense> ( SYMBOL_SUSPENSE );
+
+    return suspense?.suspended || 0;
 
   }
 

@@ -3416,6 +3416,86 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'can suspend a lazily-crated effect', t => {
+
+      const o = $(0);
+      const lazy = $(false);
+      const suspended = $(true);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.computed ( () => {
+
+          if ( !lazy () ) return;
+
+          $.effect ( () => {
+
+            calls += 1;
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( calls, 0 );
+
+      lazy ( true );
+
+      t.is ( calls, 0 );
+
+      suspended ( false );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'can suspend a lazily-crated suspense', t => {
+
+      const o = $(0);
+      const lazy = $(false);
+      const suspended = $(true);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.computed ( () => {
+
+          if ( !lazy () ) return;
+
+          $.suspense ( false, () => {
+
+            $.effect ( () => {
+
+              calls += 1;
+
+              o ();
+
+            });
+
+          });
+
+        });
+
+      });
+
+      t.is ( calls, 0 );
+
+      lazy ( true );
+
+      t.is ( calls, 0 );
+
+      suspended ( false );
+
+      t.is ( calls, 1 );
+
+    });
+
     it ( 'returns whatever the function returns', t => {
 
       const result = $.suspense ( false, () => {

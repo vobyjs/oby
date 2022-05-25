@@ -1,8 +1,8 @@
 
 /* IMPORT */
 
-import {SUSPENSE} from '~/constants';
 import Reaction from '~/objects/reaction';
+import Suspense from '~/objects/suspense';
 import {castError, isFunction, max} from '~/utils';
 import type {EffectFunction} from '~/types';
 
@@ -24,7 +24,7 @@ class Effect extends Reaction {
 
     this.parent.registerObserver ( this );
 
-    if ( SUSPENSE.current?.suspended ) {
+    if ( Suspense.suspended () ) {
 
       this.stale ( true );
 

@@ -16,7 +16,8 @@ const SAMPLING = { current: false };
 const SUSPENSE: { current?: ISuspense } = { current: undefined };
 const SYMBOL_OBSERVABLE = Symbol ( 'Observable' );
 const SYMBOL_SAMPLED = Symbol ( 'Sampled' );
+const SYMBOL_SUSPENSE = Symbol ( 'Suspense' );
 
 /* EXPORT */
 
-export {BATCH, FALSE, NOOP, SUPER_OWNER, OWNER, ROOT, SAMPLING, SUSPENSE, SYMBOL_OBSERVABLE, SYMBOL_SAMPLED};
+export {BATCH, FALSE, NOOP, SUPER_OWNER, OWNER, ROOT, SAMPLING, SUSPENSE, SYMBOL_OBSERVABLE, SYMBOL_SAMPLED, SYMBOL_SUSPENSE};
