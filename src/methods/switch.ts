@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {IS} from '~/constants';
 import computed from '~/methods/computed';
 import resolve from '~/methods/resolve';
 import {isFunction} from '~/utils';
@@ -22,7 +23,7 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): Ob
 
       if ( value.length === 1 ) return value[0];
 
-      if ( Object.is ( value[0], condition ) ) return value[1];
+      if ( IS ( value[0], condition ) ) return value[1];
 
     }
 

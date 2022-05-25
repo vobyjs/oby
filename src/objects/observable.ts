@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {BATCH, FALSE, OWNER, ROOT, SAMPLING} from '~/constants';
+import {BATCH, FALSE, IS, OWNER, ROOT, SAMPLING} from '~/constants';
 import {frozen, readable, writable} from '~/objects/callable';
 import Reaction from '~/objects/reaction';
 import type {IObservable, IObserver, IComputed, ISignal, EqualsFunction, UpdateFunction, Observable as ObservableWritable, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
@@ -153,7 +153,7 @@ class Observable<T = unknown> {
 
     } else {
 
-      const equals = this.equals || Object.is;
+      const equals = this.equals || IS;
       const fresh = !equals ( value, this.value );
 
       if ( !this.parent ) {

@@ -8,6 +8,7 @@ import type {IObservable, IObserver, IRoot, ISuperRoot, ISuspense} from '~/types
 
 const BATCH: { current: Map<IObservable<any>, unknown> | undefined } = { current: undefined };
 const FALSE = () => false;
+const IS = Object.is;
 const NOOP = () => {};
 const SUPER_OWNER = new SuperRoot ();
 const OWNER: { current: IObserver } = { current: SUPER_OWNER };
@@ -21,4 +22,4 @@ const SYMBOL_SUSPENSE = Symbol ( 'Suspense' );
 
 /* EXPORT */
 
-export {BATCH, FALSE, NOOP, SUPER_OWNER, OWNER, ROOT, SAMPLING, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_OBSERVABLE, SYMBOL_SAMPLED, SYMBOL_SUSPENSE};
+export {BATCH, FALSE, IS, NOOP, SUPER_OWNER, OWNER, ROOT, SAMPLING, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_OBSERVABLE, SYMBOL_SAMPLED, SYMBOL_SUSPENSE};
