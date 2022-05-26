@@ -4,6 +4,7 @@
 import {describe} from 'fava';
 import {setTimeout as delay} from 'node:timers/promises';
 import $ from '../../dist/index.js';
+import {observable} from '../../dist/index.js';
 
 /* HELPERS */
 
@@ -35,7 +36,7 @@ const isWritable = ( t, value ) => {
 
 describe ( 'oby', () => {
 
-  describe ( 'observable', it => {
+  describe ( '$', it => {
 
     it ( 'is both a getter and a setter', t => {
 
@@ -2392,6 +2393,30 @@ describe ( 'oby', () => {
       t.false ( $.is ( {} ) );
       t.false ( $.is ( [] ) );
       t.false ( $.is ( $.effect ( () => {} ) ) );
+
+    });
+
+  });
+
+  describe ( 'observable', it => {
+
+    it ( 'is both a getter and a setter', t => {
+
+      const o = observable ();
+
+      t.is ( o (), undefined );
+
+      o ( 123 );
+
+      t.is ( o (), 123 );
+
+      o ( 321 );
+
+      t.is ( o (), 321 );
+
+      o ( undefined );
+
+      t.is ( o (), undefined );
 
     });
 
