@@ -14,16 +14,15 @@
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
     "compile": "tsex compile",
-    "compile:bundle": "esbuild --bundle --minify --format=esm --target=es2018 --banner:js='\"use strict\";' '--mangle-props=^(fn|bool|read|wrap|after|cache|count|signal|stale|value|write|before|errors|parent|result|update|dispose|unstale|cleanups|contexts|readable|writable|nextCount|observers|prevCount|observable|observables|postdispose|statusCount|statusExecution|statusFresh|suspenses|toggle|suspended|effects|registerEffect|unregisterEffect|registerSuspense|unregisterSuspense|registerSelf|registerError|registerCleanup|registerContext|registerObserver|registerObservable|unregisterObserver|observablesLeftover)$' --mangle-quoted ./src/index.ts > ./dist/index.js",
+    "compile:mangle": "mangler --folder dist --ext js --props 'fn,bool,read,wrap,after,cache,count,stale,value,write,signal,before,errors,parent,result,update,toggle,frozen,current,dispose,unstale,effects,cleanups,contexts,readable,writable,nextCount,observers,prevCount,suspenses,suspended,observables,postdispose,statusCount,statusFresh,registerSelf,registerError,registerEffect,statusExecution,registerCleanup,registerContext,unregisterEffect,registerSuspense,registerObserver,unregisterSuspense,registerObservable,unregisterObserver,observablesLeftover'",
     "compile:watch": "tsex compile --watch",
     "memory": "node tasks/memory.js",
-    "optimize": "node tasks/optimize.js",
     "test:native": "fava '**/native/**'",
     "test:native:watch": "fava -w '**/native/**'",
     "test:sinuous": "bash test/sinuous/index.sh",
     "test": "npm run test:sinuous && npm run test:native",
     "updates": "node tasks/updates.js",
-    "prepublishOnly": "npm run clean && npm run compile && npm run test && npm run compile:bundle && npm run optimize && npm run test"
+    "prepublishOnly": "npm run clean && npm run compile && npm run compile:mangle && npm run test"
   },
   "keywords": [
     "observable",
@@ -35,9 +34,9 @@
     "fast"
   ],
   "devDependencies": {
-    "esbuild": "^0.14.38",
     "fava": "^0.0.6",
     "ispy": "^0.1.2",
+    "js-simple-mangler": "^1.0.0",
     "tape": "^5.5.3",
     "tsex": "^1.1.2",
     "typescript": "^4.6.4"
