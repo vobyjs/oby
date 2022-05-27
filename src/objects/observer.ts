@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {OWNER, SAMPLING} from '~/constants';
+import {lazyArrayEach, lazyArrayPush} from '~/lazy';
 import {castError} from '~/utils';
 import type {IObservable, IObserver, ISignal, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyValue} from '~/types';
 
@@ -24,111 +25,32 @@ class Observer {
 
   registerCleanup ( cleanup: CleanupFunction ): void {
 
-    const {cleanups} = this;
-
-    if ( cleanups ) {
-
-      if ( cleanups instanceof Array ) {
-
-        cleanups.push ( cleanup );
-
-      } else {
-
-        this.cleanups = [cleanups, cleanup];
-
-      }
-
-    } else {
-
-      this.cleanups = cleanup;
-
-    }
+    lazyArrayPush ( this, 'cleanups', cleanup );
 
   }
 
   registerContext <T> ( symbol: symbol, value: T ): void {
 
-    if ( this.contexts ) {
-
-      this.contexts[symbol] = value;
-
-    } else {
-
-      this.contexts = { [symbol]: value };
-
-    }
+    this.contexts ||= {};
+    this.contexts[symbol] = value;
 
   }
 
   registerError ( error: ErrorFunction ): void {
 
-    const {errors} = this;
-
-    if ( errors ) {
-
-      if ( errors instanceof Array ) {
-
-        errors.push ( error );
-
-      } else {
-
-        this.errors = [errors, error];
-
-      }
-
-    } else {
-
-      this.errors = error;
-
-    }
+    lazyArrayPush ( this, 'errors', error );
 
   }
 
   registerObservable ( observable: IObservable ): void {
 
-    const {observables} = this;
-
-    if ( observables ) {
-
-      if ( observables instanceof Array ) {
-
-        observables.push ( observable );
-
-      } else {
-
-        this.observables = [observables, observable];
-
-      }
-
-    } else {
-
-      this.observables = observable;
-
-    }
+    lazyArrayPush ( this, 'observables', observable );
 
   }
 
   registerObserver ( observer: IObserver ): void {
 
-    const {observers} = this;
-
-    if ( observers ) {
-
-      if ( observers instanceof Array ) {
-
-        observers.push ( observer );
-
-      } else {
-
-        this.observers = [observers, observer];
-
-      }
-
-    } else {
-
-      this.observers = observer;
-
-    }
+    lazyArrayPush ( this, 'observers', observer );
 
   }
 
@@ -150,44 +72,24 @@ class Observer {
 
     if ( observers ) {
       this.observers = undefined;
-      if ( observers instanceof Array ) {
-        for ( let i = 0, l = observers.length; i < l; i++ ) {
-          observers[i].dispose ( true, immediate );
-        }
-      } else {
-        observers.dispose ( true, immediate );
-      }
+      lazyArrayEach ( observers, observer => {
+        observer.dispose ( true, immediate );
+      });
     }
 
+    //TODO: Immediate handle
     if ( observables ) {
       this.observables = undefined;
-      if ( observables instanceof Array ) {
-        for ( let i = 0, l = observables.length; i < l; i++ ) {
-          const observable = observables[i];
-          if ( !observable.disposed && !observable.signal.disposed ) {
-            observable.unregisterObserver ( this );
-          }
+      lazyArrayEach ( observables, observable => {
+        if ( !observable.disposed && !observable.signal.disposed ) {
+          observable.unregisterObserver ( this );
         }
-      } else {
-        if ( !observables.disposed && !observables.signal.disposed ) {
-          if ( immediate ) {
-            observables.unregisterObserver ( this );
-          } else {
-            this.observablesLeftover = observables;
-          }
-        }
-      }
+      });
     }
 
     if ( cleanups ) {
       this.cleanups = undefined;
-      if ( cleanups instanceof Array ) {
-        for ( let i = 0, l = cleanups.length; i < l; i++ ) {
-          cleanups[i]();
-        }
-      } else {
-        cleanups ();
-      }
+      lazyArrayEach ( cleanups, cleanup => cleanup () );
     }
 
     if ( errors ) {
@@ -223,15 +125,7 @@ class Observer {
 
     if ( errors ) {
 
-      if ( errors instanceof Array ) {
-
-        errors.forEach ( fn => fn ( error ) );
-
-      } else {
-
-        errors ( error );
-
-      }
+      lazyArrayEach ( errors, fn => fn ( error ) );
 
       return true;
 

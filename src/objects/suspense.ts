@@ -2,9 +2,10 @@
 /* IMPORT */
 
 import {OWNER, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_SUSPENSE} from '~/constants';
+import {lazyArrayEach} from '~/lazy';
 import Effect from '~/objects/effect';
 import Observer from '~/objects/observer';
-import type {IObserver, ISuspense, SuspenseFunction, LazyArray} from '~/types';
+import type {IObserver, ISuspense, SuspenseFunction} from '~/types';
 
 /* MAIN */
 
@@ -43,16 +44,6 @@ class Suspense extends Observer {
 
     /* NOTIFYING EFFECTS AND SUSPENSES */
 
-    const notifyObservers = ( observers: LazyArray<IObserver>, cb: Function ): void => {
-      if ( observers instanceof Array ) {
-        for ( let i = 0, l = observers.length; i < l; i++ ) {
-          cb ( observers[i] );
-        }
-      } else if ( observers ) {
-        cb ( observers );
-      }
-    };
-
     const notifyObserver = ( observer: IObserver ): void => {
       if ( observer instanceof Suspense ) return;
       if ( observer instanceof Effect ) {
@@ -62,7 +53,7 @@ class Suspense extends Observer {
           observer.unstale ( false );
         }
       }
-      notifyObservers ( observer.observers, notifyObserver );
+      lazyArrayEach ( observer.observers, notifyObserver );
     };
 
     const notifySuspense = ( observer: IObserver ): void => {
@@ -70,8 +61,8 @@ class Suspense extends Observer {
       observer.toggle ( force );
     };
 
-    notifyObservers ( this.observers, notifyObserver );
-    notifyObservers ( this.observers, notifySuspense );
+    lazyArrayEach ( this.observers, notifyObserver );
+    lazyArrayEach ( this.observers, notifySuspense );
 
   }
 
