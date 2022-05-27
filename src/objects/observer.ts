@@ -59,11 +59,11 @@ class Observer {
 
   context <T> ( symbol: symbol ): T | undefined {
 
-    const {contexts} = this;
+    const {contexts, parent} = this;
 
     if ( contexts && symbol in contexts ) return contexts[symbol];
 
-    return this.parent?.context<T> ( symbol );
+    return parent?.context<T> ( symbol );
 
   }
 
@@ -137,7 +137,7 @@ class Observer {
 
   error ( error: Error, silent: boolean ): boolean {
 
-    const {errors} = this;
+    const {errors, parent} = this;
 
     if ( errors ) {
 
@@ -147,7 +147,7 @@ class Observer {
 
     } else {
 
-      if ( this.parent?.error ( error, true ) ) return true;
+      if ( parent?.error ( error, true ) ) return true;
 
       if ( silent ) {
 

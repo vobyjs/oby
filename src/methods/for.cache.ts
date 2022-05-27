@@ -87,7 +87,7 @@ class Cache<T, R> {
 
   map = ( value: T ): Resolved<R> => {
 
-    const {cache, bool} = this;
+    const {cache, bool, fn} = this;
 
     const cached = cache.get ( value );
 
@@ -103,7 +103,7 @@ class Cache<T, R> {
 
       return mapped.wrap ( () => {
 
-        const result = resolve ( this.fn ( value ) );
+        const result = resolve ( fn ( value ) );
 
         mapped.bool = bool;
         mapped.result = result;

@@ -149,7 +149,11 @@ class Observable<T = unknown> {
 
       }
 
-      this.value = ( fresh ? value : this.value );
+      if ( fresh ) {
+
+        this.value = value;
+
+      }
 
       if ( !this.signal.disposed ) {
 
