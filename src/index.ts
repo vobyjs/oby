@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {SYMBOL_OBSERVABLE, SYMBOL_SAMPLED} from '~/constants';
+import $ from '~/methods/S';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
@@ -23,42 +24,7 @@ import suspense from '~/methods/suspense';
 import _switch from '~/methods/switch';
 import ternary from '~/methods/ternary';
 import tryCatch from '~/methods/try_catch';
-import ObservableClass from '~/objects/observable';
 import type {ObservableOptions, Observable, ObservableReadonly} from '~/types';
-
-/* MAIN */
-
-function $ <T> (): Observable<T | undefined>;
-function $ <T> ( value: undefined, options?: ObservableOptions<T | undefined> ): Observable<T | undefined>;
-function $ <T> ( value: T, options?: ObservableOptions<T> ): Observable<T>;
-function $ <T> ( value?: T, options?: ObservableOptions<T | undefined> ) {
-
-  return new ObservableClass ( value, options ).writable ();
-
-}
-
-/* UTILITIES */
-
-$.batch = batch;
-$.cleanup = cleanup;
-$.computed = computed;
-$.context  = context;
-$.disposed = disposed;
-$.effect = effect;
-$.error = error;
-$.for = _for;
-$.get = get;
-$.if = _if;
-$.is = is;
-$.readonly = readonly;
-$.resolve = resolve;
-$.root = root;
-$.sample = sample;
-$.selector = selector;
-$.suspense = suspense;
-$.switch = _switch;
-$.ternary = ternary;
-$.tryCatch = tryCatch;
 
 /* EXPORT */
 
