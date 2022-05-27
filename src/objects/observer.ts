@@ -122,6 +122,7 @@ class Observer {
     outer:
     for ( let ai = 0, al = a.length; ai < al; ai++ ) {
       const av = a[ai];
+      if ( av.disposed || av.signal.disposed ) continue;
       if ( av === b[ai] ) continue;
       for ( let bi = 0, bl = b.length; bi < bl; bi++ ) {
         if ( av === b[bi] ) continue outer;
