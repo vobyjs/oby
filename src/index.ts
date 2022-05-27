@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {SYMBOL_OBSERVABLE, SYMBOL_SAMPLED} from '~/constants';
-import $ from '~/methods/S';
+import $ from '~/methods/$';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
