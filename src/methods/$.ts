@@ -21,6 +21,7 @@ import suspense from '~/methods/suspense';
 import _switch from '~/methods/switch';
 import ternary from '~/methods/ternary';
 import tryCatch from '~/methods/try_catch';
+import {writable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
 import type {ObservableOptions, Observable} from '~/types';
 
@@ -31,7 +32,7 @@ function $ <T> ( value: undefined, options?: ObservableOptions<T | undefined> ):
 function $ <T> ( value: T, options?: ObservableOptions<T> ): Observable<T>;
 function $ <T> ( value?: T, options?: ObservableOptions<T | undefined> ) {
 
-  return new ObservableClass ( value, options ).writable ();
+  return writable ( new ObservableClass ( value, options ) );
 
 }
 

@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {frozen, readable} from '~/objects/callable';
 import Computed from '~/objects/computed';
 import Observable from '~/objects/observable';
 import type {ComputedFunction, ObservableReadonly, ObservableOptions} from '~/types';
@@ -22,11 +23,11 @@ const computed = <T> ( fn: ComputedFunction<T>, options?: ObservableOptions<T | 
     computed.fn = DUMMY_FN;
     computed.observable = DUMMY_OBSERVABLE;
 
-    return observable.frozen ();
+    return frozen ( observable.value );
 
   } else { // It could run again, returning a regular readable observable
 
-    return observable.readable ();
+    return readable ( observable );
 
   }
 

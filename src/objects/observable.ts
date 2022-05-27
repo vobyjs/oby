@@ -2,9 +2,8 @@
 /* IMPORT */
 
 import {BATCH, FALSE, IS, OWNER, ROOT, SAMPLING} from '~/constants';
-import {frozen, readable, writable} from '~/objects/callable';
 import Reaction from '~/objects/reaction';
-import type {IObservable, IObserver, IComputed, ISignal, EqualsFunction, UpdateFunction, Observable as ObservableWritable, ObservableReadonly, ObservableOptions, LazySet} from '~/types';
+import type {IObservable, IObserver, IComputed, ISignal, EqualsFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -221,24 +220,6 @@ class Observable<T = unknown> {
       }
 
     }
-
-  }
-
-  frozen (): ObservableReadonly<T> {
-
-    return frozen ( this.value );
-
-  }
-
-  readable (): ObservableReadonly<T> {
-
-    return readable ( this );
-
-  }
-
-  writable (): ObservableWritable<T> {
-
-    return writable ( this );
 
   }
 

@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {writable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
 import type {ObservableOptions, Observable} from '~/types';
 
@@ -11,7 +12,7 @@ function observable <T> ( value: undefined, options?: ObservableOptions<T | unde
 function observable <T> ( value: T, options?: ObservableOptions<T> ): Observable<T>;
 function observable <T> ( value?: T, options?: ObservableOptions<T | undefined> ) {
 
-  return new ObservableClass ( value, options ).writable ();
+  return writable ( new ObservableClass ( value, options ) );
 
 }
 
