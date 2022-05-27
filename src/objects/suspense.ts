@@ -3,9 +3,10 @@
 
 import {OWNER, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_SUSPENSE} from '~/constants';
 import {lazyArrayEach} from '~/lazy';
+import suspended from '~/methods/suspended';
 import Effect from '~/objects/effect';
 import Observer from '~/objects/observer';
-import type {IObserver, ISuspense, SuspenseFunction} from '~/types';
+import type {IObserver, SuspenseFunction} from '~/types';
 
 /* MAIN */
 
@@ -14,7 +15,7 @@ class Suspense extends Observer {
   /* VARIABLES */
 
   parent: IObserver = OWNER.current;
-  suspended: number = Suspense.suspended (); // 0: UNSUSPENDED, 1: THIS_SUSPENDED, 2+: THIS_AND_PARENT_SUSPENDED
+  suspended: number = suspended (); // 0: UNSUSPENDED, 1: THIS_SUSPENDED, 2+: THIS_AND_PARENT_SUSPENDED
 
   /* CONSTRUCTOR */
 
@@ -81,18 +82,6 @@ class Suspense extends Observer {
       SUSPENSE.current = suspensePrev;
 
     }
-
-  }
-
-  /* STATIC API */
-
-  static suspended (): number {
-
-    if ( !SUSPENSE_ENABLED.current ) return 0;
-
-    const suspense = SUSPENSE.current || OWNER.current.context<ISuspense> ( SYMBOL_SUSPENSE );
-
-    return suspense?.suspended || 0;
 
   }
 
