@@ -4,7 +4,7 @@
 import {SYMBOL_OBSERVABLE, SYMBOL_SAMPLED} from '~/constants';
 import computed from '~/methods/computed';
 import {frozen} from '~/objects/callable';
-import {isArray, isFunction} from '~/utils';
+import {isFunction} from '~/utils';
 import type {Resolvable, Resolved} from '../types';
 
 /* MAIN */
@@ -29,7 +29,7 @@ const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never => 
 
   }
 
-  if ( isArray ( value ) ) {
+  if ( value instanceof Array ) {
 
     const resolved = new Array ( value.length );
 
