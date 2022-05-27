@@ -542,6 +542,66 @@ describe ( 'oby', () => {
 
   describe ( 'cleanup', it => {
 
+    it ( 'does not cause the parent computed to re-execute', t => {
+
+      const disposed = $(false);
+
+      let calls = 0;
+
+      $.computed ( () => {
+
+        calls += 1;
+
+        if ( disposed () ) return;
+
+        const o = $(0);
+
+        o ();
+
+        $.cleanup ( () => {
+
+          o ( Math.random () );
+
+        });
+
+      });
+
+      disposed ( true );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'does not cause the parent effect to re-execute', t => {
+
+      const disposed = $(false);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        if ( disposed () ) return;
+
+        const o = $(0);
+
+        o ();
+
+        $.cleanup ( () => {
+
+          o ( Math.random () );
+
+        });
+
+      });
+
+      disposed ( true );
+
+      t.is ( calls, 2 );
+
+    });
+
     it ( 'registers a function to be called when the parent computation is disposed', t => {
 
       let sequence = '';

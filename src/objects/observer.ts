@@ -20,6 +20,7 @@ class Observer {
   observables?: LazyArray<IObservable>;
   observablesLeftover?: LazyArray<IObservable>;
   observers?: LazyArray<IObserver>;
+  inactive?: boolean; // Inactive observers should not be re-executed, if they can be
 
   /* REGISTRATION API */
 
@@ -92,7 +93,9 @@ class Observer {
 
     if ( cleanups ) {
       this.cleanups = undefined;
+      this.inactive = true;
       lazyArrayEach ( cleanups, cleanup => cleanup () );
+      this.inactive = false;
     }
 
     if ( errors ) {

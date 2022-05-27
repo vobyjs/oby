@@ -39,6 +39,8 @@ class Reaction extends Observer {
 
     this.statusFresh = false;
 
+    if ( this.inactive ) return;
+
     this.update ( fresh );
 
   }
