@@ -41,7 +41,7 @@ class Observable<T = unknown> {
 
   /* REGISTRATION API */
 
-  registerObserver ( observer: IObserver ): boolean {
+  registerObserver ( observer: IObserver ): void {
 
     const {observers} = this;
 
@@ -49,19 +49,9 @@ class Observable<T = unknown> {
 
       if ( observers instanceof Set ) {
 
-        const sizePrev = observers.size;
-
         observers.add ( observer );
 
-        const sizeNext = observers.size;
-
-        return ( sizePrev !== sizeNext );
-
-      } else if ( observers === observer ) {
-
-        return false;
-
-      } else {
+      } else if ( observers !== observer ) {
 
         const observersNext = new Set<IObserver> ();
 
@@ -70,15 +60,11 @@ class Observable<T = unknown> {
 
         this.observers = observersNext;
 
-        return true;
-
       }
 
     } else {
 
       this.observers = observer;
-
-      return true;
 
     }
 
@@ -90,13 +76,9 @@ class Observable<T = unknown> {
 
     if ( !SAMPLING.current && OWNER.current instanceof Reaction ) {
 
-      const isNewObserver = this.registerObserver ( OWNER.current );
+      this.registerObserver ( OWNER.current );
 
-      if ( isNewObserver || !OWNER.current.observables ) {
-
-        OWNER.current.registerObservable ( this as IObservable<any> ); //TSC
-
-      }
+      OWNER.current.registerObservable ( this as IObservable<any> ); //TSC
 
     }
 

@@ -18,7 +18,7 @@ class Observer {
   contexts?: LazyValue<Contexts>;
   errors?: LazyArray<ErrorFunction>;
   observables?: LazyArray<IObservable>;
-  observablesLeftover?: LazyValue<IObservable>;
+  observablesLeftover?: LazyArray<IObservable>;
   observers?: LazyArray<IObserver>;
 
   /* REGISTRATION API */
@@ -77,14 +77,17 @@ class Observer {
       });
     }
 
-    //TODO: Immediate handle
     if ( observables ) {
       this.observables = undefined;
-      lazyArrayEach ( observables, observable => {
-        if ( !observable.disposed && !observable.signal.disposed ) {
-          observable.unregisterObserver ( this );
-        }
-      });
+      if ( immediate ) {
+        lazyArrayEach ( observables, observable => {
+          if ( !observable.disposed && !observable.signal.disposed ) {
+            observable.unregisterObserver ( this );
+          }
+        });
+      } else {
+        this.observablesLeftover = observables;
+      }
     }
 
     if ( cleanups ) {
@@ -104,17 +107,26 @@ class Observer {
 
   postdispose (): void {
 
-    const {observablesLeftover} = this;
+    const prev = this.observablesLeftover;
+    const next = this.observables;
 
-    if ( observablesLeftover ) {
-      this.observablesLeftover = undefined;
-      if ( observablesLeftover.disposed || observablesLeftover.signal.disposed ) return;
-      if ( this.observables instanceof Array ) {
-        if ( this.observables.indexOf ( observablesLeftover ) >= 0 ) return; // The `indexOf` call here could potentially be problematic for performance, but it should be worth it on average
-      } else {
-        if ( observablesLeftover === this.observables ) return;
+    if ( !prev ) return;
+
+    this.observablesLeftover = undefined;
+
+    if ( prev === next ) return;
+
+    const a = ( prev instanceof Array ) ? prev : [prev];
+    const b = ( next instanceof Array ) ? next : [next];
+
+    outer:
+    for ( let ai = 0, al = a.length; ai < al; ai++ ) {
+      const av = a[ai];
+      if ( av === b[ai] ) continue;
+      for ( let bi = 0, bl = b.length; bi < bl; bi++ ) {
+        if ( av === b[bi] ) continue outer;
       }
-      observablesLeftover.unregisterObserver ( this );
+      av.unregisterObserver ( this );
     }
 
   }
