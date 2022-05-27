@@ -68,14 +68,14 @@ class Cache<T, R> {
 
   };
 
-  before = ( values: T[] ): void => {
+  before = ( values: readonly T[] ): void => {
 
     this.bool = !this.bool;
     this.nextCount = 0;
 
   };
 
-  after = ( values: T[] ): void => {
+  after = ( values: readonly T[] ): void => {
 
     this.nextCount = values.length;
 
