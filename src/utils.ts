@@ -11,7 +11,7 @@ const castError = ( error: unknown ): Error => {
 
 };
 
-const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => { //TODO: optimize wrapper computeds away
+const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => {
 
   return typeof value === 'function';
 
