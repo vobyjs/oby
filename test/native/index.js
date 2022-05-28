@@ -4072,6 +4072,24 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'works inside suspense', t => {
+
+      $.suspense ( true, () => {
+
+        const selected = $(-1);
+
+        const isSelected = $.selector ( selected );
+
+        t.is ( isSelected ( 1 ), false );
+
+        selected ( 1 );
+
+        t.is ( isSelected ( 1 ), true );
+
+      });
+
+    });
+
   });
 
   describe ( 'suspense', it => {

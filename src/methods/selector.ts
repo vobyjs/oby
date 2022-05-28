@@ -3,7 +3,7 @@
 
 import {OWNER, ROOT} from '~/constants';
 import cleanup from '~/methods/cleanup';
-import effect from '~/methods/effect';
+import reaction from '~/methods/reaction';
 import sample from '~/methods/sample';
 import ObservableClass from '~/objects/observable';
 import type {SelectorFunction, Observable, ObservableReadonly} from '~/types';
@@ -28,7 +28,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   let valuePrev: T | undefined;
 
-  effect ( () => {
+  reaction ( () => {
 
     const selectedPrev = selecteds.get ( valuePrev );
 
