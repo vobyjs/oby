@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import type {LazyArray} from '~/types';
+import type {LazyArray, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -47,15 +47,15 @@ const lazyArrayPush = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T
 //   }
 // };
 
-// const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => void ): void => {
-//   if ( set instanceof Set ) {
-//     for ( const value of set ) {
-//       fn ( value );
-//     }
-//   } else if ( set ) {
-//     fn ( set );
-//   }
-// };
+const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => void ): void => {
+  if ( set instanceof Set ) {
+    for ( const value of set ) {
+      fn ( value );
+    }
+  } else if ( set ) {
+    fn ( set );
+  }
+};
 
 // const lazySetHas = <T> ( set: LazySet<T>, value: T ): boolean | undefined => {
 //   if ( set instanceof Set ) {
@@ -68,4 +68,4 @@ const lazyArrayPush = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T
 /* EXPORT */
 
 export {lazyArrayEach, lazyArrayPush};
-// export {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas};
+export {lazySetEach};

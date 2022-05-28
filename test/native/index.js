@@ -4599,7 +4599,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'can suspend and unsuspend the execution of an effect created in a root', t => { //FIXME: Effects in roots must be suspended too, hopefully it can be done efficiently
+    it ( 'can suspend and unsuspend the execution of an effect created in a root', t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -4635,6 +4635,68 @@ describe ( 'oby', () => {
       suspended ( false );
 
       t.is ( sequence, 'abb' );
+
+    });
+
+    it ( 'can suspend and unsuspend the execution of an effect created in a for', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+      const array = [1, 2, 3];
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+        $.for ( array, () => {
+          $.effect ( () => {
+            calls += 1;
+            o ();
+          });
+        });
+      });
+
+      t.is ( calls, 3 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 3 );
+
+      suspended ( false );
+
+      t.is ( calls, 6 );
+
+    });
+
+    it ( 'can suspend and unsuspend the execution of an effect created in a forIndex', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+      const array = [1, 2, 3];
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+        $.forIndex ( array, () => {
+          $.effect ( () => {
+            calls += 1;
+            o ();
+          });
+        });
+      });
+
+      t.is ( calls, 3 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 3 );
+
+      suspended ( false );
+
+      t.is ( calls, 6 );
 
     });
 

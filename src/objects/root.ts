@@ -15,11 +15,23 @@ class Root extends Observer {
   parent: IObserver = OWNER.current;
   signal: ISignal = new Signal ();
 
+  /* CONSTRUCTOR */
+
+  constructor () {
+
+    super ();
+
+    OWNER.current.registerRoot ( this );
+
+  }
+
   /* API */
 
   dispose ( deep?: boolean, immediate?: boolean ): void {
 
     this.signal.dispose ();
+
+    OWNER.current.unregisterRoot ( this );
 
     super.dispose ( deep, immediate );
 

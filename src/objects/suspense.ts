@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {OWNER, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_SUSPENSE} from '~/constants';
-import {lazyArrayEach} from '~/lazy';
+import {lazyArrayEach, lazySetEach} from '~/lazy';
 import suspended from '~/methods/suspended';
 import Effect from '~/objects/effect';
 import Observer from '~/objects/observer';
@@ -55,6 +55,7 @@ class Suspense extends Observer {
         }
       }
       lazyArrayEach ( observer.observers, notifyObserver );
+      lazySetEach ( observer.roots, notifyObserver );
     };
 
     const notifySuspense = ( observer: IObserver ): void => {
@@ -64,6 +65,7 @@ class Suspense extends Observer {
 
     lazyArrayEach ( this.observers, notifyObserver );
     lazyArrayEach ( this.observers, notifySuspense );
+    lazySetEach ( this.roots, notifyObserver );
 
   }
 
