@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {BATCH, FALSE, IS, OWNER, ROOT, SAMPLING} from '~/constants';
+import {lazySetAdd, lazySetDelete} from '~/lazy';
 import Computation from '~/objects/computation';
 import type {IComputation, IComputed, IObservable, IObserver, ISignal, EqualsFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
 
@@ -42,30 +43,7 @@ class Observable<T = unknown> {
 
   registerObserver ( observer: IObserver ): void {
 
-    const {observers} = this;
-
-    if ( observers ) {
-
-      if ( observers instanceof Set ) {
-
-        observers.add ( observer );
-
-      } else if ( observers !== observer ) {
-
-        const observersNext = new Set<IObserver> ();
-
-        observersNext.add ( observers );
-        observersNext.add ( observer );
-
-        this.observers = observersNext;
-
-      }
-
-    } else {
-
-      this.observers = observer;
-
-    }
+    lazySetAdd ( this, 'observers', observer );
 
   }
 
@@ -94,21 +72,7 @@ class Observable<T = unknown> {
 
   unregisterObserver ( observer: IObserver ): void {
 
-    const {observers} = this;
-
-    if ( observers ) {
-
-      if ( observers instanceof Set ) {
-
-        observers.delete ( observer );
-
-      } else if ( observers === observer ) {
-
-        this.observers = undefined;
-
-      }
-
-    }
+    lazySetDelete ( this, 'observers', observer );
 
   }
 

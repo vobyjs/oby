@@ -57,14 +57,6 @@ const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => void ): void => {
   }
 };
 
-// const lazySetHas = <T> ( set: LazySet<T>, value: T ): boolean | undefined => {
-//   if ( set instanceof Set ) {
-//     return set.has ( value );
-//   } else if ( set ) {
-//     return set === value;
-//   }
-// };
-
 /* EXPORT */
 
 export {lazyArrayEach, lazyArrayPush};
