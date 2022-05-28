@@ -14,11 +14,11 @@ npm install --save oby
 | ------------------------- | ------------------------- | ------------------------- | ------------------------------------------- |
 | [`$()`](#core)            | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
 | [`$.batch`](#batch)       | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
-| [`$.cleanup`](#cleanup)   | [`$.suspense`](#suspense) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
-| [`$.computed`](#computed) | [`$.switch`](#switch)     | [`$.resolve`](#resolve)   |                                             |
-| [`$.context`](#context)   | [`$.ternary`](#ternary)   | [`$.selector`](#selector) |                                             |
-| [`$.effect`](#effect)     | [`$.tryCatch`](#trycatch) |                           |                                             |
-| [`$.error`](#error)       |                           |                           |                                             |
+| [`$.cleanup`](#cleanup)   | [`$.forIndex`](#forindex) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
+| [`$.computed`](#computed) | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   |                                             |
+| [`$.context`](#context)   | [`$.switch`](#switch)     | [`$.selector`](#selector) |                                             |
+| [`$.effect`](#effect)     | [`$.ternary`](#ternary)   |                           |                                             |
+| [`$.error`](#error)       | [`$.tryCatch`](#trycatch) |                           |                                             |
 | [`$.is`](#is)             |                           |                           |                                             |
 | [`$.reaction`](#reaction) |                           |                           |                                             |
 | [`$.root`](#root)         |                           |                           |                                             |
@@ -564,6 +564,48 @@ const mapped = $.for ( os, o => {
 // Update the "mapped" Observable
 
 os ([ o1, o2, o3 ]);
+```
+
+#### `$.forIndex`
+
+This is an alternative reactive version of the native `Array.prototype.map`, it maps over an array of values while caching results for values _whose position in the array_ didn't change.
+
+This is an alternative to `$.for` that uses the index of the value in the array for caching, rather than the value itself.
+
+It's recommended to use `$.forIndex` for arrays containing duplicate values and/or arrays containing primitive values, and `$.for` for everything else.
+
+The passed function will always be called with a read-only Observable containing the current value at the index being mapped.
+
+Interface:
+
+```ts
+type Value<T = unknown> = T extends ObservableReadonly<infer U> ? ObservableReadonly<U> : ObservableReadonly<T>;
+
+function forIndex <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: Value<T> ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Map over an array of primitive values, containing duplicates
+
+const values = $([ 1, 1, 2, 2, 3 ]);
+
+const mapped = $.for ( values, value => {
+
+  return $.computed ( () => { // Wrapping in a computed to listen to changes in "value"
+
+    return `Double: ${value () ** 2}`;
+
+  });
+
+});
+
+// Update the values Observable
+
+values ([ 1, 2, 2 ]); // Only the value at index "1" changed, so only the mapped value for that will be refreshed
 ```
 
 #### `$.suspense`

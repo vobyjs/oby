@@ -83,6 +83,8 @@ type Frozen = <T = unknown> ( value: T ) => ObservableReadonly<T>;
 
 type FunctionMaybe<T = unknown> = (() => T) | T;
 
+type Indexed<T = unknown> = T extends ObservableReadonly<infer U> ? ObservableReadonly<U> : ObservableReadonly<T>;
+
 type LazyArray<T = unknown> = T[] | T | undefined;
 
 type LazySet<T = unknown> = Set<T> | T | undefined;
@@ -108,4 +110,4 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISignal, ISuperRoot, ISuspense};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
-export type {Contexts, Frozen, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};
+export type {Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};
