@@ -74,7 +74,7 @@ class Cache<T, R> {
 
       } else {
 
-        const indexed = new IndexedRoot<T, Resolved<R>> ();
+        const indexed = new IndexedRoot<T, Resolved<R>> ( true );
 
         indexed.wrap ( () => {
 

@@ -8,7 +8,7 @@ import type {ObservedDisposableFunction} from '~/types';
 
 const root = <T> ( fn: ObservedDisposableFunction<T> ): T => {
 
-  return new Root ().wrap ( fn );
+  return new Root ( true ).wrap ( fn );
 
 };
 

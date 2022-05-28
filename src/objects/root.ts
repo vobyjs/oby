@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {OWNER, ROOT} from '~/constants';
+import suspendable from '~/methods/suspendable';
 import Observer from '~/objects/observer';
 import Signal from '~/objects/signal';
 import type {IObserver, ISignal, ObservedDisposableFunction} from '~/types';
@@ -13,15 +14,22 @@ class Root extends Observer {
   /* VARIABLES */
 
   parent: IObserver = OWNER.current;
+  pausable?: boolean;
   signal: ISignal = new Signal ();
 
   /* CONSTRUCTOR */
 
-  constructor () {
+  constructor ( pausable?: boolean ) {
 
     super ();
 
-    OWNER.current.registerRoot ( this );
+    if ( pausable && suspendable () ) {
+
+      this.pausable = true;
+
+      OWNER.current.registerRoot ( this );
+
+    }
 
   }
 
@@ -31,7 +39,11 @@ class Root extends Observer {
 
     this.signal.dispose ();
 
-    OWNER.current.unregisterRoot ( this );
+    if ( this.pausable ) {
+
+      OWNER.current.unregisterRoot ( this );
+
+    }
 
     super.dispose ( deep, immediate );
 

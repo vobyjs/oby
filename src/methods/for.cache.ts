@@ -99,7 +99,7 @@ class Cache<T, R> {
 
     } else {
 
-      const mapped = new MappedRoot<R> ();
+      const mapped = new MappedRoot<R> ( true );
 
       return mapped.wrap ( () => {
 
