@@ -27,7 +27,7 @@ class Root extends Observer {
 
       this.pausable = true;
 
-      OWNER.current.registerRoot ( this );
+      this.parent.registerRoot ( this );
 
     }
 
@@ -41,7 +41,7 @@ class Root extends Observer {
 
     if ( this.pausable ) {
 
-      OWNER.current.unregisterRoot ( this );
+      this.parent.unregisterRoot ( this );
 
     }
 
