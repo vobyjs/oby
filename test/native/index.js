@@ -2293,8 +2293,8 @@ describe ( 'oby', () => {
 
     it ( 'returns undefined', t => {
 
-      const result1 = $.error ( () => {} );
-      const result2 = $.error ( () => {} );
+      const result1 = $.error ( error => { throw error; } );
+      const result2 = $.error ( error => { throw error; } );
 
       t.is ( result1, undefined );
       t.is ( result2, undefined );
