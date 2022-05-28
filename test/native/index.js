@@ -104,6 +104,29 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'creates a dependency in a reaction when getting', t => {
+
+      const o = $(1);
+
+      let calls = 0;
+
+      $.reaction ( () => {
+        calls += 1;
+        o ();
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 2 );
+
+      t.is ( calls, 2 );
+
+      o ( 3 );
+
+      t.is ( calls, 3 );
+
+    });
+
     it ( 'creates a single dependency in a computed even if getting multiple times', t => {
 
       const o = $(1);
@@ -136,6 +159,31 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.effect ( () => {
+        calls += 1;
+        o ();
+        o ();
+        o ();
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 2 );
+
+      t.is ( calls, 2 );
+
+      o ( 3 );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'creates a single dependency in a reaction even if getting multiple times', t => {
+
+      const o = $(1);
+
+      let calls = 0;
+
+      $.reaction ( () => {
         calls += 1;
         o ();
         o ();
@@ -190,6 +238,24 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'does not create a dependency in a reaction when setting', t => {
+
+      let o;
+      let calls = 0;
+
+      $.reaction ( () => {
+        calls += 1;
+        o = $(1);
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 2 );
+
+      t.is ( calls, 1 );
+
+    });
+
     it ( 'does not create a dependency in a computed when setting with a function', t => {
 
       const o = $(1);
@@ -217,7 +283,28 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.effect ( () => {
+        calls += 1;
+        o ( prev => prev + 1 );
+        o ( prev => prev + 1 );
+        o ( prev => prev + 1 );
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 5 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'does not create a dependency in a reaction when setting with a function', t => {
+
+      const o = $(1);
+
+      let calls = 0;
+
+      $.reaction ( () => {
         calls += 1;
         o ( prev => prev + 1 );
         o ( prev => prev + 1 );
@@ -494,6 +581,35 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'coalesces multiple updates for a reaction together', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.reaction ( () => {
+
+        calls += 1;
+
+        a ();
+        b ();
+
+      });
+
+      t.is ( calls, 1 );
+
+      $.batch ( () => {
+        a ( 1 );
+        a ( 2 );
+        b ( 1 );
+        b ( 2 );
+      });
+
+      t.is ( calls, 2 );
+
+    });
+
     it ( 'returns non-functions as is', t => {
 
       const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
@@ -579,6 +695,36 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.effect ( () => {
+
+        calls += 1;
+
+        if ( disposed () ) return;
+
+        const o = $(0);
+
+        o ();
+
+        $.cleanup ( () => {
+
+          o ( Math.random () );
+
+        });
+
+      });
+
+      disposed ( true );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'does not cause the parent reaction to re-execute', t => {
+
+      const disposed = $(false);
+
+      let calls = 0;
+
+      $.reaction ( () => {
 
         calls += 1;
 
@@ -697,6 +843,42 @@ describe ( 'oby', () => {
       let sequence = '';
 
       $.effect ( () => {
+
+        o ();
+
+        $.cleanup ( () => {
+          sequence += 'a';
+        });
+
+        $.cleanup ( () => {
+          sequence += 'b';
+        });
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'registers a function to be called when the parent reaction updates', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.reaction ( () => {
 
         o ();
 
@@ -1115,6 +1297,21 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'can read and write context values inside a reaction', t => {
+
+      $.reaction ( () => {
+
+        const ctx = Symbol ();
+        const value = { foo: 123 };
+
+        $.context ( ctx, value );
+
+        t.is ( $.context ( ctx ), value );
+
+      });
+
+    });
+
     it ( 'can read and write context values inside a root', t => {
 
       $.root ( () => {
@@ -1174,6 +1371,25 @@ describe ( 'oby', () => {
         $.context ( ctx, value );
 
         $.computed ( () => {
+
+          t.is ( $.context ( ctx ), value );
+
+        });
+
+      });
+
+    });
+
+    it ( 'can read and write context values inside a deep reaction', t => {
+
+      $.reaction ( () => {
+
+        const ctx = Symbol ();
+        const value = { foo: 123 };
+
+        $.context ( ctx, value );
+
+        $.reaction ( () => {
 
           t.is ( $.context ( ctx ), value );
 
@@ -1688,6 +1904,23 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'casts an error thrown inside a parent reaction to an Error instance', t => {
+
+      $.reaction ( () => {
+
+        $.error ( error => {
+
+          t.true ( error instanceof Error );
+          t.is ( error.message, 'err' );
+
+        });
+
+        throw 'err';
+
+      });
+
+    });
+
     it ( 'casts an error thrown inside a parent root to an Error instance', t => {
 
       $.root ( () => {
@@ -1765,6 +1998,42 @@ describe ( 'oby', () => {
       let sequence = '';
 
       $.effect ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        if ( o () ) throw 'err';
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'registers a function to be called when the parent reaction throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.reaction ( () => {
 
         $.error ( () => {
           sequence += 'a';
@@ -1926,6 +2195,50 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'registers a function to be called when a child reaction throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.reaction ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        $.reaction ( () => {
+
+          $.reaction ( () => {
+
+            if ( o () ) throw 'err';
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
     it ( 'registers a function to be called when a child root throws', t => {
 
       let sequence = '';
@@ -2011,6 +2324,24 @@ describe ( 'oby', () => {
       t.throws ( () => {
 
         $.effect ( () => {
+
+          $.error ( () => {
+            throw new Error ( 'Inner error' );
+          });
+
+          throw 'err';
+
+        });
+
+      }, { message: 'Inner error' } );
+
+    });
+
+    it ( 'throws if the error handler in an reaction throws', t => {
+
+      t.throws ( () => {
+
+        $.reaction ( () => {
 
           $.error ( () => {
             throw new Error ( 'Inner error' );
@@ -2128,6 +2459,35 @@ describe ( 'oby', () => {
 
       const dispose = $.root ( dispose => {
         $.effect ( () => {
+          $.for ( array, value => {
+            $.computed ( () => {
+              args.push ( value () );
+            });
+          });
+        });
+        return dispose;
+      });
+
+      dispose ();
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2] );
+
+    });
+
+    it ( 'disposes of any reactivity when the parent reaction is disposed', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      const dispose = $.root ( dispose => {
+        $.reaction ( () => {
           $.for ( array, value => {
             $.computed ( () => {
               args.push ( value () );
@@ -2303,6 +2663,29 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.effect ( () => {
+        calls += 1;
+        $.get ( o );
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 2 );
+
+      t.is ( calls, 2 );
+
+      o ( 3 );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'creates a dependency in an reaction', t => {
+
+      const o = $(1);
+
+      let calls = 0;
+
+      $.reaction ( () => {
         calls += 1;
         $.get ( o );
       });
@@ -2592,6 +2975,41 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'properly disposes of inner reactions', t => {
+
+      const o = $(2);
+
+      let calls = 0;
+
+      const dispose = $.root ( dispose => {
+
+        const fn = () => {
+          $.reaction ( () => {
+            calls += 1;
+            o () ** 2;
+          });
+        };
+
+        $.resolve ( fn );
+
+        return dispose;
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 3 );
+
+      t.is ( calls, 2 );
+
+      dispose ();
+
+      o ( 4 );
+
+      t.is ( calls, 2 );
+
+    });
+
     it ( 'resolves an array', t => {
 
       const arr = [() => 123];
@@ -2700,6 +3118,300 @@ describe ( 'oby', () => {
       isReadable ( t, resolved[0]()[0] );
 
       t.is ( resolved[0]()[0](), 123 );
+
+    });
+
+  });
+
+  describe ( 'reaction', it => {
+
+    it ( 'can not be running multiple times concurrently', t => {
+
+      const o = $(0);
+
+      let executions = 0;
+
+      $.reaction ( () => {
+
+        executions += 1;
+
+        const value = o ();
+
+        t.is ( executions, 1 );
+
+        if ( value === 0 ) o ( 1 );
+        if ( value === 1 ) o ( 2 );
+        if ( value === 2 ) o ( 3 );
+
+        t.is ( executions, 1 );
+
+        executions -= 1;
+
+        t.is ( executions, 0 );
+
+      });
+
+    });
+
+    it ( 'checks if the returned value is actually a function', t => {
+
+      t.notThrows ( () => {
+
+        $.reaction ( () => 123 );
+
+      });
+
+    });
+
+    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.reaction ( () => {
+
+        calls += 1;
+
+        if ( !$.sample ( a ) ) a ( a () + 1 );
+
+        b ();
+
+      });
+
+      t.is ( calls, 2 );
+
+      a ( 2 );
+
+      t.is ( calls, 2 );
+
+      b ( 1 );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'returns a disposer', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $();
+
+      const dispose = $.reaction ( () => {
+        c ( a () + b () );
+      });
+
+      t.is ( c (), 3 );
+
+      dispose ();
+
+      a ( 2 );
+
+      t.is ( c (), 3 );
+
+    });
+
+    it ( 'returns undefined to the function', t => {
+
+      const a = $(1);
+      const aPrev = $();
+
+      $.reaction ( prev => {
+
+        aPrev ( prev );
+
+        a ();
+
+      });
+
+      t.is ( a (), 1 );
+      t.is ( aPrev (), undefined );
+
+      a ( 2 );
+
+      t.is ( a (), 2 );
+      t.is ( aPrev (), undefined );
+
+      a ( 3 );
+
+      t.is ( a (), 3 );
+      t.is ( aPrev (), undefined );
+
+      a ( 4 );
+
+      t.is ( a (), 4 );
+      t.is ( aPrev (), undefined );
+
+    });
+
+    it ( 'supports dynamic dependencies', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $();
+      const bool = $(false);
+
+      $.reaction ( () => {
+        c ( bool () ? a () : b () );
+      });
+
+      t.is ( c (), 2 );
+
+      bool ( true );
+
+      t.is ( c (), 1 );
+
+    });
+
+    it ( 'supports manually registering a function to be called when the parent reaction updates', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.reaction ( () => {
+
+        o ();
+
+        $.cleanup ( () => {
+          sequence += 'a';
+        });
+
+        $.cleanup ( () => {
+          sequence += 'b';
+        });
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'supports manually registering a function to be called when the parent reaction throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.reaction ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        if ( o () ) throw 'err';
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'supports automatically registering a function to be called when the parent reaction updates', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.reaction ( () => {
+
+        o ();
+
+        return () => {
+          sequence += 'a';
+          sequence += 'b';
+        };
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'updates when the dependencies change', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $();
+
+      $.reaction ( () => {
+        c ( a () + b () );
+      });
+
+      a ( 3 );
+      b ( 7 );
+
+      t.is ( c (), 10 );
+
+    });
+
+    it ( 'updates when the dependencies change inside other reactions', t => {
+
+      const a = $(0);
+      const b = $(0);
+      let calls = 0;
+
+      $.reaction ( () => {
+        calls += 1;
+        a ();
+      });
+
+      t.is ( calls, 1 );
+
+      $.reaction ( () => {
+        a ( 1 );
+        b ();
+        a ( 0 );
+      });
+
+      b ( 1 );
+
+      t.is ( calls, 5 );
+
+      a ( 1 );
+
+      t.is ( calls, 6 );
 
     });
 
@@ -2951,6 +3663,40 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'does not leak reactions', t => {
+
+      const o = $(1);
+
+      let cleaned = false;
+
+      $.reaction ( () => {
+
+        o ();
+
+        $.sample ( () => {
+
+          $.reaction ( () => {
+
+            $.cleanup ( () => {
+
+              cleaned = true;
+
+            });
+
+          });
+
+        });
+
+      });
+
+      t.is ( cleaned, false );
+
+      o ( 2 );
+
+      t.is ( cleaned, true );
+
+    });
+
     it ( 'returns non-functions as is', t => {
 
       const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
@@ -3031,6 +3777,40 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports getting without creating dependencies in a reaction', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $(3);
+      const d = $(0);
+
+      let calls = 0;
+
+      $.reaction ( () => {
+        calls += 1;
+        a ();
+        a ();
+        d ( $.sample ( () => b () ) );
+        c ();
+        c ();
+      });
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      b ( 4 );
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      a ( 5 );
+      c ( 6 );
+
+      t.is ( calls, 3 );
+      t.is ( d (), 4 );
+
+    });
+
     it ( 'works with functions containing a computed', t => {
 
       const o = $(0);
@@ -3080,6 +3860,40 @@ describe ( 'oby', () => {
           o ();
 
           $.effect ( () => {
+
+            o ();
+
+          });
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'works with functions containing a reaction', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.reaction ( () => {
+
+        calls += 1;
+
+        $.sample ( () => {
+
+          o ();
+
+          $.reaction ( () => {
 
             o ();
 
@@ -3720,6 +4534,72 @@ describe ( 'oby', () => {
       suspended ( false );
 
       t.is ( calls, 1 );
+
+    });
+
+    it ( 'can not suspend a computed', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.computed ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 2 );
+
+      suspended ( false );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'can not suspend a reaction', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.reaction ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 2 );
+
+      suspended ( false );
+
+      t.is ( calls, 2 );
 
     });
 

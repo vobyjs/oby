@@ -11,6 +11,8 @@ type IObservable<T = unknown> = import ( '~/objects/observable' ).default<T>;
 
 type IObserver = import ( '~/objects/observer' ).default;
 
+type IReaction = import ( '~/objects/reaction' ).default;
+
 type IRoot = import ( '~/objects/root' ).default;
 
 type ISignal = import ( '~/objects/signal' ).default;
@@ -40,6 +42,8 @@ type MapFunction<T = unknown, R = unknown> = ( value: T ) => R;
 type ObservedFunction<T = unknown> = () => T;
 
 type ObservedDisposableFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
+
+type ReactionFunction = () => CleanupFunction | void;
 
 type SampleFunction<T = unknown> = () => T;
 
@@ -101,7 +105,7 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 /* EXPORT */
 
-export type {IComputation, IComputed, IEffect, IObservable, IObserver, IRoot, ISignal, ISuperRoot, ISuspense};
-export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction};
+export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISignal, ISuperRoot, ISuspense};
+export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Contexts, Frozen, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};

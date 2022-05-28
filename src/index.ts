@@ -15,6 +15,7 @@ import get from '~/methods/get';
 import _if from '~/methods/if';
 import is from '~/methods/is';
 import observable from '~/methods/observable';
+import reaction from '~/methods/reaction';
 import readonly from '~/methods/readonly';
 import resolve from '~/methods/resolve';
 import root from '~/methods/root';
@@ -29,6 +30,6 @@ import type {ObservableOptions, Observable, ObservableReadonly} from '~/types';
 /* EXPORT */
 
 export default $;
-export {batch, cleanup, computed, context, disposed, effect, error, _for as for, get, _if as if, is, observable, readonly, resolve, root, sample, selector, suspense, _switch as switch, ternary, tryCatch};
+export {batch, cleanup, computed, context, disposed, effect, error, _for as for, get, _if as if, is, observable, reaction, readonly, resolve, root, sample, selector, suspense, _switch as switch, ternary, tryCatch};
 export {SYMBOL_OBSERVABLE, SYMBOL_SAMPLED};
 export type {Observable, ObservableReadonly, ObservableOptions};

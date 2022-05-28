@@ -20,6 +20,7 @@ npm install --save oby
 | [`$.effect`](#effect)     | [`$.tryCatch`](#trycatch) |                           |                                             |
 | [`$.error`](#error)       |                           |                           |                                             |
 | [`$.is`](#is)             |                           |                           |                                             |
+| [`$.reaction`](#reaction) |                           |                           |                                             |
 | [`$.root`](#root)         |                           |                           |                                             |
 | [`$.sample`](#sample)     |                           |                           |                                             |
 
@@ -368,6 +369,44 @@ import $ from 'oby';
 
 $.is ( $() ); // => true
 $.is ( {} ); // => false
+```
+
+#### `$.reaction`
+
+A reaction is similar to an effect, except that it's not affected by suspense.
+
+- **Note**: this is an advanced function intended mostly for internal usage, you'd almost always want to simply either use a computed or an effect.
+
+Interface:
+
+```ts
+function reaction ( fn: () => (() => void) | void ): (() => void);
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Create a reaction with an automatically registered cleanup function
+
+const callback = $( () => {} );
+
+$.reaction ( () => {
+
+  const cb = callback ();
+
+  document.body.addEventListener ( 'click', cb );
+
+  return () => { // Automatically-registered cleanup function
+
+    document.body.removeEventListener ( 'click', cb );
+
+  };
+
+});
+
+callback ( () => () => {} ); // Cleanups called and reaction re-evaluated
 ```
 
 #### `$.root`
