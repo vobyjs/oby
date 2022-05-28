@@ -6,7 +6,8 @@ import {lazyArrayEach, lazySetEach} from '~/lazy';
 import suspended from '~/methods/suspended';
 import Effect from '~/objects/effect';
 import Observer from '~/objects/observer';
-import type {IObserver, SuspenseFunction} from '~/types';
+import {isFunction} from '~/utils';
+import type {IObserver, IRoot, SuspenseFunction} from '~/types';
 
 /* MAIN */
 
@@ -45,6 +46,14 @@ class Suspense extends Observer {
 
     /* NOTIFYING EFFECTS AND SUSPENSES */
 
+    const notifyRoot = ( root: IRoot | (() => IRoot[]) ): void => {
+      if ( isFunction ( root ) ) {
+        root ().forEach ( notifyObserver );
+      } else {
+        notifyObserver ( root );
+      }
+    };
+
     const notifyObserver = ( observer: IObserver ): void => {
       if ( observer instanceof Suspense ) return;
       if ( observer instanceof Effect ) {
@@ -55,7 +64,7 @@ class Suspense extends Observer {
         }
       }
       lazyArrayEach ( observer.observers, notifyObserver );
-      lazySetEach ( observer.roots, notifyObserver );
+      lazySetEach ( observer.roots, notifyRoot );
     };
 
     const notifySuspense = ( observer: IObserver ): void => {
@@ -65,7 +74,7 @@ class Suspense extends Observer {
 
     lazyArrayEach ( this.observers, notifyObserver );
     lazyArrayEach ( this.observers, notifySuspense );
-    lazySetEach ( this.roots, notifyObserver );
+    lazySetEach ( this.roots, notifyRoot );
 
   }
 

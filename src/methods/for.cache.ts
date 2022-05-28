@@ -1,9 +1,10 @@
 
 /* IMPORT */
 
+import {OWNER} from '~/constants';
 import resolve from '~/methods/resolve';
 import Root from '~/objects/root';
-import type {MapFunction, Resolved} from '~/types';
+import type {IObserver, MapFunction, Resolved} from '~/types';
 
 /* HELPERS */
 
@@ -23,12 +24,14 @@ class Cache<T, R> {
   bool = false; // The bool is flipped with each iteration, the roots that don't have the updated one are disposed, it's like a cheap counter basically
   prevCount: number = 0; // Number of previous items
   nextCount: number = 0; // Number of next items
+  parent: IObserver = OWNER.current;
 
   /* CONSTRUCTOR */
 
   constructor ( fn: MapFunction<T, R> ) {
 
     this.fn = fn;
+    this.parent.registerRoot ( this.roots );
 
   }
 
@@ -55,6 +58,8 @@ class Cache<T, R> {
   };
 
   dispose = (): void => {
+
+    this.parent.unregisterRoot ( this.roots );
 
     if ( !this.cache.size ) return; // Nothing to dispose of
 
@@ -99,7 +104,7 @@ class Cache<T, R> {
 
     } else {
 
-      const mapped = new MappedRoot<R> ( true );
+      const mapped = new MappedRoot<R> ();
 
       return mapped.wrap ( () => {
 
@@ -115,6 +120,12 @@ class Cache<T, R> {
       });
 
     }
+
+  };
+
+  roots = (): MappedRoot<R>[] => {
+
+    return Array.from ( this.cache.values () );
 
   };
 

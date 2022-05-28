@@ -20,7 +20,7 @@ class Observer {
   observables?: LazyArray<IObservable>;
   observablesLeftover?: LazyArray<IObservable>;
   observers?: LazyArray<IObserver>;
-  roots?: LazySet<IRoot>;
+  roots?: LazySet<IRoot | (() => IRoot[])>;
   inactive?: boolean; // Inactive observers should not be re-executed, if they can be
 
   /* REGISTRATION API */
@@ -56,13 +56,13 @@ class Observer {
 
   }
 
-  registerRoot ( root: IRoot ): void {
+  registerRoot ( root: IRoot | (() => IRoot[]) ): void {
 
     lazySetAdd ( this, 'roots', root );
 
   }
 
-  unregisterRoot ( root: IRoot ): void {
+  unregisterRoot ( root: IRoot | (() => IRoot[]) ): void {
 
     lazySetDelete ( this, 'roots', root );
 

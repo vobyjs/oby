@@ -1,12 +1,13 @@
 
 /* IMPORT */
 
+import {OWNER} from '~/constants';
 import computed from '~/methods/computed';
 import get from '~/methods/get';
 import resolve from '~/methods/resolve';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
-import type {IObservable, MapFunction, Indexed, Resolved} from '~/types';
+import type {IObservable, IObserver, MapFunction, Indexed, Resolved} from '~/types';
 
 /* HELPERS */
 
@@ -24,6 +25,7 @@ class Cache<T, R> {
 
   fn: MapFunction<Indexed<T>, R>;
   cache: IndexedRoot<T, Resolved<R>>[];
+  parent: IObserver = OWNER.current;
 
   /* CONSTRUCTOR */
 
@@ -31,6 +33,7 @@ class Cache<T, R> {
 
     this.fn = fn;
     this.cache = [];
+    this.parent.registerRoot ( this.roots );
 
   }
 
@@ -51,6 +54,8 @@ class Cache<T, R> {
   };
 
   dispose = (): void => {
+
+    this.parent.unregisterRoot ( this.roots );
 
     this.cleanup ( 0 );
 
@@ -74,7 +79,7 @@ class Cache<T, R> {
 
       } else {
 
-        const indexed = new IndexedRoot<T, Resolved<R>> ( true );
+        const indexed = new IndexedRoot<T, Resolved<R>> ();
 
         indexed.wrap ( () => {
 
@@ -97,6 +102,12 @@ class Cache<T, R> {
     this.cleanup ( values.length );
 
     return results;
+
+  };
+
+  roots = (): IndexedRoot<T, R>[] => {
+
+    return Array.from ( this.cache.values () );
 
   };
 
