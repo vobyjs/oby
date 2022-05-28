@@ -2,9 +2,9 @@
 /* IMPORT */
 
 import {OWNER, SAMPLING} from '~/constants';
-import {lazyArrayEach, lazyArrayPush} from '~/lazy';
+import {lazyArrayEach, lazyArrayPush, lazySetAdd, lazySetDelete} from '~/lazy';
 import {castError} from '~/utils';
-import type {IObservable, IObserver, IRoot, ISignal, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazyValue} from '~/types';
+import type {IObservable, IObserver, IRoot, ISignal, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazySet, LazyValue} from '~/types';
 
 /* MAIN */
 
@@ -20,7 +20,7 @@ class Observer {
   observables?: LazyArray<IObservable>;
   observablesLeftover?: LazyArray<IObservable>;
   observers?: LazyArray<IObserver>;
-  roots?: LazyValue<Set<IRoot>>;
+  roots?: LazySet<IRoot>;
   inactive?: boolean; // Inactive observers should not be re-executed, if they can be
 
   /* REGISTRATION API */
@@ -58,14 +58,13 @@ class Observer {
 
   registerRoot ( root: IRoot ): void {
 
-    this.roots ||= new Set ();
-    this.roots.add ( root );
+    lazySetAdd ( this, 'roots', root );
 
   }
 
   unregisterRoot ( root: IRoot ): void {
 
-    this.roots?.delete ( root );
+    lazySetDelete ( this, 'roots', root );
 
   }
 

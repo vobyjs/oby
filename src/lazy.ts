@@ -24,28 +24,28 @@ const lazyArrayPush = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T
   }
 };
 
-// const lazySetAdd = <T, U extends string> ( obj: Partial<Record<U, LazySet<T>>>, key: U, value: T ): void => {
-//   const set: LazySet<T> = obj[key];
-//   if ( set instanceof Set ) {
-//     set.add ( value );
-//   } else if ( set ) {
-//     const s = new Set<T> ();
-//     s.add ( set );
-//     s.add ( value );
-//     obj[key] = s;
-//   } else {
-//     obj[key] = value;
-//   }
-// };
+const lazySetAdd = <T, U extends string> ( obj: Partial<Record<U, LazySet<T>>>, key: U, value: T ): void => {
+  const set: LazySet<T> = obj[key];
+  if ( set instanceof Set ) {
+    set.add ( value );
+  } else if ( set ) {
+    const s = new Set<T> ();
+    s.add ( set );
+    s.add ( value );
+    obj[key] = s;
+  } else {
+    obj[key] = value;
+  }
+};
 
-// const lazySetDelete = <T, U extends string> ( obj: Partial<Record<U, LazySet<T>>>, key: U, value: T ): void => {
-//   const set: LazySet<T> = obj[key];
-//   if ( set instanceof Set ) {
-//     set.delete ( value );
-//   } else if ( set === value ) {
-//     obj[key] = undefined;
-//   }
-// };
+const lazySetDelete = <T, U extends string> ( obj: Partial<Record<U, LazySet<T>>>, key: U, value: T ): void => {
+  const set: LazySet<T> = obj[key];
+  if ( set instanceof Set ) {
+    set.delete ( value );
+  } else if ( set === value ) {
+    obj[key] = undefined;
+  }
+};
 
 const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => void ): void => {
   if ( set instanceof Set ) {
@@ -68,4 +68,4 @@ const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => void ): void => {
 /* EXPORT */
 
 export {lazyArrayEach, lazyArrayPush};
-export {lazySetEach};
+export {lazySetAdd, lazySetDelete, lazySetEach};
