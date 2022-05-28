@@ -2,8 +2,8 @@
 /* IMPORT */
 
 import {BATCH, FALSE, IS, OWNER, ROOT, SAMPLING} from '~/constants';
-import Reaction from '~/objects/reaction';
-import type {IObservable, IObserver, IComputed, ISignal, EqualsFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
+import Computation from '~/objects/computation';
+import type {IComputation, IComputed, IObservable, IObserver, ISignal, EqualsFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -73,7 +73,7 @@ class Observable<T = unknown> {
 
     if ( this.disposed || this.signal.disposed ) return;
 
-    if ( !SAMPLING.current && OWNER.current instanceof Reaction ) {
+    if ( !SAMPLING.current && OWNER.current instanceof Computation ) {
 
       this.registerObserver ( OWNER.current );
 
@@ -179,21 +179,21 @@ class Observable<T = unknown> {
 
     if ( this.disposed || this.signal.disposed ) return;
 
-    const reactions = this.observers as LazySet<Reaction>; //TSC
+    const computations = this.observers as LazySet<IComputation>; //TSC
 
-    if ( reactions ) {
+    if ( computations ) {
 
-      if ( reactions instanceof Set ) {
+      if ( computations instanceof Set ) {
 
-        for ( const reaction of reactions ) {
+        for ( const computation of computations ) {
 
-          reaction.stale ( fresh );
+          computation.stale ( fresh );
 
         }
 
       } else {
 
-        reactions.stale ( fresh );
+        computations.stale ( fresh );
 
       }
 
@@ -205,21 +205,21 @@ class Observable<T = unknown> {
 
     if ( this.disposed || this.signal.disposed ) return;
 
-    const reactions = this.observers as LazySet<Reaction>; //TSC
+    const computations = this.observers as LazySet<IComputation>; //TSC
 
-    if ( reactions ) {
+    if ( computations ) {
 
-      if ( reactions instanceof Set ) {
+      if ( computations instanceof Set ) {
 
-        for ( const reaction of reactions ) {
+        for ( const computation of computations ) {
 
-          reaction.unstale ( fresh );
+          computation.unstale ( fresh );
 
         }
 
       } else {
 
-        reactions.unstale ( fresh );
+        computations.unstale ( fresh );
 
       }
 

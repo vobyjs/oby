@@ -7,7 +7,7 @@ import type {IObserver, ISignal} from '~/types';
 
 /* MAIN */
 
-class Reaction extends Observer {
+class Computation extends Observer {
 
   /* VARIABLES */
 
@@ -28,7 +28,7 @@ class Reaction extends Observer {
 
   unstale ( fresh: boolean ): void {
 
-    if ( !this.statusCount ) return; // The reaction updated itself already
+    if ( !this.statusCount ) return; // The computation updated itself already
 
     this.statusCount -= 1;
     this.statusFresh ||= fresh;
@@ -51,4 +51,4 @@ class Reaction extends Observer {
 
 /* EXPORT */
 
-export default Reaction;
+export default Computation;

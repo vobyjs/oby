@@ -2,13 +2,13 @@
 /* IMPORT */
 
 import suspended from '~/methods/suspended';
-import Reaction from '~/objects/reaction';
+import Computation from '~/objects/computation';
 import {castError, isFunction, max} from '~/utils';
 import type {EffectFunction} from '~/types';
 
 /* MAIN */
 
-class Effect extends Reaction {
+class Effect extends Computation {
 
   /* VARIABLES */
 

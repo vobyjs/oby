@@ -1,14 +1,14 @@
 
 /* IMPORT */
 
+import Computation from '~/objects/computation';
 import Observable from '~/objects/observable';
-import Reaction from '~/objects/reaction';
 import {castError, max} from '~/utils';
 import type {IObservable, ComputedFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
 
-class Computed<T = unknown> extends Reaction {
+class Computed<T = unknown> extends Computation {
 
   /* VARIABLES */
 

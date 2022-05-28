@@ -1,6 +1,8 @@
 
 /* OBJECTS */
 
+type IComputation = import ( '~/objects/computation' ).default;
+
 type IComputed<T = unknown> = import ( '~/objects/computed' ).default<T>;
 
 type IEffect = import ( '~/objects/effect' ).default;
@@ -8,8 +10,6 @@ type IEffect = import ( '~/objects/effect' ).default;
 type IObservable<T = unknown> = import ( '~/objects/observable' ).default<T>;
 
 type IObserver = import ( '~/objects/observer' ).default;
-
-type IReaction = import ( '~/objects/reaction' ).default;
 
 type IRoot = import ( '~/objects/root' ).default;
 
@@ -101,7 +101,7 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 /* EXPORT */
 
-export type {IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISignal, ISuperRoot, ISuspense};
+export type {IComputation, IComputed, IEffect, IObservable, IObserver, IRoot, ISignal, ISuperRoot, ISuspense};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Contexts, Frozen, FunctionMaybe, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};
