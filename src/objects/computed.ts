@@ -19,7 +19,7 @@ class Computed<T = unknown> extends Computation {
 
   constructor ( fn: ComputedFunction<T>, options?: ObservableOptions<T> ) {
 
-    super ();
+    super ( fn );
 
     this.fn = fn;
     this.observable = new Observable ( undefined as any, options, this ); //TSC

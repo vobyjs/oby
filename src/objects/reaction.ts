@@ -18,7 +18,7 @@ class Reaction extends Computation {
 
   constructor ( fn: ReactionFunction, pausable?: boolean ) {
 
-    super ();
+    super ( fn );
 
     this.fn = fn;
 

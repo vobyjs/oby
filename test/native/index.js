@@ -1203,6 +1203,16 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'throws if it receives an async function', t => {
+
+      t.throws ( () => {
+
+        $.computed ( async () => {} );
+
+      }, { message: 'A computation is forbidden from executing an async function' } );
+
+    });
+
     it ( 'updates the observable with the last value when causing itself to re-execute', t => {
 
       const o = $(0);
@@ -1817,6 +1827,16 @@ describe ( 'oby', () => {
       o ( 3 );
 
       t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'throws if it receives an async function', t => {
+
+      t.throws ( () => {
+
+        $.effect ( async () => {} );
+
+      }, { message: 'A computation is forbidden from executing an async function' } );
 
     });
 
@@ -3629,6 +3649,16 @@ describe ( 'oby', () => {
       o ( 3 );
 
       t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'throws if it receives an async function', t => {
+
+      t.throws ( () => {
+
+        $.reaction ( async () => {} );
+
+      }, { message: 'A computation is forbidden from executing an async function' } );
 
     });
 
