@@ -8,6 +8,8 @@ import type {IObservable, IObserver, IRoot, ISignal, CleanupFunction, ErrorFunct
 
 /* MAIN */
 
+//TODO: Throw when registering stuff after disposing, mainly relevant when roots are used
+
 class Observer {
 
   /* VARIABLES */
