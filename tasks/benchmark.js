@@ -107,7 +107,7 @@ const benchmark = async () => {
 
   const results = {};
 
-  const runs = [1, 2, 3, 4, 5];
+  const runs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   for ( const layers in expected ) {
 
