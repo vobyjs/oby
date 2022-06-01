@@ -242,6 +242,10 @@ function context <T> ( symbol: symbol, value: T ): undefined;
 Usage:
 
 ```ts
+import $ from 'oby';
+
+// Reading and writing some values in the context
+
 $.root ( () => {
 
   const token = Symbol ( 'Some Context' );
