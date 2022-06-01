@@ -17,10 +17,11 @@ const SAMPLING = { current: false };
 const SUSPENSE: { current?: ISuspense } = { current: undefined };
 const SUSPENSE_ENABLED: { current: boolean } = { current: false };
 const SYMBOL_OBSERVABLE = Symbol ( 'Observable' );
+const SYMBOL_RESOLVE_UNWRAPPED = Symbol ( 'Resolve - Unwrapped' );
 const SYMBOL_SAMPLED = Symbol ( 'Sampled' );
 const SYMBOL_SUSPENSE = Symbol ( 'Suspense' );
 const TRUE = () => true;
 
 /* EXPORT */
 
-export {BATCH, FALSE, IS, NOOP, SUPER_OWNER, OWNER, ROOT, SAMPLING, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_OBSERVABLE, SYMBOL_SAMPLED, SYMBOL_SUSPENSE, TRUE};
+export {BATCH, FALSE, IS, NOOP, SUPER_OWNER, OWNER, ROOT, SAMPLING, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_OBSERVABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_SAMPLED, SYMBOL_SUSPENSE, TRUE};
