@@ -23,6 +23,7 @@ import suspense from '~/methods/suspense';
 import _switch from '~/methods/switch';
 import ternary from '~/methods/ternary';
 import tryCatch from '~/methods/try_catch';
+import _with from '~/methods/with';
 import {writable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
 import type {ObservableOptions, Observable} from '~/types';
@@ -62,6 +63,7 @@ $.suspense = suspense;
 $.switch = _switch;
 $.ternary = ternary;
 $.tryCatch = tryCatch;
+$.with = _with;
 
 /* EXPORT */
 

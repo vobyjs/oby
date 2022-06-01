@@ -23,6 +23,7 @@ npm install --save oby
 | [`$.reaction`](#reaction) |                           |                           |                                             |
 | [`$.root`](#root)         |                           |                           |                                             |
 | [`$.sample`](#sample)     |                           |                           |                                             |
+| [`$.with`](#with)         |                           |                           |                                             |
 
 ## Usage
 
@@ -504,6 +505,54 @@ console.log ( sum ); // => 6, it's just a value, not a reactive Observable
 // Sampling a non function, it's just returned as is
 
 $.sample ( 123 ); // => 123
+```
+
+#### `$.with`
+
+This function allows you to create a function for executing code as if it was a child of the computation active when the function was originally created.
+
+- **Note**: this is an advanced function intended mostly for internal usage.
+
+Interface:
+
+```ts
+function with (): (<T> ( fn: () => T ): T);
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Reading some values from the context as if the code was executing inside a different computation
+
+$.root ( () => {
+
+  const token = Symbol ( 'Some Context' );
+
+  $.context ( token, { foo: 123 } ); // Writing some context
+
+  const runWithRoot = $.with ();
+
+  $.effect ( () => {
+
+    $.context ( token, { foo: 321 } ); // Overriding some context
+
+    const value = $.context ( token ); // Reading the context
+
+    console.log ( value.foo ); // => 321
+
+    runWithRoot ( () => {
+
+      const value = $.context ( token ); // Reading the context
+
+      console.log ( value.foo ); // => 123
+
+    });
+
+  });
+
+});
 ```
 
 ### Flow

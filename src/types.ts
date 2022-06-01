@@ -37,6 +37,8 @@ type ErrorFunction = ( error: Error ) => void;
 
 type EqualsFunction<T = unknown> = ( value: T, valuePrev: T ) => boolean;
 
+type WithFunction<T = unknown> = () => T;
+
 type MapFunction<T = unknown, R = unknown> = ( value: T ) => R;
 
 type ObservedFunction<T = unknown> = () => T;
@@ -108,6 +110,6 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 /* EXPORT */
 
 export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISignal, ISuperRoot, ISuspense};
-export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction};
+export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};

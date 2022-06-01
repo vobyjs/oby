@@ -5545,6 +5545,68 @@ describe ( 'oby', () => {
 
   });
 
+  describe ( 'with', it => {
+
+    it ( 'calls the functions with no arguments, even for a root', t => {
+
+      $.root ( () => {
+
+        const token = Symbol ();
+
+        $.context ( token, 123 );
+
+        const runWithRoot = $.with ();
+
+        runWithRoot ( ( ...args ) => {
+
+          t.deepEqual ( args, [] );
+
+        });
+
+      });
+
+    });
+
+    it ( 'can execute a function as if it happend inside another owner', t => {
+
+      $.root ( () => {
+
+        const token = Symbol ();
+
+        $.context ( token, 123 );
+
+        const runWithRoot = $.with ();
+
+        $.effect ( () => {
+
+          $.context ( token, 321 );
+
+          const value = $.context ( token );
+
+          t.is ( value, 321 );
+
+          runWithRoot ( () => {
+
+            const value = $.context ( token );
+
+            t.is ( value, 123 );
+
+          });
+
+        });
+
+      });
+
+    });
+
+    it ( 'returns whatever the function returns', t => {
+
+      t.is ( $.with ()( () => 123 ), 123 );
+
+    });
+
+  });
+
   describe ( 'S-like propagation', it => {
 
     it ( 'only propagates in topological order', t => {

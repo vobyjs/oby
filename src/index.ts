@@ -26,11 +26,12 @@ import suspense from '~/methods/suspense';
 import _switch from '~/methods/switch';
 import ternary from '~/methods/ternary';
 import tryCatch from '~/methods/try_catch';
+import _with from '~/methods/with';
 import type {ObservableOptions, Observable, ObservableReadonly} from '~/types';
 
 /* EXPORT */
 
 export default $;
-export {batch, cleanup, computed, context, disposed, effect, error, _for as for, forIndex, get, _if as if, is, observable, reaction, readonly, resolve, root, sample, selector, suspense, _switch as switch, ternary, tryCatch};
+export {batch, cleanup, computed, context, disposed, effect, error, _for as for, forIndex, get, _if as if, is, observable, reaction, readonly, resolve, root, sample, selector, suspense, _switch as switch, ternary, tryCatch, _with as with};
 export {SYMBOL_OBSERVABLE, SYMBOL_SAMPLED};
 export type {Observable, ObservableReadonly, ObservableOptions};
