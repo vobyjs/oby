@@ -4,8 +4,7 @@
 import {OWNER, ROOT} from '~/constants';
 import suspendable from '~/methods/suspendable';
 import Observer from '~/objects/observer';
-import Signal from '~/objects/signal';
-import type {IObserver, ISignal, ObservedDisposableFunction} from '~/types';
+import type {IObserver, ObservedDisposableFunction} from '~/types';
 
 /* MAIN */
 
@@ -14,8 +13,8 @@ class Root extends Observer {
   /* VARIABLES */
 
   parent: IObserver = OWNER.current;
+  disposed?: boolean;
   pausable?: boolean;
-  signal: ISignal = new Signal ();
 
   /* CONSTRUCTOR */
 
@@ -37,7 +36,7 @@ class Root extends Observer {
 
   dispose ( deep?: boolean, immediate?: boolean ): void {
 
-    this.signal.dispose ();
+    this.disposed = true;
 
     if ( this.pausable ) {
 

@@ -4,7 +4,7 @@
 import {BATCH, FALSE, IS, OWNER, ROOT, SAMPLING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas} from '~/lazy';
 import Computation from '~/objects/computation';
-import type {IComputation, IComputed, IObservable, IObserver, ISignal, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, Callable, LazySet} from '~/types';
+import type {IComputation, IComputed, IObservable, IObserver, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, Callable, LazySet, Signal} from '~/types';
 
 /* MAIN */
 
@@ -13,7 +13,7 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   parent?: IComputed<T>;
-  signal: ISignal = OWNER.current.signal || ROOT.current.signal;
+  signal: Signal = OWNER.current.signal || ROOT.current;
   value: T;
   disposed?: true;
   equals?: EqualsFunction<T>;

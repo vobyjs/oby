@@ -15,8 +15,6 @@ type IReaction = import ( '~/objects/reaction' ).default;
 
 type IRoot = import ( '~/objects/root' ).default;
 
-type ISignal = import ( '~/objects/signal' ).default;
-
 type ISuperRoot = import ( '~/objects/superroot' ).default;
 
 type ISuspense = import ( '~/objects/suspense' ).default;
@@ -113,11 +111,13 @@ type Resolvable = ResolvablePrimitive | ResolvableObject | ResolvableArray | Res
 
 type Resolved<T = unknown> = T;
 
+type Signal = { disposed?: boolean };
+
 type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 /* EXPORT */
 
-export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISignal, ISuperRoot, ISuspense};
+export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot, ISuspense};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
-export type {Callable, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};
+export type {Callable, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};

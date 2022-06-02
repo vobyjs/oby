@@ -4,7 +4,7 @@
 import {OWNER, ROOT} from '~/constants';
 import Observer from '~/objects/observer';
 import {isFunctionAsync} from '~/utils';
-import type {IObserver, ISignal} from '~/types';
+import type {IObserver, Signal} from '~/types';
 
 /* MAIN */
 
@@ -13,7 +13,7 @@ class Computation extends Observer {
   /* VARIABLES */
 
   parent: IObserver = OWNER.current;
-  signal: ISignal = OWNER.current.signal || ROOT.current.signal;
+  signal: Signal = OWNER.current.signal || ROOT.current;
   statusCount: number = 0; // The count is incremented on stale messages and decremented on unstale messages
   statusExecution: 0 | 1 | 2 | 3 = 0; // 0: SLEEPING, 1: EXECUTING, 2: PENDING_NO_FRESH, 3: PENDING_FRESH
   statusFresh: boolean = false;

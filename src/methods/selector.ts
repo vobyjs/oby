@@ -22,7 +22,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   /* SIGNAL */
 
-  const signal = OWNER.current.signal || ROOT.current.signal;
+  const signal = OWNER.current.signal || ROOT.current;
 
   /* SELECTEDS */
 
