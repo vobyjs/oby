@@ -3411,7 +3411,16 @@ describe ( 'oby', () => {
 
   describe ( 'readonly', it => {
 
-    it ( 'returns a readonly observable out of the passed one', t => {
+    it ( 'returns the same readonly observable if it gets passed a frozen one', t => {
+
+      const o = $.computed ( () => 123 );
+      const ro = $.readonly ( o );
+
+      t.true ( o === ro );
+
+    });
+
+    it ( 'returns the same readonly observable if it gets passed one', t => {
 
       const o = $(1);
       const ro = $.readonly ( o );
@@ -3432,8 +3441,8 @@ describe ( 'oby', () => {
       t.is ( ro2 (), 2 );
       t.is ( rro (), 2 );
 
-      t.true ( ro !== ro2 );
-      t.true ( ro !== rro );
+      t.true ( ro !== ro2 ); //TODO: Maybe cache read-only Observables and make this ===
+      t.true ( ro === rro );
 
     });
 
