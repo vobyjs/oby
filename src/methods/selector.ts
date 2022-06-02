@@ -16,6 +16,8 @@ class SelectedObservable extends ObservableClass<boolean> { // This saves some m
 
 /* MAIN */
 
+//TODO: Explore adding APIs for returning an Observable, which is just one function that can be reused directly, which could end up saving some memory
+
 const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): SelectorFunction<T> => {
 
   /* SIGNAL */
