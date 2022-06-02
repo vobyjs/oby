@@ -12,18 +12,25 @@ const {setPrototypeOf} = Object;
 
 /* MAIN */
 
-function frozenFunction <T> ( this: T ): T {
+function frozenFunction <T> ( this: T, symbol: symbol ): T;
+function frozenFunction <T> ( this: T, symbol?: symbol ): T {
   if ( arguments.length ) throw new Error ( 'A readonly Observable can not be updated' );
   return this;
 }
 
-function readableFunction <T> ( this: IObservable<T> ): T {
-  if ( arguments.length ) throw new Error ( 'A readonly Observable can not be updated' );
+function readableFunction <T> ( this: IObservable<T>, symbol: symbol ): IObservable<T>;
+function readableFunction <T> ( this: IObservable<T>, symbol?: symbol ): T | IObservable<T> {
+  if ( arguments.length ) {
+    if ( symbol === SYMBOL_OBSERVABLE ) return this;
+    throw new Error ( 'A readonly Observable can not be updated' );
+  }
   return this.read ();
 }
 
-function writableFunction <T> ( this: IObservable<T>, fn?: UpdateFunction<T> | T ): T {
+function writableFunction <T> ( this: IObservable<T>, symbol: symbol ): IObservable<T>;
+function writableFunction <T> ( this: IObservable<T>, fn?: UpdateFunction<T> | T | symbol ): T | IObservable<T> {
   if ( arguments.length ) {
+    if ( fn === SYMBOL_OBSERVABLE ) return this;
     if ( isFunction ( fn ) ) return this.update ( fn as UpdateFunction<T> ); //TSC
     return this.write ( fn as T ); //TSC
   }
