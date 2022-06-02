@@ -2,11 +2,11 @@
 /* IMPORT */
 
 import {OWNER} from '~/constants';
-import type {CleanupFunction} from '~/types';
+import type {CleanupFunction, Callable} from '~/types';
 
 /* MAIN */
 
-const cleanup = ( fn: CleanupFunction ): void => {
+const cleanup = ( fn: Callable<CleanupFunction> ): void => {
 
   OWNER.current.registerCleanup ( fn );
 

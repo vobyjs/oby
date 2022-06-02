@@ -4,7 +4,7 @@
 import {BATCH, FALSE, IS, OWNER, ROOT, SAMPLING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas} from '~/lazy';
 import Computation from '~/objects/computation';
-import type {IComputation, IComputed, IObservable, IObserver, ISignal, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
+import type {IComputation, IComputed, IObservable, IObserver, ISignal, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, Callable, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -17,7 +17,7 @@ class Observable<T = unknown> {
   value: T;
   disposed?: true;
   equals?: EqualsFunction<T>;
-  listeners?: LazySet<ListenerFunction<T>>;
+  listeners?: LazySet<Callable<ListenerFunction<T>>>;
   observers?: LazySet<IObserver>;
 
   /* CONSTRUCTOR */
@@ -42,13 +42,13 @@ class Observable<T = unknown> {
 
   /* REGISTRATION API */
 
-  registerListener ( listener: ListenerFunction<T> ): void {
+  registerListener ( listener: Callable<ListenerFunction<T>> ): void {
 
     if ( lazySetHas ( this.listeners, listener ) ) return;
 
     lazySetAdd ( this, 'listeners', listener );
 
-    listener ( this.value );
+    listener.call ( undefined, this.value );
 
   }
 
@@ -81,7 +81,7 @@ class Observable<T = unknown> {
 
   }
 
-  unregisterListener ( listener: ListenerFunction<T> ): void {
+  unregisterListener ( listener: Callable<ListenerFunction<T>> ): void {
 
     lazySetDelete ( this, 'listeners', listener );
 
@@ -176,7 +176,7 @@ class Observable<T = unknown> {
 
     lazySetEach ( this.listeners, listener => {
 
-      listener ( this.value, valuePrev );
+      listener.call ( undefined, this.value, valuePrev );
 
     });
 

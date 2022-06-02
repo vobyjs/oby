@@ -981,6 +981,46 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports a callable object', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.effect ( () => {
+
+        o ();
+
+        $.cleanup ({
+          call: () => {
+            sequence += 'a';
+          }
+        });
+
+        $.cleanup ({
+          call: () => {
+            sequence += 'b';
+          }
+        });
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
   });
 
   describe ( 'computed', it => {
@@ -2321,6 +2361,46 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports a callable object', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.effect ( () => {
+
+        $.error ({
+          call: () => {
+            sequence += 'a';
+          }
+        });
+
+        $.error ({
+          call: () => {
+            sequence += 'b';
+          }
+        });
+
+        if ( o () ) throw 'err';
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
     it ( 'throws if the error handler in a computation throws', t => {
 
       t.throws ( () => {
@@ -3204,6 +3284,34 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports a callable object', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      const onChange = {
+        call: () => calls++
+      };
+
+      $.on ( o, onChange );
+
+      t.is ( calls, 1 );
+
+      $.off ( o, onChange );
+
+      o ( 1 );
+      o ( 2 );
+      o ( 3 );
+
+      t.is ( calls, 1 );
+
+      $.on ( o, onChange );
+
+      t.is ( calls, 2 );
+
+    });
+
   });
 
   describe ( 'on', it => {
@@ -3404,6 +3512,21 @@ describe ( 'oby', () => {
       const result = $.on ( o, () => 123 );
 
       t.is ( result, undefined );
+
+    });
+
+    it ( 'supports a callable object', t => {
+
+      const o = $(0);
+
+      $.on ( o, {
+        call: ( thiz, value, valuePrev ) => {
+
+          t.is ( thiz, undefined );
+          t.is ( value, 0 );
+          t.is ( valuePrev, undefined );
+        }
+      });
 
     });
 

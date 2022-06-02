@@ -4,7 +4,7 @@
 import {OWNER, SAMPLING} from '~/constants';
 import {lazyArrayEach, lazyArrayPush, lazySetAdd, lazySetDelete} from '~/lazy';
 import {castError} from '~/utils';
-import type {IObservable, IObserver, IRoot, ISignal, CleanupFunction, ErrorFunction, ObservedFunction, Contexts, LazyArray, LazySet, LazyValue} from '~/types';
+import type {IObservable, IObserver, IRoot, ISignal, CleanupFunction, ErrorFunction, ObservedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue} from '~/types';
 
 /* MAIN */
 
@@ -16,9 +16,9 @@ class Observer {
 
   parent?: IObserver;
   signal?: ISignal;
-  cleanups?: LazyArray<CleanupFunction>;
+  cleanups?: LazyArray<Callable<CleanupFunction>>;
   contexts?: LazyValue<Contexts>;
-  errors?: LazyArray<ErrorFunction>;
+  errors?: LazyArray<Callable<ErrorFunction>>;
   observables?: LazyArray<IObservable>;
   observablesLeftover?: LazyArray<IObservable>;
   observers?: LazyArray<IObserver>;
@@ -27,7 +27,7 @@ class Observer {
 
   /* REGISTRATION API */
 
-  registerCleanup ( cleanup: CleanupFunction ): void {
+  registerCleanup ( cleanup: Callable<CleanupFunction> ): void {
 
     lazyArrayPush ( this, 'cleanups', cleanup );
 
@@ -40,7 +40,7 @@ class Observer {
 
   }
 
-  registerError ( error: ErrorFunction ): void {
+  registerError ( error: Callable<ErrorFunction> ): void {
 
     lazyArrayPush ( this, 'errors', error );
 
@@ -109,7 +109,7 @@ class Observer {
     if ( cleanups ) {
       this.cleanups = undefined;
       this.inactive = true;
-      lazyArrayEach ( cleanups, cleanup => cleanup () );
+      lazyArrayEach ( cleanups, cleanup => cleanup.call ( undefined ) );
       this.inactive = false;
     }
 
@@ -156,7 +156,7 @@ class Observer {
 
     if ( errors ) {
 
-      lazyArrayEach ( errors, fn => fn ( error ) );
+      lazyArrayEach ( errors, fn => fn.call ( undefined, error ) );
 
       return true;
 

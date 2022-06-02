@@ -81,6 +81,12 @@ declare const ObservableSymbol: unique symbol;
 
 /* OTHERS */
 
+type Callable<T extends CallableFunction> = (T & { call: CallableFunctionCall<T> }) | ({ call: CallableFunctionCall<T>, apply?: never });
+
+type CallableFunction = ( ...args: any[] ) => any;
+
+type CallableFunctionCall<T extends CallableFunction> = ( thiz: undefined, ...args: Parameters<T> ) => ReturnType<T>;
+
 type Contexts = Record<symbol, any>;
 
 type Frozen = <T = unknown> ( value: T ) => ObservableReadonly<T>;
@@ -114,4 +120,4 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISignal, ISuperRoot, ISuspense};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
-export type {Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};
+export type {Callable, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Writable};

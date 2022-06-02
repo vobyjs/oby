@@ -2,11 +2,11 @@
 /* IMPORT */
 
 import {OWNER} from '~/constants';
-import type {ErrorFunction} from '~/types';
+import type {ErrorFunction, Callable} from '~/types';
 
 /* MAIN */
 
-const error = ( fn: ErrorFunction ): void => {
+const error = ( fn: Callable<ErrorFunction> ): void => {
 
   OWNER.current.registerError ( fn );
 
