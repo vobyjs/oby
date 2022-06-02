@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE} from '~/constants';
+import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE} from '~/constants';
 import {isFunction} from '~/utils';
 import type {IObservable, UpdateFunction, Frozen, Readable, Writable} from '~/types';
 
@@ -9,7 +9,6 @@ import type {IObservable, UpdateFunction, Frozen, Readable, Writable} from '~/ty
 
 const {bind, prototype} = Function;
 const {setPrototypeOf} = Object;
-const proto = setPrototypeOf ( { [SYMBOL_OBSERVABLE]: true }, prototype );
 
 /* MAIN */
 
@@ -31,9 +30,13 @@ function writableFunction <T> ( this: IObservable<T>, fn?: UpdateFunction<T> | T
   return this.read ();
 }
 
-setPrototypeOf ( frozenFunction, proto );
-setPrototypeOf ( readableFunction, proto );
-setPrototypeOf ( writableFunction, proto );
+const frozenPrototype = setPrototypeOf ( { [SYMBOL_OBSERVABLE]: true, [SYMBOL_OBSERVABLE_FROZEN]: true }, prototype );
+const readablePrototype = setPrototypeOf ( { [SYMBOL_OBSERVABLE]: true, [SYMBOL_OBSERVABLE_READABLE]: true }, prototype );
+const writablePrototype = setPrototypeOf ( { [SYMBOL_OBSERVABLE]: true, [SYMBOL_OBSERVABLE_WRITABLE]: true }, prototype );
+
+setPrototypeOf ( frozenFunction, frozenPrototype );
+setPrototypeOf ( readableFunction, readablePrototype );
+setPrototypeOf ( writableFunction, writablePrototype );
 
 const frozen = bind.bind ( frozenFunction as any ) as Frozen; //TSC
 const readable = bind.bind ( readableFunction as any ) as Readable; //TSC
