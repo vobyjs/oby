@@ -3148,6 +3148,267 @@ describe ( 'oby', () => {
 
   });
 
+  describe ( 'off', it => {
+
+    it ( 'can unregister a previously registered function', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      const onChange = () => calls++;
+
+      $.on ( o, onChange );
+
+      t.is ( calls, 1 );
+
+      $.off ( o, onChange );
+
+      o ( 1 );
+      o ( 2 );
+      o ( 3 );
+
+      t.is ( calls, 1 );
+
+      $.on ( o, onChange );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'returns undefined', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      const onChange = () => calls++;
+
+      $.on ( o, onChange );
+
+      t.is ( calls, 1 );
+
+      const result = $.off ( o, onChange );
+
+      t.is ( result, undefined );
+
+    });
+
+    it ( 'returns undefined for already urnegistered functions too', t => {
+
+      const o = $(0);
+
+      const result = $.off ( o, () => {} );
+
+      t.is ( result, undefined );
+
+    });
+
+  });
+
+  describe ( 'on', it => {
+
+    it ( 'can call the registered function when registering', t => {
+
+      const o = $(0);
+
+      $.on ( o, ( value, valuePrev ) => {
+
+        t.is ( value, 0 );
+        t.is ( valuePrev, undefined );
+
+      });
+
+    });
+
+    it ( 'can call the registered function with the current value and, if available, the previous value', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.on ( o, ( value, valuePrev ) => {
+
+        t.is ( value, calls ? 1 : 0 );
+        t.is ( valuePrev, calls ? 0 : undefined );
+
+        calls += 1;
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'can call the registered function before computeds', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.computed ( () => {
+
+        sequence += 'b';
+
+        o ();
+
+      });
+
+      $.on ( o, () => {
+
+        sequence += 'a';
+
+      });
+
+      t.is ( sequence, 'ba' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'baab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'baabab' );
+
+    });
+
+    it ( 'can call the registered function before effects', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.effect ( () => {
+
+        sequence += 'b';
+
+        o ();
+
+      });
+
+      $.on ( o, () => {
+
+        sequence += 'a';
+
+      });
+
+      t.is ( sequence, 'ba' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'baab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'baabab' );
+
+    });
+
+    it ( 'can call the registered function before reactions', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.reaction ( () => {
+
+        sequence += 'b';
+
+        o ();
+
+      });
+
+      $.on ( o, () => {
+
+        sequence += 'a';
+
+      });
+
+      t.is ( sequence, 'ba' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'baab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'baabab' );
+
+    });
+
+    it ( 'can call the registered function even if inside a suspended suspense', t => {
+
+      const o = $(0);
+
+      $.suspense ( true, () => {
+
+        $.on ( o, ( value, valuePrev ) => {
+
+          t.is ( value, 0 );
+          t.is ( valuePrev, undefined );
+
+        });
+
+      });
+
+    });
+
+    it ( 'can register a function deduplicating registrations', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      const onChange = () => calls++;
+
+      $.on ( o, onChange );
+
+      t.is ( calls, 1 );
+
+      $.on ( o, onChange );
+      $.on ( o, onChange );
+      $.on ( o, onChange );
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 2 );
+
+      o ( 1 );
+      o ( 1 );
+      o ( 1 );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'returns undefined', t => {
+
+      const o = $(0);
+
+      const result = $.on ( o, () => 123 );
+
+      t.is ( result, undefined );
+
+    });
+
+    it ( 'returns undefined for frozen observables too', t => {
+
+      const o = $.computed ( () => 123 );
+
+      const result = $.on ( o, () => 123 );
+
+      t.is ( result, undefined );
+
+    });
+
+  });
+
   describe ( 'readonly', it => {
 
     it ( 'returns a readonly observable out of the passed one', t => {

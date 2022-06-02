@@ -20,6 +20,8 @@ npm install --save oby
 | [`$.effect`](#effect)     | [`$.ternary`](#ternary)   |                           |                                             |
 | [`$.error`](#error)       | [`$.tryCatch`](#trycatch) |                           |                                             |
 | [`$.is`](#is)             |                           |                           |                                             |
+| [`$.on`](#on)             |                           |                           |                                             |
+| [`$.off`](#off)           |                           |                           |                                             |
 | [`$.reaction`](#reaction) |                           |                           |                                             |
 | [`$.root`](#root)         |                           |                           |                                             |
 | [`$.sample`](#sample)     |                           |                           |                                             |
@@ -374,6 +376,65 @@ import $ from 'oby';
 
 $.is ( $() ); // => true
 $.is ( {} ); // => false
+```
+
+#### `$.on`
+
+This function allows you to register a listener for a single Observable, directly, without using wrapper computeds/effects/reactions.
+
+- **Note**: this is an advanced function intended mostly for internal usage.
+
+Interface:
+
+```ts
+function on <T> ( observable: Observable<T> | ObservableReadonly<T>, listener: (( value: T, valuePrev?: T ) => void) ): void;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Register a listener for an Observable
+
+const o = $(0);
+
+$.on ( o, ( value, valuePrev ) => {
+
+  console.log ( value, valuePrev ); // This function is called immediately upon registration
+
+});
+
+o ( 1 ); // Changing the value, causing the listener to be called again
+```
+
+#### `$.off`
+
+This function allows you to unregister a previously registered listener from a single Observable.
+
+- **Note**: this is an advanced function intended mostly for internal usage.
+
+Interface:
+
+```ts
+function off <T> ( observable: Observable<T> | ObservableReadonly<T>, listener: (( value: T, valuePrev?: T ) => void) ): void;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Unregistering a listener for an Observable
+
+const o = $(0);
+
+const onChange = ( value, valuePrev ) => console.log ( value, valuePrev );
+
+$.on ( o, onChange ); // Registering
+$.off ( o, onChange ); // Unregistering
+
+o ( 1 ); // Listener not called, because it got unregistered
 ```
 
 #### `$.reaction`

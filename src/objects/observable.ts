@@ -2,9 +2,9 @@
 /* IMPORT */
 
 import {BATCH, FALSE, IS, OWNER, ROOT, SAMPLING} from '~/constants';
-import {lazySetAdd, lazySetDelete} from '~/lazy';
+import {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas} from '~/lazy';
 import Computation from '~/objects/computation';
-import type {IComputation, IComputed, IObservable, IObserver, ISignal, EqualsFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
+import type {IComputation, IComputed, IObservable, IObserver, ISignal, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -17,6 +17,7 @@ class Observable<T = unknown> {
   value: T;
   disposed?: true;
   equals?: EqualsFunction<T>;
+  listeners?: LazySet<ListenerFunction<T>>;
   observers?: LazySet<IObserver>;
 
   /* CONSTRUCTOR */
@@ -40,6 +41,16 @@ class Observable<T = unknown> {
   }
 
   /* REGISTRATION API */
+
+  registerListener ( listener: ListenerFunction<T> ): void {
+
+    if ( lazySetHas ( this.listeners, listener ) ) return;
+
+    lazySetAdd ( this, 'listeners', listener );
+
+    listener ( this.value );
+
+  }
 
   registerObserver ( observer: IObserver ): void {
 
@@ -67,6 +78,12 @@ class Observable<T = unknown> {
       this.parent.update ( true );
 
     }
+
+  }
+
+  unregisterListener ( listener: ListenerFunction<T> ): void {
+
+    lazySetDelete ( this, 'listeners', listener );
 
   }
 
@@ -123,7 +140,11 @@ class Observable<T = unknown> {
 
       if ( fresh ) {
 
+        const valuePrev = this.value;
+
         this.value = value;
+
+        this.listened ( valuePrev );
 
       }
 
@@ -144,6 +165,20 @@ class Observable<T = unknown> {
     const valueNext = fn ( this.value );
 
     return this.write ( valueNext );
+
+  }
+
+  listened ( valuePrev?: T ): void {
+
+    if ( this.disposed || this.signal.disposed ) return;
+
+    if ( !this.listeners ) return;
+
+    lazySetEach ( this.listeners, listener => {
+
+      listener ( this.value, valuePrev );
+
+    });
 
   }
 
