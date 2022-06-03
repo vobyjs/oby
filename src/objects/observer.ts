@@ -138,7 +138,7 @@ class Observer {
     const b = ( next instanceof Array ) ? next : [next];
 
     outer:
-    for ( let ai = 0, al = a.length; ai < al; ai++ ) {
+    for ( let ai = 0, al = a.length; ai < al; ai++ ) { // Unlinking from previous observables which are not next observables too
       const av = a[ai];
       if ( av.disposed || av.signal.disposed ) continue;
       if ( av === b[ai] ) continue;
