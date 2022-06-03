@@ -109,7 +109,7 @@ class Observer {
     if ( cleanups ) {
       this.cleanups = undefined;
       this.inactive = true;
-      lazyArrayEach ( cleanups, cleanup => cleanup.call ( undefined ) );
+      lazyArrayEach ( cleanups, cleanup => cleanup.call ( cleanup ) );
       this.inactive = false;
     }
 
@@ -156,7 +156,7 @@ class Observer {
 
     if ( errors ) {
 
-      lazyArrayEach ( errors, fn => fn.call ( undefined, error ) );
+      lazyArrayEach ( errors, fn => fn.call ( fn, error ) );
 
       return true;
 

@@ -86,7 +86,7 @@ type Callable<T extends CallableFunction> = (T & { call: CallableFunctionCall<T>
 
 type CallableFunction = ( ...args: any[] ) => any;
 
-type CallableFunctionCall<T extends CallableFunction> = ( thiz: undefined, ...args: Parameters<T> ) => ReturnType<T>;
+type CallableFunctionCall<T extends CallableFunction> = ( thiz: any, ...args: Parameters<T> ) => ReturnType<T>;
 
 type Contexts = Record<symbol, any>;
 

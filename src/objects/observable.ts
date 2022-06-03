@@ -48,7 +48,7 @@ class Observable<T = unknown> {
 
     lazySetAdd ( this, 'listeners', listener );
 
-    listener.call ( undefined, this.value );
+    listener.call ( listener, this.value );
 
   }
 
@@ -176,7 +176,7 @@ class Observable<T = unknown> {
 
     lazySetEach ( this.listeners, listener => {
 
-      listener.call ( undefined, this.value, valuePrev );
+      listener.call ( listener, this.value, valuePrev );
 
     });
 

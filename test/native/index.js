@@ -991,17 +991,23 @@ describe ( 'oby', () => {
 
         o ();
 
-        $.cleanup ({
-          call: () => {
+        const onCleanupA = {
+          call: thiz => {
             sequence += 'a';
+            t.is ( thiz, onCleanupA );
           }
-        });
+        };
 
-        $.cleanup ({
-          call: () => {
+        const onCleanupB = {
+          call: thiz => {
             sequence += 'b';
+            t.is ( thiz, onCleanupB );
           }
-        });
+        };
+
+        $.cleanup ( onCleanupA );
+
+        $.cleanup ( onCleanupB );
 
       });
 
@@ -2369,17 +2375,23 @@ describe ( 'oby', () => {
 
       $.effect ( () => {
 
-        $.error ({
-          call: () => {
+        const onErrorA = {
+          call: thiz => {
             sequence += 'a';
+            t.is ( thiz, onErrorA );
           }
-        });
+        };
 
-        $.error ({
-          call: () => {
+        const onErrorB = {
+          call: thiz => {
             sequence += 'b';
+            t.is ( thiz, onErrorB );
           }
-        });
+        };
+
+        $.error ( onErrorA );
+
+        $.error ( onErrorB );
 
         if ( o () ) throw 'err';
 
@@ -3291,7 +3303,10 @@ describe ( 'oby', () => {
       let calls = 0;
 
       const onChange = {
-        call: () => calls++
+        call: thiz => {
+          calls++;
+          t.is ( thiz, onChange );
+        }
       };
 
       $.on ( o, onChange );
@@ -3519,14 +3534,15 @@ describe ( 'oby', () => {
 
       const o = $(0);
 
-      $.on ( o, {
+      const on = {
         call: ( thiz, value, valuePrev ) => {
-
-          t.is ( thiz, undefined );
+          t.is ( thiz, on );
           t.is ( value, 0 );
           t.is ( valuePrev, undefined );
         }
-      });
+      };
+
+      $.on ( o, on );
 
     });
 
