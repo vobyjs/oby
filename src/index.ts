@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_SAMPLED} from '~/constants';
+import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_SAMPLED} from '~/constants';
 import $ from '~/methods/$';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
@@ -35,5 +35,5 @@ import type {ObservableOptions, Observable, ObservableReadonly} from '~/types';
 
 export default $;
 export {batch, cleanup, computed, context, disposed, effect, error, _for as for, forIndex, get, _if as if, is, observable, off, on, reaction, readonly, resolve, root, sample, selector, suspense, _switch as switch, ternary, tryCatch, _with as with};
-export {SYMBOL_OBSERVABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_SAMPLED};
+export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_SAMPLED};
 export type {Observable, ObservableReadonly, ObservableOptions};
