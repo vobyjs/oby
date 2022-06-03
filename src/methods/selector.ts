@@ -11,8 +11,18 @@ import type {SelectorFunction, Observable, ObservableReadonly} from '~/types';
 
 /* HELPERS */
 
-class SelectedObservable extends ObservableClass<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata
+class SelectedObservable extends ObservableClass<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata + a cleanup function
   count: number = 0;
+  selecteds?: Map<unknown, SelectedObservable>;
+  source?: any;
+  /* API */
+  call (): void { // Cleanup function
+    if ( !this.selecteds!.size ) return; //TSC
+    this.count -= 1;
+    if ( this.count ) return;
+    this.dispose ();
+    this.selecteds!.delete ( this.source ); //TSC
+  }
 }
 
 /* MAIN */
@@ -64,24 +74,6 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   cleanup ( cleanupAll );
 
-  /* CLENAUP ONE */
-
-  const cleanupOne = function ( this: T ): void {
-
-    const selected = selecteds.get ( this );
-
-    if ( !selected ) return;
-
-    selected.count -= 1;
-
-    if ( selected.count ) return;
-
-    selected.dispose ();
-
-    selecteds.delete ( this );
-
-  };
-
   /* SELECTOR */
 
   function selector ( value: T, options?: { observable?: false } ): boolean;
@@ -100,6 +92,8 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
     } else {
 
       selected = new SelectedObservable ( sample ( observable ) === value );
+      selected.selecteds = selecteds;
+      selected.source = value;
       selected.signal = signal;
 
       selecteds.set ( value, selected );
@@ -110,7 +104,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     /* CLEANUP */
 
-    cleanup ( cleanupOne.bind ( value ) );
+    cleanup ( selected );
 
     /* RETURN */
 
