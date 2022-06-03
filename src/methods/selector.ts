@@ -76,9 +76,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   /* SELECTOR */
 
-  function selector ( value: T, options?: { observable?: false } ): boolean;
-  function selector ( value: T, options: { observable: true } ): ObservableReadonly<boolean>;
-  function selector ( value: T, options?: { observable?: boolean } ): boolean | ObservableReadonly<boolean> {
+  return ( value: T ): ObservableReadonly<boolean> => {
 
     /* INIT */
 
@@ -108,13 +106,9 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     /* RETURN */
 
-    if ( options?.observable ) return readable ( selected );
-
-    return selected.read ();
+    return readable ( selected );
 
   };
-
-  return selector;
 
 };
 

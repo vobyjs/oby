@@ -1050,10 +1050,7 @@ If you use this function then when a new item should be the selected one the old
 Interface:
 
 ```ts
-type SelectorFunction<T> = {
-  ( value: T, options?: { observable?: false } ): boolean;
-  ( value: T, options: { observable: true } ): ObservableReadonly<boolean>;
-};
+type SelectorFunction<T> = ( value: T ) => ObservableReadonly<boolean>;
 
 function selector <T> ( observable: Observable<T> | ObservableReadonly<T> ): SelectorFunction<T>;
 ```
@@ -1069,13 +1066,15 @@ const values = [1, 2, 3, 4, 5];
 const selected = $(-1);
 
 const select = value => selected ( value );
-const isSelected = $.selector ( selected );
+const selector = $.selector ( selected );
 
 values.forEach ( value => {
 
   $.effect ( () => {
 
-    if ( isSelected ( value ) ) return;
+    const selected = selector ( value );
+
+    if ( selected () ) return;
 
     console.log ( `${value} selected!` );
 

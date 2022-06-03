@@ -4687,11 +4687,11 @@ describe ( 'oby', () => {
 
   describe ( 'selector', it => {
 
-    it ( 'can return an observable', t => {
+    it ( 'returns an observable', t => {
 
       const source = $(0);
       const selector = $.selector ( source );
-      const selected = selector ( 1, { observable: true } );
+      const selected = selector ( 1 );
 
       isReadable ( t, selected );
 
@@ -4709,7 +4709,7 @@ describe ( 'oby', () => {
       const selected = $(-1);
 
       const select = value => selected ( value );
-      const isSelected = $.selector ( selected );
+      const selector = $.selector ( selected );
 
       let sequence = '';
 
@@ -4719,7 +4719,7 @@ describe ( 'oby', () => {
 
           sequence += value;
 
-          if ( !isSelected ( value ) ) return;
+          if ( !selector ( value )() ) return;
 
           sequence += value;
 
@@ -4746,17 +4746,17 @@ describe ( 'oby', () => {
     it ( 'survives checking a value inside a discarded root', t => {
 
       const selected = $(-1);
-      const isSelected = $.selector ( selected );
+      const selector = $.selector ( selected );
 
       let calls = 0;
 
       $.root ( dispose => {
 
-        isSelected ( 1 );
+        selector ( 1 )();
 
         $.root ( () => {
 
-          isSelected ( 1 );
+          selector ( 1 )();
 
         });
 
@@ -4768,7 +4768,7 @@ describe ( 'oby', () => {
 
         calls += 1;
 
-        isSelected ( 1 );
+        selector ( 1 )();
 
       });
 
@@ -4783,10 +4783,10 @@ describe ( 'oby', () => {
     it ( 'treats 0 and -0 as the same value values', t => {
 
       const selected = $(0);
-      const isSelected = $.selector ( selected );
+      const selector = $.selector ( selected );
 
-      t.true ( isSelected ( 0 ) );
-      t.true ( isSelected ( -0 ) );
+      t.true ( selector ( 0 )() );
+      t.true ( selector ( -0 )() );
 
     });
 
@@ -4796,13 +4796,13 @@ describe ( 'oby', () => {
 
         const selected = $(-1);
 
-        const isSelected = $.selector ( selected );
+        const selector = $.selector ( selected );
 
-        t.is ( isSelected ( 1 ), false );
+        t.is ( selector ( 1 )(), false );
 
         selected ( 1 );
 
-        t.is ( isSelected ( 1 ), true );
+        t.is ( selector ( 1 )(), true );
 
       });
 
