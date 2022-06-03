@@ -3,11 +3,11 @@
 
 import {SYMBOL_OBSERVABLE_FROZEN} from '~/constants';
 import target from '~/methods/target';
-import type {ListenerFunction, Observable, ObservableReadonly, Callable} from '~/types';
+import type {IObservable, ListenerFunction, Observable, ObservableReadonly, Callable} from '~/types';
 
 /* MAIN */
 
-const on = <T> ( observable: Observable<T> | ObservableReadonly<T>, listener: Callable<ListenerFunction<T>> ): void => {
+const on = <T> ( observable: Observable<T> | ObservableReadonly<T> | IObservable<T>, listener: Callable<ListenerFunction<T>> ): void => {
 
   if ( SYMBOL_OBSERVABLE_FROZEN in observable ) return;
 
