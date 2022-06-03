@@ -13,7 +13,6 @@ import type {SelectorFunction, Observable, ObservableReadonly} from '~/types';
 
 class SelectedObservable extends ObservableClass<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata
   count: number = 0;
-  readable?: ObservableReadonly<boolean>;
 }
 
 /* MAIN */
@@ -115,7 +114,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     /* RETURN */
 
-    if ( options?.observable ) return selected.readable || ( selected.readable = readable ( selected ) ); //TODO: Cache readables at the "readable" function level isntead, or somewhere else deeper than this
+    if ( options?.observable ) return readable ( selected );
 
     return selected.read ();
 
