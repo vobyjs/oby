@@ -95,14 +95,6 @@ class Observable<T = unknown> {
 
   /* API */
 
-  is ( value: T ): boolean {
-
-    const equals = this.equals || IS;
-
-    return equals ( value, this.value );
-
-  }
-
   read (): T {
 
     this.registerSelf ();
