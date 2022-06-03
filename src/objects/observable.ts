@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {BATCH, FALSE, IS, OWNER, ROOT, SAMPLING} from '~/constants';
-import {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas} from '~/lazy';
+import {lazySetAdd, lazySetDelete, lazySetHas} from '~/lazy';
 import Computation from '~/objects/computation';
 import type {IComputation, IComputed, IObservable, IObserver, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, Callable, LazySet, Signal} from '~/types';
 
@@ -164,13 +164,25 @@ class Observable<T = unknown> {
 
     if ( this.disposed || this.signal.disposed ) return;
 
-    if ( !this.listeners ) return;
+    const {listeners} = this;
 
-    lazySetEach ( this.listeners, listener => {
+    if ( listeners ) {
 
-      listener.call ( listener, this.value, valuePrev );
+      if ( listeners instanceof Set ) {
 
-    });
+        for ( const listener of listeners ) {
+
+          listener.call ( listener, this.value, valuePrev );
+
+        }
+
+      } else {
+
+        listeners.call ( listeners, this.value, valuePrev );
+
+      }
+
+    }
 
   }
 
