@@ -9,6 +9,8 @@ import type {Resolvable, Resolved} from '../types';
 
 /* MAIN */
 
+//TODO: This function is really ugly, maybe it can be written decently?
+
 const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never => {
 
   if ( isFunction ( value ) ) {
