@@ -1050,7 +1050,12 @@ If you use this function then when a new item should be the selected one the old
 Interface:
 
 ```ts
-function selector <T> ( observable: Observable<T> | ObservableReadonly<T> ): (( value: T ) => boolean);
+type SelectorFunction<T> = {
+  ( value: T, options?: { observable?: false } ): boolean;
+  ( value: T, options: { observable: true } ): ObservableReadonly<boolean>;
+};
+
+function selector <T> ( observable: Observable<T> | ObservableReadonly<T> ): SelectorFunction<T>;
 ```
 
 Usage:

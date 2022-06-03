@@ -5,6 +5,7 @@ import {OWNER, ROOT} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import reaction from '~/methods/reaction';
 import sample from '~/methods/sample';
+import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
 import type {SelectorFunction, Observable, ObservableReadonly} from '~/types';
 
@@ -12,11 +13,10 @@ import type {SelectorFunction, Observable, ObservableReadonly} from '~/types';
 
 class SelectedObservable extends ObservableClass<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata
   count: number = 0;
+  readable?: ObservableReadonly<boolean>;
 }
 
 /* MAIN */
-
-//TODO: Explore adding APIs for returning an Observable, which is just one function that can be reused directly, which could end up saving some memory
 
 const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): SelectorFunction<T> => {
 
@@ -85,7 +85,9 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
   /* SELECTOR */
 
-  return ( value: T ): boolean => {
+  function selector ( value: T, options?: { observable?: false } ): boolean;
+  function selector ( value: T, options: { observable: true } ): ObservableReadonly<boolean>;
+  function selector ( value: T, options?: { observable?: boolean } ): boolean | ObservableReadonly<boolean> {
 
     /* INIT */
 
@@ -113,9 +115,13 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     /* RETURN */
 
+    if ( options?.observable ) return selected.readable || ( selected.readable = readable ( selected ) ); //TODO: Cache readables at the "readable" function level isntead, or somewhere else deeper than this
+
     return selected.read ();
 
   };
+
+  return selector;
 
 };
 

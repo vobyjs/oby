@@ -4671,6 +4671,33 @@ describe ( 'oby', () => {
 
   describe ( 'selector', it => {
 
+    it ( 'can return an observable', t => {
+
+      const source = $(0);
+      const selector = $.selector ( source );
+      const selected = selector ( 1, { observable: true } );
+
+      isReadable ( t, selected );
+
+      t.false ( selected () );
+
+      source ( 1 );
+
+      t.true ( selected () );
+
+    });
+
+    it ( 'can return the same observable', t => {
+
+      const source = $(0);
+      const selector = $.selector ( source );
+      const selected1 = selector ( 1, { observable: true } );
+      const selected2 = selector ( 1, { observable: true } );
+
+      t.true ( selected1 === selected2 );
+
+    });
+
     it ( 'efficiently tells when the provided item is the selected one', t => {
 
       const values = [1, 2, 3, 4, 5];

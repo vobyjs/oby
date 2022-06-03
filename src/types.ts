@@ -49,7 +49,10 @@ type ReactionFunction = () => CleanupFunction | void;
 
 type SampleFunction<T = unknown> = () => T;
 
-type SelectorFunction<T = unknown> = ( value: T ) => boolean;
+type SelectorFunction<T = unknown> = {
+  ( value: T, options?: { observable?: false } ): boolean;
+  ( value: T, options: { observable: true } ): ObservableReadonly<boolean>;
+};
 
 type SuspenseFunction<T = unknown> = () => T;
 
