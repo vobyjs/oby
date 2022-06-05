@@ -10,22 +10,22 @@ npm install --save oby
 
 ## APIs
 
-| [Core](#core)             | [Flow](#flow)             | [Utilities](#utilities)   | [Types](#types)                             |
-| ------------------------- | ------------------------- | ------------------------- | ------------------------------------------- |
-| [`$()`](#core)            | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
-| [`$.batch`](#batch)       | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
-| [`$.cleanup`](#cleanup)   | [`$.forIndex`](#forindex) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
-| [`$.computed`](#computed) | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   |                                             |
-| [`$.context`](#context)   | [`$.switch`](#switch)     | [`$.selector`](#selector) |                                             |
-| [`$.effect`](#effect)     | [`$.ternary`](#ternary)   |                           |                                             |
-| [`$.error`](#error)       | [`$.tryCatch`](#trycatch) |                           |                                             |
-| [`$.is`](#is)             |                           |                           |                                             |
-| [`$.on`](#on)             |                           |                           |                                             |
-| [`$.off`](#off)           |                           |                           |                                             |
-| [`$.reaction`](#reaction) |                           |                           |                                             |
-| [`$.root`](#root)         |                           |                           |                                             |
-| [`$.sample`](#sample)     |                           |                           |                                             |
-| [`$.with`](#with)         |                           |                           |                                             |
+| [Core](#core)                     | [Flow](#flow)             | [Utilities](#utilities)   | [Types](#types)                             |
+| --------------------------------- | ------------------------- | ------------------------- | ------------------------------------------- |
+| [`$()`](#core)                    | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
+| [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
+| [`$.cleanup`](#cleanup)           | [`$.forIndex`](#forindex) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
+| [`$.computed`](#computed)         | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   |                                             |
+| [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.selector`](#selector) |                                             |
+| [`$.effect`](#effect)             | [`$.ternary`](#ternary)   |                           |                                             |
+| [`$.error`](#error)               | [`$.tryCatch`](#trycatch) |                           |                                             |
+| [`$.isObservable`](#isobservable) |                           |                           |                                             |
+| [`$.on`](#on)                     |                           |                           |                                             |
+| [`$.off`](#off)                   |                           |                           |                                             |
+| [`$.reaction`](#reaction)         |                           |                           |                                             |
+| [`$.root`](#root)                 |                           |                           |                                             |
+| [`$.sample`](#sample)             |                           |                           |                                             |
+| [`$.with`](#with)                 |                           |                           |                                             |
 
 ## Usage
 
@@ -357,7 +357,7 @@ o ( 1 ); // No error is thrown, error handlers are not called
 o ( 2 ); // An error is thrown, so it's caught and passed to the registered error handlers
 ```
 
-#### `$.is`
+#### `$.isObservable`
 
 This function allows you to tell apart Observables from other values.
 
@@ -374,8 +374,8 @@ import $ from 'oby';
 
 // Checking
 
-$.is ( $() ); // => true
-$.is ( {} ); // => false
+$.isObservable ( $() ); // => true
+$.isObservable ( {} ); // => false
 ```
 
 #### `$.on`

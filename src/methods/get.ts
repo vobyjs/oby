@@ -1,14 +1,14 @@
 
 /* IMPORT */
 
-import is from '~/methods/is';
+import isObservable from '~/methods/is_observable';
 import type {ObservableReadonly} from '~/types';
 
 /* MAIN */
 
 const get = <T> ( value: T ): T extends ObservableReadonly<infer U> ? U : T => {
 
-  if ( is ( value ) ) return value () as any; //TSC
+  if ( isObservable ( value ) ) return value () as any; //TSC
 
   return value as any; //TSC
 

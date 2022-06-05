@@ -7,7 +7,7 @@ import type {Observable, ObservableReadonly} from '~/types';
 
 /* MAIN */
 
-const is = <T = unknown> ( value: unknown ): value is Observable<T> | ObservableReadonly<T> => {
+const isObservable = <T = unknown> ( value: unknown ): value is Observable<T> | ObservableReadonly<T> => {
 
   return isFunction ( value ) && ( SYMBOL_OBSERVABLE in value );
 
@@ -15,4 +15,4 @@ const is = <T = unknown> ( value: unknown ): value is Observable<T> | Observable
 
 /* EXPORT */
 
-export default is;
+export default isObservable;

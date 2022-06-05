@@ -10,7 +10,7 @@ import {observable} from '../../dist/index.js';
 
 const isReadable = ( t, value ) => {
 
-  t.true ( $.is ( value ) );
+  t.true ( $.isObservable ( value ) );
   t.true ( typeof value.read === 'undefined' );
   t.true ( typeof value.write === 'undefined' );
   t.true ( typeof value.value === 'undefined' );
@@ -23,7 +23,7 @@ const isReadable = ( t, value ) => {
 
 const isWritable = ( t, value ) => {
 
-  t.true ( $.is ( value ) );
+  t.true ( $.isObservable ( value ) );
   t.true ( typeof value.read === 'undefined' );
   t.true ( typeof value.write === 'undefined' );
   t.true ( typeof value.value === 'undefined' );
@@ -1126,7 +1126,7 @@ describe ( 'oby', () => {
       const b = $(2);
       const c = $.computed ( () => a () + b () );
 
-      t.true ( $.is ( c ) );
+      t.true ( $.isObservable ( c ) );
       t.is ( c (), 3 );
 
     });
@@ -1135,7 +1135,7 @@ describe ( 'oby', () => {
 
       const o = $.computed ( () => {} );
 
-      t.true ( $.is ( o ) );
+      t.true ( $.isObservable ( o ) );
       t.is ( o (), undefined );
 
     });
@@ -3198,19 +3198,19 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'is', it => {
+  describe ( 'isObservable', it => {
 
     it ( 'checks if a value is an observable', t => {
 
-      t.true ( $.is ( $() ) );
-      t.true ( $.is ( $(123) ) );
-      t.true ( $.is ( $(false) ) );
-      t.true ( $.is ( $.computed ( () => {} ) ) );
+      t.true ( $.isObservable ( $() ) );
+      t.true ( $.isObservable ( $(123) ) );
+      t.true ( $.isObservable ( $(false) ) );
+      t.true ( $.isObservable ( $.computed ( () => {} ) ) );
 
-      t.false ( $.is () );
-      t.false ( $.is ( {} ) );
-      t.false ( $.is ( [] ) );
-      t.false ( $.is ( $.effect ( () => {} ) ) );
+      t.false ( $.isObservable () );
+      t.false ( $.isObservable ( {} ) );
+      t.false ( $.isObservable ( [] ) );
+      t.false ( $.isObservable ( $.effect ( () => {} ) ) );
 
     });
 
@@ -3758,8 +3758,8 @@ describe ( 'oby', () => {
       t.is ( ob, ib );
       t.is ( oc, ic );
 
-      t.false ( $.is ( ob.foo ) );
-      t.false ( $.is ( oc.foo[0] ) );
+      t.false ( $.isObservable ( ob.foo ) );
+      t.false ( $.isObservable ( oc.foo[0] ) );
 
     });
 
