@@ -27,6 +27,12 @@ const isFunctionAsync = ( value: Function ): boolean => {
 
 };
 
+const isObject = ( value: unknown ): value is Record<number | string | symbol, unknown> => {
+
+  return ( value !== null ) && ( typeof value === 'object' );
+
+};
+
 const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
 
   return Math.max ( a, b ) as T | U; //TSC
@@ -35,4 +41,4 @@ const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
 
 /* EXPORT */
 
-export {castError, isFunction, isFunctionAsync, max};
+export {castError, isFunction, isFunctionAsync, isObject, max};

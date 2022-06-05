@@ -20,6 +20,7 @@ npm install --save oby
 | [`$.effect`](#effect)             | [`$.ternary`](#ternary)   |                           |                                             |
 | [`$.error`](#error)               | [`$.tryCatch`](#trycatch) |                           |                                             |
 | [`$.isObservable`](#isobservable) |                           |                           |                                             |
+| [`$.isStore`](#isstore)           |                           |                           |                                             |
 | [`$.on`](#on)                     |                           |                           |                                             |
 | [`$.off`](#off)                   |                           |                           |                                             |
 | [`$.reaction`](#reaction)         |                           |                           |                                             |
@@ -364,7 +365,7 @@ This function allows you to tell apart Observables from other values.
 Interface:
 
 ```ts
-function is <T = unknown> ( value: unknown ): value is Observable<T> | ObservableReadonly<T>;
+function isObservable <T = unknown> ( value: unknown ): value is Observable<T> | ObservableReadonly<T>;
 ```
 
 Usage:
@@ -376,6 +377,27 @@ import $ from 'oby';
 
 $.isObservable ( $() ); // => true
 $.isObservable ( {} ); // => false
+```
+
+#### `$.isStore`
+
+This function allows you to tell apart Stores from other values.
+
+Interface:
+
+```ts
+function isStore ( value: unknown ): boolean;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Checking
+
+$.isStore ( $.store ( {} ) ); // => true
+$.isStore ( {} ); // => false
 ```
 
 #### `$.on`
