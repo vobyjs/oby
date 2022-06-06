@@ -36,7 +36,8 @@ class StoreMap<K, V> extends Map<K, V> {
 
 class StoreCleanable {
   count: number = 0;
-  constructor () {
+  listen (): void {
+    this.count += 1;
     cleanup ( this );
   }
   call (): void {
@@ -113,7 +114,7 @@ const TRAPS = {
 
       const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
 
-      property.count += 1;
+      property.listen ();
       property.observable.read ();
 
       return property.node?.store || value;
@@ -205,7 +206,7 @@ const TRAPS = {
 
       const has = node.has.get ( key ) || node.has.insert ( key, getNodeHas ( node, key, value ) );
 
-      has.count += 1;
+      has.listen ();
       has.observable.read ();
 
     }
@@ -223,7 +224,7 @@ const TRAPS = {
       const node = getNodeExisting ( target );
 
       node.keys ||= getNodeKyes ( node );
-      node.keys.count += 1;
+      node.keys.listen ();
       node.keys.observable.read ();
 
     }
