@@ -22,7 +22,7 @@ type StoreNode = {
   setters?: Map<StoreKey, Function>,
   keys?: StoreKeys,
   has?: StoreMap<StoreKey, StoreHas>,
-  properties: StoreMap<StoreKey, StoreProperty>
+  properties?: StoreMap<StoreKey, StoreProperty>
 };
 
 /* CLASSES */
@@ -70,7 +70,7 @@ class StoreProperty extends StoreCleanable {
     super ();
   }
   dispose (): void {
-    this.parent.properties.delete ( this.key );
+    this.parent.properties?.delete ( this.key );
   }
 }
 
@@ -102,6 +102,9 @@ const TRAPS = {
     } else {
 
       const value = target[key];
+
+      node.properties ||= new StoreMap ();
+
       const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
 
       if ( typeof value === 'function' && value === Array.prototype[key as any] ) { //TSC
@@ -143,7 +146,7 @@ const TRAPS = {
           node.has?.get ( key )?.observable.write ( true );
         }
 
-        const property = node.properties.get ( key );
+        const property = node.properties?.get ( key );
         if ( property ) {
           property.observable.write ( value );
           property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
@@ -174,7 +177,7 @@ const TRAPS = {
       node.keys?.observable.write ( 0 );
       node.has?.get ( key )?.observable.write ( false );
 
-      const property = node.properties.get ( key );
+      const property = node.properties?.get ( key );
       if ( property ) {
         property.observable.write ( undefined );
         property.node = undefined;
@@ -244,8 +247,7 @@ const getNode = <T = StoreTarget> ( value: T, parent?: StoreNode ): StoreNode =>
   const store = new Proxy ( value, TRAPS );
   const signal = parent?.signal || OWNER.current.signal || ROOT.current;
   const {getters, setters} = getGettersAndSetters ( value );
-  const properties = new StoreMap<StoreKey, StoreProperty> ();
-  const node: StoreNode = { store, signal, properties };
+  const node: StoreNode = { store, signal };
 
   if ( getters ) node.getters = getters;
   if ( setters ) node.setters = setters;
@@ -300,6 +302,7 @@ const getNodeProperty = ( node: StoreNode, key: StoreKey, value: unknown ): Stor
   const propertyNode = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
   const property = new StoreProperty ( node, key, observable, propertyNode );
 
+  node.properties ||= new StoreMap ();
   node.properties.set ( key, property );
 
   return property;
