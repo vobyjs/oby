@@ -228,7 +228,7 @@ const TRAPS = {
 
       const node = getNodeExisting ( target );
 
-      node.keys ||= getNodeKyes ( node );
+      node.keys ||= getNodeKeys ( node );
       node.keys.listen ();
       node.keys.observable.read ();
 
@@ -274,7 +274,7 @@ const getNodeExisting = <T = StoreTarget> ( value: T ): StoreNode => {
 
 };
 
-const getNodeKyes = ( node: StoreNode ): StoreKeys => {
+const getNodeKeys = ( node: StoreNode ): StoreKeys => {
 
   const observable = getNodeObservable<0> ( node, 0, { equals: false } );
   const keys = new StoreKeys ( node, observable );
