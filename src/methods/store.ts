@@ -317,6 +317,8 @@ const getNodeProperty = ( node: StoreNode, key: StoreKey, value: unknown ): Stor
 
 const getGettersAndSetters = ( value: StoreTarget ): { getters?: Map<string | symbol, Function>, setters?: Map<string | symbol, Function> } => {
 
+  if ( Array.isArray ( value ) ) return {};
+
   let getters: Map<string | symbol, Function> | undefined;
   let setters: Map<string | symbol, Function> | undefined;
 

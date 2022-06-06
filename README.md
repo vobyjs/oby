@@ -601,6 +601,8 @@ You can just use the reactive object like you would with a regular non-reactive 
 
 - **Note**: Assignments to the following properties won't be reactive, as making those reactive would have more cons than props: `__proto__`, `prototype`, `constructor`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `toSource`, `toString`, `valueOf`, all `Array` methods.
 
+- **Note**: Getters and setters that are properties of arrays, if for whatever reason you have those, won't be reactive.
+
 - **Note**: Compared to Solid's `createMutable` our stores will be updated immeditely even inside a batch, it's only the reactivity system that will be udpated at the end of the batch, in theory this could cause glitches, but not doing this breaks type checking, so...
 
 Interface:
