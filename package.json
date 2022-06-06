@@ -17,6 +17,7 @@
     "compile:mangle": "mangler --folder dist --ext js --props 'key,insert,node,getters,setters,properties,selecteds,source,listen,listened,listeners,registerListener,unregisterListener,fn,bool,read,wrap,after,cache,count,stale,source,value,valueReadonly,write,signal,before,errors,parent,pausable,target,result,update,toggle,frozen,current,dispose,unstale,inactive,effects,cleanups,contexts,roots,readable,writable,nextCount,observers,prevCount,suspenses,suspended,observables,postdispose,statusCount,statusFresh,registerSelf,registerError,registerEffect,statusExecution,registerCleanup,registerContext,unregisterEffect,registerSuspense,registerObserver,unregisterSuspense,registerObservable,unregisterObserver,registerRoot,unregisterRoot,observablesLeftover'",
     "compile:watch": "tsex compile --watch",
     "memory": "node tasks/memory.js",
+    "store": "node tasks/store.js",
     "test:native": "fava '**/native/**'",
     "test:native:watch": "fava -w '**/native/**'",
     "test:sinuous": "bash test/sinuous/index.sh",
@@ -34,6 +35,7 @@
     "fast"
   ],
   "devDependencies": {
+    "benchloop": "^1.3.2",
     "fava": "^0.0.6",
     "ispy": "^0.1.2",
     "js-simple-mangler": "^1.0.0",
