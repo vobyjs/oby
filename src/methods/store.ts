@@ -67,7 +67,7 @@ class StoreHas extends StoreCleanable {
 }
 
 class StoreProperty extends StoreCleanable {
-  constructor ( public parent: StoreNode, public key: StoreKey, public observable: IObservable<unknown>, public node?: StoreNode ) {
+  constructor ( public parent: StoreNode, public key: StoreKey, public observable?: IObservable<unknown>, public node?: StoreNode ) {
     super ();
   }
   dispose (): void {
@@ -114,8 +114,13 @@ const TRAPS = {
 
       const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
 
-      property.listen ();
-      property.observable.read ();
+      if ( isListenable () ) {
+
+        property.listen ();
+        property.observable ||= getNodeObservable ( node, value );
+        property.observable.read ();
+
+      }
 
       return property.node?.store || value;
 
@@ -149,7 +154,7 @@ const TRAPS = {
 
         const property = node.properties?.get ( key );
         if ( property ) {
-          property.observable.write ( value );
+          property.observable?.write ( value );
           property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
         }
 
@@ -180,7 +185,7 @@ const TRAPS = {
 
       const property = node.properties?.get ( key );
       if ( property ) {
-        property.observable.write ( undefined );
+        property.observable?.write ( undefined );
         property.node = undefined;
       }
 
@@ -299,7 +304,7 @@ const getNodeObservable = <T> ( node: StoreNode, value: T, options?: ObservableO
 
 const getNodeProperty = ( node: StoreNode, key: StoreKey, value: unknown ): StoreProperty => {
 
-  const observable = getNodeObservable ( node, value );
+  const observable = undefined;
   const propertyNode = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
   const property = new StoreProperty ( node, key, observable, propertyNode );
 
