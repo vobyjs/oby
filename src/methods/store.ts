@@ -103,15 +103,15 @@ const TRAPS = {
 
       const value = target[key];
 
-      node.properties ||= new StoreMap ();
-
-      const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
-
       if ( typeof value === 'function' && value === Array.prototype[key as any] ) { //TSC
         return function () {
           return batch ( () => value.apply ( node.store, arguments ) );
         };
       }
+
+      node.properties ||= new StoreMap ();
+
+      const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
 
       property.count += 1;
       property.observable.read ();
