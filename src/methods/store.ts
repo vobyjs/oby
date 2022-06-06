@@ -79,6 +79,8 @@ class StoreProperty extends StoreCleanable {
 
 const NODES = new WeakMap<StoreTarget, StoreNode> ();
 
+const UNREACTIVE_KEYS = new Set<StoreKey> ([ '__proto__', 'prototype', 'constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toSource', 'toString', 'valueOf' ]);
+
 const TRAPS = {
 
   /* API */
@@ -89,9 +91,7 @@ const TRAPS = {
 
     if ( key === SYMBOL_STORE_TARGET ) return target;
 
-    if ( key === '__proto__' || key === 'prototype' || key === 'constructor' ) return target[key];
-
-    if ( key === 'hasOwnProperty' || key === 'isPrototypeOf' || key === 'propertyIsEnumerable' || key === 'toLocaleString' || key === 'toSource' || key === 'toString' || key === 'valueOf' ) return target[key];
+    if ( UNREACTIVE_KEYS.has ( key ) ) return target[key];
 
     const node = getNodeExisting ( target );
     const getter = node.getters?.get ( key );
