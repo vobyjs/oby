@@ -15,7 +15,7 @@ npm install --save oby
 | [`$()`](#core)                    | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
 | [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
 | [`$.cleanup`](#cleanup)           | [`$.forIndex`](#forindex) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
-| [`$.computed`](#computed)         | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   |                                             |
+| [`$.computed`](#computed)         | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   | [`StoreOptions`](#storeoptions)                                            |
 | [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.selector`](#selector) |                                             |
 | [`$.effect`](#effect)             | [`$.ternary`](#ternary)   |                           |                                             |
 | [`$.error`](#error)               | [`$.tryCatch`](#trycatch) |                           |                                             |
@@ -26,6 +26,7 @@ npm install --save oby
 | [`$.reaction`](#reaction)         |                           |                           |                                             |
 | [`$.root`](#root)                 |                           |                           |                                             |
 | [`$.sample`](#sample)             |                           |                           |                                             |
+| [`$.store`](#store)               |                           |                           |                                             |
 | [`$.with`](#with)                 |                           |                           |                                             |
 
 ## Usage
@@ -57,13 +58,13 @@ type ObservableReadonly<T> = {
 The `$()` function has the following interface:
 
 ```ts
-function $ <T> (): Observable<T | undefined>;
-function $ <T> ( value: undefined, options?: ObservableOptions<T | undefined> ): Observable<T | undefined>;
-function $ <T> ( value: T, options?: ObservableOptions<T> ): Observable<T>;
-
 type ObservableOptions<T> = {
   equals?: (( value: T, valuePrev: T ) => boolean) | false
 };
+
+function $ <T> (): Observable<T | undefined>;
+function $ <T> ( value: undefined, options?: ObservableOptions<T | undefined> ): Observable<T | undefined>;
+function $ <T> ( value: T, options?: ObservableOptions<T> ): Observable<T>;
 ```
 
 This is how to use it:
@@ -588,6 +589,68 @@ console.log ( sum ); // => 6, it's just a value, not a reactive Observable
 // Sampling a non function, it's just returned as is
 
 $.sample ( 123 ); // => 123
+```
+
+#### `$.store`
+
+This function returns a deeply reactive version of the passed object, where property accesses and writes are automatically interpreted as Observables reads and writes for you.
+
+You can just use the reactive object like you would with a regular non-reactive one, every aspect of the reactivity is handled for you under the hood, just remember to perform reads in a computation if you want to subscribe to them.
+
+- **Note**: Only the following types of values will be handled by the reactivity system: plain objects, plain arrays, primitives.
+
+- **Note**: The following properties are never reactive, as making them reactive would have more cons than props: `__proto__`, `prototype`, `constructor`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `toSource`, `toString`, `valueOf`.
+
+- **Note**: Compared to Solid's `createMutable` our stores will be updated immeditely even inside a batch, it's only the reactivity system that will be udpated at the end of the batch, in theory this could cause glitches, but not doing this breaks type checking, so...
+
+Interface:
+
+```ts
+type StoreOptions = {
+  unwrap?: boolean
+};
+
+function store <T> ( value: T, options?: StoreOptions ): T;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Make a reactive plain object
+
+const obj = $.store ({ foo: { deep: 123 } });
+
+$.effect ( () => {
+
+  obj.foo.deep; // Subscribe to "foo" and "foo.deep"
+
+});
+
+obj.foo.deep = 321; // Cause the effect to re-run
+
+// Make a reactive array
+
+const arr = $.store ([ 1, 2, 3 ]);
+
+$.effect ( () => {
+
+  arr.forEach ( value => { // Subscribe to the entire array
+    console.log ( value );
+  });
+
+});
+
+arr.push ( 123 ); // Cause the effect to re-run
+
+// Get a non-reactive object out of a reactive one
+
+const pobj = $.store ( obj, { unwrap: true } );
+
+// Get a non-reactive array out of a reactive one
+
+const parr = $.store ( arr, { unwrap: true } );
 ```
 
 #### `$.with`
@@ -1147,6 +1210,18 @@ Interface:
 ```ts
 type ObservableOptions<T> = {
   equals?: (( value: T, valuePrev: T ) => boolean) | false
+};
+```
+
+#### `StoreOptions`
+
+This type describes the options object that the `$.store` function can accept.
+
+Interface:
+
+```ts
+type StoreOptions = {
+  unwrap?: boolean
 };
 ```
 

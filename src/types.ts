@@ -77,6 +77,12 @@ type ObservableOptions<T = unknown> = {
 
 declare const ObservableSymbol: unique symbol;
 
+/* STORE */
+
+type StoreOptions = {
+  unwrap?: boolean
+};
+
 /* OTHERS */
 
 type Callable<T extends CallableFunction> = (T & { call: CallableFunctionCall<T> }) | ({ call: CallableFunctionCall<T>, apply?: never });
@@ -120,4 +126,5 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot, ISuspense};
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
+export type {StoreOptions};
 export type {Callable, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};

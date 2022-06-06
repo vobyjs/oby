@@ -8,7 +8,7 @@ import {isObject} from '~/utils';
 
 const isStore = ( value: unknown ): boolean => {
 
-  return isObject ( value ) && !!value[SYMBOL_STORE];
+  return isObject ( value ) && ( SYMBOL_STORE in value );
 
 };
 
