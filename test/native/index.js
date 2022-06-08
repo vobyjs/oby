@@ -2533,6 +2533,34 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'calls the mapper function with an observable to the index too', t => {
+
+      const array = $([ 'a', 'b', 'c' ]);
+      const argsRaw = [];
+      const args = [];
+
+      $.for ( array, ( value, index ) => {
+        isReadable ( t, index );
+        argsRaw.push ( index );
+        args.push ( index () );
+      });
+
+
+      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
+      t.deepEqual ( args, [0, 1, 2] );
+
+      array ([ 'a', 'b', 'c', 'd' ]);
+
+      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2, 3] );
+      t.deepEqual ( args, [0, 1, 2, 3] );
+
+      array ([ 'd', 'c', 'a', 'b' ]);
+
+      t.deepEqual ( argsRaw.map ( a => a () ), [2, 3, 1, 0] );
+      t.deepEqual ( args, [0, 1, 2, 3] );
+
+    });
+
     it ( 'disposes of any reactivity when the parent computation is disposed', t => {
 
       const o1 = $(1);

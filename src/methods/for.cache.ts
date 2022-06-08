@@ -3,13 +3,18 @@
 
 import {OWNER} from '~/constants';
 import resolve from '~/methods/resolve';
+import {frozen, readable} from '~/objects/callable';
+import Observable from '~/objects/observable';
 import Root from '~/objects/root';
-import type {IObserver, MapFunction, Resolved} from '~/types';
+import type {IObservable, IObserver, MapFunction, Resolved} from '~/types';
 
 /* HELPERS */
 
+const DUMMY_INDEX = frozen ( -1 );
+
 class MappedRoot<T = unknown> extends Root { // This saves some memory compared to making a dedicated standalone object for metadata
   bool?: boolean;
+  observable?: IObservable<number>;
   result?: T;
 }
 
@@ -20,6 +25,7 @@ class Cache<T, R> {
   /* VARIABLES */
 
   fn: MapFunction<T, R>;
+  fnWithIndex: boolean;
   cache: Map<T, MappedRoot<Resolved<R>>> = new Map ();
   bool = false; // The bool is flipped with each iteration, the roots that don't have the updated one are disposed, it's like a cheap counter basically
   prevCount: number = 0; // Number of previous items
@@ -31,6 +37,7 @@ class Cache<T, R> {
   constructor ( fn: MapFunction<T, R> ) {
 
     this.fn = fn;
+    this.fnWithIndex = ( fn.length > 1 );
     this.parent.registerRoot ( this.roots );
 
   }
@@ -90,15 +97,16 @@ class Cache<T, R> {
 
   };
 
-  map = ( value: T ): Resolved<R> => {
+  map = ( value: T, index: number ): Resolved<R> => {
 
-    const {cache, bool, fn} = this;
+    const {cache, bool, fn, fnWithIndex} = this;
 
     const cached = cache.get ( value );
 
     if ( cached ) {
 
       cached.bool = bool;
+      cached.observable?.write ( index );
 
       return cached.result!; //TSC
 
@@ -108,7 +116,16 @@ class Cache<T, R> {
 
       return mapped.wrap ( () => {
 
-        const result = resolve ( fn ( value ) );
+        let observable = DUMMY_INDEX;
+
+        if ( fnWithIndex ) {
+
+          mapped.observable = new Observable ( index );
+          observable = readable ( mapped.observable );
+
+        }
+
+        const result = resolve ( fn ( value, observable ) );
 
         mapped.bool = bool;
         mapped.result = result;

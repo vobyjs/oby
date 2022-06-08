@@ -742,7 +742,7 @@ This is the reactive version of the native `Array.prototype.map`, it maps over a
 Interface:
 
 ```ts
-function for <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: T ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
+function for <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: T, index: ObservableReadonly<number> ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
 ```
 
 Usage:
