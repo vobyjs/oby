@@ -782,7 +782,7 @@ Interface:
 ```ts
 type Value<T = unknown> = T extends ObservableReadonly<infer U> ? ObservableReadonly<U> : ObservableReadonly<T>;
 
-function forIndex <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: Value<T> ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
+function forIndex <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: Value<T>, index: number ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
 ```
 
 Usage:

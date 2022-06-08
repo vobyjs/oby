@@ -7,7 +7,7 @@ import get from '~/methods/get';
 import resolve from '~/methods/resolve';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
-import type {IObservable, IObserver, MapFunction, Indexed, Resolved} from '~/types';
+import type {IObservable, IObserver, MapIndexFunction, Indexed, Resolved} from '~/types';
 
 /* HELPERS */
 
@@ -23,13 +23,13 @@ class Cache<T, R> {
 
   /* VARIABLES */
 
-  fn: MapFunction<Indexed<T>, R>;
+  fn: MapIndexFunction<Indexed<T>, R>;
   cache: IndexedRoot<T, Resolved<R>>[];
   parent: IObserver = OWNER.current;
 
   /* CONSTRUCTOR */
 
-  constructor ( fn: MapFunction<Indexed<T>, R> ) {
+  constructor ( fn: MapIndexFunction<Indexed<T>, R> ) {
 
     this.fn = fn;
     this.cache = [];
@@ -88,7 +88,7 @@ class Cache<T, R> {
 
           indexed.source = source;
           indexed.target = target;
-          indexed.result = resolve ( fn ( target ) );
+          indexed.result = resolve ( fn ( target, i ) );
 
           cache[i] = indexed;
           results[i] = indexed.result;

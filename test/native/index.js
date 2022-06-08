@@ -2745,6 +2745,23 @@ describe ( 'oby', () => {
 
   describe ( 'forIndex', it => {
 
+    it ( 'calls the mapper function with the index too', t => {
+
+      const array = $([ 'a', 'b', 'c' ]);
+      const args = [];
+
+      $.forIndex ( array, ( value, index ) => {
+        args.push ( index );
+      });
+
+      t.deepEqual ( args, [0, 1, 2] );
+
+      array ([ 'a', 'b', 'c', 'd' ]);
+
+      t.deepEqual ( args, [0, 1, 2, 3] );
+
+    });
+
     it ( 'disposes of any reactivity when the parent computation is disposed', t => {
 
       const array = $([ 1, 2 ]);

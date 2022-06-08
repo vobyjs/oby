@@ -37,9 +37,9 @@ type EqualsFunction<T = unknown> = ( value: T, valuePrev: T ) => boolean;
 
 type ListenerFunction<T = unknown> = ( value: T, valuePrev?: T ) => void;
 
-type WithFunction<T = unknown> = () => T;
+type MapFunction<T = unknown, R = unknown> = ( value: T, index: ObservableReadonly<number> ) => R;
 
-type MapFunction<T = unknown, R = unknown> = ( value: T ) => R;
+type MapIndexFunction<T = unknown, R = unknown> = ( value: T, index: number ) => R;
 
 type ObservedFunction<T = unknown> = () => T;
 
@@ -56,6 +56,8 @@ type SuspenseFunction<T = unknown> = () => T;
 type TryCatchFunction<T = unknown> = ({ error, reset }: { error: Error, reset: DisposeFunction }) => T;
 
 type UpdateFunction<T = unknown> = ( value: T ) => T;
+
+type WithFunction<T = unknown> = () => T;
 
 /* OBSERVABLE */
 
@@ -124,7 +126,7 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 /* EXPORT */
 
 export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot, ISuspense};
-export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction, WithFunction};
+export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {StoreOptions};
 export type {Callable, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};
