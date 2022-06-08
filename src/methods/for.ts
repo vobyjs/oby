@@ -3,6 +3,7 @@
 
 import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
+import sample from '~/methods/sample';
 import Cache from '~/methods/for.cache';
 import resolve from '~/methods/resolve';
 import {isFunction} from '~/utils';
@@ -23,7 +24,7 @@ const _for = <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapFunction<T,
 
     before ( array );
 
-    const result = array.length ? array.map ( map ) : resolve ( fallback );
+    const result = sample ( () => array.length ? array.map ( map ) : resolve ( fallback ) );
 
     after ( array );
 
