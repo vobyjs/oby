@@ -4825,6 +4825,22 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'works with stores', t => {
+
+      const store = $.store ({ value: 0 });
+      const selector = $.selector ( () => store.value );
+      const selected = selector ( 1 );
+
+      isReadable ( t, selected );
+
+      t.false ( selected () );
+
+      store.value = 1;
+
+      t.true ( selected () );
+
+    });
+
   });
 
   describe ( 'store', it => {

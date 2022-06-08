@@ -6,12 +6,12 @@ import cleanup from '~/methods/cleanup';
 import reaction from '~/methods/reaction';
 import sample from '~/methods/sample';
 import {readable} from '~/objects/callable';
-import ObservableClass from '~/objects/observable';
-import type {SelectorFunction, Observable, ObservableReadonly} from '~/types';
+import Observable from '~/objects/observable';
+import type {SelectorFunction, ObservableReadonly} from '~/types';
 
 /* HELPERS */
 
-class SelectedObservable extends ObservableClass<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata + a cleanup function
+class SelectedObservable extends Observable<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata + a cleanup function
   count: number = 0;
   selecteds?: Map<unknown, SelectedObservable>;
   source?: any;
@@ -27,7 +27,7 @@ class SelectedObservable extends ObservableClass<boolean> { // This saves some m
 
 /* MAIN */
 
-const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): SelectorFunction<T> => {
+const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   /* SIGNAL */
 
@@ -45,7 +45,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     if ( selectedPrev ) selectedPrev.write ( false );
 
-    const valueNext = observable ();
+    const valueNext = source ();
     const selectedNext = selecteds.get ( valueNext );
 
     if ( selectedNext ) selectedNext.write ( true );
@@ -89,7 +89,7 @@ const selector = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Sele
 
     } else {
 
-      selected = new SelectedObservable ( sample ( observable ) === value );
+      selected = new SelectedObservable ( sample ( source ) === value );
       selected.selecteds = selecteds;
       selected.source = value;
       selected.signal = signal;

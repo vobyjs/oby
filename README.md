@@ -1139,7 +1139,7 @@ Interface:
 ```ts
 type SelectorFunction<T> = ( value: T ) => ObservableReadonly<boolean>;
 
-function selector <T> ( observable: Observable<T> | ObservableReadonly<T> ): SelectorFunction<T>;
+function selector <T> ( source: () => T ): SelectorFunction<T>;
 ```
 
 Usage:
