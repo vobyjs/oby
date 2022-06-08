@@ -430,6 +430,7 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 //TODO: Support listening to everything
 //TODO: Support Object.defineProperty
 //TODO: Support proxying more built-ins: ArrayBuffer, RegExp, Date, TypedArray, Map, WekaMap, Set, WeakSet
+//TODO: Explore not using a WeakMap+cleanups and instead attaching the proxy to the object itself via a proxy
 
 const store = <T> ( value: T, options?: StoreOptions ): T => {
 
