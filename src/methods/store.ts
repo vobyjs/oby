@@ -128,7 +128,7 @@ const TRAPS = {
 
       const value = target[key];
 
-      if ( typeof value === 'function' && value === Array.prototype[key as any] ) { //TSC
+      if ( typeof value === 'function' && value === Array.prototype[key] ) {
         return function () {
           return batch ( () => value.apply ( node.store, arguments ) );
         };
@@ -397,7 +397,7 @@ const getStore = <T = StoreTarget> ( value: T ): T => {
 
 const getTarget = <T> ( value: T ): T => {
 
-  if ( isStore ( value ) ) return ( value as any )[SYMBOL_STORE_TARGET]; //TSC
+  if ( isStore ( value ) ) return value[SYMBOL_STORE_TARGET];
 
   return value;
 
