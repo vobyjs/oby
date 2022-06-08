@@ -9,9 +9,15 @@ import type {IObservable, ListenerFunction, Observable, ObservableReadonly, Call
 
 const on = <T> ( observable: Observable<T> | ObservableReadonly<T> | IObservable<T>, listener: Callable<ListenerFunction<T>> ): void => {
 
-  if ( SYMBOL_OBSERVABLE_FROZEN in observable ) return;
+  if ( SYMBOL_OBSERVABLE_FROZEN in observable ) {
 
-  target ( observable ).registerListener ( listener );
+    listener.call ( listener, ( observable as ObservableReadonly<T> )() ); //TSC
+
+  } else {
+
+    target ( observable ).registerListener ( listener );
+
+  }
 
 };
 

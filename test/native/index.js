@@ -3406,6 +3406,19 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'can call the registered function when registering, for frozen observables too', t => {
+
+      const o = $.computed ( () => 0 );
+
+      $.on ( o, ( value, valuePrev ) => {
+
+        t.is ( value, 0 );
+        t.is ( valuePrev, undefined );
+
+      });
+
+    });
+
     it ( 'can call the registered function with the current value and, if available, the previous value', t => {
 
       const o = $(0);
@@ -3558,17 +3571,17 @@ describe ( 'oby', () => {
       $.on ( o, onChange );
       $.on ( o, onChange );
 
-      t.is ( calls, 1 );
+      t.is ( calls, 4 );
 
       o ( 1 );
 
-      t.is ( calls, 2 );
+      t.is ( calls, 5 );
 
       o ( 1 );
       o ( 1 );
       o ( 1 );
 
-      t.is ( calls, 2 );
+      t.is ( calls, 5 );
 
     });
 
