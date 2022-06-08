@@ -1,8 +1,10 @@
 
 /* IMPORT */
 
+import {SYMBOL_STORE_VALUES} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
+import isStore from '~/methods/is_store';
 import sample from '~/methods/sample';
 import Cache from '~/methods/for_index.cache';
 import resolve from '~/methods/resolve';
@@ -21,6 +23,9 @@ const forIndex = <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapIndexFu
   return computed ( () => {
 
     const array = isFunction ( values ) ? values () : values;
+
+    if ( isStore ( array ) ) array[SYMBOL_STORE_VALUES];
+
     const result = sample ( () => array.length ? map ( array ) : resolve ( fallback ) );
 
     return result;

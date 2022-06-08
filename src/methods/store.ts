@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER, ROOT, SYMBOL_STORE, SYMBOL_STORE_TARGET} from '~/constants';
+import {OWNER, ROOT, SYMBOL_STORE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES} from '~/constants';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import isStore from '~/methods/is_store';
@@ -21,6 +21,7 @@ type StoreNode = {
   getters?: Map<StoreKey, Function>,
   setters?: Map<StoreKey, Function>,
   keys?: StoreKeys,
+  values?: StoreValues,
   has?: StoreMap<StoreKey, StoreHas>,
   properties?: StoreMap<StoreKey, StoreProperty>
 };
@@ -57,6 +58,15 @@ class StoreKeys extends StoreCleanable {
   }
 }
 
+class StoreValues extends StoreCleanable {
+  constructor ( public parent: StoreNode, public observable: IObservable<0> ) {
+    super ();
+  }
+  dispose (): void {
+    this.parent.values = undefined;
+  }
+}
+
 class StoreHas extends StoreCleanable {
   constructor ( public parent: StoreNode, public key: StoreKey, public observable: IObservable<boolean> ) {
     super ();
@@ -90,6 +100,20 @@ const TRAPS = {
     if ( key === SYMBOL_STORE ) return true;
 
     if ( key === SYMBOL_STORE_TARGET ) return target;
+
+    if ( key === SYMBOL_STORE_VALUES ) {
+
+      if ( isListenable () ) {
+
+        const node = getNodeExisting ( target );
+
+        node.values ||= getNodeValues ( node );
+        node.values.listen ();
+        node.values.observable.read ();
+
+      }
+
+    }
 
     if ( UNREACTIVE_KEYS.has ( key ) ) return target[key];
 
@@ -147,6 +171,8 @@ const TRAPS = {
 
       batch ( () => {
 
+        node.values?.observable.write ( 0 );
+
         if ( !hadProperty ) {
           node.keys?.observable.write ( 0 );
           node.has?.get ( key )?.observable.write ( true );
@@ -181,6 +207,7 @@ const TRAPS = {
     batch ( () => {
 
       node.keys?.observable.write ( 0 );
+      node.values?.observable.write ( 0 );
       node.has?.get ( key )?.observable.write ( false );
 
       const property = node.properties?.get ( key );
@@ -280,6 +307,15 @@ const getNodeKeys = ( node: StoreNode ): StoreKeys => {
   const keys = new StoreKeys ( node, observable );
 
   return keys;
+
+};
+
+const getNodeValues = ( node: StoreNode ): StoreValues => {
+
+  const observable = getNodeObservable<0> ( node, 0, { equals: false } );
+  const values = new StoreValues ( node, observable );
+
+  return values;
 
 };
 
