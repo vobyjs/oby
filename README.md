@@ -410,7 +410,7 @@ This function allows you to register a listener for a single Observable, directl
 Interface:
 
 ```ts
-function on <T> ( observable: Observable<T> | ObservableReadonly<T>, listener: (( value: T, valuePrev?: T ) => void) ): void;
+function on <T> ( observable: Observable<T> | ObservableReadonly<T>, listener: (( value: T, valuePrev?: T ) => void) ): (() => void);
 ```
 
 Usage:

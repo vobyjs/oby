@@ -9,9 +9,15 @@ import type {IObservable, ListenerFunction, Observable, ObservableReadonly, Call
 
 const off = <T> ( observable: Observable<T> | ObservableReadonly<T> | IObservable<T>, listener: Callable<ListenerFunction<T>> ): void => {
 
-  if ( SYMBOL_OBSERVABLE_FROZEN in observable ) return;
+  if ( SYMBOL_OBSERVABLE_FROZEN in observable ) {
 
-  target ( observable ).unregisterListener ( listener );
+    return;
+
+  } else {
+
+    target ( observable ).unregisterListener ( listener );
+
+  }
 
 };
 

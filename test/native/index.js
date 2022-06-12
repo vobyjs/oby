@@ -3610,23 +3610,29 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns undefined', t => {
+    it ( 'returns a disposer function', t => {
 
       const o = $(0);
 
-      const result = $.on ( o, () => 123 );
+      let calls = 0;
 
-      t.is ( result, undefined );
+      const dispose = $.on ( o, () => {
 
-    });
+        calls += 1;
 
-    it ( 'returns undefined for frozen observables too', t => {
+      });
 
-      const o = $.computed ( () => 123 );
+      t.is ( calls, 1 );
 
-      const result = $.on ( o, () => 123 );
+      o ( 1 );
 
-      t.is ( result, undefined );
+      t.is ( calls, 2 );
+
+      dispose ();
+
+      o ( 2 );
+
+      t.is ( calls, 2 );
 
     });
 
