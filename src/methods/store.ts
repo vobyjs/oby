@@ -18,8 +18,8 @@ type StoreTarget = Record<StoreKey, any>;
 type StoreNode = {
   store: StoreTarget,
   signal: Signal,
-  getters?: Map<StoreKey, Function>,
-  setters?: Map<StoreKey, Function>,
+  getters?: StoreMap<StoreKey, Function>,
+  setters?: StoreMap<StoreKey, Function>,
   keys?: StoreKeys,
   values?: StoreValues,
   has?: StoreMap<StoreKey, StoreHas>,
@@ -119,6 +119,19 @@ const TRAPS = {
 
     const node = getNodeExisting ( target );
     const getter = node.getters?.get ( key );
+    const value = getter || target[key];
+
+    node.properties ||= new StoreMap ();
+
+    const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
+
+    if ( isListenable () ) {
+
+      property.listen ();
+      property.observable ||= getNodeObservable ( node, value );
+      property.observable.read ();
+
+    }
 
     if ( getter ) {
 
@@ -126,24 +139,10 @@ const TRAPS = {
 
     } else {
 
-      const value = target[key];
-
       if ( typeof value === 'function' && value === Array.prototype[key] ) {
         return function () {
           return batch ( () => value.apply ( node.store, arguments ) );
         };
-      }
-
-      node.properties ||= new StoreMap ();
-
-      const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
-
-      if ( isListenable () ) {
-
-        property.listen ();
-        property.observable ||= getNodeObservable ( node, value );
-        property.observable.read ();
-
       }
 
       return property.node?.store || value;
@@ -222,6 +221,54 @@ const TRAPS = {
 
   },
 
+  defineProperty: ( target: StoreTarget, key: StoreKey, descriptor: PropertyDescriptor ): boolean => {
+
+    const hadProperty = ( key in target );
+    const defined = Reflect.defineProperty ( target, key, descriptor );
+
+    if ( !defined ) return false;
+
+    const node = getNodeExisting ( target );
+
+    batch ( () => {
+
+      if ( !descriptor.get ) {
+        node.getters?.delete ( key );
+      } else if ( descriptor.get ) {
+        node.getters ||= new StoreMap ();
+        node.getters.set ( key, descriptor.get );
+      }
+
+      if ( !descriptor.set ) {
+        node.setters?.delete ( key );
+      } else if ( descriptor.set ) {
+        node.setters ||= new StoreMap ();
+        node.setters.set ( key, descriptor.set );
+      }
+
+      if ( hadProperty !== !!descriptor.enumerable ) {
+        node.keys?.observable.write ( 0 );
+        node.has?.get ( key )?.observable.write ( !!descriptor.enumerable );
+      }
+
+      const property = node.properties?.get ( key );
+      if ( property ) {
+        if ( 'get' in descriptor ) {
+          property.observable?.write ( descriptor.get );
+          property.node = undefined;
+        } else {
+          const value = descriptor['val' + 'ue']; //UGLY: Bailing out of mangling
+          property.observable?.write ( value );
+          property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
+        }
+      }
+
+    });
+
+    return true;
+
+  },
+
   has: ( target: StoreTarget, key: StoreKey ): boolean => {
 
     if ( key === SYMBOL_STORE ) return true;
@@ -262,12 +309,6 @@ const TRAPS = {
     }
 
     return keys;
-
-  },
-
-  defineProperty: ( target: StoreTarget, key: StoreKey, descriptor: PropertyDescriptor ): boolean => {
-
-    throw new Error ( 'Stores do not support using Object.defineProperty' );
 
   }
 
@@ -351,12 +392,12 @@ const getNodeProperty = ( node: StoreNode, key: StoreKey, value: unknown ): Stor
 
 };
 
-const getGettersAndSetters = ( value: StoreTarget ): { getters?: Map<string | symbol, Function>, setters?: Map<string | symbol, Function> } => {
+const getGettersAndSetters = ( value: StoreTarget ): { getters?: StoreMap<string | symbol, Function>, setters?: StoreMap<string | symbol, Function> } => {
 
   if ( Array.isArray ( value ) ) return {};
 
-  let getters: Map<string | symbol, Function> | undefined;
-  let setters: Map<string | symbol, Function> | undefined;
+  let getters: StoreMap<string | symbol, Function> | undefined;
+  let setters: StoreMap<string | symbol, Function> | undefined;
 
   const keys = Reflect.ownKeys ( value );
 
@@ -370,12 +411,12 @@ const getGettersAndSetters = ( value: StoreTarget ): { getters?: Map<string | sy
     const {get, set} = descriptor;
 
     if ( get ) {
-      getters ||= new Map ();
+      getters ||= new StoreMap ();
       getters.set ( key, get );
     }
 
     if ( set ) {
-      setters ||= new Map ();
+      setters ||= new StoreMap ();
       setters.set ( key, set );
     }
 
@@ -428,7 +469,6 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 //TODO: Add an option for glitch-free batching, making it clear that that would break type-checking
 //TODO: Add an option for immutable stores that are edited via set/merge/produce functions, which have none of the issues but poor DX
 //TODO: Support listening to everything
-//TODO: Support Object.defineProperty
 //TODO: Support proxying more built-ins: ArrayBuffer, RegExp, Date, TypedArray, Map, WekaMap, Set, WeakSet
 //TODO: Explore not using a WeakMap+cleanups and instead attaching the proxy to the object itself via a proxy
 

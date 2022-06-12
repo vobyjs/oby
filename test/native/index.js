@@ -6260,33 +6260,430 @@ describe ( 'oby', () => {
 
       });
 
-      it ( 'throws when using Object.defineProperty', t => {
+      it ( 'supports reacting to changes of keys caused by Object.defineProperty, adding enumerable property', t => {
 
         const o = $.store ( {} );
 
-        t.throws ( () => {
+        let calls = 0;
 
-          Object.defineProperty ( o, 'foo', {
-            value: 123
-          });
+        $.effect ( () => {
+          calls += 1;
+          Object.keys ( o );
+        });
 
-        }, { message: 'Stores do not support using Object.defineProperty' } );
+        t.is ( calls, 1 );
+        t.is ( o.value, undefined );
+
+        Object.defineProperty ( o, 'value', {
+          enumerable: true,
+          value: 123
+        });
+
+        t.is ( calls, 2 );
+        t.is ( o.value, 123 );
 
       });
 
-      it ( 'throws when using Object.defineProperties', t => {
+      it ( 'supports reacting to changes of keys caused by Object.defineProperty, deleting enumerable property', t => {
+
+        const o = $.store ( { value: 1 } );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          Object.keys ( o );
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, 1 );
+
+        Object.defineProperty ( o, 'value', {
+          enumerable: false,
+          value: 123
+        });
+
+        t.is ( calls, 2 );
+        t.is ( o.value, 123 );
+
+      });
+
+      it ( 'supports not reacting to changes of keys caused by Object.defineProperty, overriding enumerable property', t => {
+
+        const o = $.store ( { value: 1 } );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          Object.keys ( o );
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, 1 );
+
+        Object.defineProperty ( o, 'value', {
+          enumerable: true,
+          value: 123
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, 123 );
+
+      });
+
+      it ( 'supports not reacting to changes of keys caused by Object.defineProperty, adding non-enumerable property', t => {
 
         const o = $.store ( {} );
 
-        t.throws ( () => {
+        let calls = 0;
 
-          Object.defineProperties ( o, {
-            foo: {
-              value: 123
+        $.effect ( () => {
+          calls += 1;
+          Object.keys ( o );
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, undefined );
+
+        Object.defineProperty ( o, 'value', {
+          enumerable: false,
+          value: 123
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, 123 );
+
+      });
+
+      it ( 'supports reacting to changes of in caused by Object.defineProperty, adding enumerable property', t => {
+
+        const o = $.store ( {} );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          if ( 'value' in o ) {}
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, undefined );
+
+        Object.defineProperty ( o, 'value', {
+          enumerable: true,
+          value: 123
+        });
+
+        t.is ( calls, 2 );
+        t.is ( o.value, 123 );
+
+      });
+
+      it ( 'supports reacting to changes of in caused by Object.defineProperty, deleting enumerable property',t => {
+
+        const o = $.store ( { value: 1 } );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          if ( 'value' in o ) {}
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, 1 );
+
+        Object.defineProperty ( o, 'value', {
+          enumerable: false,
+          value: 123
+        });
+
+        t.is ( calls, 2 );
+        t.is ( o.value, 123 );
+
+      });
+
+      it ( 'supports not reacting to changes of in caused by Object.defineProperty, overriding enumerable property', t => {
+
+        const o = $.store ( { value: 1 } );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          if ( 'value' in o ) {}
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, 1 );
+
+        Object.defineProperty ( o, 'value', {
+          enumerable: true,
+          value: 123
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, 123 );
+
+      });
+
+      it ( 'supports not reacting to changes of in caused by Object.defineProperty, adding non-enumerable property', t => {
+
+        const o = $.store ( {} );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          if ( 'value' in o ) {}
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, undefined );
+
+        Object.defineProperty ( o, 'value', {
+          enumerable: false,
+          value: 123
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.value, 123 );
+
+      });
+
+      it ( 'supports reacting to changes in getters caused by Object.defineProperty, addition', t => {
+
+        const o = $.store ( { foo: 1, bar: 2 } );
+
+        let calls = 0;
+        let args = [];
+
+        $.effect ( () => {
+          calls += 1;
+          args.push ( o.fn );
+        });
+
+        t.is ( calls, 1 );
+        t.deepEqual ( args, [undefined] );
+
+        Object.defineProperty ( o, 'fn', {
+            get: function () {
+              return this.foo + this.bar;
             }
-          });
+          }
+        );
 
-        }, { message: 'Stores do not support using Object.defineProperty' } );
+        t.is ( calls, 2 );
+        t.deepEqual ( args, [undefined, 3] );
+
+      });
+
+      it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with value', t => {
+
+        const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
+
+        let calls = 0;
+        let args = [];
+
+        $.effect ( () => {
+          calls += 1;
+          args.push ( o.fn );
+        });
+
+        t.is ( calls, 1 );
+        t.deepEqual ( args, [3] );
+
+        Object.defineProperty ( o, 'fn', {
+            value: 123
+          }
+        );
+
+        t.is ( calls, 2 );
+        t.deepEqual ( args, [3, 123] );
+
+      });
+
+      it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with new getter', t => {
+
+        const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
+
+        let calls = 0;
+        let args = [];
+
+        $.effect ( () => {
+          calls += 1;
+          args.push ( o.fn );
+        });
+
+        t.is ( calls, 1 );
+        t.deepEqual ( args, [3] );
+
+        Object.defineProperty ( o, 'fn', {
+            get: function () {
+              return ( this.foo + this.bar ) * 10;
+            }
+          }
+        );
+
+        t.is ( calls, 2 );
+        t.deepEqual ( args, [3, 30] );
+
+      });
+
+      it ( 'supports not reacting to changes in getters caused by Object.defineProperty, override with same getter', t => {
+
+        const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
+
+        let calls = 0;
+        let args = [];
+
+        $.effect ( () => {
+          calls += 1;
+          args.push ( o.fn );
+        });
+
+        t.is ( calls, 1 );
+        t.deepEqual ( args, [3] );
+
+        Object.defineProperty ( o, 'fn', {
+            get: Object.getOwnPropertyDescriptor ( o, 'fn' ).get
+          }
+        );
+
+        t.is ( calls, 1 );
+        t.deepEqual ( args, [3] );
+
+      });
+
+      it ( 'supports reacting to changes in setters caused by Object.defineProperty, addition', t => {
+
+        const o = $.store ( { foo: 1, bar: 2 } );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          o.fn = 3;
+          o.fn;
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o.fn, 3 );
+        t.is ( o._fn, undefined );
+
+        Object.defineProperty ( o, 'fn', {
+            set: function ( value ) {
+              return this._fn = value * 10;
+            }
+          }
+        );
+
+        t.is ( calls, 2 );
+        t.is ( o.fn, undefined );
+        t.is ( o._fn, 30 );
+
+      });
+
+      it.skip ( 'supports reacting to changes in setters caused by Object.defineProperty, override with new setter', t => {
+
+        const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          o.fn = 3;
+          o.fn;
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o._fn, 3 );
+
+        Object.defineProperty ( o, 'fn', {
+            set: function ( value ) {
+              return this._fn = value * 10;
+            }
+          }
+        );
+
+        t.is ( calls, 2 );
+        t.is ( o._fn, 30 );
+
+      });
+
+      it.skip ( 'supports not reacting to changes in setters caused by Object.defineProperty, override with same setter', t => {
+
+        const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          o.fn = 3;
+          o.fn;
+        });
+
+        t.is ( calls, 1 );
+        t.is ( o._fn, 3 );
+
+        Object.defineProperty ( o, 'fn', {
+            set: Object.getOwnPropertyDescriptor ( o, 'fn' ).set
+          }
+        );
+
+        t.is ( calls, 1 );
+        t.is ( o._fn, 3 );
+
+      });
+
+      it ( 'supports reacting to changes of value caused by Object.defineProperty', t => {
+
+        const o = $.store ( { value: 1 } );
+
+        let calls = 0;
+        let args = [];
+
+        $.effect ( () => {
+          calls += 1;
+          args.push ( o.value );
+        });
+
+        t.is ( calls, 1 );
+        t.deepEqual ( args, [1] );
+
+        Object.defineProperty ( o, 'value', {
+            value: 123
+          }
+        );
+
+        t.is ( calls, 2 );
+        t.deepEqual ( args, [1, 123] );
+
+      });
+
+      it ( 'supports not reacting to changes of value caused by Object.defineProperty', t => {
+
+        const o = $.store ( { value: 123 } );
+
+        let calls = 0;
+        let args = [];
+
+        $.effect ( () => {
+          calls += 1;
+          args.push ( o.value );
+        });
+
+        t.is ( calls, 1 );
+        t.deepEqual ( args, [123] );
+
+        Object.defineProperty ( o, 'value', {
+            value: 123
+          }
+        );
+
+        t.is ( calls, 1 );
+        t.deepEqual ( args, [123] );
 
       });
 
