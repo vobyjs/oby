@@ -89,6 +89,8 @@ class StoreProperty extends StoreCleanable {
 
 const NODES = new WeakMap<StoreTarget, StoreNode> ();
 
+const SPECIAL_SYMBOLS = new Set<StoreKey> ([ SYMBOL_STORE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES ]);
+
 const UNREACTIVE_KEYS = new Set<StoreKey> ([ '__proto__', 'prototype', 'constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toSource', 'toString', 'valueOf' ]);
 
 const TRAPS = {
@@ -97,19 +99,23 @@ const TRAPS = {
 
   get: ( target: StoreTarget, key: StoreKey ): unknown => {
 
-    if ( key === SYMBOL_STORE ) return true;
+    if ( SPECIAL_SYMBOLS.has ( key ) ) {
 
-    if ( key === SYMBOL_STORE_TARGET ) return target;
+      if ( key === SYMBOL_STORE ) return true;
 
-    if ( key === SYMBOL_STORE_VALUES ) {
+      if ( key === SYMBOL_STORE_TARGET ) return target;
 
-      if ( isListenable () ) {
+      if ( key === SYMBOL_STORE_VALUES ) {
 
-        const node = getNodeExisting ( target );
+        if ( isListenable () ) {
 
-        node.values ||= getNodeValues ( node );
-        node.values.listen ();
-        node.values.observable.read ();
+          const node = getNodeExisting ( target );
+
+          node.values ||= getNodeValues ( node );
+          node.values.listen ();
+          node.values.observable.read ();
+
+        }
 
       }
 
