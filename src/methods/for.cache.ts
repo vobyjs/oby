@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {OWNER} from '~/constants';
+import cleanup from '~/methods/cleanup';
 import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
@@ -103,7 +104,7 @@ class Cache<T, R> {
 
     const cached = cache.get ( value );
 
-    if ( cached ) {
+    if ( cached && cached.bool !== bool ) {
 
       cached.bool = bool;
       cached.observable?.write ( index );
@@ -113,6 +114,12 @@ class Cache<T, R> {
     } else {
 
       const mapped = new MappedRoot<R> ();
+
+      if ( cached ) {
+
+        cleanup ( () => mapped.dispose () );
+
+      }
 
       return mapped.wrap ( () => {
 
@@ -130,7 +137,11 @@ class Cache<T, R> {
         mapped.bool = bool;
         mapped.result = result;
 
-        cache.set ( value, mapped );
+        if ( !cached ) {
+
+          cache.set ( value, mapped );
+
+        }
 
         return result;
 

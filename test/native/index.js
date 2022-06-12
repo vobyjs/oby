@@ -2507,32 +2507,6 @@ describe ( 'oby', () => {
 
   describe ( 'for', it => {
 
-    it ( 'assumes a function returning an array of unique values', t => {
-
-      const array = [1, 2, 3, 1, 2, 3];
-      const args = [];
-
-      $.for ( () => array, value => {
-        args.push ( value );
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-    });
-
-    it ( 'assumes an array of unique values', t => {
-
-      const array = [1, 2, 3, 1, 2, 3];
-      const args = [];
-
-      $.for ( array, value => {
-        args.push ( value );
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-    });
-
     it ( 'calls the mapper function with an observable to the index too', t => {
 
       const array = $([ 'a', 'b', 'c' ]);
@@ -2712,6 +2686,38 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'disposes of any reactivity created for duplicated items', t => {
+
+      const o = $(1);
+      const array = $([o, o]);
+      const args = [];
+
+      $.for ( array, value => {
+        $.computed ( () => {
+          args.push ( value () );
+        });
+      });
+
+      t.deepEqual ( args, [1, 1] );
+
+      o ( 11 );
+
+      t.deepEqual ( args, [1, 1, 11, 11] );
+
+      o ( 22 );
+
+      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+      array ([ o ]);
+
+      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+      o ( 111 );
+
+      t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
+
+    });
+
     it ( 'renders only results for unknown values', t => {
 
       const array = $([1, 2, 3]);
@@ -2766,6 +2772,25 @@ describe ( 'oby', () => {
     it ( 'returns a computed to fallback for an empty array and a provided fallback', t => {
 
       t.is ( $.for ( [], () => () => 123, 123 )(), 123 );
+
+    });
+
+    it ( 'works with an array of non-unique values', t => {
+
+      const array = $([ 1, 1, 2 ]);
+      const args = [];
+
+      $.for ( array, value => {
+        $.computed ( () => {
+          args.push ( value );
+        });
+      });
+
+      t.deepEqual ( args, [1, 1, 2] );
+
+      array ([ 2, 2, 1 ]);
+
+      t.deepEqual ( args, [1, 1, 2, 2] );
 
     });
 

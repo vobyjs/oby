@@ -739,6 +739,8 @@ computed (); // => 123
 
 This is the reactive version of the native `Array.prototype.map`, it maps over an array of values while caching results for values that didn't change.
 
+This is recommended over `$.forIndex` if the array contains no duplicates. It will still work with duplicates, but performance will degrade.
+
 Interface:
 
 ```ts
