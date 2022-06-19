@@ -89,7 +89,7 @@ class Observer {
     if ( observers ) {
       this.observers = undefined;
       lazyArrayEach ( observers, observer => {
-        observer.dispose ( true, immediate );
+        observer.dispose ( true, true );
       });
     }
 

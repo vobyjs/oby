@@ -1092,6 +1092,36 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'cleans up inner computeds', t => {
+
+      const o = $(0);
+      const active = $(true);
+
+      let calls = 0;
+
+      $.computed ( () => {
+
+        if ( !active () ) return;
+
+        $.computed ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      active ( false );
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
     it ( 'does not throw when disposing of itself', t => {
 
       t.notThrows ( () => {
@@ -1696,6 +1726,36 @@ describe ( 'oby', () => {
       b ( 1 );
 
       t.is ( calls, 3 );
+
+    });
+
+    it ( 'cleans up inner effects', t => {
+
+      const o = $(0);
+      const active = $(true);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        if ( !active () ) return;
+
+        $.effect ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      active ( false );
+      o ( 1 );
+
+      t.is ( calls, 1 );
 
     });
 
@@ -3987,6 +4047,36 @@ describe ( 'oby', () => {
       b ( 1 );
 
       t.is ( calls, 3 );
+
+    });
+
+    it ( 'cleans up inner reactions', t => {
+
+      const o = $(0);
+      const active = $(true);
+
+      let calls = 0;
+
+      $.reaction ( () => {
+
+        if ( !active () ) return;
+
+        $.reaction ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      active ( false );
+      o ( 1 );
+
+      t.is ( calls, 1 );
 
     });
 
