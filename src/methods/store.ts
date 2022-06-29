@@ -1,13 +1,14 @@
 
 /* IMPORT */
 
-import {OWNER, ROOT, SYMBOL_STORE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES} from '~/constants';
+import {OWNER, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES} from '~/constants';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import isStore from '~/methods/is_store';
+import {writable} from '~/objects/callable';
 import Computation from '~/objects/computation';
-import Observable from '~/objects/observable';
-import type {IObservable, ObservableOptions, StoreOptions, Signal} from '~/types';
+import ObservableClass from '~/objects/observable';
+import type {IObservable, Observable, ObservableOptions, StoreOptions, Signal} from '~/types';
 
 /* TYPES */
 
@@ -89,7 +90,7 @@ class StoreProperty extends StoreCleanable {
 
 const NODES = new WeakMap<StoreTarget, StoreNode> ();
 
-const SPECIAL_SYMBOLS = new Set<StoreKey> ([ SYMBOL_STORE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES ]);
+const SPECIAL_SYMBOLS = new Set<StoreKey> ([ SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES ]);
 
 const UNREACTIVE_KEYS = new Set<StoreKey> ([ '__proto__', 'prototype', 'constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toSource', 'toString', 'valueOf' ]);
 
@@ -116,6 +117,26 @@ const TRAPS = {
           node.values.observable.read ();
 
         }
+
+      }
+
+      if ( key === SYMBOL_STORE_OBSERVABLE ) {
+
+        return ( key: StoreKey ): Observable<unknown> => {
+
+          const node = getNodeExisting ( target );
+
+          node.properties ||= new StoreMap ();
+
+          const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
+
+          property.observable ||= getNodeObservable ( node, value );
+
+          const observable = writable ( property.observable );
+
+          return observable;
+
+        };
 
       }
 
@@ -379,7 +400,7 @@ const getNodeHas = ( node: StoreNode, key: StoreKey, value: boolean ): StoreHas 
 
 const getNodeObservable = <T> ( node: StoreNode, value: T, options?: ObservableOptions ): IObservable<T> => {
 
-  const observable = new Observable ( value, options );
+  const observable = new ObservableClass ( value, options );
 
   observable.signal = node.signal;
 
