@@ -129,9 +129,11 @@ const TRAPS = {
 
     node.properties ||= new StoreMap ();
 
-    const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
+    const listenable = isListenable ();
+    const proxiable = isProxiable ( value );
+    const property = listenable || proxiable ? node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) ) : undefined;
 
-    if ( isListenable () ) {
+    if ( listenable && property ) {
 
       property.listen ();
       property.observable ||= getNodeObservable ( node, value );
@@ -151,7 +153,7 @@ const TRAPS = {
         };
       }
 
-      return property.node?.store || value;
+      return property?.node?.store || value;
 
     }
 
