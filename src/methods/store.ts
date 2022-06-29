@@ -125,9 +125,13 @@ const TRAPS = {
         return ( key: StoreKey ): Observable<unknown> => {
 
           const node = getNodeExisting ( target );
+          const getter = node.getters?.get ( key );
+
+          if ( getter ) return getter.bind ( node.store );
 
           node.properties ||= new StoreMap ();
 
+          const value = target[key];
           const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
 
           property.observable ||= getNodeObservable ( node, value );
