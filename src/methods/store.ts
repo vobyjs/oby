@@ -92,7 +92,7 @@ const NODES = new WeakMap<StoreTarget, StoreNode> ();
 
 const SPECIAL_SYMBOLS = new Set<StoreKey> ([ SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES ]);
 
-const UNREACTIVE_KEYS = new Set<StoreKey> ([ '__proto__', 'prototype', 'constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toSource', 'toString', 'valueOf' ]);
+const UNREACTIVE_KEYS = new Set<StoreKey> ([ '__proto__', '__defineGetter__', '__defineSetter__', '__lookupGetter__', '__lookupSetter__', 'prototype', 'constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toSource', 'toString', 'valueOf' ]);
 
 const TRAPS = {
 
