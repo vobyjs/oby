@@ -6783,6 +6783,38 @@ describe ( 'oby', () => {
 
       });
 
+      it ( 'treats number and string properties the same way', t => {
+
+        const o = $.store ([ 0 ]);
+
+        let callsNumber = 0;
+        let callsString = 0;
+
+        $.effect ( () => {
+          callsNumber += 1;
+          o[0];
+        });
+
+        $.effect ( () => {
+          callsString += 1;
+          o['0'];
+        });
+
+        t.is ( callsNumber, 1 );
+        t.is ( callsString, 1 );
+
+        o[0] = 1;
+
+        t.is ( callsNumber, 2 );
+        t.is ( callsString, 2 );
+
+        o['0'] = 2;
+
+        t.is ( callsNumber, 3 );
+        t.is ( callsString, 3 );
+
+      });
+
     });
 
   });
