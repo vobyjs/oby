@@ -13,6 +13,8 @@ const unstale = <T> ( value: T, observable: IObservable<T> ): void => observable
 
 /* MAIN */
 
+//TODO: Experiment with deleting batching and instead just queuing effects in a microtask
+
 function batch <T> ( fn: BatchFunction<T> ): T;
 function batch <T> ( fn: T ): T;
 function batch <T> ( fn: BatchFunction<T> | T ) {
