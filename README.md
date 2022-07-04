@@ -15,7 +15,7 @@ npm install --save oby
 | [`$()`](#core)                    | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
 | [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
 | [`$.cleanup`](#cleanup)           | [`$.forIndex`](#forindex) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
-| [`$.computed`](#computed)         | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   | [`StoreOptions`](#storeoptions)                                            |
+| [`$.computed`](#computed)         | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   | [`StoreOptions`](#storeoptions)             |
 | [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.selector`](#selector) |                                             |
 | [`$.effect`](#effect)             | [`$.ternary`](#ternary)   |                           |                                             |
 | [`$.error`](#error)               | [`$.tryCatch`](#trycatch) |                           |                                             |
@@ -1018,12 +1018,13 @@ url ( 'https://my.api2' ); // This causes the effect to be re-executed, and the 
 
 #### `$.get`
 
-This function gets the value out of something, if it gets passed an Observable then it calls its getter, otherwise it just returns the value.
+This function gets the value out of something, if it gets passed an Observable or a function then by default it calls it, otherwise it just returns the value. You can also opt-out of calling plain functions, which is useful when dealing with callbacks.
 
 Interface:
 
 ```ts
-function get <T> ( value: T ): (T extends ObservableReadonly<infer U> ? U : T);
+function get <T> ( value: T, getFunction?: true ): (T extends (() => infer U) ? U : T);
+function get <T> ( value: T, getFunction: false ): (T extends ObservableReadonly<infer U> ? U : T);
 ```
 
 Usage:
@@ -1037,10 +1038,18 @@ const o = $(123);
 
 $.get ( o ); // => 123
 
-// Getting the value out of a non-Observable
+// Getting the value out of a function
+
+$.get ( () => 123 ); // => 123
+
+// Getting the value out of an Observable but not out of a function
+
+$.get ( o, false ); // => 123
+$.get ( () => 123, false ); // => () => 123
+
+// Getting the value out of a non-Observable and non-function
 
 $.get ( 123 ); // => 123
-$.get ( () => 123 ); // => () => 123
 ```
 
 #### `$.readonly`
