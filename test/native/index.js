@@ -3207,6 +3207,14 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'gets the value out of a function', t => {
+
+      const o = () => 123;
+
+      t.is ( $.get ( o ), 123 );
+
+    });
+
     it ( 'gets the value out of an observable', t => {
 
       const o = $(123);
@@ -3215,9 +3223,19 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'gets the value out of a non-observable', t => {
+    it ( 'gets the value out of a non-function and non-observable', t => {
 
       t.is ( $.get ( 123 ), 123 );
+
+    });
+
+    it ( 'gets, optionally, the value out only of an observable', t => {
+
+      const fn = () => 123;
+      const o = $(123);
+
+      t.is ( $.get ( fn, false ), fn );
+      t.is ( $.get ( o, false ), 123 );
 
     });
 

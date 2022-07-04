@@ -4,11 +4,11 @@
 import {SYMBOL_STORE_VALUES} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
+import get from '~/methods/get';
 import isStore from '~/methods/is_store';
 import sample from '~/methods/sample';
 import Cache from '~/methods/for.cache';
 import resolve from '~/methods/resolve';
-import {isFunction} from '~/utils';
 import type {MapFunction, ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
@@ -22,7 +22,7 @@ const _for = <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapFunction<T,
 
   return computed ( () => {
 
-    const array = isFunction ( values ) ? values () : values;
+    const array = get ( values );
 
     if ( isStore ( array ) ) array[SYMBOL_STORE_VALUES];
 

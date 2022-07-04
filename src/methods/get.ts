@@ -2,19 +2,22 @@
 /* IMPORT */
 
 import isObservable from '~/methods/is_observable';
+import {isFunction} from '~/utils';
 import type {ObservableReadonly} from '~/types';
 
 /* MAIN */
 
-//TODO: Maybe add a "resolveFunction" argument
+function get <T> ( value: T, getFunction?: true ): T extends (() => infer U) ? U : T;
+function get <T> ( value: T, getFunction: false ): T extends ObservableReadonly<infer U> ? U : T;
+function get <T> ( value: T, getFunction: boolean = true ) {
 
-const get = <T> ( value: T ): T extends ObservableReadonly<infer U> ? U : T => {
+  const is = getFunction ? isFunction : isObservable;
 
-  if ( isObservable ( value ) ) return value () as any; //TSC
+  if ( is ( value ) ) return value ();
 
-  return value as any; //TSC
+  return value;
 
-};
+}
 
 /* EXPORT */
 
