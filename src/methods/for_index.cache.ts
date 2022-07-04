@@ -64,7 +64,7 @@ class Cache<T, R> {
   map = ( values: readonly T[] ): Resolved<R>[] => {
 
     const {cache, fn} = this;
-    const results: Resolved<R>[] = [];
+    const results: Resolved<R>[] = new Array ( values.length );
 
     for ( let i = 0, l = values.length; i < l; i++ ) {
 
