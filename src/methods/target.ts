@@ -11,7 +11,7 @@ const target = <T> ( observable: Observable<T> | ObservableReadonly<T> | IObserv
 
   if ( observable instanceof ObservableClass ) return observable;
 
-  if ( SYMBOL_OBSERVABLE_FROZEN in observable ) throw new Error ();
+  if ( SYMBOL_OBSERVABLE_FROZEN in observable ) throw new Error ( 'Impossible' );
 
   return observable ( SYMBOL_OBSERVABLE as any ) as any; //TSC
 

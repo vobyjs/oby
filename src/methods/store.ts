@@ -371,7 +371,7 @@ const getNodeExisting = <T = StoreTarget> ( value: T ): StoreNode => {
 
   const node = NODES.get ( value );
 
-  if ( !node ) throw new Error ();
+  if ( !node ) throw new Error ( 'Impossible' );
 
   return node;
 
