@@ -3,6 +3,7 @@
 
 import {OWNER} from '~/constants';
 import cleanup from '~/methods/cleanup';
+import CacheAbstract from '~/methods/for_abstract.cache';
 import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
@@ -21,21 +22,23 @@ class MappedRoot<T = unknown> extends Root { // This saves some memory compared 
 
 /* MAIN */
 
-class Cache<T, R> {
+class Cache<T, R> extends CacheAbstract<T, R> {
 
   /* VARIABLES */
 
-  fn: MapFunction<T, R>;
-  fnWithIndex: boolean;
-  cache: Map<T, MappedRoot<Resolved<R>>> = new Map ();
-  bool = false; // The bool is flipped with each iteration, the roots that don't have the updated one are disposed, it's like a cheap counter basically
-  prevCount: number = 0; // Number of previous items
-  nextCount: number = 0; // Number of next items
-  parent: IObserver = OWNER.current;
+  private fn: MapFunction<T, R>;
+  private fnWithIndex: boolean;
+  private cache: Map<T, MappedRoot<Resolved<R>>> = new Map ();
+  private bool = false; // The bool is flipped with each iteration, the roots that don't have the updated one are disposed, it's like a cheap counter basically
+  private prevCount: number = 0; // Number of previous items
+  private nextCount: number = 0; // Number of next items
+  private parent: IObserver = OWNER.current;
 
   /* CONSTRUCTOR */
 
   constructor ( fn: MapFunction<T, R> ) {
+
+    super ( fn );
 
     this.fn = fn;
     this.fnWithIndex = ( fn.length > 1 );
@@ -98,56 +101,62 @@ class Cache<T, R> {
 
   };
 
-  map = ( value: T, index: number ): Resolved<R> => {
+  map = ( values: readonly T[] ): Resolved<R>[] => {
 
     const {cache, bool, fn, fnWithIndex} = this;
+    const results: Resolved<R>[] = new Array ( values.length );
 
-    const cached = cache.get ( value );
+    for ( let i = 0, l = values.length; i < l; i++ ) {
 
-    if ( cached && cached.bool !== bool ) {
+      const value = values[i];
+      const cached = cache.get ( value );
 
-      cached.bool = bool;
-      cached.observable?.write ( index );
+      if ( cached && cached.bool !== bool ) {
 
-      return cached.result!; //TSC
+        cached.bool = bool;
+        cached.observable?.write ( i );
 
-    } else {
+        results[i] = cached.result!; //TSC
 
-      const mapped = new MappedRoot<R> ();
+      } else {
 
-      if ( cached ) {
+        const mapped = new MappedRoot<R> ();
 
-        cleanup ( () => mapped.dispose () );
+        if ( cached ) {
+
+          cleanup ( () => mapped.dispose () );
+
+        }
+
+        mapped.wrap ( () => {
+
+          let observable = DUMMY_INDEX;
+
+          if ( fnWithIndex ) {
+
+            mapped.observable = new Observable ( i );
+            observable = readable ( mapped.observable );
+
+          }
+
+          const result = results[i] = resolve ( fn ( value, observable ) );
+
+          mapped.bool = bool;
+          mapped.result = result;
+
+          if ( !cached ) {
+
+            cache.set ( value, mapped );
+
+          }
+
+        });
 
       }
 
-      return mapped.wrap ( () => {
-
-        let observable = DUMMY_INDEX;
-
-        if ( fnWithIndex ) {
-
-          mapped.observable = new Observable ( index );
-          observable = readable ( mapped.observable );
-
-        }
-
-        const result = resolve ( fn ( value, observable ) );
-
-        mapped.bool = bool;
-        mapped.result = result;
-
-        if ( !cached ) {
-
-          cache.set ( value, mapped );
-
-        }
-
-        return result;
-
-      });
-
     }
+
+    return results;
 
   };
 

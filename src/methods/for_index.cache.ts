@@ -3,6 +3,7 @@
 
 import {OWNER} from '~/constants';
 import computed from '~/methods/computed';
+import CacheAbstract from '~/methods/for_abstract.cache';
 import get from '~/methods/get';
 import resolve from '~/methods/resolve';
 import Observable from '~/objects/observable';
@@ -19,17 +20,19 @@ class IndexedRoot<T = unknown, R = unknown> extends Root { // This saves some me
 
 /* MAIN */
 
-class Cache<T, R> {
+class Cache<T, R> extends CacheAbstract<T, R> {
 
   /* VARIABLES */
 
-  fn: MapIndexFunction<Indexed<T>, R>;
-  cache: IndexedRoot<T, Resolved<R>>[];
-  parent: IObserver = OWNER.current;
+  private fn: MapIndexFunction<Indexed<T>, R>;
+  private cache: IndexedRoot<T, Resolved<R>>[];
+  private parent: IObserver = OWNER.current;
 
   /* CONSTRUCTOR */
 
   constructor ( fn: MapIndexFunction<Indexed<T>, R> ) {
+
+    super ( fn );
 
     this.fn = fn;
     this.cache = [];

@@ -93,6 +93,8 @@ type CallableFunction = ( ...args: any[] ) => any;
 
 type CallableFunctionCall<T extends CallableFunction> = ( thiz: any, ...args: Parameters<T> ) => ReturnType<T>;
 
+type Constructor<T = unknown, Arguments extends unknown[] = []> = { new ( ...args: Arguments ): T };
+
 type Contexts = Record<symbol, any>;
 
 type Frozen = <T = unknown> ( value: T ) => ObservableReadonly<T>;
@@ -129,4 +131,4 @@ export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction
 export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SampleFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {StoreOptions};
-export type {Callable, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};
+export type {Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};
