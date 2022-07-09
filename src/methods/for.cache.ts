@@ -52,19 +52,33 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
     if ( !this.prevCount ) return; // There was nothing before, no need to cleanup
 
-    if ( !this.nextCount ) return this.dispose (); // There is nothing after, quickly disposing
-
     const {cache, bool} = this;
 
-    cache.forEach ( ( mapped, value ) => {
+    if ( !cache.size ) return; // Nothing to dispose of
 
-      if ( mapped.bool === bool ) return;
+    if ( this.nextCount ) { // Regular cleanup
 
-      mapped.dispose ( true, true );
+      cache.forEach ( ( mapped, value ) => {
 
-      cache.delete ( value );
+        if ( mapped.bool === bool ) return;
 
-    });
+        mapped.dispose ( true, true );
+
+        cache.delete ( value );
+
+      });
+
+    } else { // There is nothing after, disposing quickly
+
+      this.cache.forEach ( mapped => {
+
+        mapped.dispose ( true, true );
+
+      });
+
+      this.cache = new Map ();
+
+    }
 
   };
 
@@ -72,15 +86,10 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
     this.parent.unregisterRoot ( this.roots );
 
-    if ( !this.cache.size ) return; // Nothing to dispose of
+    this.prevCount = this.cache.size;
+    this.nextCount = 0;
 
-    this.cache.forEach ( mapped => {
-
-      mapped.dispose ( true, true );
-
-    });
-
-    this.cache = new Map ();
+    this.cleanup ();
 
   };
 
