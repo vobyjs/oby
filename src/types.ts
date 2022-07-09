@@ -63,8 +63,8 @@ type WithFunction<T = unknown> = () => T;
 
 type Observable<T = unknown> = {
   (): T,
-  ( value: T ): T,
   ( fn: ( value: T ) => T ): T,
+  ( value: T ): T,
   readonly [ObservableSymbol]: true
 };
 
