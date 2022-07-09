@@ -14,11 +14,10 @@ class Cache<T, R> {
   /* API */
 
   dispose (): void {}
-  before ( values: readonly T[] ): void {}
-  after ( values: readonly T[] ): void {}
+
   map ( values: readonly T[] ): Resolved<R>[] | void {}
 
-};
+}
 
 /* EXPORT */
 

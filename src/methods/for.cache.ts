@@ -103,6 +103,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
   map = ( values: readonly T[] ): Resolved<R>[] => {
 
+    this.before ( values );
+
     const {cache, bool, fn, fnWithIndex} = this;
     const results: Resolved<R>[] = new Array ( values.length );
 
@@ -155,6 +157,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
       }
 
     }
+
+    this.after ( values );
 
     return results;
 

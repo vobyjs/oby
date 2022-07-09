@@ -16,7 +16,7 @@ import type {ObservableReadonly, FunctionMaybe, CallableFunction, Constructor, R
 const forAbstract = <T, R, F> ( Cache: Constructor<Cache<T, R>, [CallableFunction]>, values: FunctionMaybe<readonly T[]>, fn: CallableFunction, fallback: F | [] = [] ): ObservableReadonly<Resolved<R>[] | Resolved<F>> => {
 
   const cache = new Cache ( fn );
-  const {dispose, before, after, map} = cache;
+  const {dispose, map} = cache;
 
   cleanup ( dispose );
 
@@ -26,13 +26,7 @@ const forAbstract = <T, R, F> ( Cache: Constructor<Cache<T, R>, [CallableFunctio
 
     if ( isStore ( array ) ) array[SYMBOL_STORE_VALUES];
 
-    before ( array );
-
-    const result = sample ( () => array.length ? map ( array ) || resolve ( fallback ) : resolve ( fallback ) );
-
-    after ( array );
-
-    return result;
+    return sample ( () => array.length ? map ( array ) || resolve ( fallback ) : resolve ( fallback ) );
 
   });
 

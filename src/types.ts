@@ -39,7 +39,7 @@ type ListenerFunction<T = unknown> = ( value: T, valuePrev?: T ) => void;
 
 type MapFunction<T = unknown, R = unknown> = ( value: T, index: ObservableReadonly<number> ) => R;
 
-type MapIndexFunction<T = unknown, R = unknown> = ( value: T, index: number ) => R;
+type MapIndexFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: number ) => R;
 
 type ObservedFunction<T = unknown> = () => T;
 

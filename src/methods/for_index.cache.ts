@@ -24,13 +24,13 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
   /* VARIABLES */
 
-  private fn: MapIndexFunction<Indexed<T>, R>;
+  private fn: MapIndexFunction<T, R>;
   private cache: IndexedRoot<T, Resolved<R>>[];
   private parent: IObserver = OWNER.current;
 
   /* CONSTRUCTOR */
 
-  constructor ( fn: MapIndexFunction<Indexed<T>, R> ) {
+  constructor ( fn: MapIndexFunction<T, R> ) {
 
     super ( fn );
 
