@@ -2579,7 +2579,6 @@ describe ( 'oby', () => {
         args.push ( index () );
       });
 
-
       t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
       t.deepEqual ( args, [0, 1, 2] );
 
@@ -3131,6 +3130,344 @@ describe ( 'oby', () => {
       array ([ 2, 2, 1 ]);
 
       t.deepEqual ( args, [1, 1, 2, 2, 2, 1] );
+
+    });
+
+  });
+
+  describe ( 'forValue', it => {
+
+    it ( 'calls the mapper function with an observable to the index', t => {
+
+      const array = $([ 'a', 'b', 'c' ]);
+      const argsRaw = [];
+      const args = [];
+
+      $.forValue ( array, ( value, index ) => {
+        isReadable ( t, index );
+        argsRaw.push ( index );
+        args.push ( index () );
+      });
+
+      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
+      t.deepEqual ( args, [0, 1, 2] );
+
+      array ([ 'a', 'b', 'c', 'd' ]);
+
+      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2, 3] );
+      t.deepEqual ( args, [0, 1, 2, 3] );
+
+      array ([ 'd', 'c', 'a', 'b' ]);
+
+      t.deepEqual ( argsRaw.map ( a => a () ), [2, 3, 1, 0] );
+      t.deepEqual ( args, [0, 1, 2, 3] );
+
+    });
+
+    it ( 'calls the mapper function with an observable to the value', t => {
+
+      const array = $([ 'a', 'b', 'c' ]);
+      const argsRaw = [];
+      const args = [];
+
+      $.forValue ( array, ( value ) => {
+        isReadable ( t, value );
+        argsRaw.push ( value );
+        args.push ( value () );
+      });
+
+      t.deepEqual ( argsRaw.map ( a => a () ), ['a', 'b', 'c'] );
+      t.deepEqual ( args, ['a', 'b', 'c'] );
+
+      array ([ 'a', 'b', 'c', 'd' ]);
+
+      t.deepEqual ( argsRaw.map ( a => a () ), ['a', 'b', 'c', 'd'] );
+      t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
+
+      array ([ 'e', 'b', 'c', 'd' ]);
+
+      t.deepEqual ( argsRaw.map ( a => a () ), ['e', 'b', 'c', 'd'] );
+      t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
+
+    });
+
+    it ( 'disposes of any reactivity when the parent computation is disposed', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      const dispose = $.root ( dispose => {
+        $.computed ( () => {
+          $.forValue ( array, value => {
+            $.computed ( () => {
+              args.push ( value () );
+            });
+          });
+        });
+        return dispose;
+      });
+
+      dispose ();
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2] );
+
+    });
+
+    it ( 'disposes of any reactivity when the parent effect is disposed', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      const dispose = $.root ( dispose => {
+        $.effect ( () => {
+          $.forValue ( array, value => {
+            $.computed ( () => {
+              args.push ( value () );
+            });
+          });
+        });
+        return dispose;
+      });
+
+      dispose ();
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2] );
+
+    });
+
+    it ( 'disposes of any reactivity when the parent reaction is disposed', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      const dispose = $.root ( dispose => {
+        $.reaction ( () => {
+          $.forValue ( array, value => {
+            $.computed ( () => {
+              args.push ( value () );
+            });
+          });
+        });
+        return dispose;
+      });
+
+      dispose ();
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2] );
+
+    });
+
+    it ( 'disposes of any reactivity when the parent root is disposed', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      const dispose = $.root ( dispose => {
+        $.forValue ( array, value => {
+          $.computed ( () => {
+            args.push ( value () );
+          });
+        });
+        return dispose;
+      });
+
+      dispose ();
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2] );
+
+    });
+
+    it ( 'disposes of any reactivity created for items that got deleted', t => {
+
+      const o1 = $(1);
+      const o2 = $(2);
+      const array = $([o1, o2]);
+      const args = [];
+
+      $.forValue ( array, value => {
+        $.computed ( () => {
+          args.push ( value () );
+        });
+      });
+
+      t.deepEqual ( args, [1, 2] );
+
+      o1 ( 11 );
+
+      t.deepEqual ( args, [1, 2, 11] );
+
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2, 11, 22] );
+
+      array ([ o1 ]);
+
+      t.deepEqual ( args, [1, 2, 11, 22] );
+
+      o1 ( 111 );
+
+      t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+      o2 ( 22 );
+
+      t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+    });
+
+    it ( 'disposes of any reactivity created for duplicated items', t => {
+
+      const o = $(1);
+      const array = $([o, o]);
+      const args = [];
+
+      $.forValue ( array, value => {
+        $.computed ( () => {
+          args.push ( value () );
+        });
+      });
+
+      t.deepEqual ( args, [1, 1] );
+
+      o ( 11 );
+
+      t.deepEqual ( args, [1, 1, 11, 11] );
+
+      o ( 22 );
+
+      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+      array ([ o ]);
+
+      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+      o ( 111 );
+
+      t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
+
+    });
+
+    it ( 'renders only results for unknown values', t => {
+
+      const array = $([1, 2, 3]);
+      const args = [];
+
+      $.forValue ( array, value => {
+        args.push ( value () );
+      });
+
+      t.deepEqual ( args, [1, 2, 3] );
+
+      array ([ 1, 2, 3, 4 ]);
+
+      t.deepEqual ( args, [1, 2, 3, 4] );
+
+      array ([ 1, 2, 3, 4, 5 ]);
+
+      t.deepEqual ( args, [1, 2, 3, 4, 5] );
+
+    });
+
+    it ( 'reuses leftover items if possible', t => {
+
+      const array = $([1, 2, 3]);
+      const argsRaw = [];
+      const args = [];
+
+      $.forValue ( array, value => {
+        argsRaw.push ( value );
+        args.push ( value () );
+      });
+
+      t.deepEqual ( argsRaw.map ( a => a () ), [1, 2, 3] );
+      t.deepEqual ( args, [1, 2, 3] );
+
+      array ([ 1, 3, 4, 5 ]);
+
+      t.deepEqual ( argsRaw.map ( a => a () ), [1, 4, 3, 5] );
+      t.deepEqual ( args, [1, 2, 3, 5] );
+
+    });
+
+    it ( 'resolves the fallback value before returning it', t => {
+
+      const result = $.forValue ( [], () => () => 123, () => () => 321 );
+
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 321 );
+
+    });
+
+    it ( 'resolves the mapped value before returning it', t => {
+
+      const result = $.forValue ( [1], () => () => () => 123 );
+
+      isReadable ( t, result );
+      isReadable ( t, result ()[0] );
+      isReadable ( t, result ()[0]() );
+
+      t.is ( result ()[0]()(), 123 );
+
+    });
+
+    it ( 'returns a computed to an empty array for an empty array and missing fallback', t => {
+
+      t.deepEqual ( $.forValue ( [], () => () => 123 )(), [] );
+
+    });
+
+    it ( 'returns a computed to fallback for an empty array and a provided fallback', t => {
+
+      t.is ( $.forValue ( [], () => () => 123, 123 )(), 123 );
+
+    });
+
+    it ( 'works with an array of non-unique values', t => {
+
+      const array = $([ 1, 1, 2 ]);
+      const args = [];
+
+      $.forValue ( array, value => {
+        $.computed ( () => {
+          args.push ( value () );
+        });
+      });
+
+      t.deepEqual ( args, [1, 1, 2] );
+
+      array ([ 2, 2, 1 ]);
+
+      t.deepEqual ( args, [1, 1, 2, 2] );
 
     });
 

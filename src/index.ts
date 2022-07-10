@@ -12,6 +12,7 @@ import effect from '~/methods/effect';
 import error from '~/methods/error';
 import _for from '~/methods/for';
 import forIndex from '~/methods/for_index';
+import forValue from '~/methods/for_value';
 import get from '~/methods/get';
 import _if from '~/methods/if';
 import isObservable from '~/methods/is_observable';
@@ -36,6 +37,6 @@ import type {ObservableOptions, Observable, ObservableReadonly, StoreOptions} fr
 /* EXPORT */
 
 export default $;
-export {batch, cleanup, computed, context, disposed, effect, error, _for as for, forIndex, get, _if as if, isObservable, isStore, observable, off, on, reaction, readonly, resolve, root, sample, selector, store, suspense, _switch as switch, ternary, tryCatch, _with as with};
+export {batch, cleanup, computed, context, disposed, effect, error, _for as for, forIndex, forValue, get, _if as if, isObservable, isStore, observable, off, on, reaction, readonly, resolve, root, sample, selector, store, suspense, _switch as switch, ternary, tryCatch, _with as with};
 export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_SAMPLED, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE};
 export type {Observable, ObservableReadonly, ObservableOptions, StoreOptions};

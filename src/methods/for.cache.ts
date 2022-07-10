@@ -16,7 +16,7 @@ const DUMMY_INDEX = frozen ( -1 );
 
 class MappedRoot<T = unknown> extends Root { // This saves some memory compared to making a dedicated standalone object for metadata
   bool?: boolean;
-  observable?: IObservable<number>;
+  index?: IObservable<number>;
   result?: T;
 }
 
@@ -125,7 +125,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
       if ( cached && cached.bool !== bool ) {
 
         cached.bool = bool;
-        cached.observable?.write ( i );
+        cached.index?.write ( i );
 
         results[i] = cached.result!; //TSC
 
@@ -141,16 +141,16 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
         mapped.wrap ( () => {
 
-          let observable = DUMMY_INDEX;
+          let index = DUMMY_INDEX;
 
           if ( fnWithIndex ) {
 
-            mapped.observable = new Observable ( i );
-            observable = readable ( mapped.observable );
+            mapped.index = new Observable ( i );
+            index = readable ( mapped.index );
 
           }
 
-          const result = results[i] = resolve ( fn ( value, observable ) );
+          const result = results[i] = resolve ( fn ( value, index ) );
 
           mapped.bool = bool;
           mapped.result = result;

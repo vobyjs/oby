@@ -15,11 +15,11 @@ npm install --save oby
 | [`$()`](#core)                    | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
 | [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
 | [`$.cleanup`](#cleanup)           | [`$.forIndex`](#forindex) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
-| [`$.computed`](#computed)         | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   | [`StoreOptions`](#storeoptions)             |
-| [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.selector`](#selector) |                                             |
-| [`$.effect`](#effect)             | [`$.ternary`](#ternary)   |                           |                                             |
-| [`$.error`](#error)               | [`$.tryCatch`](#trycatch) |                           |                                             |
-| [`$.isObservable`](#isobservable) |                           |                           |                                             |
+| [`$.computed`](#computed)         | [`$.forValue`](#forvalue) | [`$.resolve`](#resolve)   | [`StoreOptions`](#storeoptions)             |
+| [`$.context`](#context)           | [`$.suspense`](#suspense) | [`$.selector`](#selector) |                                             |
+| [`$.effect`](#effect)             | [`$.switch`](#switch)     |                           |                                             |
+| [`$.error`](#error)               | [`$.ternary`](#ternary)   |                           |                                             |
+| [`$.isObservable`](#isobservable) | [`$.tryCatch`](#trycatch) |                           |                                             |
 | [`$.isStore`](#isstore)           |                           |                           |                                             |
 | [`$.on`](#on)                     |                           |                           |                                             |
 | [`$.off`](#off)                   |                           |                           |                                             |
@@ -809,6 +809,50 @@ const mapped = $.for ( values, value => {
 // Update the values Observable
 
 values ([ 1, 2, 2 ]); // Only the value at index "1" changed, so only the mapped value for that will be refreshed
+```
+
+#### `$.forValue`
+
+This is an alternative reactive version of the native `Array.prototype.map`, it maps over an array of values while caching results for values that didn't change, _and_ repurposing computations for items that got discarded for new items that need to be mapped.
+
+This is an alternative to `$.for` and `$.forIndex` that enables reusing the same computation for different items, when possible. Reusing the same computation means also reusing everything in it, which could mean expensive DOM nodes to generate, or something else.
+
+Basically `Array.prototype.map` doesn't wrap the value nor the index in an observable, `$.for` wraps the index only in an observable, `$.forIndex` wraps the value only in an observable, and `$.forValue` wraps both the value and the index in observables.
+
+This is useful for use cases like virtualized rendering, where `$.for` would cause some nodes to be discarded and others to be created, `$.forIndex` would cause _all_ nodes to be repurposed, but `$.forIndex` allows you to only repurpose the nodes that would have been discareded by `$.for`, not all of them.
+
+This is a more advanced method, it's recommended to simply use `$.for` or `$.forIndex`, until you really understand how to squeeze extra performance with this, and you actually need that performance.
+
+Interface:
+
+```ts
+type Value<T = unknown> = T extends ObservableReadonly<infer U> ? ObservableReadonly<U> : ObservableReadonly<T>;
+
+function forValue <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: Value<T>, index: ObservableReadonly<number> ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Map over an array of primitive values
+
+const values = $([ 1, 2, 3 ]);
+
+const mapped = $.forValue ( values, value => {
+
+  return $.computed ( () => { // Wrapping in a computed to listen to changes in "value"
+
+    return `Double: ${value () ** 2}`;
+
+  });
+
+});
+
+// Update the values Observable
+
+values ([ 1, 4, 2 ]); // Now the computation that handled `3` will receive `4` as the new value of the "value" observable, the old computed is not disposed and a new one is not created, the old one is simply refreshed because one of its dependencies changed
 ```
 
 #### `$.suspense`
