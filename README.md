@@ -819,7 +819,7 @@ This is an alternative to `$.for` and `$.forIndex` that enables reusing the same
 
 Basically `Array.prototype.map` doesn't wrap the value nor the index in an observable, `$.for` wraps the index only in an observable, `$.forIndex` wraps the value only in an observable, and `$.forValue` wraps both the value and the index in observables.
 
-This is useful for use cases like virtualized rendering, where `$.for` would cause some nodes to be discarded and others to be created, `$.forIndex` would cause _all_ nodes to be repurposed, but `$.forIndex` allows you to only repurpose the nodes that would have been discareded by `$.for`, not all of them.
+This is useful for use cases like virtualized rendering, where `$.for` would cause some nodes to be discarded and others to be created, `$.forIndex` would cause _all_ nodes to be repurposed, but `$.forValue` allows you to only repurpose the nodes that would have been discareded by `$.for`, not all of them.
 
 This is a more advanced method, it's recommended to simply use `$.for` or `$.forIndex`, until you really understand how to squeeze extra performance with this, and you actually need that performance.
 
