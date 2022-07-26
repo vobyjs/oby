@@ -3,11 +3,11 @@
 
 import isObservable from '~/methods/is_observable';
 import {isFunction} from '~/utils';
-import type {ObservableReadonly} from '~/types';
+import type {FunctionMaybe, ObservableReadonly} from '~/types';
 
 /* MAIN */
 
-function get <T> ( value: T, getFunction?: true ): T extends (() => infer U) ? U : T;
+function get <T> ( value: FunctionMaybe<T>, getFunction?: true ): T;
 function get <T> ( value: T, getFunction: false ): T extends ObservableReadonly<infer U> ? U : T;
 function get <T> ( value: T, getFunction: boolean = true ) {
 
