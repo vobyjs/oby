@@ -2594,6 +2594,23 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'disposes of any reactivity when the values array is emptied', t => {
+
+      const array = $([1, 2, 3]);
+      const args = [];
+
+      $.for ( array, value => {
+        $.cleanup ( () => {
+          args.push ( value );
+        });
+      });
+
+      array ( [] );
+
+      t.deepEqual ( args, [1, 2, 3] );
+
+    });
+
     it ( 'disposes of any reactivity when the parent computation is disposed', t => {
 
       const o1 = $(1);
@@ -2871,6 +2888,23 @@ describe ( 'oby', () => {
       array ([ 'a', 'b', 'c', 'd' ]);
 
       t.deepEqual ( args, [0, 1, 2, 3] );
+
+    });
+
+    it ( 'disposes of any reactivity when the values array is emptied', t => {
+
+      const array = $([1, 2, 3]);
+      const args = [];
+
+      $.forIndex ( array, value => {
+        $.cleanup ( () => {
+          args.push ( value () );
+        });
+      });
+
+      array ( [] );
+
+      t.deepEqual ( args, [1, 2, 3] );
 
     });
 
@@ -3188,6 +3222,23 @@ describe ( 'oby', () => {
 
       t.deepEqual ( argsRaw.map ( a => a () ), ['e', 'b', 'c', 'd'] );
       t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
+
+    });
+
+    it ( 'disposes of any reactivity when the values array is emptied', t => {
+
+      const array = $([1, 2, 3]);
+      const args = [];
+
+      $.forValue ( array, value => {
+        $.cleanup ( () => {
+          args.push ( value () );
+        });
+      });
+
+      array ( [] );
+
+      t.deepEqual ( args, [1, 2, 3] );
 
     });
 

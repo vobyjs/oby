@@ -26,7 +26,13 @@ const forAbstract = <T, R, F> ( Cache: Constructor<Cache<T, R>, [CallableFunctio
 
     if ( isStore ( array ) ) array[SYMBOL_STORE_VALUES];
 
-    return sample ( () => array.length ? map ( array ) || resolve ( fallback ) : resolve ( fallback ) );
+    return sample ( () => {
+
+      const results = map ( array );
+
+      return results?.length ? results : resolve ( fallback );
+
+    });
 
   });
 
