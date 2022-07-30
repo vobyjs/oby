@@ -714,7 +714,7 @@ This is the reactive version of the native `if` statement. It returns a computed
 Interface:
 
 ```ts
-function if <T, F> ( when: (() => boolean) | boolean, valueTrue: T, valueFalse?: T ): ObservableReadonly<T | F | undefined>;
+function if <T, F> ( when: (() => boolean) | boolean, valueTrue: T, valueFalse?: F ): ObservableReadonly<T | F | undefined>;
 ```
 
 Usage:
