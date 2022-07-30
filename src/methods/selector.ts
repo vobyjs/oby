@@ -4,7 +4,7 @@
 import {OWNER, ROOT} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import reaction from '~/methods/reaction';
-import sample from '~/methods/sample';
+import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import type {SelectorFunction, ObservableReadonly} from '~/types';
@@ -89,7 +89,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
     } else {
 
-      selected = new SelectedObservable ( sample ( source ) === value );
+      selected = new SelectedObservable ( untrack ( source ) === value );
       selected.selecteds = selecteds;
       selected.source = value;
       selected.signal = signal;

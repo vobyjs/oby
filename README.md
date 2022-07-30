@@ -25,8 +25,8 @@ npm install --save oby
 | [`$.off`](#off)                   |                           |                           |                                             |
 | [`$.reaction`](#reaction)         |                           |                           |                                             |
 | [`$.root`](#root)                 |                           |                           |                                             |
-| [`$.sample`](#sample)             |                           |                           |                                             |
 | [`$.store`](#store)               |                           |                           |                                             |
+| [`$.untrack`](#untrack)           |                           |                           |                                             |
 | [`$.with`](#with)                 |                           |                           |                                             |
 
 ## Usage
@@ -546,51 +546,6 @@ $.root ( dispose => {
 });
 ```
 
-#### `$.sample`
-
-This function allows for reading Observables without creating dependencies on them.
-
-Interface:
-
-```ts
-function sample <T> ( fn: () => T ): T;
-function sample <T> ( value: T ): T;
-```
-
-Usage:
-
-```ts
-import $ from 'oby';
-
-// Sampling a single Observable
-
-const o = $(0);
-
-$.sample ( o ); // => 0
-
-// Sampling multiple Observables
-
-const a = $(1);
-const b = $(2);
-const c = $(3);
-
-const sum = $.sample ( () => {
-  return a () + b () + c ();
-});
-
-console.log ( sum ); // => 6
-
-a ( 2 );
-b ( 3 );
-c ( 4 );
-
-console.log ( sum ); // => 6, it's just a value, not a reactive Observable
-
-// Sampling a non function, it's just returned as is
-
-$.sample ( 123 ); // => 123
-```
-
 #### `$.store`
 
 This function returns a deeply reactive version of the passed object, where property accesses and writes are automatically interpreted as Observables reads and writes for you.
@@ -653,6 +608,51 @@ const pobj = $.store ( obj, { unwrap: true } );
 // Get a non-reactive array out of a reactive one
 
 const parr = $.store ( arr, { unwrap: true } );
+```
+
+#### `$.untrack`
+
+This function allows for reading Observables without creating dependencies on them, temporarily turning off tracking basically.
+
+Interface:
+
+```ts
+function untrack <T> ( fn: () => T ): T;
+function untrack <T> ( value: T ): T;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Untracking a single Observable
+
+const o = $(0);
+
+$.untrack ( o ); // => 0
+
+// Untracking multiple Observables
+
+const a = $(1);
+const b = $(2);
+const c = $(3);
+
+const sum = $.untrack ( () => {
+  return a () + b () + c ();
+});
+
+console.log ( sum ); // => 6
+
+a ( 2 );
+b ( 3 );
+c ( 4 );
+
+console.log ( sum ); // => 6, it's just a value, not a reactive Observable
+
+// Untracking a non function, it's just returned as is
+
+$.untrack ( 123 ); // => 123
 ```
 
 #### `$.with`

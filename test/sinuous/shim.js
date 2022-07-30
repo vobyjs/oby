@@ -32,7 +32,7 @@ const o = observable;
 const S = computed;
 const root = $.root;
 const transaction = $.batch;
-const sample = $.sample;
+const sample = $.untrack;
 const cleanup = $.cleanup;
 
 export {o, S, root, sample, transaction, observable, computed, cleanup, subscribe, unsubscribe};

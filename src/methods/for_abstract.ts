@@ -6,8 +6,8 @@ import cleanup from '~/methods/cleanup';
 import computed from '~/methods/computed';
 import get from '~/methods/get';
 import isStore from '~/methods/is_store';
-import sample from '~/methods/sample';
 import resolve from '~/methods/resolve';
+import untrack from '~/methods/untrack';
 import type Cache from '~/methods/for_abstract.cache';
 import type {ObservableReadonly, FunctionMaybe, CallableFunction, Constructor, Resolved} from '~/types';
 
@@ -26,7 +26,7 @@ const forAbstract = <T, R, F> ( Cache: Constructor<Cache<T, R>, [CallableFunctio
 
     if ( isStore ( array ) ) array[SYMBOL_STORE_VALUES];
 
-    return sample ( () => {
+    return untrack ( () => {
 
       const results = map ( array );
 

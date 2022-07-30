@@ -1074,7 +1074,7 @@ describe ( 'oby', () => {
 
         calls += 1;
 
-        if ( !$.sample ( a ) ) a ( a () + 1 );
+        if ( !$.untrack ( a ) ) a ( a () + 1 );
 
         b ();
 
@@ -1711,7 +1711,7 @@ describe ( 'oby', () => {
 
         calls += 1;
 
-        if ( !$.sample ( a ) ) a ( a () + 1 );
+        if ( !$.untrack ( a ) ) a ( a () + 1 );
 
         b ();
 
@@ -4438,7 +4438,7 @@ describe ( 'oby', () => {
 
         calls += 1;
 
-        if ( !$.sample ( a ) ) a ( a () + 1 );
+        if ( !$.untrack ( a ) ) a ( a () + 1 );
 
         b ();
 
@@ -4892,396 +4892,6 @@ describe ( 'oby', () => {
       const result = $.root ( () => 123 );
 
       t.is ( result, 123 );
-
-    });
-
-  });
-
-  describe ( 'sample', it => {
-
-    it ( 'does not leak computeds', t => {
-
-      const o = $(1);
-
-      let cleaned = false;
-
-      $.computed ( () => {
-
-        o ();
-
-        $.sample ( () => {
-
-          $.computed ( () => {
-
-            $.cleanup ( () => {
-
-              cleaned = true;
-
-            });
-
-          });
-
-        });
-
-      });
-
-      t.is ( cleaned, false );
-
-      o ( 2 );
-
-      t.is ( cleaned, true );
-
-    });
-
-    it ( 'does not leak effects', t => {
-
-      const o = $(1);
-
-      let cleaned = false;
-
-      $.effect ( () => {
-
-        o ();
-
-        $.sample ( () => {
-
-          $.effect ( () => {
-
-            $.cleanup ( () => {
-
-              cleaned = true;
-
-            });
-
-          });
-
-        });
-
-      });
-
-      t.is ( cleaned, false );
-
-      o ( 2 );
-
-      t.is ( cleaned, true );
-
-    });
-
-    it ( 'does not leak reactions', t => {
-
-      const o = $(1);
-
-      let cleaned = false;
-
-      $.reaction ( () => {
-
-        o ();
-
-        $.sample ( () => {
-
-          $.reaction ( () => {
-
-            $.cleanup ( () => {
-
-              cleaned = true;
-
-            });
-
-          });
-
-        });
-
-      });
-
-      t.is ( cleaned, false );
-
-      o ( 2 );
-
-      t.is ( cleaned, true );
-
-    });
-
-    it ( 'returns non-functions as is', t => {
-
-      const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
-
-      for ( const value of values ) {
-
-        t.is ( value, $.sample ( value ) );
-
-      }
-
-    });
-
-    it ( 'supports getting without creating dependencies in a computed', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $(3);
-      const d = $(0);
-
-      let calls = 0;
-
-      $.computed ( () => {
-        calls += 1;
-        a ();
-        a ();
-        d ( $.sample ( () => b () ) );
-        c ();
-        c ();
-      });
-
-      t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      b ( 4 );
-
-      t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      a ( 5 );
-      c ( 6 );
-
-      t.is ( calls, 3 );
-      t.is ( d (), 4 );
-
-    });
-
-    it ( 'supports getting without creating dependencies in an effect', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $(3);
-      const d = $(0);
-
-      let calls = 0;
-
-      $.effect ( () => {
-        calls += 1;
-        a ();
-        a ();
-        d ( $.sample ( () => b () ) );
-        c ();
-        c ();
-      });
-
-      t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      b ( 4 );
-
-      t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      a ( 5 );
-      c ( 6 );
-
-      t.is ( calls, 3 );
-      t.is ( d (), 4 );
-
-    });
-
-    it ( 'supports getting without creating dependencies in a reaction', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $(3);
-      const d = $(0);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        a ();
-        a ();
-        d ( $.sample ( () => b () ) );
-        c ();
-        c ();
-      });
-
-      t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      b ( 4 );
-
-      t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      a ( 5 );
-      c ( 6 );
-
-      t.is ( calls, 3 );
-      t.is ( d (), 4 );
-
-    });
-
-    it ( 'works with functions containing a computed', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      $.effect ( () => {
-
-        calls += 1;
-
-        $.sample ( () => {
-
-          o ();
-
-          $.computed ( () => {
-
-            o ();
-
-          });
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'works with functions containing an effect', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      $.effect ( () => {
-
-        calls += 1;
-
-        $.sample ( () => {
-
-          o ();
-
-          $.effect ( () => {
-
-            o ();
-
-          });
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'works with functions containing a reaction', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-
-        calls += 1;
-
-        $.sample ( () => {
-
-          o ();
-
-          $.reaction ( () => {
-
-            o ();
-
-          });
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'works with functions containing a root', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      $.effect ( () => {
-
-        calls += 1;
-
-        $.sample ( () => {
-
-          o ();
-
-          $.root ( () => {
-
-            o ();
-
-          });
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'works on the top-level computation', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.effect ( () => {
-
-        sequence += 'p';
-
-        $.sample ( () => {
-
-          o ();
-
-          $.effect ( () => {
-
-            sequence += 'c';
-
-            o ();
-
-          });
-
-        });
-
-      });
-
-      t.is ( sequence, 'pc' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'pcc' );
 
     });
 
@@ -8380,6 +7990,396 @@ describe ( 'oby', () => {
       isReadable ( t, result ()() );
 
       t.is ( result ()()(), 123 );
+
+    });
+
+  });
+
+  describe ( 'untrack', it => {
+
+    it ( 'does not leak computeds', t => {
+
+      const o = $(1);
+
+      let cleaned = false;
+
+      $.computed ( () => {
+
+        o ();
+
+        $.untrack ( () => {
+
+          $.computed ( () => {
+
+            $.cleanup ( () => {
+
+              cleaned = true;
+
+            });
+
+          });
+
+        });
+
+      });
+
+      t.is ( cleaned, false );
+
+      o ( 2 );
+
+      t.is ( cleaned, true );
+
+    });
+
+    it ( 'does not leak effects', t => {
+
+      const o = $(1);
+
+      let cleaned = false;
+
+      $.effect ( () => {
+
+        o ();
+
+        $.untrack ( () => {
+
+          $.effect ( () => {
+
+            $.cleanup ( () => {
+
+              cleaned = true;
+
+            });
+
+          });
+
+        });
+
+      });
+
+      t.is ( cleaned, false );
+
+      o ( 2 );
+
+      t.is ( cleaned, true );
+
+    });
+
+    it ( 'does not leak reactions', t => {
+
+      const o = $(1);
+
+      let cleaned = false;
+
+      $.reaction ( () => {
+
+        o ();
+
+        $.untrack ( () => {
+
+          $.reaction ( () => {
+
+            $.cleanup ( () => {
+
+              cleaned = true;
+
+            });
+
+          });
+
+        });
+
+      });
+
+      t.is ( cleaned, false );
+
+      o ( 2 );
+
+      t.is ( cleaned, true );
+
+    });
+
+    it ( 'returns non-functions as is', t => {
+
+      const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
+
+      for ( const value of values ) {
+
+        t.is ( value, $.untrack ( value ) );
+
+      }
+
+    });
+
+    it ( 'supports getting without creating dependencies in a computed', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $(3);
+      const d = $(0);
+
+      let calls = 0;
+
+      $.computed ( () => {
+        calls += 1;
+        a ();
+        a ();
+        d ( $.untrack ( () => b () ) );
+        c ();
+        c ();
+      });
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      b ( 4 );
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      a ( 5 );
+      c ( 6 );
+
+      t.is ( calls, 3 );
+      t.is ( d (), 4 );
+
+    });
+
+    it ( 'supports getting without creating dependencies in an effect', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $(3);
+      const d = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        a ();
+        d ( $.untrack ( () => b () ) );
+        c ();
+        c ();
+      });
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      b ( 4 );
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      a ( 5 );
+      c ( 6 );
+
+      t.is ( calls, 3 );
+      t.is ( d (), 4 );
+
+    });
+
+    it ( 'supports getting without creating dependencies in a reaction', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $(3);
+      const d = $(0);
+
+      let calls = 0;
+
+      $.reaction ( () => {
+        calls += 1;
+        a ();
+        a ();
+        d ( $.untrack ( () => b () ) );
+        c ();
+        c ();
+      });
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      b ( 4 );
+
+      t.is ( calls, 1 );
+      t.is ( d (), 2 );
+
+      a ( 5 );
+      c ( 6 );
+
+      t.is ( calls, 3 );
+      t.is ( d (), 4 );
+
+    });
+
+    it ( 'works with functions containing a computed', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        $.untrack ( () => {
+
+          o ();
+
+          $.computed ( () => {
+
+            o ();
+
+          });
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'works with functions containing an effect', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        $.untrack ( () => {
+
+          o ();
+
+          $.effect ( () => {
+
+            o ();
+
+          });
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'works with functions containing a reaction', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.reaction ( () => {
+
+        calls += 1;
+
+        $.untrack ( () => {
+
+          o ();
+
+          $.reaction ( () => {
+
+            o ();
+
+          });
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'works with functions containing a root', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        $.untrack ( () => {
+
+          o ();
+
+          $.root ( () => {
+
+            o ();
+
+          });
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'works on the top-level computation', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.effect ( () => {
+
+        sequence += 'p';
+
+        $.untrack ( () => {
+
+          o ();
+
+          $.effect ( () => {
+
+            sequence += 'c';
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, 'pc' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'pcc' );
 
     });
 
