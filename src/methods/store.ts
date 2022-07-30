@@ -501,11 +501,9 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 
 /* MAIN */
 
-//TODO: Add an option for glitch-free batching, making it clear that that would break type-checking
 //TODO: Add an option for immutable stores that are edited via set/merge/produce functions, which have none of the issues but poor DX
 //TODO: Support listening to everything
 //TODO: Support proxying more built-ins: ArrayBuffer, RegExp, Date, TypedArray, Map, WekaMap, Set, WeakSet
-//TODO: Explore not using a WeakMap+cleanups and instead attaching the proxy to the object itself via a proxy
 //TODO: Explore converting target values back to numbers (the Proxy always receives strings) whenever possible, to save memory
 
 const store = <T> ( value: T, options?: StoreOptions ): T => {
