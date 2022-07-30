@@ -28,30 +28,30 @@ const cellx = layers => {
         layer = (m => {
 
           const s = {
-            prop1: $.computed ( () => {
+            prop1: $.memo ( () => {
               return m.prop2 ();
             }),
-            prop2: $.computed ( () => {
+            prop2: $.memo ( () => {
               return m.prop1 () - m.prop3 ();
             }),
-            prop3: $.computed ( () => {
+            prop3: $.memo ( () => {
               return m.prop2 () + m.prop4 ();
             }),
-            prop4: $.computed ( () => {
+            prop4: $.memo ( () => {
               return m.prop3 ();
             })
           };
 
-          $.computed ( () => {
+          $.memo ( () => {
             return s.prop1 ();
           });
-          $.computed ( () => {
+          $.memo ( () => {
             return s.prop2 ();
           });
-          $.computed ( () => {
+          $.memo ( () => {
             return s.prop3 ();
           });
-          $.computed ( () => {
+          $.memo ( () => {
             return s.prop4 ();
           });
 

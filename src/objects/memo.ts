@@ -4,20 +4,20 @@
 import Computation from '~/objects/computation';
 import Observable from '~/objects/observable';
 import {castError, max} from '~/utils';
-import type {IObservable, ComputedFunction, ObservableOptions} from '~/types';
+import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
 
-class Computed<T = unknown> extends Computation {
+class Memo<T = unknown> extends Computation {
 
   /* VARIABLES */
 
-  fn: ComputedFunction<T>;
+  fn: MemoFunction<T>;
   observable: IObservable<T>;
 
   /* CONSTRUCTOR */
 
-  constructor ( fn: ComputedFunction<T>, options?: ObservableOptions<T> ) {
+  constructor ( fn: MemoFunction<T>, options?: ObservableOptions<T> ) {
 
     super ( fn );
 
@@ -84,7 +84,7 @@ class Computed<T = unknown> extends Computation {
 
           this.postdispose ();
 
-          if ( this.observable.disposed || this.observable.signal.disposed ) { // Maybe a computed disposed of itself via a root before returning, or caused itself to re-execute
+          if ( this.observable.disposed || this.observable.signal.disposed ) { // Maybe a memo disposed of itself via a root before returning, or caused itself to re-execute
 
             this.observable.unstale ( false );
 
@@ -136,4 +136,4 @@ class Computed<T = unknown> extends Computation {
 
 /* EXPORT */
 
-export default Computed;
+export default Memo;

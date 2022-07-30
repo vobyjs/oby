@@ -2,9 +2,9 @@
 /* IMPORT */
 
 import {OWNER} from '~/constants';
-import computed from '~/methods/computed';
 import CacheAbstract from '~/methods/for_abstract.cache';
 import get from '~/methods/get';
+import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
@@ -87,7 +87,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
         indexed.wrap ( () => {
 
           const source = new Observable ( value );
-          const target = computed ( () => get ( source.read () ) ) as Indexed<T>; //TSC
+          const target = memo ( () => get ( source.read () ) ) as Indexed<T>; //TSC
 
           indexed.source = source;
           indexed.target = target;

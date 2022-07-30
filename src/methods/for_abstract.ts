@@ -3,9 +3,9 @@
 
 import {SYMBOL_STORE_VALUES} from '~/constants';
 import cleanup from '~/methods/cleanup';
-import computed from '~/methods/computed';
 import get from '~/methods/get';
 import isStore from '~/methods/is_store';
+import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import untrack from '~/methods/untrack';
 import type Cache from '~/methods/for_abstract.cache';
@@ -20,7 +20,7 @@ const forAbstract = <T, R, F> ( Cache: Constructor<Cache<T, R>, [CallableFunctio
 
   cleanup ( dispose );
 
-  return computed ( () => {
+  return memo ( () => {
 
     const array = get ( values );
 

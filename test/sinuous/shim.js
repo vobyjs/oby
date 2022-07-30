@@ -9,14 +9,14 @@ const observable = value => {
 
 const computed = ( fn, value ) => {
   let prev = value;
-  const observable = $.computed ( () => prev = fn ( prev ), { equals } );
+  const observable = $.memo ( () => prev = fn ( prev ), { equals } );
   return () => observable ();
 };
 
 const subscribe = fn => {
   const dispose = $.root ( dispose => {
     let prev = undefined;
-    $.computed ( () => prev = fn ( prev ), { equals } );
+    $.memo ( () => prev = fn ( prev ), { equals } );
     return dispose;
   });
   $.cleanup ( dispose );

@@ -3,7 +3,6 @@
 
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
-import computed from '~/methods/computed';
 import context from '~/methods/context';
 import disposed from '~/methods/disposed';
 import effect from '~/methods/effect';
@@ -15,6 +14,7 @@ import get from '~/methods/get';
 import _if from '~/methods/if';
 import isObservable from '~/methods/is_observable';
 import isStore from '~/methods/is_store';
+import memo from '~/methods/memo';
 import off from '~/methods/off';
 import on from '~/methods/on';
 import reaction from '~/methods/reaction';
@@ -48,7 +48,6 @@ function $ <T> ( value?: T, options?: ObservableOptions<T | undefined> ) {
 
 $.batch = batch;
 $.cleanup = cleanup;
-$.computed = computed;
 $.context  = context;
 $.disposed = disposed;
 $.effect = effect;
@@ -60,6 +59,7 @@ $.get = get;
 $.if = _if;
 $.isObservable = isObservable;
 $.isStore = isStore;
+$.memo = memo;
 $.off = off;
 $.on = on;
 $.reaction = reaction;

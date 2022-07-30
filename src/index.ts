@@ -5,7 +5,6 @@ import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE,
 import $ from '~/methods/$';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
-import computed from '~/methods/computed';
 import context from '~/methods/context';
 import disposed from '~/methods/disposed';
 import effect from '~/methods/effect';
@@ -17,6 +16,7 @@ import get from '~/methods/get';
 import _if from '~/methods/if';
 import isObservable from '~/methods/is_observable';
 import isStore from '~/methods/is_store';
+import memo from '~/methods/memo';
 import observable from '~/methods/observable';
 import off from '~/methods/off';
 import on from '~/methods/on';
@@ -37,6 +37,6 @@ import type {ObservableOptions, Observable, ObservableReadonly, StoreOptions} fr
 /* EXPORT */
 
 export default $;
-export {batch, cleanup, computed, context, disposed, effect, error, _for as for, forIndex, forValue, get, _if as if, isObservable, isStore, observable, off, on, reaction, readonly, resolve, root, selector, store, suspense, _switch as switch, ternary, tryCatch, untrack, _with as with};
+export {batch, cleanup, context, disposed, effect, error, _for as for, forIndex, forValue, get, _if as if, isObservable, isStore, memo, observable, off, on, reaction, readonly, resolve, root, selector, store, suspense, _switch as switch, ternary, tryCatch, untrack, _with as with};
 export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_UNTRACKED};
 export type {Observable, ObservableReadonly, ObservableOptions, StoreOptions};

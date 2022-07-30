@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {SYMBOL_OBSERVABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_UNTRACKED} from '~/constants';
-import computed from '~/methods/computed';
+import memo from '~/methods/memo';
 import {frozen} from '~/objects/callable';
 import {isFunction} from '~/utils';
 import type {Resolvable, Resolved} from '../types';
@@ -33,7 +33,7 @@ const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never => 
 
     } else {
 
-      return computed ( () => resolve ( value () ) ) as any; //TSC
+      return memo ( () => resolve ( value () ) ) as any; //TSC
 
     }
 

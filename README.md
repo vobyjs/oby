@@ -15,12 +15,12 @@ npm install --save oby
 | [`$()`](#core)                    | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
 | [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
 | [`$.cleanup`](#cleanup)           | [`$.forIndex`](#forindex) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
-| [`$.computed`](#computed)         | [`$.forValue`](#forvalue) | [`$.resolve`](#resolve)   | [`StoreOptions`](#storeoptions)             |
-| [`$.context`](#context)           | [`$.suspense`](#suspense) | [`$.selector`](#selector) |                                             |
-| [`$.effect`](#effect)             | [`$.switch`](#switch)     |                           |                                             |
-| [`$.error`](#error)               | [`$.ternary`](#ternary)   |                           |                                             |
-| [`$.isObservable`](#isobservable) | [`$.tryCatch`](#trycatch) |                           |                                             |
-| [`$.isStore`](#isstore)           |                           |                           |                                             |
+| [`$.context`](#context)           | [`$.forValue`](#forvalue) | [`$.resolve`](#resolve)   | [`StoreOptions`](#storeoptions)             |
+| [`$.effect`](#effect)             | [`$.suspense`](#suspense) | [`$.selector`](#selector) |                                             |
+| [`$.error`](#error)               | [`$.switch`](#switch)     |                           |                                             |
+| [`$.isObservable`](#isobservable) | [`$.ternary`](#ternary)   |                           |                                             |
+| [`$.isStore`](#isstore)           | [`$.tryCatch`](#trycatch) |                           |                                             |
+| [`$.memo`](#memo)                 |                           |                           |                                             |
 | [`$.on`](#on)                     |                           |                           |                                             |
 | [`$.off`](#off)                   |                           |                           |                                             |
 | [`$.reaction`](#reaction)         |                           |                           |                                             |
@@ -161,11 +161,11 @@ Usage:
 ```ts
 import $ from 'oby';
 
-// Attach some cleanup functions to a computed
+// Attach some cleanup functions to a memo
 
 const callback = $( () => {} );
 
-$.computed ( () => {
+$.memo ( () => {
 
   const cb = callback ();
 
@@ -185,52 +185,7 @@ $.computed ( () => {
 
 });
 
-callback ( () => () => {} ); // Cleanups called and computed re-evaluated
-```
-
-#### `$.computed`
-
-This is the function where the magic happens, it generates a new read-only Observable with the result of the function passed to it, the function is automatically re-executed whenever it's dependencies change, and dependencies are tracked automatically.
-
-There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
-
-- **Note**: the Observable returned by a computed could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
-- **Note**: this function should not have side effects other than potentially updating some Observables, for side effects you should use `$.effect`.
-
-Interface:
-
-```ts
-function computed <T> ( fn: () => T, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
-```
-
-Usage:
-
-```ts
-import $ from 'oby';
-
-// Make a new computed Observable
-
-const a = $(1);
-const b = $(2);
-const c = $(3);
-
-const sum = $.computed ( () => {
-  return a () + b () + c ();
-});
-
-sum (); // => 6
-
-a ( 2 );
-
-sum (); // => 7
-
-b ( 3 );
-
-sum (); // => 8
-
-c ( 4 );
-
-sum (); // => 9
+callback ( () => () => {} ); // Cleanups called and memo re-evaluated
 ```
 
 #### `$.context`
@@ -280,9 +235,9 @@ $.root ( () => {
 
 #### `$.effect`
 
-An effect is similar to a computed, but it returns a function for manually disposing of it instead of an Observable, and if you return a function from inside it that's automatically registered as a cleanup function.
+An effect is similar to a memo, but it returns a function for manually disposing of it instead of an Observable, and if you return a function from inside it that's automatically registered as a cleanup function.
 
-- **Note**: this function is inteded for side effects that interact with the outside world, if you need to derive some value out of some Observables or if you need to update Observables it's recommended to instead use `$.computed`.
+- **Note**: this function is inteded for side effects that interact with the outside world, if you need to derive some value out of some Observables or if you need to update Observables it's recommended to instead use `$.reaction`.
 
 Interface:
 
@@ -333,11 +288,11 @@ Usage:
 ```ts
 import $ from 'oby';
 
-// Register an error handler function to a computed
+// Register an error handler function to a memo
 
 const o = $( 0 );
 
-$.computed ( () => {
+$.memo ( () => {
 
   $.error ( error => {
 
@@ -401,9 +356,56 @@ $.isStore ( $.store ( {} ) ); // => true
 $.isStore ( {} ); // => false
 ```
 
+#### `$.memo`
+
+This is the function where the magic happens, it generates a new read-only Observable with the result of the function passed to it, the function is automatically re-executed whenever it's dependencies change, and dependencies are tracked automatically.
+
+Usually you can just pass a plain function around, if that's the case the only thing you'll get out of `$.memo` is memoization, which is a performanc optimization, hence the name.
+
+There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
+
+- **Note**: the Observable returned by a memo could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+- **Note**: this function should not have side effects other than potentially updating some Observables, for side effects you should use `$.effect`.
+
+Interface:
+
+```ts
+function memo <T> ( fn: () => T, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Make a new memoized Observable
+
+const a = $(1);
+const b = $(2);
+const c = $(3);
+
+const sum = $.memo ( () => {
+  return a () + b () + c ();
+});
+
+sum (); // => 6
+
+a ( 2 );
+
+sum (); // => 7
+
+b ( 3 );
+
+sum (); // => 8
+
+c ( 4 );
+
+sum (); // => 9
+```
+
 #### `$.on`
 
-This function allows you to register a listener for a single Observable, directly, without using wrapper computeds/effects/reactions.
+This function allows you to register a listener for a single Observable, directly, without using wrapper memos/effects/reactions.
 
 - **Note**: this is an advanced function intended mostly for internal usage.
 
@@ -464,7 +466,7 @@ o ( 1 ); // Listener not called, because it got unregistered
 
 A reaction is similar to an effect, except that it's not affected by suspense.
 
-- **Note**: this is an advanced function intended mostly for internal usage, you'd almost always want to simply either use a computed or an effect.
+- **Note**: this is an advanced function intended mostly for internal usage, you'd almost always want to simply either use a memo or an effect.
 
 Interface:
 
@@ -500,7 +502,7 @@ callback ( () => () => {} ); // Cleanups called and reaction re-evaluated
 
 #### `$.root`
 
-This function creates a computation root, computation roots are detached from parent roots/computeds/effects and will outlive them, so they must be manually disposed of, disposing them ends all the reactvity inside them, except for any eventual nested root.
+This function creates a computation root, computation roots are detached from parent roots/memos/effects and will outlive them, so they must be manually disposed of, disposing them ends all the reactvity inside them, except for any eventual nested root.
 The value returned by the function is returned by the root itself.
 
 - **Note**: the value returned by the root could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
@@ -523,7 +525,7 @@ $.root ( dispose => {
   let calls = 0;
 
   const a = $(0);
-  const b = $.computed ( () => {
+  const b = $.memo ( () => {
     calls += 1;
     return a ();
   });
@@ -709,7 +711,7 @@ The following flow functions are provided. These functions are like the reactive
 
 #### `$.if`
 
-This is the reactive version of the native `if` statement. It returns a computed that resolves to the passed value if the condition is truthy, or to the optional fallback otherwise.
+This is the reactive version of the native `if` statement. It returns a read-only Observable that resolves to the passed value if the condition is truthy, or to the optional fallback otherwise.
 
 Interface:
 
@@ -726,13 +728,13 @@ import $ from 'oby';
 
 const bool = $(false);
 
-const computed = $.if ( bool, 123, 321 );
+const result = $.if ( bool, 123, 321 );
 
-computed (); // => 321
+result (); // => 321
 
 bool ( true );
 
-computed (); // => 123
+result (); // => 123
 ```
 
 #### `$.for`
@@ -798,7 +800,7 @@ const values = $([ 1, 1, 2, 2, 3 ]);
 
 const mapped = $.for ( values, value => {
 
-  return $.computed ( () => { // Wrapping in a computed to listen to changes in "value"
+  return $.memo ( () => { // Wrapping in a memo to listen to changes in "value"
 
     return `Double: ${value () ** 2}`;
 
@@ -842,7 +844,7 @@ const values = $([ 1, 2, 3 ]);
 
 const mapped = $.forValue ( values, value => {
 
-  return $.computed ( () => { // Wrapping in a computed to listen to changes in "value"
+  return $.memo ( () => { // Wrapping in a memo to listen to changes in "value"
 
     return `Double: ${value () ** 2}`;
 
@@ -852,7 +854,7 @@ const mapped = $.forValue ( values, value => {
 
 // Update the values Observable
 
-values ([ 1, 4, 2 ]); // Now the computation that handled `3` will receive `4` as the new value of the "value" observable, the old computed is not disposed and a new one is not created, the old one is simply refreshed because one of its dependencies changed
+values ([ 1, 4, 2 ]); // Now the computation that handled `3` will receive `4` as the new value of the "value" observable, the old memo is not disposed and a new one is not created, the old one is simply refreshed because one of its dependencies changed
 ```
 
 #### `$.suspense`
@@ -902,7 +904,7 @@ suspended ( false ); // This will cause the effect to be re-executed, as it had 
 
 #### `$.switch`
 
-This is the reactive version of the native `switch` statement. It returns a computed that resolves to the value of the first matching case, or the value of the default condition, or undefined otherwise.
+This is the reactive version of the native `switch` statement. It returns a read-only Observable that resolves to the value of the first matching case, or the value of the default condition, or undefined otherwise.
 
 Interface:
 
@@ -938,7 +940,7 @@ result (); // => 'default'
 
 #### `$.ternary`
 
-This is the reactive version of the native ternary operator. It returns a computed that resolves to the first value if the condition is truthy, or the second value otherwise.
+This is the reactive version of the native ternary operator. It returns a read-only Observable that resolves to the first value if the condition is truthy, or the second value otherwise.
 
 Interface:
 
@@ -955,18 +957,18 @@ import $ from 'oby';
 
 const bool = $(false);
 
-const computed = $.ternary ( bool, 123, 321 );
+const result = $.ternary ( bool, 123, 321 );
 
-computed (); // => 321
+result (); // => 321
 
 bool ( true );
 
-computed (); // => 123
+result (); // => 123
 ```
 
 #### `$.tryCatch`
 
-This is the reactive version of the native `try..catch` block. If no errors happen the regular value function is executed, otherwise the fallback function is executed, whatever they return is returned wrapped in a computed.
+This is the reactive version of the native `try..catch` block. If no errors happen the regular value function is executed, otherwise the fallback function is executed, whatever they return is returned wrapped in a read-only Observable.
 
 This is also commonly referred to as an "error boundary".
 
@@ -999,15 +1001,15 @@ const regular = () => {
   return 'regular!';
 };
 
-const computed = $.tryCatch ( fallback, regular );
+const result = $.tryCatch ( fallback, regular );
 
-computed (); // => 'regular!'
+result (); // => 'regular!'
 
 // Cause an error to be thrown inside the boundary
 
 o ( true );
 
-computed (); // => 'fallback!'
+result (); // => 'fallback!'
 ```
 
 ### Utilities
@@ -1127,11 +1129,11 @@ ro ( 321 ); // An error will be thrown, read-only Observables can't be set
 
 #### `$.resolve`
 
-This function recursively resolves reactivity in the passed value. Basically it replaces each function it can find with the result of `$.computed ( () => $.resolve ( fn () ) )`.
+This function recursively resolves reactivity in the passed value. Basically it replaces each function it can find with the result of `$.memo ( () => $.resolve ( fn () ) )`.
 
 You may never need to use this function yourself, but it's necessary internally at times to make sure that a child value is properly tracked by its parent computation.
 
-This function is used internally by `$.if`, `$.for`, `$.switch`, `$.ternary`, `$.tryCatch`, as they need to resolve values to make sure the computed they give you can properly keep track of dependencies.
+This function is used internally by `$.if`, `$.for`, `$.switch`, `$.ternary`, `$.tryCatch`, as they need to resolve values to make sure the memo they give you can properly keep track of dependencies.
 
 Interface:
 
@@ -1248,7 +1250,7 @@ type Observable<T> = {
 
 #### `ObservableReadonly`
 
-This type describes a read-only Observable, like what you'd get from `$.computed` or `$.readonly`.
+This type describes a read-only Observable, like what you'd get from `$.memo` or `$.readonly`.
 
 Interface:
 

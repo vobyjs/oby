@@ -1,8 +1,8 @@
 
 /* IMPORT */
 
-import computed from '~/methods/computed';
 import error from '~/methods/error';
+import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import Observable from '~/objects/observable';
 import {castError} from '~/utils';
@@ -14,7 +14,7 @@ const tryCatch = <T, F> ( value: T, fn: TryCatchFunction<F> ): ObservableReadonl
 
   const observable = new Observable<Error | undefined> ( undefined );
 
-  return computed ( () => {
+  return memo ( () => {
 
     if ( observable.read () ) {
 

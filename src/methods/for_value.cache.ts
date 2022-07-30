@@ -4,9 +4,9 @@
 import {OWNER} from '~/constants';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
-import computed from '~/methods/computed';
 import CacheAbstract from '~/methods/for_abstract.cache';
 import get from '~/methods/get';
+import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
@@ -162,7 +162,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
         }
 
         const observable = mapped.value = new Observable ( value );
-        const $value = computed ( () => get ( observable.read () ) ) as Indexed<T>; //TSC
+        const $value = memo ( () => get ( observable.read () ) ) as Indexed<T>; //TSC
         const result = results[index] = resolve ( fn ( $value, $index ) );
 
         mapped.value = observable;

@@ -3,9 +3,9 @@
 
 type IComputation = import ( '~/objects/computation' ).default;
 
-type IComputed<T = unknown> = import ( '~/objects/computed' ).default<T>;
-
 type IEffect = import ( '~/objects/effect' ).default;
+
+type IMemo<T = unknown> = import ( '~/objects/memo' ).default<T>;
 
 type IObservable<T = unknown> = import ( '~/objects/observable' ).default<T>;
 
@@ -25,8 +25,6 @@ type BatchFunction<T = unknown> = () => T;
 
 type CleanupFunction = () => void;
 
-type ComputedFunction<T = unknown> = () => T;
-
 type DisposeFunction = () => void;
 
 type EffectFunction = () => CleanupFunction | void;
@@ -42,6 +40,8 @@ type MapFunction<T = unknown, R = unknown> = ( value: T, index: ObservableReadon
 type MapIndexFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: number ) => R;
 
 type MapValueFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: ObservableReadonly<number> ) => R;
+
+type MemoFunction<T = unknown> = () => T;
 
 type ObservedFunction<T = unknown> = () => T;
 
@@ -129,8 +129,8 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 /* EXPORT */
 
-export type {IComputation, IComputed, IEffect, IObservable, IObserver, IReaction, IRoot, ISuperRoot, ISuspense};
-export type {BatchFunction, CleanupFunction, ComputedFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
+export type {IComputation, IEffect, IMemo, IObservable, IObserver, IReaction, IRoot, ISuperRoot, ISuspense};
+export type {BatchFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {StoreOptions};
 export type {Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};

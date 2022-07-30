@@ -11,7 +11,7 @@ const a = $(0);
 const b = $(0);
 
 for ( let i = 0, l = 100000; i < l; i++ ) {
-  $.computed ( () => {
+  $.memo ( () => {
     a ();
     // b ();
   });

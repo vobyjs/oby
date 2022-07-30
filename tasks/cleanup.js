@@ -7,7 +7,7 @@ import $ from '../dist/index.js';
 
 const selected = $();
 const isSelected = $.selector ( selected );
-const isSelectedDisposed = $.selector ( $.computed ( () => {} ) );
+const isSelectedDisposed = $.selector ( $.memo ( () => {} ) );
 
 $.root ( dispose => {
 
@@ -15,7 +15,7 @@ $.root ( dispose => {
 
   const global = $();
 
-  const computedVoid = $.computed ( () => {} );
+  const memoVoid = $.memo ( () => {} );
 
   const items = [];
 
@@ -35,7 +35,7 @@ $.root ( dispose => {
 
       disposers.push ( dispose );
 
-      const computed = $.computed ( () => {
+      const memo = $.memo ( () => {
         global ();
         items[i]();
         isSelected ( i );
@@ -45,15 +45,15 @@ $.root ( dispose => {
       $.effect ( () => {
         global ();
         items[i]();
-        computed ();
-        computedVoid ();
+        memo ();
+        memoVoid ();
       });
 
       $.effect ( () => {
         global ();
         items[i]();
-        computed ();
-        computedVoid ();
+        memo ();
+        memoVoid ();
       });
 
     });

@@ -2,8 +2,8 @@
 /* IMPORT */
 
 import {IS} from '~/constants';
-import computed from '~/methods/computed';
 import get from '~/methods/get';
+import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
@@ -13,7 +13,7 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: [...[T, R][], [R]] ): 
 function _switch <T, R> ( when: FunctionMaybe<T>, values: [T, R][] ): ObservableReadonly<Resolved<R | undefined>>;
 function _switch <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): ObservableReadonly<Resolved<R | undefined>> {
 
-  const value = computed ( () => {
+  const value = memo ( () => {
 
     const condition = get ( when );
 
@@ -29,7 +29,7 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): Ob
 
   });
 
-  return computed ( () => {
+  return memo ( () => {
 
     return resolve ( value () );
 

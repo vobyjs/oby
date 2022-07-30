@@ -58,13 +58,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'creates a dependency in a computed when getting', t => {
+    it ( 'creates a dependency in a memo when getting', t => {
 
       const o = $(1);
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
         calls += 1;
         o ();
       });
@@ -127,13 +127,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'creates a single dependency in a computed even if getting multiple times', t => {
+    it ( 'creates a single dependency in a memo even if getting multiple times', t => {
 
       const o = $(1);
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
         calls += 1;
         o ();
         o ();
@@ -202,12 +202,12 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'does not create a dependency in a computed when setting', t => {
+    it ( 'does not create a dependency in a memo when setting', t => {
 
       let o;
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
         calls += 1;
         o = $(1);
       });
@@ -256,13 +256,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'does not create a dependency in a computed when setting with a function', t => {
+    it ( 'does not create a dependency in a memo when setting with a function', t => {
 
       const o = $(1);
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
         calls += 1;
         o ( prev => prev + 1 );
         o ( prev => prev + 1 );
@@ -325,7 +325,7 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
         calls += 1;
         o ();
       });
@@ -479,7 +479,7 @@ describe ( 'oby', () => {
         const a = $(9);
         const b = $(99);
 
-        const c = $.computed ( () => {
+        const c = $.memo ( () => {
           return a () + b ();
         });
 
@@ -501,7 +501,7 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
         calls += 1;
         o ();
       });
@@ -523,14 +523,14 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'coalesces multiple updates for a computed together', t => {
+    it ( 'coalesces multiple updates for a memo together', t => {
 
       const a = $(0);
       const b = $(0);
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         calls += 1;
 
@@ -658,13 +658,13 @@ describe ( 'oby', () => {
 
   describe ( 'cleanup', it => {
 
-    it ( 'does not cause the parent computed to re-execute', t => {
+    it ( 'does not cause the parent memo to re-execute', t => {
 
       const disposed = $(false);
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         calls += 1;
 
@@ -754,7 +754,7 @@ describe ( 'oby', () => {
 
       $.root ( dispose => {
 
-        $.computed ( () => {
+        $.memo ( () => {
 
           $.cleanup ( () => {
             sequence += 'a';
@@ -780,7 +780,7 @@ describe ( 'oby', () => {
 
       let sequence = '';
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         o ();
 
@@ -1029,328 +1029,6 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'computed', it => {
-
-    it ( 'can not be running multiple times concurrently', t => {
-
-      const o = $(0);
-
-      let executions = 0;
-
-      const result = $.computed ( () => {
-
-        executions += 1;
-
-        const value = o ();
-
-        t.is ( executions, 1 );
-
-        if ( value === 0 ) o ( 1 );
-        if ( value === 1 ) o ( 2 );
-        if ( value === 2 ) o ( 3 );
-
-        t.is ( executions, 1 );
-
-        executions -= 1;
-
-        t.is ( executions, 0 );
-
-        return value;
-
-      });
-
-      t.is ( result (), 3 );
-
-    });
-
-    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
-
-      const a = $(0);
-      const b = $(0);
-
-      let calls = 0;
-
-      $.computed ( () => {
-
-        calls += 1;
-
-        if ( !$.untrack ( a ) ) a ( a () + 1 );
-
-        b ();
-
-      });
-
-      t.is ( calls, 2 );
-
-      a ( 2 );
-
-      t.is ( calls, 2 );
-
-      b ( 1 );
-
-      t.is ( calls, 3 );
-
-    });
-
-    it ( 'cleans up inner computeds', t => {
-
-      const o = $(0);
-      const active = $(true);
-
-      let calls = 0;
-
-      $.computed ( () => {
-
-        if ( !active () ) return;
-
-        $.computed ( () => {
-
-          calls += 1;
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 1 );
-
-      active ( false );
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'does not throw when disposing of itself', t => {
-
-      t.notThrows ( () => {
-
-        $.root ( dispose => {
-
-          $.computed ( () => {
-
-            dispose ();
-
-            return 1;
-
-          });
-
-        });
-
-      });
-
-    });
-
-    it ( 'returns a readable observable', t => {
-
-      const o = $.computed ( () => {} );
-
-      isReadable ( t, o );
-
-    });
-
-    it ( 'returns an observable with the return of the function', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $.computed ( () => a () + b () );
-
-      t.true ( $.isObservable ( c ) );
-      t.is ( c (), 3 );
-
-    });
-
-    it ( 'returns an observable with value undefined if the function does not return anything', t => {
-
-      const o = $.computed ( () => {} );
-
-      t.true ( $.isObservable ( o ) );
-      t.is ( o (), undefined );
-
-    });
-
-    it ( 'supports a custom equality function', t => {
-
-      const o = $(2);
-      const equals = value => ( value % 2 === 0 );
-      const oPlus1 = $.computed ( () => o () + 1, { equals } );
-
-      t.is ( oPlus1 (), 3 );
-
-      o ( 3 );
-
-      t.is ( oPlus1 (), 3 );
-
-      o ( 4 );
-
-      t.is ( oPlus1 (), 5 );
-
-      o ( 5 );
-
-      t.is ( oPlus1 (), 5 );
-
-    });
-
-    it ( 'supports dynamic dependencies', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const bool = $(false);
-      const c = $.computed ( () => bool () ? a () : b () );
-
-      t.is ( c (), 2 );
-
-      bool ( true );
-
-      t.is ( c (), 1 );
-
-    });
-
-    it ( 'supports manually registering a function to be called when the parent computation updates', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.computed ( () => {
-
-        o ();
-
-        $.cleanup ( () => {
-          sequence += 'a';
-        });
-
-        $.cleanup ( () => {
-          sequence += 'b';
-        });
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'supports manually registering a function to be called when the parent computation throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.computed ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        if ( o () ) throw 'err';
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'throws if it receives an async function', t => {
-
-      t.throws ( () => {
-
-        $.computed ( async () => {} );
-
-      }, { message: 'A computation is forbidden from executing an async function' } );
-
-    });
-
-    it ( 'updates the observable with the last value when causing itself to re-execute', t => {
-
-      const o = $(0);
-
-      const computed = $.computed ( () => {
-
-        let value = o ();
-
-        if ( !o () ) o ( 1 );
-
-        return value;
-
-      });
-
-      t.is ( computed (), 1 );
-
-    });
-
-    it ( 'updates the observable when the dependencies change', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $.computed ( () => a () + b () );
-
-      a ( 3 );
-      b ( 7 );
-
-      t.is ( c (), 10 );
-
-    });
-
-    it ( 'updates the observable when the dependencies change inside other computations', t => {
-
-      const a = $(0);
-      const b = $(0);
-      let calls = 0;
-
-      $.computed ( () => {
-        calls += 1;
-        a ();
-      });
-
-      t.is ( calls, 1 );
-
-      $.computed ( () => {
-        a ( 1 );
-        b ();
-        a ( 0 );
-      });
-
-      b ( 1 );
-
-      t.is ( calls, 5 );
-
-      a ( 1 );
-
-      t.is ( calls, 6 );
-
-    });
-
-  });
-
   describe ( 'context', it => {
 
     it ( 'can read and write context values inside an effect', t => {
@@ -1368,9 +1046,9 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can read and write context values inside a computed', t => {
+    it ( 'can read and write context values inside a memo', t => {
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         const ctx = Symbol ();
         const value = { foo: 123 };
@@ -1447,16 +1125,16 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can read and write context values inside a deep computed', t => {
+    it ( 'can read and write context values inside a deep memo', t => {
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         const ctx = Symbol ();
         const value = { foo: 123 };
 
         $.context ( ctx, value );
 
-        $.computed ( () => {
+        $.memo ( () => {
 
           t.is ( $.context ( ctx ), value );
 
@@ -1998,7 +1676,7 @@ describe ( 'oby', () => {
 
     it ( 'casts an error thrown inside a parent computation to an Error instance', t => {
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         $.error ( error => {
 
@@ -2087,7 +1765,7 @@ describe ( 'oby', () => {
 
       let sequence = '';
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         $.error ( () => {
           sequence += 'a';
@@ -2239,7 +1917,7 @@ describe ( 'oby', () => {
 
       let sequence = '';
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         $.error ( () => {
           sequence += 'a';
@@ -2249,9 +1927,9 @@ describe ( 'oby', () => {
           sequence += 'b';
         });
 
-        $.computed ( () => {
+        $.memo ( () => {
 
-          $.computed ( () => {
+          $.memo ( () => {
 
             if ( o () ) throw 'err';
 
@@ -2477,7 +2155,7 @@ describe ( 'oby', () => {
 
       t.throws ( () => {
 
-        $.computed ( () => {
+        $.memo ( () => {
 
           $.error ( () => {
             throw new Error ( 'Inner error' );
@@ -2619,9 +2297,9 @@ describe ( 'oby', () => {
       const args = [];
 
       const dispose = $.root ( dispose => {
-        $.computed ( () => {
+        $.memo ( () => {
           $.for ( array, value => {
-            $.computed ( () => {
+            $.memo ( () => {
               args.push ( value () );
             });
           });
@@ -2650,7 +2328,7 @@ describe ( 'oby', () => {
       const dispose = $.root ( dispose => {
         $.effect ( () => {
           $.for ( array, value => {
-            $.computed ( () => {
+            $.memo ( () => {
               args.push ( value () );
             });
           });
@@ -2679,7 +2357,7 @@ describe ( 'oby', () => {
       const dispose = $.root ( dispose => {
         $.reaction ( () => {
           $.for ( array, value => {
-            $.computed ( () => {
+            $.memo ( () => {
               args.push ( value () );
             });
           });
@@ -2707,7 +2385,7 @@ describe ( 'oby', () => {
 
       const dispose = $.root ( dispose => {
         $.for ( array, value => {
-          $.computed ( () => {
+          $.memo ( () => {
             args.push ( value () );
           });
         });
@@ -2733,7 +2411,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.for ( array, value => {
-        $.computed ( () => {
+        $.memo ( () => {
           args.push ( value () );
         });
       });
@@ -2769,7 +2447,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.for ( array, value => {
-        $.computed ( () => {
+        $.memo ( () => {
           args.push ( value () );
         });
       });
@@ -2839,13 +2517,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to an empty array for an empty array and missing fallback', t => {
+    it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
 
       t.deepEqual ( $.for ( [], () => () => 123 )(), [] );
 
     });
 
-    it ( 'returns a computed to fallback for an empty array and a provided fallback', t => {
+    it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
 
       t.is ( $.for ( [], () => () => 123, 123 )(), 123 );
 
@@ -2857,7 +2535,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.for ( array, value => {
-        $.computed ( () => {
+        $.memo ( () => {
           args.push ( value );
         });
       });
@@ -2914,9 +2592,9 @@ describe ( 'oby', () => {
       const args = [];
 
       const dispose = $.root ( dispose => {
-        $.computed ( () => {
+        $.memo ( () => {
           $.forIndex ( array, value => {
-            $.computed ( () => {
+            $.memo ( () => {
               args.push ( value () );
             });
           });
@@ -2942,7 +2620,7 @@ describe ( 'oby', () => {
       const dispose = $.root ( dispose => {
         $.effect ( () => {
           $.forIndex ( array, value => {
-            $.computed ( () => {
+            $.memo ( () => {
               args.push ( value () );
             });
           });
@@ -2968,7 +2646,7 @@ describe ( 'oby', () => {
       const dispose = $.root ( dispose => {
         $.reaction ( () => {
           $.forIndex ( array, value => {
-            $.computed ( () => {
+            $.memo ( () => {
               args.push ( value () );
             });
           });
@@ -2993,7 +2671,7 @@ describe ( 'oby', () => {
 
       const dispose = $.root ( dispose => {
         $.forIndex ( array, value => {
-          $.computed ( () => {
+          $.memo ( () => {
             args.push ( value () );
           });
         });
@@ -3017,7 +2695,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.forIndex ( array, value => {
-        $.computed ( () => {
+        $.memo ( () => {
           o ();
           args.push ( value () );
         });
@@ -3070,7 +2748,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.forIndex ( array, value => {
-        return $.computed ( () => {
+        return $.memo ( () => {
           args.push ( value () );
         });
       });
@@ -3107,13 +2785,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to an empty array for an empty array and missing fallback', t => {
+    it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
 
       t.deepEqual ( $.forIndex ( [], () => () => 123 )(), [] );
 
     });
 
-    it ( 'returns a computed to fallback for an empty array and a provided fallback', t => {
+    it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
 
       t.is ( $.forIndex ( [], () => () => 123, 123 )(), 123 );
 
@@ -3127,7 +2805,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.forIndex ( array, value => {
-        $.computed ( () => {
+        $.memo ( () => {
           args.push ( value () );
         });
       });
@@ -3154,7 +2832,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.forIndex ( array, value => {
-        $.computed ( () => {
+        $.memo ( () => {
           args.push ( value () );
         });
       });
@@ -3250,9 +2928,9 @@ describe ( 'oby', () => {
       const args = [];
 
       const dispose = $.root ( dispose => {
-        $.computed ( () => {
+        $.memo ( () => {
           $.forValue ( array, value => {
-            $.computed ( () => {
+            $.memo ( () => {
               args.push ( value () );
             });
           });
@@ -3281,7 +2959,7 @@ describe ( 'oby', () => {
       const dispose = $.root ( dispose => {
         $.effect ( () => {
           $.forValue ( array, value => {
-            $.computed ( () => {
+            $.memo ( () => {
               args.push ( value () );
             });
           });
@@ -3310,7 +2988,7 @@ describe ( 'oby', () => {
       const dispose = $.root ( dispose => {
         $.reaction ( () => {
           $.forValue ( array, value => {
-            $.computed ( () => {
+            $.memo ( () => {
               args.push ( value () );
             });
           });
@@ -3338,7 +3016,7 @@ describe ( 'oby', () => {
 
       const dispose = $.root ( dispose => {
         $.forValue ( array, value => {
-          $.computed ( () => {
+          $.memo ( () => {
             args.push ( value () );
           });
         });
@@ -3364,7 +3042,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.forValue ( array, value => {
-        $.computed ( () => {
+        $.memo ( () => {
           args.push ( value () );
         });
       });
@@ -3400,7 +3078,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.forValue ( array, value => {
-        $.computed ( () => {
+        $.memo ( () => {
           args.push ( value () );
         });
       });
@@ -3491,13 +3169,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to an empty array for an empty array and missing fallback', t => {
+    it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
 
       t.deepEqual ( $.forValue ( [], () => () => 123 )(), [] );
 
     });
 
-    it ( 'returns a computed to fallback for an empty array and a provided fallback', t => {
+    it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
 
       t.is ( $.forValue ( [], () => () => 123, 123 )(), 123 );
 
@@ -3509,7 +3187,7 @@ describe ( 'oby', () => {
       const args = [];
 
       $.forValue ( array, value => {
-        $.computed ( () => {
+        $.memo ( () => {
           args.push ( value () );
         });
       });
@@ -3526,13 +3204,13 @@ describe ( 'oby', () => {
 
   describe ( 'get', it => {
 
-    it ( 'creates a dependency in a computed', t => {
+    it ( 'creates a dependency in a memo', t => {
 
       const o = $(1);
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
         calls += 1;
         $.get ( o );
       });
@@ -3688,7 +3366,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to the value or undefined with a functional condition', t => {
+    it ( 'returns a memo to the value or undefined with a functional condition', t => {
 
       const o = $(false);
 
@@ -3706,27 +3384,27 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to the value with a truthy condition', t => {
+    it ( 'returns a memo to the value with a truthy condition', t => {
 
       t.is ( $.if ( true, 123 )(), 123 );
       t.is ( $.if ( 'true', 123 )(), 123 );
 
     });
 
-    it ( 'returns a computed to the value with a falsy condition', t => {
+    it ( 'returns a memo to the value with a falsy condition', t => {
 
       t.is ( $.if ( false, 123 )(), undefined );
       t.is ( $.if ( 0, 123 )(), undefined );
 
     });
 
-    it ( 'returns a computed to undefined for a falsy condition and missing fallback', t => {
+    it ( 'returns a memo to undefined for a falsy condition and missing fallback', t => {
 
       t.is ( $.if ( false, 123 )(), undefined );
 
     });
 
-    it ( 'returns a computed to fallback for a falsy condition and a provided fallback', t => {
+    it ( 'returns a memo to fallback for a falsy condition and a provided fallback', t => {
 
       t.is ( $.if ( false, 123, 321 )(), 321 );
 
@@ -3741,7 +3419,7 @@ describe ( 'oby', () => {
       t.true ( $.isObservable ( $() ) );
       t.true ( $.isObservable ( $(123) ) );
       t.true ( $.isObservable ( $(false) ) );
-      t.true ( $.isObservable ( $.computed ( () => {} ) ) );
+      t.true ( $.isObservable ( $.memo ( () => {} ) ) );
 
       t.false ( $.isObservable () );
       t.false ( $.isObservable ( null ) );
@@ -3764,6 +3442,328 @@ describe ( 'oby', () => {
       t.false ( $.isStore ( null ) );
       t.false ( $.isStore ( {} ) );
       t.false ( $.isStore ( [] ) );
+
+    });
+
+  });
+
+  describe ( 'memo', it => {
+
+    it ( 'can not be running multiple times concurrently', t => {
+
+      const o = $(0);
+
+      let executions = 0;
+
+      const result = $.memo ( () => {
+
+        executions += 1;
+
+        const value = o ();
+
+        t.is ( executions, 1 );
+
+        if ( value === 0 ) o ( 1 );
+        if ( value === 1 ) o ( 2 );
+        if ( value === 2 ) o ( 3 );
+
+        t.is ( executions, 1 );
+
+        executions -= 1;
+
+        t.is ( executions, 0 );
+
+        return value;
+
+      });
+
+      t.is ( result (), 3 );
+
+    });
+
+    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.memo ( () => {
+
+        calls += 1;
+
+        if ( !$.untrack ( a ) ) a ( a () + 1 );
+
+        b ();
+
+      });
+
+      t.is ( calls, 2 );
+
+      a ( 2 );
+
+      t.is ( calls, 2 );
+
+      b ( 1 );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'cleans up inner memos', t => {
+
+      const o = $(0);
+      const active = $(true);
+
+      let calls = 0;
+
+      $.memo ( () => {
+
+        if ( !active () ) return;
+
+        $.memo ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 1 );
+
+      active ( false );
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'does not throw when disposing of itself', t => {
+
+      t.notThrows ( () => {
+
+        $.root ( dispose => {
+
+          $.memo ( () => {
+
+            dispose ();
+
+            return 1;
+
+          });
+
+        });
+
+      });
+
+    });
+
+    it ( 'returns a readable observable', t => {
+
+      const o = $.memo ( () => {} );
+
+      isReadable ( t, o );
+
+    });
+
+    it ( 'returns an observable with the return of the function', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $.memo ( () => a () + b () );
+
+      t.true ( $.isObservable ( c ) );
+      t.is ( c (), 3 );
+
+    });
+
+    it ( 'returns an observable with value undefined if the function does not return anything', t => {
+
+      const o = $.memo ( () => {} );
+
+      t.true ( $.isObservable ( o ) );
+      t.is ( o (), undefined );
+
+    });
+
+    it ( 'supports a custom equality function', t => {
+
+      const o = $(2);
+      const equals = value => ( value % 2 === 0 );
+      const oPlus1 = $.memo ( () => o () + 1, { equals } );
+
+      t.is ( oPlus1 (), 3 );
+
+      o ( 3 );
+
+      t.is ( oPlus1 (), 3 );
+
+      o ( 4 );
+
+      t.is ( oPlus1 (), 5 );
+
+      o ( 5 );
+
+      t.is ( oPlus1 (), 5 );
+
+    });
+
+    it ( 'supports dynamic dependencies', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const bool = $(false);
+      const c = $.memo ( () => bool () ? a () : b () );
+
+      t.is ( c (), 2 );
+
+      bool ( true );
+
+      t.is ( c (), 1 );
+
+    });
+
+    it ( 'supports manually registering a function to be called when the parent computation updates', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.memo ( () => {
+
+        o ();
+
+        $.cleanup ( () => {
+          sequence += 'a';
+        });
+
+        $.cleanup ( () => {
+          sequence += 'b';
+        });
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'supports manually registering a function to be called when the parent computation throws', t => {
+
+      const o = $(0);
+
+      let sequence = '';
+
+      $.memo ( () => {
+
+        $.error ( () => {
+          sequence += 'a';
+        });
+
+        $.error ( () => {
+          sequence += 'b';
+        });
+
+        if ( o () ) throw 'err';
+
+      });
+
+      t.is ( sequence, '' );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+
+      o ( 2 );
+
+      t.is ( sequence, 'abab' );
+
+      o ( 3 );
+
+      t.is ( sequence, 'ababab' );
+
+    });
+
+    it ( 'throws if it receives an async function', t => {
+
+      t.throws ( () => {
+
+        $.memo ( async () => {} );
+
+      }, { message: 'A computation is forbidden from executing an async function' } );
+
+    });
+
+    it ( 'updates the observable with the last value when causing itself to re-execute', t => {
+
+      const o = $(0);
+
+      const memo = $.memo ( () => {
+
+        let value = o ();
+
+        if ( !o () ) o ( 1 );
+
+        return value;
+
+      });
+
+      t.is ( memo (), 1 );
+
+    });
+
+    it ( 'updates the observable when the dependencies change', t => {
+
+      const a = $(1);
+      const b = $(2);
+      const c = $.memo ( () => a () + b () );
+
+      a ( 3 );
+      b ( 7 );
+
+      t.is ( c (), 10 );
+
+    });
+
+    it ( 'updates the observable when the dependencies change inside other computations', t => {
+
+      const a = $(0);
+      const b = $(0);
+      let calls = 0;
+
+      $.memo ( () => {
+        calls += 1;
+        a ();
+      });
+
+      t.is ( calls, 1 );
+
+      $.memo ( () => {
+        a ( 1 );
+        b ();
+        a ( 0 );
+      });
+
+      b ( 1 );
+
+      t.is ( calls, 5 );
+
+      a ( 1 );
+
+      t.is ( calls, 6 );
 
     });
 
@@ -3899,7 +3899,7 @@ describe ( 'oby', () => {
 
     it ( 'can call the registered function when registering, for frozen observables too', t => {
 
-      const o = $.computed ( () => 0 );
+      const o = $.memo ( () => 0 );
 
       $.on ( o, ( value, valuePrev ) => {
 
@@ -3933,13 +3933,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can call the registered function before computeds', t => {
+    it ( 'can call the registered function before memos', t => {
 
       const o = $(0);
 
       let sequence = '';
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         sequence += 'b';
 
@@ -4124,7 +4124,7 @@ describe ( 'oby', () => {
 
     it ( 'returns the same readonly observable if it gets passed a frozen one', t => {
 
-      const o = $.computed ( () => 123 );
+      const o = $.memo ( () => 123 );
       const ro = $.readonly ( o );
 
       t.true ( o === ro );
@@ -4169,7 +4169,7 @@ describe ( 'oby', () => {
 
   describe ( 'resolve', it => {
 
-    it ( 'properly disposes of inner computeds', t => {
+    it ( 'properly disposes of inner memos', t => {
 
       const o = $(2);
 
@@ -4178,7 +4178,7 @@ describe ( 'oby', () => {
       const dispose = $.root ( dispose => {
 
         const fn = () => {
-          $.computed ( () => {
+          $.memo ( () => {
             calls += 1;
             return o () ** 2;
           });
@@ -4731,10 +4731,10 @@ describe ( 'oby', () => {
         const inner = $(0);
         let innerCalls = 0;
 
-        $.computed ( () => {
+        $.memo ( () => {
           outer ();
           $.root ( () => {
-            $.computed ( () => {
+            $.memo ( () => {
               inner ();
               innerCalls += 1;
             });
@@ -4763,7 +4763,7 @@ describe ( 'oby', () => {
         let calls = 0;
 
         const a = $(0);
-        const b = $.computed ( () => {
+        const b = $.memo ( () => {
           calls += 1;
           return a ();
         });
@@ -4795,7 +4795,7 @@ describe ( 'oby', () => {
 
         const a = $(0);
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           if ( a () ) dispose ();
           a ();
@@ -4823,10 +4823,10 @@ describe ( 'oby', () => {
 
         const a = $(0);
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           a ();
-          $.computed ( () => {
+          $.memo ( () => {
             if ( a () ) dispose ();
           });
         });
@@ -4850,7 +4850,7 @@ describe ( 'oby', () => {
       $.root ( () => {
 
         const a = $(1);
-        const b = $.computed ( () => a () );
+        const b = $.memo ( () => a () );
 
         t.is ( b (), 1 );
 
@@ -4872,11 +4872,11 @@ describe ( 'oby', () => {
 
         const a = $(1);
 
-        const b = $.computed ( () => a () );
+        const b = $.memo ( () => a () );
 
         a ( 2 );
 
-        const c = $.computed ( () => a () );
+        const c = $.memo ( () => a () );
 
         a ( 3 );
 
@@ -5120,13 +5120,13 @@ describe ( 'oby', () => {
 
       });
 
-      it ( 'creates a dependency in a computed when getting a shallow property', t => {
+      it ( 'creates a dependency in a memo when getting a shallow property', t => {
 
         const o = $.store ({ value: 1 });
 
         let calls = 0;
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           o.value;
         });
@@ -5189,13 +5189,13 @@ describe ( 'oby', () => {
 
       });
 
-      it ( 'creates a dependency in a computed when getting a deep property', t => {
+      it ( 'creates a dependency in a memo when getting a deep property', t => {
 
         const o = $.store ({ deep: { value: 1 } });
 
         let calls = 0;
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           o.deep.value;
         });
@@ -5258,13 +5258,13 @@ describe ( 'oby', () => {
 
       });
 
-      it ( 'creates a single dependency in an computed even if getting a shallow property multiple times', t => {
+      it ( 'creates a single dependency in an memo even if getting a shallow property multiple times', t => {
 
         const o = $.store ({ value: 1 });
 
         let calls = 0;
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           o.value;
           o.value;
@@ -5333,13 +5333,13 @@ describe ( 'oby', () => {
 
       });
 
-      it ( 'creates a single dependency in a computed even if getting a deep property multiple times', t => {
+      it ( 'creates a single dependency in a memo even if getting a deep property multiple times', t => {
 
         const o = $.store ({ deep: { value: 1 } });
 
         let calls = 0;
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           o.deep.value;
           o.deep.value;
@@ -5408,12 +5408,12 @@ describe ( 'oby', () => {
 
       });
 
-      it ( 'does not create a dependency in a computed when creating', t => {
+      it ( 'does not create a dependency in a memo when creating', t => {
 
         let o;
         let calls = 0;
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           o = $.store ({ value: 1 });
         });
@@ -5462,12 +5462,12 @@ describe ( 'oby', () => {
 
       });
 
-      it ( 'does not create a dependency in a computed when setting a shallow property', t => {
+      it ( 'does not create a dependency in a memo when setting a shallow property', t => {
 
         let o = $.store ({ value: 0 });
         let calls = 0;
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           o.value = 1;
         });
@@ -5516,13 +5516,13 @@ describe ( 'oby', () => {
 
       });
 
-      it ( 'does not create a dependency in a computed when getting a parent property of the one being updated', t => {
+      it ( 'does not create a dependency in a memo when getting a parent property of the one being updated', t => {
 
         const o = $.store ({ deep: { value: 1 } });
 
         let calls = 0;
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           o.deep;
         });
@@ -5585,13 +5585,13 @@ describe ( 'oby', () => {
 
       });
 
-      it ( 'does create a dependency (on the parent) in a computed when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
+      it ( 'does create a dependency (on the parent) in a memo when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
 
         const o = $.store ({ deep: { value: 1 } });
 
         let calls = 0;
 
-        $.computed ( () => {
+        $.memo ( () => {
           calls += 1;
           o.deep.value = 2;
         });
@@ -7040,7 +7040,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a computed', t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a memo', t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7049,7 +7049,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.computed ( () => {
+        $.memo ( () => {
 
           sequence += 'a';
 
@@ -7290,7 +7290,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.computed ( () => {
+        $.memo ( () => {
 
           if ( !lazy () ) return;
 
@@ -7328,7 +7328,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.computed ( () => {
+        $.memo ( () => {
 
           if ( !lazy () ) return;
 
@@ -7360,7 +7360,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can not suspend a computed', t => {
+    it ( 'can not suspend a memo', t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7369,7 +7369,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.computed ( () => {
+        $.memo ( () => {
 
           calls += 1;
 
@@ -7761,7 +7761,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to matching case or the default case with a functional condition', t => {
+    it ( 'returns a memo to matching case or the default case with a functional condition', t => {
 
       const o = $(1);
 
@@ -7779,7 +7779,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to the value of the default case if no case before it matches', t => {
+    it ( 'returns a memo to the value of the default case if no case before it matches', t => {
 
       const result = $.switch ( 2, [[1, '1'], ['default'], [2, '2'] [1, '1.1']] );
 
@@ -7787,7 +7787,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to the value of the first matching case', t => {
+    it ( 'returns a memo to the value of the first matching case', t => {
 
       const result1 = $.switch ( 1, [[1, '1'], [2, '2'], [1, '1.1']] );
 
@@ -7799,7 +7799,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to undefined if no condition matches and there is no default case', t => {
+    it ( 'returns a memo to undefined if no condition matches and there is no default case', t => {
 
       const result = $.switch ( 1, [[2, '2'], [3, '3']] );
 
@@ -7811,13 +7811,13 @@ describe ( 'oby', () => {
 
       const condition = $(0);
 
-      const computed = $.switch ( condition, [[0, '0'], [-0, '-0']] );
+      const memo = $.switch ( condition, [[0, '0'], [-0, '-0']] );
 
-      t.is ( computed (), '0' );
+      t.is ( memo (), '0' );
 
       condition ( -0 );
 
-      t.is ( computed (), '-0' );
+      t.is ( memo (), '-0' );
 
     });
 
@@ -7882,7 +7882,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to the first or second value with a functional condition', t => {
+    it ( 'returns a memo to the first or second value with a functional condition', t => {
 
       const o = $(false);
 
@@ -7900,14 +7900,14 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a computed to the first value with a truthy condition', t => {
+    it ( 'returns a memo to the first value with a truthy condition', t => {
 
       t.is ( $.ternary ( true, 123, 321 )(), 123 );
       t.is ( $.ternary ( 'true', 123, 321 )(), 123 );
 
     });
 
-    it ( 'returns a computed to the value with a falsy condition', t => {
+    it ( 'returns a memo to the value with a falsy condition', t => {
 
       t.is ( $.ternary ( false, 123, 321 )(), 321 );
       t.is ( $.ternary ( 0, 123, 321 )(), 321 );
@@ -7935,22 +7935,22 @@ describe ( 'oby', () => {
         return 'regular';
       };
 
-      const computed = $.tryCatch ( regular, fallback );
+      const memo = $.tryCatch ( regular, fallback );
 
-      t.is ( computed ()(), 'regular' );
+      t.is ( memo ()(), 'regular' );
 
       o ( true );
 
       t.true ( err instanceof Error );
       t.is ( err.message, 'whoops' );
 
-      t.is ( computed (), 'fallback' );
+      t.is ( memo (), 'fallback' );
 
       o ( false );
 
       recover ();
 
-      t.is ( computed ()(), 'regular' );
+      t.is ( memo ()(), 'regular' );
 
     });
 
@@ -7997,19 +7997,19 @@ describe ( 'oby', () => {
 
   describe ( 'untrack', it => {
 
-    it ( 'does not leak computeds', t => {
+    it ( 'does not leak memos', t => {
 
       const o = $(1);
 
       let cleaned = false;
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         o ();
 
         $.untrack ( () => {
 
-          $.computed ( () => {
+          $.memo ( () => {
 
             $.cleanup ( () => {
 
@@ -8111,7 +8111,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports getting without creating dependencies in a computed', t => {
+    it ( 'supports getting without creating dependencies in a memo', t => {
 
       const a = $(1);
       const b = $(2);
@@ -8120,7 +8120,7 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
         calls += 1;
         a ();
         a ();
@@ -8213,7 +8213,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'works with functions containing a computed', t => {
+    it ( 'works with functions containing a memo', t => {
 
       const o = $(0);
 
@@ -8227,7 +8227,7 @@ describe ( 'oby', () => {
 
           o ();
 
-          $.computed ( () => {
+          $.memo ( () => {
 
             o ();
 
@@ -8463,18 +8463,18 @@ describe ( 'oby', () => {
 
       const a1 = $(0);
 
-      const b1 = $.computed ( () => {
+      const b1 = $.memo ( () => {
         sequence += 'b1';
         const val = a1 () + 1;
         return val;
       });
 
-      const b2 = $.computed ( () => {
+      const b2 = $.memo ( () => {
         sequence += 'b2';
         return a1 () + 1;
       });
 
-      const c1 = $.computed ( () => {
+      const c1 = $.memo ( () => {
         b1 ();
         b2 ();
         sequence += 'c1';
@@ -8504,27 +8504,27 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      const f1 = $.computed ( () => {
+      const f1 = $.memo ( () => {
         return d ();
       });
 
-      const f2 = $.computed ( () => {
+      const f2 = $.memo ( () => {
         return d ();
       });
 
-      const f3 = $.computed ( () => {
+      const f3 = $.memo ( () => {
         return d ();
       });
 
-      const f4 = $.computed ( () => {
+      const f4 = $.memo ( () => {
         return d ();
       });
 
-      const f5 = $.computed ( () => {
+      const f5 = $.memo ( () => {
         return d ();
       });
 
-      const g = $.computed ( () => {
+      const g = $.memo ( () => {
         calls += 1;
         return f1 () + f2 () + f3 () + f4 () + f5 ();
       });
@@ -8557,31 +8557,31 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      const f1 = $.computed ( () => {
+      const f1 = $.memo ( () => {
         return d ();
       });
 
-      const f2 = $.computed ( () => {
+      const f2 = $.memo ( () => {
         return d ();
       });
 
-      const f3 = $.computed ( () => {
+      const f3 = $.memo ( () => {
         return d ();
       });
 
-      const g1 = $.computed ( () => {
+      const g1 = $.memo ( () => {
         return f1 () + f2 () + f3 ();
       });
 
-      const g2 = $.computed ( () => {
+      const g2 = $.memo ( () => {
         return f1 () + f2 () + f3 ();
       });
 
-      const g3 = $.computed ( () => {
+      const g3 = $.memo ( () => {
         return f1 () + f2 () + f3 ();
       });
 
-      const h = $.computed ( () => {
+      const h = $.memo ( () => {
         calls += 1;
         return g1 () + g2 () + g3 ();
       });
@@ -8604,19 +8604,19 @@ describe ( 'oby', () => {
       let childValue2;
 
       const child = o => {
-        $.computed ( () => {
+        $.memo ( () => {
           childValue = o ();
           calls += 1;
         });
       };
 
       const child2 = o => {
-        $.computed ( () => {
+        $.memo ( () => {
           childValue2 = o ();
         });
       };
 
-      $.computed ( () => {
+      $.memo ( () => {
         const value = !!o ();
         cache ( value );
         return value;
@@ -8624,7 +8624,7 @@ describe ( 'oby', () => {
 
       // 1st
 
-      $.computed ( () => {
+      $.memo ( () => {
         cache ();
         child2 ( o );
         child ( o );
@@ -8671,7 +8671,7 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.computed ( () => {
+      $.memo ( () => {
 
         calls += 1;
 
@@ -8706,27 +8706,27 @@ describe ( 'oby', () => {
       let childValue;
 
       const child = o => {
-        $.computed ( () => {
+        $.memo ( () => {
           childValue = o ();
           calls += 1;
         });
         return 'Hi';
       };
 
-      $.computed ( () => {
+      $.memo ( () => {
         const value = !!o ();
         cache ( value );
         return value;
       });
 
-      const memo = $.computed ( () => {
+      const memo = $.memo ( () => {
         const cached = cache ();
         return cached ? child ( o ) : undefined;
       });
 
       let view;
 
-      $.computed ( () => {
+      $.memo ( () => {
         view = memo ();
         return view;
       });
