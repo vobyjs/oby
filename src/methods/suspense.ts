@@ -3,6 +3,7 @@
 
 import boolean from '~/methods/boolean';
 import effect from '~/methods/effect';
+import get from '~/methods/get';
 import Suspense from '~/objects/suspense';
 import type {SuspenseFunction, FunctionMaybe} from '~/types';
 
@@ -15,7 +16,7 @@ const suspense = <T> ( when: FunctionMaybe<unknown>, fn: SuspenseFunction<T> ): 
 
   effect ( () => {
 
-    suspense.toggle ( condition () );
+    suspense.toggle ( get ( condition ) );
 
   });
 

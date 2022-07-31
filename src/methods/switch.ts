@@ -1,11 +1,29 @@
 
 /* IMPORT */
 
-import {IS} from '~/constants';
+import {IS, SYMBOL_OBSERVABLE_FROZEN} from '~/constants';
 import get from '~/methods/get';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
+import resolved from '~/methods/resolved';
+import {isFunction} from '~/utils';
 import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
+
+/* HELPERS */
+
+const find = <T, R> ( values: ([T, R] | [R])[], condition: T ): R | undefined => {
+
+  for ( let i = 0, l = values.length; i < l; i++ ) {
+
+    const value = values[i];
+
+    if ( value.length === 1 ) return value[0];
+
+    if ( IS ( value[0], condition ) ) return value[1];
+
+  }
+
+};
 
 /* MAIN */
 
@@ -13,27 +31,25 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: [...[T, R][], [R]] ): 
 function _switch <T, R> ( when: FunctionMaybe<T>, values: [T, R][] ): ObservableReadonly<Resolved<R | undefined>>;
 function _switch <T, R> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[] ): ObservableReadonly<Resolved<R | undefined>> {
 
-  const value = memo ( () => {
+  if ( isFunction ( when ) && !( SYMBOL_OBSERVABLE_FROZEN in when ) ) {
 
-    const condition = get ( when );
+    const value = memo ( () => {
 
-    for ( let i = 0, l = values.length; i < l; i++ ) {
+      return find ( values, get ( when ) );
 
-      const value = values[i];
+    });
 
-      if ( value.length === 1 ) return value[0];
+    return memo ( () => {
 
-      if ( IS ( value[0], condition ) ) return value[1];
+      return resolve ( value () );
 
-    }
+    });
 
-  });
+  } else {
 
-  return memo ( () => {
+    return resolved ( find ( values, get ( when ) ) );
 
-    return resolve ( value () );
-
-  });
+  }
 
 };
 
