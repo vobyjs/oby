@@ -15,6 +15,8 @@ const castError = ( error: unknown ): Error => {
 
 };
 
+const {isArray} = Array;
+
 const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => {
 
   return typeof value === 'function';
@@ -41,4 +43,4 @@ const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
 
 /* EXPORT */
 
-export {castError, isFunction, isFunctionAsync, isObject, max};
+export {castError, isArray, isFunction, isFunctionAsync, isObject, max};

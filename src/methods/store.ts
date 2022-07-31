@@ -8,6 +8,7 @@ import isStore from '~/methods/is_store';
 import {readable} from '~/objects/callable';
 import Computation from '~/objects/computation';
 import ObservableClass from '~/objects/observable';
+import {isArray} from '~/utils';
 import type {IObservable, Observable, ObservableOptions, StoreOptions, Signal} from '~/types';
 
 /* TYPES */
@@ -429,7 +430,7 @@ const getNodeProperty = ( node: StoreNode, key: StoreKey, value: unknown ): Stor
 
 const getGettersAndSetters = ( value: StoreTarget ): { getters?: StoreMap<string | symbol, Function>, setters?: StoreMap<string | symbol, Function> } => {
 
-  if ( Array.isArray ( value ) ) return {};
+  if ( isArray ( value ) ) return {};
 
   let getters: StoreMap<string | symbol, Function> | undefined;
   let setters: StoreMap<string | symbol, Function> | undefined;
@@ -489,7 +490,7 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 
   if ( value === null || typeof value !== 'object' ) return false;
 
-  if ( Array.isArray ( value ) ) return true;
+  if ( isArray ( value ) ) return true;
 
   const prototype = Object.getPrototypeOf ( value );
 
