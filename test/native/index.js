@@ -7761,6 +7761,18 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'resolves the fallback value before returning it', t => {
+
+      const result = $.switch ( 2, [[1, '1']], () => () => 'fallback' );
+
+      isReadable ( t, result );
+      isReadable ( t, result () );
+      isReadable ( t, result ()() );
+
+      t.is ( result ()()(), 'fallback' );
+
+    });
+
     it ( 'returns a memo to matching case or the default case with a functional condition', t => {
 
       const o = $(1);
@@ -7804,6 +7816,14 @@ describe ( 'oby', () => {
       const result = $.switch ( 1, [[2, '2'], [3, '3']] );
 
       t.is ( result (), undefined );
+
+    });
+
+    it ( 'returns a memo to fallback if no condition matches and there is no default case', t => {
+
+      const result = $.switch ( 1, [[2, '2'], [3, '3']], 123 );
+
+      t.is ( result (), 123 );
 
     });
 

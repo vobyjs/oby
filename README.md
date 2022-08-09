@@ -913,7 +913,7 @@ type SwitchCase<T, R> = [T, R];
 type SwitchDefault<R> = [R];
 type SwitchValue<T, R> = SwitchCase<T, R> | SwitchDefault<R>;
 
-function switch <T, R> ( when: (() => T) | T, values: SwitchValue<T, R>[] ): ObservableReadonly<R | undefined>;
+function switch <T, R, F> ( when: (() => T) | T, values: SwitchValue<T, R>[], fallback?: F ): ObservableReadonly<R | F | undefined>;
 ```
 
 Usage:
