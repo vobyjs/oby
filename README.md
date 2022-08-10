@@ -23,6 +23,7 @@ npm install --save oby
 | [`$.memo`](#memo)                 |                           |                           |                                             |
 | [`$.on`](#on)                     |                           |                           |                                             |
 | [`$.off`](#off)                   |                           |                           |                                             |
+| [`$.owner`](#owner)                   |                           |                           |                                             |
 | [`$.reaction`](#reaction)         |                           |                           |                                             |
 | [`$.root`](#root)                 |                           |                           |                                             |
 | [`$.store`](#store)               |                           |                           |                                             |
@@ -460,6 +461,41 @@ $.on ( o, onChange ); // Registering
 $.off ( o, onChange ); // Unregistering
 
 o ( 1 ); // Listener not called, because it got unregistered
+```
+
+#### `$.owner`
+
+This function tells you some metadata about the current owner/observer. There's always an owner.
+
+- **Note**: this is an advanced function intended mostly for internal usage, you almost certainly don't have a use case for using this function.
+
+Interface:
+
+```ts
+type Owner = {
+  isSuperRoot: boolean, // This tells you if the nearest owner of your current code is a super root, which is kind of a default root that everything gets wrapped with
+  isRoot: boolean, // This tells you if the nearest owner of your current code is a root
+  isSuspense: boolean, // This tells you if the nearest owner of your current code is a suspense
+  isComputation: boolean // This tells you if the nearest owner of your current code is an effect or a memo or a reaction
+};
+
+function owner (): Owner;
+```
+
+Usage:
+
+```ts
+import $ from 'voby';
+
+// Check if you are right below the super root
+
+$.owner ().isSuperRoot; // => true
+
+$.effect ( () => {
+
+  $.owner ().isSuperRoot; // => false
+
+});
 ```
 
 #### `$.reaction`

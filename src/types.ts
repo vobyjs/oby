@@ -81,6 +81,15 @@ type ObservableOptions<T = unknown> = {
 
 declare const ObservableSymbol: unique symbol;
 
+/* OWNER */
+
+type Owner = {
+  isSuperRoot: boolean,
+  isRoot: boolean,
+  isSuspense: boolean,
+  isComputation: boolean
+};
+
 /* STORE */
 
 type StoreOptions = {
@@ -132,5 +141,6 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 export type {IComputation, IEffect, IMemo, IObservable, IObserver, IReaction, IRoot, ISuperRoot, ISuspense};
 export type {BatchFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
+export type {Owner};
 export type {StoreOptions};
 export type {Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};
