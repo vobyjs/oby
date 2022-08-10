@@ -2505,6 +2505,29 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+
+      const o = $([]);
+
+      let calls = 0;
+
+      $.for ( o, () => () => 123, () => () => {
+        calls += 1;
+        return 321;
+      });
+
+      t.is ( calls, 1 );
+
+      o ( [] );
+
+      t.is ( calls, 1 );
+
+      o ( [] );
+
+      t.is ( calls, 1 );
+
+    });
+
     it ( 'resolves the mapped value before returning it', t => {
 
       const result = $.for ( [1], () => () => () => 123 );
@@ -2770,6 +2793,29 @@ describe ( 'oby', () => {
       isReadable ( t, result ()() );
 
       t.is ( result ()()(), 321 );
+
+    });
+
+    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+
+      const o = $([]);
+
+      let calls = 0;
+
+      $.forIndex ( o, () => () => 123, () => () => {
+        calls += 1;
+        return 321;
+      });
+
+      t.is ( calls, 1 );
+
+      o ( [] );
+
+      t.is ( calls, 1 );
+
+      o ( [] );
+
+      t.is ( calls, 1 );
 
     });
 
@@ -3157,6 +3203,29 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+
+      const o = $([]);
+
+      let calls = 0;
+
+      $.forValue ( o, () => () => 123, () => () => {
+        calls += 1;
+        return 321;
+      });
+
+      t.is ( calls, 1 );
+
+      o ( [] );
+
+      t.is ( calls, 1 );
+
+      o ( [] );
+
+      t.is ( calls, 1 );
+
+    });
+
     it ( 'resolves the mapped value before returning it', t => {
 
       const result = $.forValue ( [1], () => () => () => 123 );
@@ -3351,6 +3420,29 @@ describe ( 'oby', () => {
       isReadable ( t, result ()() );
 
       t.is ( result ()()(), 123 );
+
+    });
+
+    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.if ( o, () => () => 123, () => () => {
+        calls += 1;
+        return 321;
+      });
+
+      t.is ( calls, 1 );
+
+      o ( false );
+
+      t.is ( calls, 1 );
+
+      o ( NaN );
+
+      t.is ( calls, 1 );
 
     });
 
@@ -7770,6 +7862,29 @@ describe ( 'oby', () => {
       isReadable ( t, result ()() );
 
       t.is ( result ()()(), 'fallback' );
+
+    });
+
+    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+
+      const o = $(2);
+
+      let calls = 0;
+
+      $.switch ( o, [[1, '1']], () => () => {
+        calls += 1;
+        return 321;
+      });
+
+      t.is ( calls, 1 );
+
+      o ( 3 );
+
+      t.is ( calls, 1 );
+
+      o ( 4 );
+
+      t.is ( calls, 1 );
 
     });
 
