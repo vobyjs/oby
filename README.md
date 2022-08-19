@@ -592,7 +592,7 @@ You can just use the reactive object like you would with a regular non-reactive 
 
 - **Note**: Only the following types of values will be handled by the reactivity system: plain objects, plain arrays, primitives.
 
-- **Note**: Assignments to the following properties won't be reactive, as making those reactive would have more cons than props: `__proto__`, `prototype`, `constructor`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `toSource`, `toString`, `valueOf`, all `Array` methods.
+- **Note**: Assignments to the following properties won't be reactive, as making those reactive would have more cons than pros: `__proto__`, `prototype`, `constructor`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `toSource`, `toString`, `valueOf`, all `Array` methods.
 
 - **Note**: Getters and setters that are properties of arrays, if for whatever reason you have those, won't be reactive.
 
