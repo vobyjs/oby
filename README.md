@@ -361,12 +361,13 @@ $.isStore ( {} ); // => false
 
 This is the function where the magic happens, it generates a new read-only Observable with the result of the function passed to it, the function is automatically re-executed whenever it's dependencies change, and dependencies are tracked automatically.
 
-Usually you can just pass a plain function around, if that's the case the only thing you'll get out of `$.memo` is memoization, which is a performanc optimization, hence the name.
+Usually you can just pass a plain function around, if that's the case the only thing you'll get out of `$.memo` is memoization, which is a performance optimization, hence the name.
 
 There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
 
 - **Note**: the Observable returned by a memo could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
-- **Note**: this function should not have side effects other than potentially updating some Observables, for side effects you should use `$.effect`.
+- **Note**: this function should not have side effects, the function is expected to be pure, for side effects you should use `$.effect`.
+- **Note**: if you want to update some Observables inside a computation you should probably first of all try to avoid doing that in the first place if you can, but if you can't avoid it you should use `$.reaction` for that instead.
 
 Interface:
 
