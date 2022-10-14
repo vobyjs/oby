@@ -6068,7 +6068,7 @@ describe ( 'oby', () => {
         t.true ( $.isStore ( wrapped ) );
         t.true ( $.isStore ( wrapped.value ) );
 
-        const unwrapped = $.store ( wrapped, { unwrap: true } );
+        const unwrapped = $.store.unwrap ( wrapped );
 
         t.false ( $.isStore ( unwrapped ) );
         t.false ( $.isStore ( unwrapped.value ) );
@@ -6082,7 +6082,7 @@ describe ( 'oby', () => {
         t.true ( $.isStore ( wrapped ) );
         t.true ( $.isStore ( wrapped[0] ) );
 
-        const unwrapped = $.store ( wrapped, { unwrap: true } );
+        const unwrapped = $.store.unwrap ( wrapped );
 
         t.false ( $.isStore ( unwrapped ) );
         t.false ( $.isStore ( unwrapped[0] ) );
@@ -6496,7 +6496,7 @@ describe ( 'oby', () => {
 
         t.is ( calls, 1 );
 
-        const rewrapped = $.store ( $.store ( o, { unwrap: true } ) );
+        const rewrapped = $.store ( $.store.unwrap ( o ) );
 
         rewrapped.foo = 10;
 

@@ -92,9 +92,7 @@ type Owner = {
 
 /* STORE */
 
-type StoreOptions = {
-  unwrap?: boolean
-};
+type StoreOptions = {};
 
 /* OTHERS */
 

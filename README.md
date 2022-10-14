@@ -23,7 +23,7 @@ npm install --save oby
 | [`$.memo`](#memo)                 |                           |                           |                                             |
 | [`$.on`](#on)                     |                           |                           |                                             |
 | [`$.off`](#off)                   |                           |                           |                                             |
-| [`$.owner`](#owner)                   |                           |                           |                                             |
+| [`$.owner`](#owner)               |                           |                           |                                             |
 | [`$.reaction`](#reaction)         |                           |                           |                                             |
 | [`$.root`](#root)                 |                           |                           |                                             |
 | [`$.store`](#store)               |                           |                           |                                             |
@@ -597,11 +597,11 @@ You can just use the reactive object like you would with a regular non-reactive 
 Interface:
 
 ```ts
-type StoreOptions = {
-  unwrap?: boolean
-};
+type StoreOptions = {};
 
 function store <T> ( value: T, options?: StoreOptions ): T;
+
+store.unwrap = function unwrap <T> ( value: T ): T;
 ```
 
 Usage:
@@ -637,11 +637,11 @@ arr.push ( 123 ); // Cause the effect to re-run
 
 // Get a non-reactive object out of a reactive one
 
-const pobj = $.store ( obj, { unwrap: true } );
+const pobj = $.store.unwrap ( obj );
 
 // Get a non-reactive array out of a reactive one
 
-const parr = $.store ( arr, { unwrap: true } );
+const parr = $.store.unwrap ( arr );
 ```
 
 #### `$.untrack`
@@ -1311,9 +1311,7 @@ This type describes the options object that the `$.store` function can accept.
 Interface:
 
 ```ts
-type StoreOptions = {
-  unwrap?: boolean
-};
+type StoreOptions = {};
 ```
 
 ## Thanks

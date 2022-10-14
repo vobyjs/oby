@@ -55,7 +55,7 @@ benchmark.group ( 'unwrap', () => {
       ctx.store = $.store ( 123 );
     },
     fn: ctx => {
-      $.store ( ctx.store, { unwrap: true } );
+      $.store.unwrap ( ctx.store );
     }
   });
 
@@ -65,7 +65,7 @@ benchmark.group ( 'unwrap', () => {
       ctx.store = $.store ( {} );
     },
     fn: ctx => {
-      $.store ( ctx.store, { unwrap: true } );
+      $.store.unwrap ( ctx.store );
     }
   });
 
@@ -75,7 +75,7 @@ benchmark.group ( 'unwrap', () => {
       ctx.store = $.store ( [] );
     },
     fn: ctx => {
-      $.store ( ctx.store, { unwrap: true } );
+      $.store.unwrap ( ctx.store );
     }
   });
 
@@ -85,7 +85,7 @@ benchmark.group ( 'unwrap', () => {
       ctx.store = $.store ( OBJ () );
     },
     fn: ctx => {
-      $.store ( ctx.store, { unwrap: true } );
+      $.store.unwrap ( ctx.store );
     }
   });
 
