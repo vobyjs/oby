@@ -10,7 +10,7 @@ const suspended = (): number => {
 
   if ( !SUSPENSE_ENABLED.current ) return 0;
 
-  const suspense = SUSPENSE.current || OWNER.current.context<ISuspense> ( SYMBOL_SUSPENSE );
+  const suspense = SUSPENSE.current || OWNER.current.read<ISuspense> ( SYMBOL_SUSPENSE );
 
   return suspense?.suspended || 0;
 

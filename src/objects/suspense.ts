@@ -28,7 +28,7 @@ class Suspense extends Observer {
 
     OWNER.current.registerObserver ( this );
 
-    this.registerContext ( SYMBOL_SUSPENSE, this );
+    this.write ( SYMBOL_SUSPENSE, this );
 
   }
 

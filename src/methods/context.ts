@@ -11,11 +11,11 @@ function context <T> ( symbol: symbol, value?: T ) {
 
   if ( arguments.length < 2 ) { // Read
 
-    return OWNER.current.context<T> ( symbol );
+    return OWNER.current.read<T> ( symbol );
 
   } else { // Write
 
-    return OWNER.current.registerContext ( symbol, value );
+    return OWNER.current.write ( symbol, value );
 
   }
 

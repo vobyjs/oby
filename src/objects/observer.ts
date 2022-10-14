@@ -33,13 +33,6 @@ class Observer {
 
   }
 
-  registerContext <T> ( symbol: symbol, value: T ): void {
-
-    this.contexts ||= {};
-    this.contexts[symbol] = value;
-
-  }
-
   registerError ( error: Callable<ErrorFunction> ): void {
 
     lazyArrayPush ( this, 'errors', error );
@@ -72,13 +65,20 @@ class Observer {
 
   /* API */
 
-  context <T> ( symbol: symbol ): T | undefined {
+  read <T> ( symbol: symbol ): T | undefined {
 
     const {contexts, parent} = this;
 
     if ( contexts && symbol in contexts ) return contexts[symbol];
 
-    return parent?.context<T> ( symbol );
+    return parent?.read<T> ( symbol );
+
+  }
+
+  write <T> ( symbol: symbol, value: T ): void {
+
+    this.contexts ||= {};
+    this.contexts[symbol] = value;
 
   }
 
