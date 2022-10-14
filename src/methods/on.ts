@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE_FROZEN} from '~/constants';
+import isObservableFrozen from '~/methods/is_observable_frozen';
 import off from '~/methods/off';
 import target from '~/methods/target';
 import type {IObservable, DisposeFunction, ListenerFunction, Observable, ObservableReadonly, Callable} from '~/types';
@@ -10,9 +10,9 @@ import type {IObservable, DisposeFunction, ListenerFunction, Observable, Observa
 
 const on = <T> ( observable: Observable<T> | ObservableReadonly<T> | IObservable<T>, listener: Callable<ListenerFunction<T>> ): DisposeFunction => {
 
-  if ( SYMBOL_OBSERVABLE_FROZEN in observable ) {
+  if ( isObservableFrozen ( observable ) ) {
 
-    listener.call ( listener, ( observable as ObservableReadonly<T> )() ); //TSC
+    listener.call ( listener, observable () );
 
   } else {
 

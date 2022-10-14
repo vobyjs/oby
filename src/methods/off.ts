@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE_FROZEN} from '~/constants';
+import isObservableFrozen from '~/methods/is_observable_frozen';
 import target from '~/methods/target';
 import type {IObservable, ListenerFunction, Observable, ObservableReadonly, Callable} from '~/types';
 
@@ -9,15 +9,9 @@ import type {IObservable, ListenerFunction, Observable, ObservableReadonly, Call
 
 const off = <T> ( observable: Observable<T> | ObservableReadonly<T> | IObservable<T>, listener: Callable<ListenerFunction<T>> ): void => {
 
-  if ( SYMBOL_OBSERVABLE_FROZEN in observable ) {
+  if ( isObservableFrozen ( observable ) ) return;
 
-    return;
-
-  } else {
-
-    target ( observable ).unregisterListener ( listener );
-
-  }
+  target ( observable ).unregisterListener ( listener );
 
 };
 
