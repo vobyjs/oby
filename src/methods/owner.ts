@@ -12,10 +12,10 @@ import type {Owner} from '~/types';
 
 const owner = (): Owner => {
 
-  const isSuperRoot = OWNER.current instanceof SuperRoot;
-  const isRoot = OWNER.current instanceof Root;
-  const isSuspense = OWNER.current instanceof Suspense;
-  const isComputation = OWNER.current instanceof Computation;
+  const isSuperRoot = ( OWNER.current instanceof SuperRoot );
+  const isRoot = ( OWNER.current instanceof Root );
+  const isSuspense = ( OWNER.current instanceof Suspense );
+  const isComputation = ( OWNER.current instanceof Computation );
 
   return {isSuperRoot, isRoot, isSuspense, isComputation};
 
