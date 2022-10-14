@@ -2,8 +2,9 @@
 /* IMPORT */
 
 import {OWNER, ROOT} from '~/constants';
-import suspendable from '~/methods/suspendable';
+import suspended from '~/methods/suspended';
 import Observer from '~/objects/observer';
+import {isNumber} from '~/utils';
 import type {IObserver, ObservedDisposableFunction} from '~/types';
 
 /* MAIN */
@@ -22,7 +23,7 @@ class Root extends Observer {
 
     super ();
 
-    if ( pausable && suspendable () ) {
+    if ( pausable && isNumber ( suspended () ) ) {
 
       this.pausable = true;
 

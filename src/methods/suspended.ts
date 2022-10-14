@@ -6,13 +6,13 @@ import type {ISuspense} from '~/types';
 
 /* MAIN */
 
-const suspended = (): number => {
+const suspended = (): number | undefined => {
 
-  if ( !SUSPENSE_ENABLED.current ) return 0;
+  if ( !SUSPENSE_ENABLED.current ) return;
 
   const suspense = SUSPENSE.current || OWNER.current.read<ISuspense> ( SYMBOL_SUSPENSE );
 
-  return suspense?.suspended || 0;
+  return suspense?.suspended;
 
 };
 
