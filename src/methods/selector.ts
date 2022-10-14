@@ -11,13 +11,17 @@ import type {SelectorFunction, ObservableReadonly} from '~/types';
 
 /* HELPERS */
 
+class DisposableMap<K, V> extends Map<K, V> { // This allows us to skip emptying the map in some cases, while still being able to signal that it was disposed
+  disposed: boolean = false;
+}
+
 class SelectedObservable extends Observable<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata + a cleanup function
   count: number = 0;
-  selecteds?: Map<unknown, SelectedObservable>;
+  selecteds?: DisposableMap<unknown, SelectedObservable>;
   source?: any;
   /* API */
   call (): void { // Cleanup function
-    if ( !this.selecteds!.size ) return; //TSC
+    if ( this.selecteds!.disposed ) return; //TSC
     this.count -= 1;
     if ( this.count ) return;
     this.dispose ();
@@ -35,7 +39,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   /* SELECTEDS */
 
-  let selecteds: Map<unknown, SelectedObservable> = new Map ();
+  let selecteds: DisposableMap<unknown, SelectedObservable> = new DisposableMap ();
 
   let valuePrev: T | undefined;
 
@@ -68,7 +72,8 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
     }
 
-    selecteds = new Map ();
+    selecteds.disposed = true;
+    selecteds = new DisposableMap ();
 
   };
 

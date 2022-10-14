@@ -13,6 +13,9 @@ $.root ( dispose => {
 
   console.time ( 'create' );
 
+  const isSelected2 = $.selector ( selected );
+  const isSelectedDisposed2 = $.selector ( $.memo ( () => {} ) );
+
   const global = $();
 
   const memoVoid = $.memo ( () => {} );
@@ -39,7 +42,9 @@ $.root ( dispose => {
         global ();
         items[i]();
         isSelected ( i );
+        isSelected2 ( i );
         isSelectedDisposed ( i );
+        isSelectedDisposed2 ( i );
       });
 
       $.effect ( () => {
