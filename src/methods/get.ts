@@ -13,9 +13,15 @@ function get <T> ( value: T, getFunction: boolean = true ) {
 
   const is = getFunction ? isFunction : isObservable;
 
-  if ( is ( value ) ) return value ();
+  if ( is ( value ) ) {
 
-  return value;
+    return value ();
+
+  } else {
+
+    return value;
+
+  }
 
 }
 
