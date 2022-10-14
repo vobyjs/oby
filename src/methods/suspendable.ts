@@ -8,7 +8,7 @@ import type {ISuspense} from '~/types';
 
 const suspendable = (): boolean => {
 
-  return !!SUSPENSE_ENABLED.current && ( !!SUSPENSE.current || !!OWNER.current.read<ISuspense> ( SYMBOL_SUSPENSE ) );
+  return SUSPENSE_ENABLED.current && ( !!SUSPENSE.current || !!OWNER.current.read<ISuspense> ( SYMBOL_SUSPENSE ) );
 
 };
 
