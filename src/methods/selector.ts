@@ -16,16 +16,16 @@ class DisposableMap<K, V> extends Map<K, V> { // This allows us to skip emptying
 }
 
 class SelectedObservable extends Observable<boolean> { // This saves some memory compared to making a dedicated standalone object for metadata + a cleanup function
-  count: number = 0;
-  selecteds?: DisposableMap<unknown, SelectedObservable>;
+  count: number = 1;
+  selecteds!: DisposableMap<unknown, SelectedObservable>; //TSC
   source?: any;
   /* API */
   call (): void { // Cleanup function
-    if ( this.selecteds!.disposed ) return; //TSC
+    if ( this.selecteds.disposed ) return;
     this.count -= 1;
     if ( this.count ) return;
     this.dispose ();
-    this.selecteds!.delete ( this.source ); //TSC
+    this.selecteds.delete ( this.source );
   }
 }
 
@@ -39,7 +39,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   /* SELECTEDS */
 
-  let selecteds: DisposableMap<unknown, SelectedObservable> = new DisposableMap ();
+  let selecteds = new DisposableMap<unknown, SelectedObservable> ();
 
   let valuePrev: T | undefined;
 
@@ -85,12 +85,11 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
     /* INIT */
 
-    let selected: SelectedObservable;
-    let selectedPrev = selecteds.get ( value );
+    let selected = selecteds.get ( value );
 
-    if ( selectedPrev ) {
+    if ( selected ) {
 
-      selected = selectedPrev;
+      selected.count += 1;
 
     } else {
 
@@ -102,8 +101,6 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
       selecteds.set ( value, selected );
 
     }
-
-    selected.count += 1;
 
     /* CLEANUP */
 
