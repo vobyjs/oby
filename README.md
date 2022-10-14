@@ -118,7 +118,6 @@ Interface:
 
 ```ts
 function batch <T> ( fn: () => T ): T;
-function batch <T> ( value: T ): T;
 ```
 
 Usage:
@@ -141,10 +140,6 @@ $.batch ( () => {
 });
 
 o (); // => 3, now the latest update for this observable has been flushed out
-
-// Batch a non function, it's just returned as is
-
-$.batch ( 123 ); // => 123
 ```
 
 #### `$.cleanup`

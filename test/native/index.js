@@ -610,18 +610,6 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns non-functions as is', t => {
-
-      const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
-
-      for ( const value of values ) {
-
-        t.is ( value, $.batch ( value ) );
-
-      }
-
-    });
-
     it ( 'returns the value being returned', t => {
 
       const o = $(0);

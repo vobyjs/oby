@@ -2,7 +2,6 @@
 /* IMPORT */
 
 import {BATCH} from '~/constants';
-import {isFunction} from '~/utils';
 import type {IObservable, BatchFunction} from '~/types';
 
 /* HELPERS */
@@ -15,55 +14,37 @@ const unstale = <T> ( value: T, observable: IObservable<T> ): void => observable
 
 //TODO: Experiment with deleting batching and instead just queuing effects in a microtask
 
-function batch <T> ( fn: BatchFunction<T> ): T;
-function batch <T> ( fn: T ): T;
-function batch <T> ( fn: BatchFunction<T> | T ) {
+const batch = <T> ( fn: BatchFunction<T> ): T => {
 
-  if ( isFunction ( fn ) ) {
+  if ( BATCH.current ) { // Already batching
 
-    if ( BATCH.current ) { // Already batching
+    return fn ();
+
+  } else { // Starting batching
+
+    const batch = BATCH.current = new Map ();
+
+    try {
 
       return fn ();
 
-    } else { // Starting batching
+    } finally {
 
-      const batch = BATCH.current = new Map ();
+      BATCH.current = undefined;
 
-      try {
+      if ( batch.size > 1 ) {
 
-        return fn ();
+        batch.forEach ( stale );
+        batch.forEach ( flush );
+        batch.forEach ( unstale );
 
-      } finally {
+      } else {
 
-        BATCH.current = undefined;
-
-        if ( batch.size > 1 ) {
-
-          batch.forEach ( stale );
-
-        }
-
-        try {
-
-          batch.forEach ( flush );
-
-        } finally {
-
-          if ( batch.size > 1 ) {
-
-            batch.forEach ( unstale );
-
-          }
-
-        }
+        batch.forEach ( flush );
 
       }
 
     }
-
-  } else {
-
-    return fn;
 
   }
 
