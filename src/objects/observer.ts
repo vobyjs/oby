@@ -178,19 +178,17 @@ class Observer {
 
   }
 
-  wrap <T> ( fn: ObservedFunction<T> ): T {
+  wrap <T> ( fn: ObservedFunction<T>, tracking: boolean = false ): T {
 
     const ownerPrev = OWNER.current;
     const trackingPrev = TRACKING.current;
 
     OWNER.current = this;
-    TRACKING.current = true;
-
-    let result: T;
+    TRACKING.current = tracking;
 
     try {
 
-      result = fn ();
+      return fn ();
 
     } catch ( error: unknown ) {
 
@@ -202,8 +200,6 @@ class Observer {
       TRACKING.current = trackingPrev;
 
     }
-
-    return result!;
 
   }
 

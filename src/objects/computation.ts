@@ -4,7 +4,7 @@
 import {OWNER, ROOT} from '~/constants';
 import Observer from '~/objects/observer';
 import {isFunctionAsync} from '~/utils';
-import type {IObserver, Signal} from '~/types';
+import type {IObserver, ObservedFunction, Signal} from '~/types';
 
 /* MAIN */
 
@@ -57,6 +57,12 @@ class Computation extends Observer {
   }
 
   update ( fresh: boolean ): void {}
+
+  wrap <T> ( fn: ObservedFunction<T>, tracking: boolean = true ): T {
+
+    return super.wrap ( fn, tracking );
+
+  }
 
 }
 

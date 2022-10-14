@@ -3,7 +3,6 @@
 
 import {BATCH, FALSE, IS, OWNER, ROOT, TRACKING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetHas} from '~/lazy';
-import Computation from '~/objects/computation';
 import type {IComputation, IMemo, IObservable, IObserver, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, Callable, LazySet, Signal} from '~/types';
 
 /* MAIN */
@@ -62,7 +61,7 @@ class Observable<T = unknown> {
 
     if ( this.disposed || this.signal.disposed ) return;
 
-    if ( TRACKING.current && OWNER.current instanceof Computation ) {
+    if ( TRACKING.current ) {
 
       this.registerObserver ( OWNER.current );
 
