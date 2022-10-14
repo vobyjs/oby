@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {BATCH, FALSE, IS, OWNER, ROOT, UNTRACKING} from '~/constants';
+import {BATCH, FALSE, IS, OWNER, ROOT, TRACKING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetHas} from '~/lazy';
 import Computation from '~/objects/computation';
 import type {IComputation, IMemo, IObservable, IObserver, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, Callable, LazySet, Signal} from '~/types';
@@ -62,7 +62,7 @@ class Observable<T = unknown> {
 
     if ( this.disposed || this.signal.disposed ) return;
 
-    if ( !UNTRACKING.current && OWNER.current instanceof Computation ) {
+    if ( TRACKING.current && OWNER.current instanceof Computation ) {
 
       this.registerObserver ( OWNER.current );
 

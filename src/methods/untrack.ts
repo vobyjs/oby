@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {UNTRACKING} from '~/constants';
+import {TRACKING} from '~/constants';
 import {isFunction} from '~/utils';
 import type {UntrackFunction} from '~/types';
 
@@ -13,13 +13,13 @@ function untrack <T> ( fn: UntrackFunction<T> | T ) {
 
   if ( isFunction ( fn ) ) {
 
-    if ( UNTRACKING.current ) { // Already untracking
+    if ( !TRACKING.current ) { // Already untracking
 
       return fn ();
 
     } else { // Starting untracking
 
-      UNTRACKING.current = true;
+      TRACKING.current = false;
 
       try {
 
@@ -27,7 +27,7 @@ function untrack <T> ( fn: UntrackFunction<T> | T ) {
 
       } finally {
 
-        UNTRACKING.current = false;
+        TRACKING.current = true;
 
       }
 

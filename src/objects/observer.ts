@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER, UNTRACKING} from '~/constants';
+import {OWNER, TRACKING} from '~/constants';
 import {lazyArrayEach, lazyArrayPush, lazySetAdd, lazySetDelete} from '~/lazy';
 import {castError} from '~/utils';
 import type {IObservable, IObserver, IRoot, CleanupFunction, ErrorFunction, ObservedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue, Signal} from '~/types';
@@ -181,10 +181,10 @@ class Observer {
   wrap <T> ( fn: ObservedFunction<T> ): T {
 
     const ownerPrev = OWNER.current;
-    const untrackingPrev = UNTRACKING.current;
+    const trackingPrev = TRACKING.current;
 
     OWNER.current = this;
-    UNTRACKING.current = false;
+    TRACKING.current = true;
 
     let result: T;
 
@@ -199,7 +199,7 @@ class Observer {
     } finally {
 
       OWNER.current = ownerPrev;
-      UNTRACKING.current = untrackingPrev;
+      TRACKING.current = trackingPrev;
 
     }
 
