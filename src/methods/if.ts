@@ -12,7 +12,7 @@ function _if <T, F> ( when: FunctionMaybe<unknown>, valueTrue: T, valueFalse?: F
 
   return ternary ( when, valueTrue, valueFalse );
 
-};
+}
 
 /* EXPORT */
 
