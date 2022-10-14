@@ -9,9 +9,15 @@ import type {FunctionMaybe} from '~/types';
 
 const boolean = ( value: FunctionMaybe<unknown> ): FunctionMaybe<boolean> => {
 
-  if ( !isFunction ( value ) ) return !!value;
+  if ( isFunction ( value ) ) {
 
-  return memo ( () => !!value () );
+    return memo ( () => !!value () );
+
+  } else {
+
+    return !!value;
+
+  }
 
 };
 
