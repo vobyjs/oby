@@ -1,36 +1,32 @@
 
 /* IMPORT */
 
-import error from '~/methods/error';
+import handle from '~/methods/error';
 import memo from '~/methods/memo';
+import $ from '~/methods/observable';
 import resolve from '~/methods/resolve';
-import Observable from '~/objects/observable';
-import {castError} from '~/utils';
 import type {TryCatchFunction, ObservableReadonly, Resolved} from '~/types';
 
 /* MAIN */
 
 const tryCatch = <T, F> ( value: T, fn: TryCatchFunction<F> ): ObservableReadonly<Resolved<T | F>> => {
 
-  const observable = new Observable<Error | undefined> ( undefined );
+  const observable = $<Error>();
 
   return memo ( () => {
 
-    if ( observable.read () ) {
+    const error = observable ();
 
-      const error = observable.value!;
-      const reset = () => observable.write ( undefined );
+    if ( error ) {
+
+      const reset = () => observable ( undefined );
       const options = { error, reset };
 
       return resolve ( fn ( options ) );
 
     } else {
 
-      error ( error => {
-
-        observable.write ( castError ( error ) );
-
-      });
+      handle ( observable );
 
       return resolve ( value );
 
