@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import memo from '~/methods/memo';
+import unwrap from '~/methods/unwrap';
 import {isFunction} from '~/utils';
 import type {FunctionMaybe} from '~/types';
 
@@ -11,7 +12,7 @@ const boolean = ( value: FunctionMaybe<unknown> ): FunctionMaybe<boolean> => {
 
   if ( isFunction ( value ) ) {
 
-    return memo ( () => !!value () );
+    return unwrap ( memo ( () => !!value () ) );
 
   } else {
 
