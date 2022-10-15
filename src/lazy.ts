@@ -7,7 +7,7 @@ import type {LazyArray, LazySet} from '~/types';
 
 const lazyArrayEach = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): void => {
   if ( arr instanceof Array ) {
-    arr.forEach ( fn )
+    arr.forEach ( fn );
   } else if ( arr ) {
     fn ( arr );
   }
@@ -16,7 +16,7 @@ const lazyArrayEach = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): void 
 const lazyArrayPush = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T>>>, key: U, value: T ): void => {
   const arr: LazyArray<T> = obj[key];
   if ( arr instanceof Array ) {
-    arr.push ( value )
+    arr.push ( value );
   } else if ( arr ) {
     obj[key] = [arr, value];
   } else {
