@@ -1,8 +1,4 @@
 
-/* HELPERS */
-
-const {toString} = Object.prototype;
-
 /* MAIN */
 
 const castError = ( error: unknown ): Error => {
@@ -20,12 +16,6 @@ const {isArray} = Array;
 const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => {
 
   return typeof value === 'function';
-
-};
-
-const isFunctionAsync = ( value: Function ): boolean => {
-
-  return toString.call ( value ) === '[object AsyncFunction]';
 
 };
 
@@ -49,4 +39,4 @@ const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
 
 /* EXPORT */
 
-export {castError, isArray, isFunction, isFunctionAsync, isNumber, isObject, max};
+export {castError, isArray, isFunction, isNumber, isObject, max};
