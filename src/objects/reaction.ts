@@ -78,7 +78,7 @@ class Reaction extends Computation {
 
           this.postdispose ();
 
-          this.error ( castError ( error ), false );
+          this.catch ( castError ( error ), false );
 
         } finally {
 

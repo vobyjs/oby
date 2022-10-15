@@ -65,20 +65,31 @@ class Observer {
 
   /* API */
 
-  read <T> ( symbol: symbol ): T | undefined {
+  catch ( error: Error, silent: boolean ): boolean {
 
-    const {contexts, parent} = this;
+    const {errors, parent} = this;
 
-    if ( contexts && symbol in contexts ) return contexts[symbol];
+    if ( errors ) {
 
-    return parent?.read<T> ( symbol );
+      lazyArrayEach ( errors, fn => fn.call ( fn, error ) );
 
-  }
+      return true;
 
-  write <T> ( symbol: symbol, value: T ): void {
+    } else {
 
-    this.contexts ||= {};
-    this.contexts[symbol] = value;
+      if ( parent?.catch ( error, true ) ) return true;
+
+      if ( silent ) {
+
+        return false;
+
+      } else {
+
+        throw error;
+
+      }
+
+    }
 
   }
 
@@ -126,11 +137,12 @@ class Observer {
   postdispose (): void {
 
     const prev = this.observablesLeftover;
-    const next = this.observables;
 
     if ( !prev ) return;
 
     this.observablesLeftover = undefined;
+
+    const next = this.observables;
 
     if ( prev === next ) return;
 
@@ -138,7 +150,7 @@ class Observer {
     const b = ( next instanceof Array ) ? next : [next];
 
     outer:
-    for ( let ai = 0, al = a.length; ai < al; ai++ ) { // Unlinking from previous observables which are not next observables too
+    for ( let ai = 0, al = a.length; ai < al; ai++ ) { // Unlinking from previous Observables which are not next Observables too
       const av = a[ai];
       if ( av.disposed || av.signal.disposed ) continue;
       if ( av === b[ai] ) continue;
@@ -150,31 +162,20 @@ class Observer {
 
   }
 
-  error ( error: Error, silent: boolean ): boolean {
+  read <T> ( symbol: symbol ): T | undefined {
 
-    const {errors, parent} = this;
+    const {contexts, parent} = this;
 
-    if ( errors ) {
+    if ( contexts && symbol in contexts ) return contexts[symbol];
 
-      lazyArrayEach ( errors, fn => fn.call ( fn, error ) );
+    return parent?.read<T> ( symbol );
 
-      return true;
+  }
 
-    } else {
+  write <T> ( symbol: symbol, value: T ): void {
 
-      if ( parent?.error ( error, true ) ) return true;
-
-      if ( silent ) {
-
-        return false;
-
-      } else {
-
-        throw error;
-
-      }
-
-    }
+    this.contexts ||= {};
+    this.contexts[symbol] = value;
 
   }
 
@@ -192,7 +193,7 @@ class Observer {
 
     } catch ( error: unknown ) {
 
-      this.error ( castError ( error ), false );
+      this.catch ( castError ( error ), false );
 
     } finally {
 
