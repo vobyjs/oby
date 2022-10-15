@@ -7,8 +7,8 @@ import type {IObservable, BatchFunction} from '~/types';
 /* HELPERS */
 
 const flush = <T> ( value: T, observable: IObservable<T> ): T => observable.write ( value );
-const stale = <T> ( value: T, observable: IObservable<T> ): void => observable.stale ( false );
-const unstale = <T> ( value: T, observable: IObservable<T> ): void => observable.unstale ( false );
+const stale = <T> ( value: T, observable: IObservable<T> ): void => observable.emit ( 1, false );
+const unstale = <T> ( value: T, observable: IObservable<T> ): void => observable.emit ( -1, false );
 
 /* MAIN */
 

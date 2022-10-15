@@ -123,7 +123,7 @@ class Observable<T = unknown> {
 
         if ( !this.signal.disposed ) {
 
-          this.stale ( fresh );
+          this.emit ( 1, fresh );
 
         }
 
@@ -141,7 +141,7 @@ class Observable<T = unknown> {
 
       if ( !this.signal.disposed ) {
 
-        this.unstale ( fresh );
+        this.emit ( -1, fresh );
 
       }
 
@@ -185,7 +185,7 @@ class Observable<T = unknown> {
 
   }
 
-  stale ( fresh: boolean ): void {
+  emit ( change: -1 | 1, fresh: boolean ): void {
 
     if ( this.disposed || this.signal.disposed ) return;
 
@@ -197,39 +197,13 @@ class Observable<T = unknown> {
 
         for ( const computation of computations ) {
 
-          computation.stale ( fresh );
+          computation.emit ( change, fresh );
 
         }
 
       } else {
 
-        computations.stale ( fresh );
-
-      }
-
-    }
-
-  }
-
-  unstale ( fresh: boolean ): void {
-
-    if ( this.disposed || this.signal.disposed ) return;
-
-    const computations = this.observers as LazySet<IComputation>; //TSC
-
-    if ( computations ) {
-
-      if ( computations instanceof Set ) {
-
-        for ( const computation of computations ) {
-
-          computation.unstale ( fresh );
-
-        }
-
-      } else {
-
-        computations.unstale ( fresh );
+        computations.emit ( change, fresh );
 
       }
 

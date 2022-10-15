@@ -30,18 +30,11 @@ class Computation extends Observer {
 
   /* API */
 
-  stale ( fresh: boolean ): void {
+  emit ( change: -1 | 1, fresh: boolean ): void {
 
-    this.statusCount += 1;
-    this.statusFresh ||= fresh;
+    if ( change < 0 && !this.statusCount ) return; // The computation updated itself already
 
-  }
-
-  unstale ( fresh: boolean ): void {
-
-    if ( !this.statusCount ) return; // The computation updated itself already
-
-    this.statusCount -= 1;
+    this.statusCount += change;
     this.statusFresh ||= fresh;
 
     if ( this.statusCount ) return;

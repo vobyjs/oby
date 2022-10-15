@@ -57,11 +57,7 @@ class Suspense extends Observer {
     const notifyObserver = ( observer: IObserver ): void => {
       if ( observer instanceof Suspense ) return;
       if ( observer instanceof Effect ) {
-        if ( force ) {
-          observer.stale ( false );
-        } else {
-          observer.unstale ( false );
-        }
+        observer.emit ( force ? 1 : -1, false );
       }
       lazyArrayEach ( observer.observers, notifyObserver );
       lazySetEach ( observer.roots, notifyRoot );

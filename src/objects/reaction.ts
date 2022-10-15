@@ -26,7 +26,7 @@ class Reaction extends Computation {
 
     if ( pausable && suspended () ) {
 
-      this.stale ( true );
+      this.emit ( 1, true );
 
     } else {
 

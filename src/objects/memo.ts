@@ -44,15 +44,15 @@ class Memo<T = unknown> extends Computation {
 
   }
 
-  stale ( fresh: boolean ): void {
+  emit ( change: -1 | 1, fresh: boolean ): void {
 
-    if ( !this.statusCount ) {
+    if ( change > 0 && !this.statusCount ) {
 
-      this.observable.stale ( false );
+      this.observable.emit ( change, false );
 
     }
 
-    super.stale ( fresh );
+    super.emit ( change, fresh );
 
   }
 
@@ -68,7 +68,7 @@ class Memo<T = unknown> extends Computation {
 
         if ( status > 1 ) {
 
-          this.observable.unstale ( false );
+          this.observable.emit ( -1, false );
 
         }
 
@@ -86,7 +86,7 @@ class Memo<T = unknown> extends Computation {
 
           if ( this.observable.disposed || this.observable.signal.disposed ) { // Maybe a memo disposed of itself via a root before returning, or caused itself to re-execute
 
-            this.observable.unstale ( false );
+            this.observable.emit ( -1, false );
 
           } else if ( first ) {
 
@@ -110,7 +110,7 @@ class Memo<T = unknown> extends Computation {
 
           this.catch ( castError ( error ), false );
 
-          this.observable.unstale ( false );
+          this.observable.emit ( -1, false );
 
         } finally {
 
@@ -130,7 +130,7 @@ class Memo<T = unknown> extends Computation {
 
     } else { // The resulting value could/should not possibly change
 
-      this.observable.unstale ( false );
+      this.observable.emit ( -1, false );
 
     }
 
