@@ -7,8 +7,7 @@ import type {IObservable, UpdateFunction, Frozen, Readable, Writable} from '~/ty
 
 /* MAIN */
 
-function frozenFunction <T> ( this: T, symbol: symbol ): T;
-function frozenFunction <T> ( this: T, symbol?: symbol ): T {
+function frozenFunction <T> ( this: T ): T {
   if ( arguments.length ) throw new Error ( 'A readonly Observable can not be updated' );
   return this;
 }
