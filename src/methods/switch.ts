@@ -40,7 +40,7 @@ function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], f
 
   });
 
-};
+}
 
 /* EXPORT */
 
