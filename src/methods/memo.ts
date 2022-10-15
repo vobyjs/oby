@@ -18,7 +18,7 @@ const memo = <T> ( fn: MemoFunction<T>, options?: ObservableOptions<T | undefine
   const memo = new Memo ( fn, options );
   const {observable} = memo;
 
-  if ( !memo.observables ) { // It can never run again, freeing up some memory and returning a cheaper frozen observable
+  if ( !memo.observables ) { // It can never run again, freeing up some memory, and returning a cheaper frozen observable
 
     memo.fn = DUMMY_FN;
     memo.observable = DUMMY_OBSERVABLE;

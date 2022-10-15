@@ -21,7 +21,7 @@ function untrack <T> ( fn: UntrackFunction<T> | T ) {
 
   }
 
-};
+}
 
 /* EXPORT */
 

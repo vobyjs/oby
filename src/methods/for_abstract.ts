@@ -21,9 +21,7 @@ const forAbstract = <T, R, F> ( Cache: Constructor<Cache<T, R>, [CallableFunctio
   cleanup ( dispose );
 
   const value = memo ( () => {
-
     return get ( values );
-
   }, {
     equals: ( a, b ) => {
       return !!a && !!b && !a.length && !b.length && !isStore ( a ) && !isStore ( b );
