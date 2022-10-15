@@ -22,7 +22,7 @@ class Memo<T = unknown> extends Computation {
     super ();
 
     this.fn = fn;
-    this.observable = new Observable ( undefined as any, options, this ); //TSC //FIXME: Equals function may break here, because it will be called the first time with "undefined" as the current value
+    this.observable = new Observable ( undefined as any, options, this ); //TSC
 
     this.parent.registerObserver ( this );
 
