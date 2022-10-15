@@ -13,7 +13,7 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   parent?: IMemo<T>;
-  signal: Signal = OWNER.current.signal || ROOT.current;
+  signal: Signal = ROOT.current;
   value: T;
   disposed?: true;
   equals?: EqualsFunction<T>;

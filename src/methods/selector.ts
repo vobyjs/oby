@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER, ROOT} from '~/constants';
+import {ROOT} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import reaction from '~/methods/reaction';
 import untrack from '~/methods/untrack';
@@ -35,7 +35,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   /* SIGNAL */
 
-  const signal = OWNER.current.signal || ROOT.current;
+  const signal = ROOT.current;
 
   /* SELECTEDS */
 

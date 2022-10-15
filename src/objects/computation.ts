@@ -13,7 +13,7 @@ class Computation extends Observer {
   /* VARIABLES */
 
   parent: IObserver = OWNER.current;
-  signal: Signal = OWNER.current.signal || ROOT.current;
+  signal: Signal = ROOT.current;
   status: number = 0;
 
   /* API */

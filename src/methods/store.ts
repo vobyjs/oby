@@ -355,7 +355,7 @@ const TRAPS = {
 const getNode = <T = StoreTarget> ( value: T, parent?: StoreNode ): StoreNode => {
 
   const store = new Proxy ( value, TRAPS );
-  const signal = parent?.signal || OWNER.current.signal || ROOT.current;
+  const signal = parent?.signal || ROOT.current;
   const {getters, setters} = getGettersAndSetters ( value );
   const node: StoreNode = { store, signal };
 
