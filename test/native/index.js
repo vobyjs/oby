@@ -3529,6 +3529,14 @@ describe ( 'oby', () => {
 
   describe ( 'memo', it => {
 
+    it ( 'bypasses the comparator function on first run', t => {
+
+      const o = $.memo ( () => 123, { equals: () => true } );
+
+      t.is ( o (), 123 );
+
+    });
+
     it ( 'can not be running multiple times concurrently', t => {
 
       const o = $(0);

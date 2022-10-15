@@ -26,7 +26,7 @@ class Memo<T = unknown> extends Computation {
 
     this.parent.registerObserver ( this );
 
-    this.update ( true );
+    this.update ( true, true );
 
   }
 
@@ -56,7 +56,7 @@ class Memo<T = unknown> extends Computation {
 
   }
 
-  update ( fresh: boolean ): void {
+  update ( fresh: boolean, first?: boolean ): void {
 
     if ( fresh && !this.observable.disposed && !this.observable.signal.disposed ) { // The resulting value might change
 
@@ -87,6 +87,10 @@ class Memo<T = unknown> extends Computation {
           if ( this.observable.disposed || this.observable.signal.disposed ) { // Maybe a memo disposed of itself via a root before returning, or caused itself to re-execute
 
             this.observable.unstale ( false );
+
+          } else if ( first ) {
+
+            this.observable.value = value;
 
           } else {
 
