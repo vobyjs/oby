@@ -187,9 +187,11 @@ class Observer {
     OWNER.current = this;
     TRACKING.current = tracking;
 
+    let result!: T; //TSC
+
     try {
 
-      return fn ();
+      result = fn ();
 
     } catch ( error: unknown ) {
 
@@ -201,6 +203,8 @@ class Observer {
       TRACKING.current = trackingPrev;
 
     }
+
+    return result;
 
   }
 
