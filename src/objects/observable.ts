@@ -159,32 +159,6 @@ class Observable<T = unknown> {
 
   }
 
-  listened ( valuePrev?: T ): void {
-
-    if ( this.disposed || this.signal.disposed ) return;
-
-    const {listeners} = this;
-
-    if ( listeners ) {
-
-      if ( listeners instanceof Set ) {
-
-        for ( const listener of listeners ) {
-
-          listener.call ( listener, this.value, valuePrev );
-
-        }
-
-      } else {
-
-        listeners.call ( listeners, this.value, valuePrev );
-
-      }
-
-    }
-
-  }
-
   emit ( change: -1 | 1, fresh: boolean ): void {
 
     if ( this.disposed || this.signal.disposed ) return;
@@ -204,6 +178,32 @@ class Observable<T = unknown> {
       } else {
 
         computations.emit ( change, fresh );
+
+      }
+
+    }
+
+  }
+
+  listened ( valuePrev?: T ): void {
+
+    if ( this.disposed || this.signal.disposed ) return;
+
+    const {listeners} = this;
+
+    if ( listeners ) {
+
+      if ( listeners instanceof Set ) {
+
+        for ( const listener of listeners ) {
+
+          listener.call ( listener, this.value, valuePrev );
+
+        }
+
+      } else {
+
+        listeners.call ( listeners, this.value, valuePrev );
 
       }
 
