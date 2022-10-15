@@ -3,6 +3,7 @@
 
 import Computation from '~/objects/computation';
 import Observable from '~/objects/observable';
+import {getExecution, setExecution, getCount} from '~/status';
 import {castError, max} from '~/utils';
 import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
 
@@ -46,7 +47,7 @@ class Memo<T = unknown> extends Computation {
 
   emit ( change: -1 | 1, fresh: boolean ): void {
 
-    if ( change > 0 && !this.statusCount ) {
+    if ( change > 0 && !getCount ( this.status ) ) {
 
       this.observable.emit ( change, false );
 
@@ -60,11 +61,11 @@ class Memo<T = unknown> extends Computation {
 
     if ( fresh && !this.observable.disposed && !this.observable.signal.disposed ) { // The resulting value might change
 
-      const status = this.statusExecution;
+      const status = getExecution ( this.status );
 
       if ( status ) { // Currently executing or pending
 
-        this.statusExecution = fresh ? 3 : max ( status, 2 );
+        this.status = setExecution ( this.status, fresh ? 3 : max ( status, 2 ) );
 
         if ( status > 1 ) {
 
@@ -74,7 +75,7 @@ class Memo<T = unknown> extends Computation {
 
       } else { // Currently sleeping
 
-        this.statusExecution = 1;
+        this.status = setExecution ( this.status, 1 );
 
         this.dispose ();
 
@@ -114,9 +115,9 @@ class Memo<T = unknown> extends Computation {
 
         } finally {
 
-          const status = this.statusExecution as ( 1 | 2 | 3 ); //TSC
+          const status = getExecution ( this.status );
 
-          this.statusExecution = 0;
+          this.status = setExecution ( status, 0 );
 
           if ( status > 1 ) {
 

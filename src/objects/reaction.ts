@@ -3,6 +3,7 @@
 
 import suspended from '~/methods/suspended';
 import Computation from '~/objects/computation';
+import {getExecution, setExecution} from '~/status';
 import {castError, isFunction, max} from '~/utils';
 import type {ReactionFunction} from '~/types';
 
@@ -42,15 +43,15 @@ class Reaction extends Computation {
 
     if ( fresh && !this.signal.disposed ) { // Something might change
 
-      const status = this.statusExecution;
+      const status = getExecution ( this.status );
 
       if ( status ) { // Currently executing or pending
 
-        this.statusExecution = fresh ? 3 : max ( status, 2 );
+        this.status = setExecution ( this.status, fresh ? 3 : max ( status, 2 ) );
 
       } else { // Currently sleeping
 
-        this.statusExecution = 1;
+        this.status = setExecution ( this.status, 1 );
 
         this.dispose ();
 
@@ -82,9 +83,9 @@ class Reaction extends Computation {
 
         } finally {
 
-          const status = this.statusExecution as ( 1 | 2 | 3 ); //TSC
+          const status = getExecution ( this.status );
 
-          this.statusExecution = 0;
+          this.status = setExecution ( this.status, 0 );
 
           if ( status > 1 ) {
 

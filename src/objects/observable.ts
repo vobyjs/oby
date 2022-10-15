@@ -3,6 +3,7 @@
 
 import {BATCH, FALSE, IS, OWNER, ROOT, TRACKING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetHas} from '~/lazy';
+import {getExecution, getCount} from '~/status';
 import type {IComputation, IMemo, IObservable, IObserver, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, Callable, LazySet, Signal} from '~/types';
 
 /* MAIN */
@@ -69,10 +70,9 @@ class Observable<T = unknown> {
 
     }
 
-    if ( this.parent?.statusCount ) { // Potentially stale value, forcing a refresh
+    if ( this.parent && getCount ( this.parent.status ) ) { // Potentially stale value, forcing a refresh
 
-      this.parent.statusCount = 0;
-      this.parent.statusFresh = false;
+      this.parent.status = getExecution ( this.parent.status );
 
       this.parent.update ( true );
 
