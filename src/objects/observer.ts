@@ -147,16 +147,16 @@ class Observer {
     if ( prev === next ) return;
 
     const a = ( prev instanceof Array ) ? prev : [prev];
-    const b = ( next instanceof Array ) ? next : [next];
+    const b = ( next instanceof Array ) ? next : ( next ? [next] : [] );
 
-    outer:
+    let bSet: Set<IObservable> | undefined;
+
     for ( let ai = 0, al = a.length; ai < al; ai++ ) { // Unlinking from previous Observables which are not next Observables too
       const av = a[ai];
       if ( av.disposed || av.signal.disposed ) continue;
       if ( av === b[ai] ) continue;
-      for ( let bi = 0, bl = b.length; bi < bl; bi++ ) {
-        if ( av === b[bi] ) continue outer;
-      }
+      bSet ||= new Set ( b );
+      if ( bSet.has ( av ) ) continue;
       av.unregisterObserver ( this );
     }
 
