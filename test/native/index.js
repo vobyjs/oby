@@ -644,6 +644,30 @@ describe ( 'oby', () => {
 
   });
 
+  describe ( 'boolean', it => {
+
+    it ( 'returns a boolean for static values', t => {
+
+      t.true ( $.boolean ( 'true' ) );
+      t.false ( $.boolean ( '' ) );
+
+    });
+
+    it ( 'returns a function for dynamic values', t => {
+
+      const o = $('true');
+      const bool = $.boolean ( o );
+
+      t.true ( bool () );
+
+      o ( '' );
+
+      t.false ( bool () );
+
+    });
+
+  });
+
   describe ( 'cleanup', it => {
 
     it ( 'does not cause the parent memo to re-execute', t => {

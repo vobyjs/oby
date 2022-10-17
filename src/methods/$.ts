@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import batch from '~/methods/batch';
+import boolean from '~/methods/boolean';
 import cleanup from '~/methods/cleanup';
 import context from '~/methods/context';
 import disposed from '~/methods/disposed';
@@ -48,6 +49,7 @@ function $ <T> ( value?: T, options?: ObservableOptions<T | undefined> ) {
 /* UTILITIES */
 
 $.batch = batch;
+$.boolean = boolean;
 $.cleanup = cleanup;
 $.context  = context;
 $.disposed = disposed;

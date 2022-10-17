@@ -12,12 +12,12 @@ npm install --save oby
 
 | [Core](#core)                     | [Flow](#flow)             | [Utilities](#utilities)   | [Types](#types)                             |
 | --------------------------------- | ------------------------- | ------------------------- | ------------------------------------------- |
-| [`$()`](#core)                    | [`$.if`](#if)             | [`$.disposed`](#disposed) | [`Observable`](#observable)                 |
-| [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.get`](#get)           | [`ObservableReadonly`](#observablereadonly) |
-| [`$.cleanup`](#cleanup)           | [`$.forIndex`](#forindex) | [`$.readonly`](#readonly) | [`ObservableOptions`](#observableoptions)   |
-| [`$.context`](#context)           | [`$.forValue`](#forvalue) | [`$.resolve`](#resolve)   | [`StoreOptions`](#storeoptions)             |
-| [`$.effect`](#effect)             | [`$.suspense`](#suspense) | [`$.selector`](#selector) |                                             |
-| [`$.error`](#error)               | [`$.switch`](#switch)     |                           |                                             |
+| [`$()`](#core)                    | [`$.if`](#if)             | [`$.boolean`](#boolean)   | [`Observable`](#observable)                 |
+| [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.disposed`](#disposed) | [`ObservableReadonly`](#observablereadonly) |
+| [`$.cleanup`](#cleanup)           | [`$.forIndex`](#forindex) | [`$.get`](#get)           | [`ObservableOptions`](#observableoptions)   |
+| [`$.context`](#context)           | [`$.forValue`](#forvalue) | [`$.readonly`](#readonly) | [`StoreOptions`](#storeoptions)             |
+| [`$.effect`](#effect)             | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   |                                             |
+| [`$.error`](#error)               | [`$.switch`](#switch)     | [`$.selector`](#selector) |                                             |
 | [`$.isObservable`](#isobservable) | [`$.ternary`](#ternary)   |                           |                                             |
 | [`$.isStore`](#isstore)           | [`$.tryCatch`](#trycatch) |                           |                                             |
 | [`$.memo`](#memo)                 |                           |                           |                                             |
@@ -1047,6 +1047,36 @@ result (); // => 'fallback!'
 ### Utilities
 
 The following utilities functions are provided. These functions are either simple to implement and pretty handy, or pretty useful in edge scenarios and hard to implement, so they are provided for you.
+
+#### `$.boolean`
+
+This function is like the reactive equivalent of the `!!` operator, it returns you a boolean, or a function to a boolean, depending on the input that you give it.
+
+Interface:
+
+```ts
+function boolean ( value: FunctionMaybe<unknown> ): FunctionMaybe<boolean>;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Implementing a custom if function
+
+function if ( when: FunctionMaybe<unknown>, whenTrue: FunctionMaybe<unknown>, whenFalse: FunctionMaybe<unknown> ) {
+
+  const condition = $.boolean ( when );
+
+  return $.memo ( () => {
+
+    return $.resolve ( $.get ( condition ) ? whenTrue : whenFalse );
+
+  });
+
+}
+```
 
 #### `$.disposed`
 
