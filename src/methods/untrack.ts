@@ -13,7 +13,7 @@ function untrack <T> ( fn: UntrackFunction<T> | T ) {
 
   if ( isFunction ( fn ) ) {
 
-    return OWNER.current.wrap ( fn, false );
+    return OWNER.current.wrap ( () => fn (), false );
 
   } else {
 

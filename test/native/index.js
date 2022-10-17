@@ -8212,6 +8212,20 @@ describe ( 'oby', () => {
 
   describe ( 'untrack', it => {
 
+    it ( 'does not pass on any eventual dispose function', t => {
+
+      $.root ( () => {
+
+        $.untrack ( dispose => {
+
+          t.is ( dispose, undefined );
+
+        });
+
+      });
+
+    });
+
     it ( 'does not leak memos', t => {
 
       const o = $(1);
