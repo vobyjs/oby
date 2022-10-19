@@ -1,12 +1,11 @@
 
 /* IMPORT */
 
-import {OWNER, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES} from '~/constants';
+import {ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, TRACKING} from '~/constants';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import isStore from '~/methods/is_store';
 import {readable} from '~/objects/callable';
-import Computation from '~/objects/computation';
 import ObservableClass from '~/objects/observable';
 import {isArray} from '~/utils';
 import type {IObservable, Observable, ObservableOptions, StoreOptions, Signal} from '~/types';
@@ -482,7 +481,7 @@ const getTarget = <T> ( value: T ): T => {
 
 const isListenable = (): boolean => { // Checks whether the current owner can listen for observables
 
-  return ( OWNER.current instanceof Computation );
+  return TRACKING.current;
 
 };
 
