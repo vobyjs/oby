@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, TRACKING} from '~/constants';
+import {IS, NOOP, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, TRACKING} from '~/constants';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import isStore from '~/methods/is_store';
@@ -259,6 +259,10 @@ const TRAPS = {
   defineProperty: ( target: StoreTarget, key: StoreKey, descriptor: PropertyDescriptor ): boolean => {
 
     const hadProperty = ( key in target );
+    const descriptorPrev = Reflect.getOwnPropertyDescriptor ( target, key );
+
+    if ( descriptorPrev && isEqualDescriptor ( descriptorPrev, descriptor ) ) return true;
+
     const defined = Reflect.defineProperty ( target, key, descriptor );
 
     if ( !defined ) return false;
@@ -476,6 +480,12 @@ const getTarget = <T> ( value: T ): T => {
   if ( isStore ( value ) ) return value[SYMBOL_STORE_TARGET];
 
   return value;
+
+};
+
+const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor ): boolean => {
+
+  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a.writable === !!b.writable && IS ( a.value, b.value ) && a.get === b.get && a.set === b.set );
 
 };
 

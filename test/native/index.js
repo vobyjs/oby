@@ -6791,6 +6791,30 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'supports not reacting to changes for a provably equivalent property descriptors set by Object.defineProperty', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, get baz () { return 1; }, set baz ( value ) {} } );
+
+          let calls = 0;
+          let args = [];
+
+          $.effect ( () => {
+            calls += 1;
+            args.push ( o.foo );
+          });
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [1] );
+
+          Object.defineProperty ( o, 'foo', Object.getOwnPropertyDescriptor ( o, 'foo' ) );
+          Object.defineProperty ( o, 'bar', Object.getOwnPropertyDescriptor ( o, 'bar' ) );
+          Object.defineProperty ( o, 'baz', Object.getOwnPropertyDescriptor ( o, 'baz' ) );
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [1] );
+
+        });
+
         it ( 'supports reacting to changes in setters caused by Object.defineProperty, addition', t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
