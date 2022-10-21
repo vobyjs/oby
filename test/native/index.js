@@ -5214,1792 +5214,1800 @@ describe ( 'oby', () => {
 
     describe ( 'mutable', () => {
 
-      it ( 'is both a getter and a setter, for shallow primitive properties', t => {
+      describe ( 'base', () => {
 
-        const o = $.store ({ value: undefined });
+        it ( 'is both a getter and a setter, for shallow primitive properties', t => {
 
-        t.is ( o.value, undefined );
+          const o = $.store ({ value: undefined });
 
-        o.value = 123;
+          t.is ( o.value, undefined );
 
-        t.is ( o.value, 123 );
+          o.value = 123;
 
-        o.value = 321;
+          t.is ( o.value, 123 );
 
-        t.is ( o.value, 321 );
+          o.value = 321;
 
-        o.value = undefined;
+          t.is ( o.value, 321 );
 
-        t.is ( o.value, undefined );
+          o.value = undefined;
 
-      });
+          t.is ( o.value, undefined );
 
-      it ( 'is both a getter and a setter, for shallow non-primitive properties', t => {
-
-        const obj1 = { foo: 123 };
-        const obj2 = [];
-
-        const o = $.store ({ value: obj1 });
-
-        t.deepEqual ( o.value, obj1 );
-
-        o.value = obj2;
-
-        t.deepEqual ( o.value, obj2 );
-
-        o.value = obj1;
-
-        t.deepEqual ( o.value, obj1 );
-
-      });
-
-      it ( 'is both a getter and a setter, for deep primitive properties', t => {
-
-        const o = $.store ({ deep: { value: undefined } });
-
-        t.is ( o.deep.value, undefined );
-
-        o.deep.value = 123;
-
-        t.is ( o.deep.value, 123 );
-
-        o.deep.value = 321;
-
-        t.is ( o.deep.value, 321 );
-
-        o.deep.value = undefined;
-
-        t.is ( o.deep.value, undefined );
-
-      });
-
-      it ( 'is both a getter and a setter, for deep non-primitive properties', t => {
-
-        const obj1 = { foo: 123 };
-        const obj2 = [];
-
-        const o = $.store ({ deep: { value: obj1 } });
-
-        t.deepEqual ( o.deep.value, obj1 );
-
-        o.deep.value = obj2;
-
-        t.deepEqual ( o.deep.value, obj2 );
-
-        o.deep.value = obj1;
-
-        t.deepEqual ( o.deep.value, obj1 );
-
-      });
-
-      it ( 'creates a dependency in a memo when getting a shallow property', t => {
-
-        const o = $.store ({ value: 1 });
-
-        let calls = 0;
-
-        $.memo ( () => {
-          calls += 1;
-          o.value;
         });
 
-        t.is ( calls, 1 );
+        it ( 'is both a getter and a setter, for shallow non-primitive properties', t => {
 
-        o.value = 2;
+          const obj1 = { foo: 123 };
+          const obj2 = [];
 
-        t.is ( calls, 2 );
+          const o = $.store ({ value: obj1 });
 
-        o.value = 3;
+          t.deepEqual ( o.value, obj1 );
 
-        t.is ( calls, 3 );
+          o.value = obj2;
 
-      });
+          t.deepEqual ( o.value, obj2 );
 
-      it ( 'creates a dependency in an effect when getting a shallow property', t => {
+          o.value = obj1;
 
-        const o = $.store ({ value: 1 });
+          t.deepEqual ( o.value, obj1 );
 
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.value;
         });
 
-        t.is ( calls, 1 );
+        it ( 'is both a getter and a setter, for deep primitive properties', t => {
 
-        o.value = 2;
+          const o = $.store ({ deep: { value: undefined } });
 
-        t.is ( calls, 2 );
+          t.is ( o.deep.value, undefined );
 
-        o.value = 3;
+          o.deep.value = 123;
 
-        t.is ( calls, 3 );
+          t.is ( o.deep.value, 123 );
 
-      });
+          o.deep.value = 321;
 
-      it ( 'creates a dependency in a reaction when getting a shallow property', t => {
+          t.is ( o.deep.value, 321 );
 
-        const o = $.store ({ value: 1 });
+          o.deep.value = undefined;
 
-        let calls = 0;
+          t.is ( o.deep.value, undefined );
 
-        $.reaction ( () => {
-          calls += 1;
-          o.value;
         });
 
-        t.is ( calls, 1 );
+        it ( 'is both a getter and a setter, for deep non-primitive properties', t => {
 
-        o.value = 2;
+          const obj1 = { foo: 123 };
+          const obj2 = [];
 
-        t.is ( calls, 2 );
+          const o = $.store ({ deep: { value: obj1 } });
 
-        o.value = 3;
+          t.deepEqual ( o.deep.value, obj1 );
 
-        t.is ( calls, 3 );
+          o.deep.value = obj2;
 
-      });
+          t.deepEqual ( o.deep.value, obj2 );
 
-      it ( 'creates a dependency in a memo when getting a deep property', t => {
+          o.deep.value = obj1;
 
-        const o = $.store ({ deep: { value: 1 } });
+          t.deepEqual ( o.deep.value, obj1 );
 
-        let calls = 0;
-
-        $.memo ( () => {
-          calls += 1;
-          o.deep.value;
         });
 
-        t.is ( calls, 1 );
+        it ( 'creates a dependency in a memo when getting a shallow property', t => {
 
-        o.deep.value = 2;
+          const o = $.store ({ value: 1 });
 
-        t.is ( calls, 2 );
+          let calls = 0;
 
-        o.deep.value = 3;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a dependency in an effect when getting a deep property', t => {
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.deep.value;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 2;
-
-        t.is ( calls, 2 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a dependency in a reaction when getting a deep property', t => {
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.reaction ( () => {
-          calls += 1;
-          o.deep.value;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 2;
-
-        t.is ( calls, 2 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a single dependency in an memo even if getting a shallow property multiple times', t => {
-
-        const o = $.store ({ value: 1 });
-
-        let calls = 0;
-
-        $.memo ( () => {
-          calls += 1;
-          o.value;
-          o.value;
-          o.value;
-        });
-
-        t.is ( calls, 1 );
-
-        o.value = 2;
-
-        t.is ( calls, 2 );
-
-        o.value = 3;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a single dependency in an effect even if getting a shallow property multiple times', t => {
-
-        const o = $.store ({ value: 1 });
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.value;
-          o.value;
-          o.value;
-        });
-
-        t.is ( calls, 1 );
-
-        o.value = 2;
-
-        t.is ( calls, 2 );
-
-        o.value = 3;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a single dependency in a reaction even if getting a shallow property multiple times', t => {
-
-        const o = $.store ({ value: 1 });
-
-        let calls = 0;
-
-        $.reaction ( () => {
-          calls += 1;
-          o.value;
-          o.value;
-          o.value;
-        });
-
-        t.is ( calls, 1 );
-
-        o.value = 2;
-
-        t.is ( calls, 2 );
-
-        o.value = 3;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a single dependency in a memo even if getting a deep property multiple times', t => {
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.memo ( () => {
-          calls += 1;
-          o.deep.value;
-          o.deep.value;
-          o.deep.value;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 2;
-
-        t.is ( calls, 2 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a single dependency in an effect even if getting a deep property multiple times', t => {
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.deep.value;
-          o.deep.value;
-          o.deep.value;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 2;
-
-        t.is ( calls, 2 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'creates a single dependency in a reaction even if getting a deep property multiple times', t => {
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.reaction ( () => {
-          calls += 1;
-          o.deep.value;
-          o.deep.value;
-          o.deep.value;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 2;
-
-        t.is ( calls, 2 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'does not create a dependency in a memo when creating', t => {
-
-        let o;
-        let calls = 0;
-
-        $.memo ( () => {
-          calls += 1;
-          o = $.store ({ value: 1 });
-        });
-
-        t.is ( calls, 1 );
-
-        o.value = 2;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does not create a dependency in an effect when creating', t => {
-
-        let o;
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o = $.store ({ value: 1 });
-        });
-
-        t.is ( calls, 1 );
-
-        o.value = 2;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does not create a dependency in a reaction when creating', t => {
-
-        let o;
-        let calls = 0;
-
-        $.reaction ( () => {
-          calls += 1;
-          o = $.store ({ value: 1 });
-        });
-
-        t.is ( calls, 1 );
-
-        o.value = 2;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does not create a dependency in a memo when setting a shallow property', t => {
-
-        let o = $.store ({ value: 0 });
-        let calls = 0;
-
-        $.memo ( () => {
-          calls += 1;
-          o.value = 1;
-        });
-
-        t.is ( calls, 1 );
-
-        o.value = 2;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does not create a dependency in an effect when setting a shallow property', t => {
-
-        let o = $.store ({ value: 0 });
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.value = 1;
-        });
-
-        t.is ( calls, 1 );
-
-        o.value = 2;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does not create a dependency in a reaction when setting a shallow property', t => {
-
-        let o = $.store ({ value: 0 });
-        let calls = 0;
-
-        $.reaction ( () => {
-          calls += 1;
-          o.value = 1;
-        });
-
-        t.is ( calls, 1 );
-
-        o.value = 2;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does not create a dependency in a memo when getting a parent property of the one being updated', t => {
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.memo ( () => {
-          calls += 1;
-          o.deep;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 2;
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does not create a dependency in an effect when getting a parent property of the one being updated', t => {
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.deep;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 2;
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does not create a dependency in a reaction when getting a parent property of the one being updated', t => {
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.reaction ( () => {
-          calls += 1;
-          o.deep;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 2;
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'does create a dependency (on the parent) in a memo when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.memo ( () => {
-          calls += 1;
-          o.deep.value = 2;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 1 );
-
-        o.deep = {};
-
-        t.is ( calls, 2 );
-
-      });
-
-      it ( 'does create a dependency (on the parent) in an effect when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.deep.value = 2;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 1 );
-
-        o.deep = {};
-
-        t.is ( calls, 2 );
-
-      });
-
-      it ( 'does create a dependency (on the parent) in a reaction when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
-
-        const o = $.store ({ deep: { value: 1 } });
-
-        let calls = 0;
-
-        $.reaction ( () => {
-          calls += 1;
-          o.deep.value = 2;
-        });
-
-        t.is ( calls, 1 );
-
-        o.deep.value = 3;
-
-        t.is ( calls, 1 );
-
-        o.deep = {};
-
-        t.is ( calls, 2 );
-
-      });
-
-      it ( 'returns primitive values as is', t => {
-
-        const o = $.store ( 123 );
-
-        t.is ( o, 123 );
-
-      });
-
-      it ( 'returns unproxiable non-primitive values as is', t => {
-
-        const date = new Date ();
-        const o = $.store ( date );
-
-        t.is ( o, date );
-        t.false ( $.isStore ( o ) );
-
-      });
-
-      it ( 'returns unproxied "__proto__", "prototype" and "constructor" properties', t => {
-
-        const a = {};
-        const b = {};
-        const c = {};
-        const sa = $.store ({ prototype: a });
-        const sb = $.store ({ '__proto__': b });
-        const sc = $.store ({ constructr: c });
-
-        t.false ( $.isStore ( sa.__proto__ ) );
-        t.false ( $.isStore ( sb.prototype ) );
-        t.false ( $.isStore ( sc.constructor ) );
-
-      });
-
-      it ( 'returns unproxied "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "toLocaleString", "toSource", "toString", "valueOf", properties', t => {
-
-        const o = $.store ( {} );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.hasOwnProperty;
-          o.isPrototypeOf;
-          o.propertyIsEnumerable;
-          o.toLocaleString;
-          o.toSource;
-          o.toString;
-          o.valueOf;
-        });
-
-        t.is ( calls, 1 );
-
-        o.hasOwnProperty = 1;
-        o.isPrototypeOf = 1;
-        o.propertyIsEnumerable = 1;
-        o.toLocaleString = 1;
-        o.toSource = 1;
-        o.toString = 1;
-        o.valueOf = 1;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'returns the value being set', t => {
-
-        const o = $.store ({ value: undefined });
-
-        t.is ( o.value = 123, 123 );
-
-      });
-
-      it ( 'supports setting functions as is', t => {
-
-        const fn = () => {};
-        const o = $.store ({ value: () => {} });
-
-        o.value = fn;
-
-        t.is ( o.value, fn );
-
-      });
-
-      it ( 'supports wrapping a plain object', t => {
-
-        const o = $.store ( {} );
-
-        t.true ( $.isStore ( o ) );
-
-      });
-
-      it ( 'supports wrapping a deep array inside a plain object', t => {
-
-        const o = $.store ( { value: [] } );
-
-        t.true ( $.isStore ( o.value ) );
-
-      });
-
-      it ( 'supports wrapping a deep plain object inside a plain object', t => {
-
-        const o = $.store ( { value: {} } );
-
-        t.true ( $.isStore ( o.value ) );
-
-      });
-
-      it ( 'supports wrapping an array', t => {
-
-        const o = $.store ( [] );
-
-        t.true ( $.isStore ( o ) );
-
-      });
-
-      it ( 'supports wrapping a deep array inside an array', t => {
-
-        const o = $.store ( [[]] );
-
-        t.true ( $.isStore ( o[0] ) );
-
-      });
-
-      it ( 'supports wrapping a deep plain object inside an array', t => {
-
-        const o = $.store ( [{}] );
-
-        t.true ( $.isStore ( o[0] ) );
-
-      });
-
-      it ( 'supports reacting to deleting a shallow property', t => {
-
-        const o = $.store ( { value: 123 } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.value;
-        });
-
-        t.is ( calls, 1 );
-
-        delete o.value;
-
-        t.is ( calls, 2 );
-
-      });
-
-      it ( 'supports not reacting when deleting a shallow property that was undefined', t => {
-
-        const o = $.store ( { value: undefined } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.value;
-        });
-
-        t.is ( calls, 1 );
-
-        delete o.value;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'supports reacting to deleting a deep property', t => {
-
-        const o = $.store ( { deep: { value: 123 } } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.deep.value;
-        });
-
-        t.is ( calls, 1 );
-
-        delete o.deep.value;
-
-        t.is ( calls, 2 );
-
-      });
-
-      it ( 'supports not reacting when deleting a deep property that was undefined', t => {
-
-        const o = $.store ( { deep: { value: undefined } } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.deep.value;
-        });
-
-        t.is ( calls, 1 );
-
-        delete o.deep.value;
-
-        t.is ( calls, 1 );
-
-      });
-
-      it ( 'supports reacting to own keys', t => {
-
-        const o = $.store ( { foo: 1, bar: 2, baz: 3 } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          Object.keys ( o );
-        });
-
-        t.is ( calls, 1 );
-
-        o.qux = 4;
-
-        t.is ( calls, 2 );
-
-        o.foo = 2;
-        o.bar = 3;
-        o.baz = 4;
-        o.qux = 5;
-
-        t.is ( calls, 2 );
-
-        delete o.foo;
-
-        t.is ( calls, 3 );
-
-      });
-
-      it ( 'supports unwrapping a plain object', t => {
-
-        const wrapped = $.store ( { value: [] } );
-
-        t.true ( $.isStore ( wrapped ) );
-        t.true ( $.isStore ( wrapped.value ) );
-
-        const unwrapped = $.store.unwrap ( wrapped );
-
-        t.false ( $.isStore ( unwrapped ) );
-        t.false ( $.isStore ( unwrapped.value ) );
-
-      });
-
-      it ( 'supports unwrapping an array', t => {
-
-        const wrapped = $.store ( [{}] );
-
-        t.true ( $.isStore ( wrapped ) );
-        t.true ( $.isStore ( wrapped[0] ) );
-
-        const unwrapped = $.store.unwrap ( wrapped );
-
-        t.false ( $.isStore ( unwrapped ) );
-        t.false ( $.isStore ( unwrapped[0] ) );
-
-      });
-
-      it ( 'supports reacting to properties read by a getter', t => {
-
-        const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.fn;
-        });
-
-        t.is ( calls, 1 );
-
-        o.foo = 10;
-
-        t.is ( calls, 2 );
-        t.is ( o.fn, 12 );
-
-        o.bar = 20;
-
-        t.is ( calls, 3 );
-        t.is ( o.fn, 30 );
-
-      });
-
-      it ( 'supports reacting to properties read by a regular function', t => {
-
-        const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.fn ();
-        });
-
-        t.is ( calls, 1 );
-
-        o.foo = 10;
-
-        t.is ( calls, 2 );
-        t.is ( o.fn (), 12 );
-
-        o.bar = 20;
-
-        t.is ( calls, 3 );
-        t.is ( o.fn (), 30 );
-
-      });
-
-      it ( 'supports reacting to properties read by a regular function, called via the call method', t => {
-
-        const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.fn.call ( o );
-        });
-
-        t.is ( calls, 1 );
-
-        o.foo = 10;
-
-        t.is ( calls, 2 );
-        t.is ( o.fn.call ( o ), 12 );
-
-        o.bar = 20;
-
-        t.is ( calls, 3 );
-        t.is ( o.fn.call ( o ), 30 );
-
-      });
-
-      it ( 'supports reacting to properties read by a regular function, called via the apply method', t => {
-
-        const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.fn.apply ( o );
-        });
-
-        t.is ( calls, 1 );
-
-        o.foo = 10;
-
-        t.is ( calls, 2 );
-        t.is ( o.fn.apply ( o ), 12 );
-
-        o.bar = 20;
-
-        t.is ( calls, 3 );
-        t.is ( o.fn.apply ( o ), 30 );
-
-      });
-
-      it ( 'supports batching manually', t => {
-
-        const o = $.store ( { foo: 1, bar: 2 } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.foo;
-          o.bar;
-        });
-
-        t.is ( calls, 1 );
-
-        $.batch ( () => {
-
-          o.foo = 10;
-          o.bar = 20;
+          $.memo ( () => {
+            calls += 1;
+            o.value;
+          });
 
           t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a dependency in an effect when getting a shallow property', t => {
+
+          const o = $.store ({ value: 1 });
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a dependency in a reaction when getting a shallow property', t => {
+
+          const o = $.store ({ value: 1 });
+
+          let calls = 0;
+
+          $.reaction ( () => {
+            calls += 1;
+            o.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a dependency in a memo when getting a deep property', t => {
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.memo ( () => {
+            calls += 1;
+            o.deep.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a dependency in an effect when getting a deep property', t => {
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.deep.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a dependency in a reaction when getting a deep property', t => {
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.reaction ( () => {
+            calls += 1;
+            o.deep.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a single dependency in an memo even if getting a shallow property multiple times', t => {
+
+          const o = $.store ({ value: 1 });
+
+          let calls = 0;
+
+          $.memo ( () => {
+            calls += 1;
+            o.value;
+            o.value;
+            o.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a single dependency in an effect even if getting a shallow property multiple times', t => {
+
+          const o = $.store ({ value: 1 });
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.value;
+            o.value;
+            o.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a single dependency in a reaction even if getting a shallow property multiple times', t => {
+
+          const o = $.store ({ value: 1 });
+
+          let calls = 0;
+
+          $.reaction ( () => {
+            calls += 1;
+            o.value;
+            o.value;
+            o.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a single dependency in a memo even if getting a deep property multiple times', t => {
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.memo ( () => {
+            calls += 1;
+            o.deep.value;
+            o.deep.value;
+            o.deep.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a single dependency in an effect even if getting a deep property multiple times', t => {
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.deep.value;
+            o.deep.value;
+            o.deep.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'creates a single dependency in a reaction even if getting a deep property multiple times', t => {
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.reaction ( () => {
+            calls += 1;
+            o.deep.value;
+            o.deep.value;
+            o.deep.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 2;
+
+          t.is ( calls, 2 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'does not create a dependency in a memo when creating', t => {
+
+          let o;
+          let calls = 0;
+
+          $.memo ( () => {
+            calls += 1;
+            o = $.store ({ value: 1 });
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'does not create a dependency in an effect when creating', t => {
+
+          let o;
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o = $.store ({ value: 1 });
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'does not create a dependency in a reaction when creating', t => {
+
+          let o;
+          let calls = 0;
+
+          $.reaction ( () => {
+            calls += 1;
+            o = $.store ({ value: 1 });
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'does not create a dependency in a memo when setting a shallow property', t => {
+
+          let o = $.store ({ value: 0 });
+          let calls = 0;
+
+          $.memo ( () => {
+            calls += 1;
+            o.value = 1;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'does not create a dependency in an effect when setting a shallow property', t => {
+
+          let o = $.store ({ value: 0 });
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.value = 1;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'does not create a dependency in a reaction when setting a shallow property', t => {
+
+          let o = $.store ({ value: 0 });
+          let calls = 0;
+
+          $.reaction ( () => {
+            calls += 1;
+            o.value = 1;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 2;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'does not create a dependency in a memo when getting a parent property of the one being updated', t => {
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.memo ( () => {
+            calls += 1;
+            o.deep;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 2;
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'does not create a dependency in an effect when getting a parent property of the one being updated', t => {
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.deep;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 2;
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'does not create a dependency in a reaction when getting a parent property of the one being updated', t => {
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.reaction ( () => {
+            calls += 1;
+            o.deep;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 2;
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'does create a dependency (on the parent) in a memo when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.memo ( () => {
+            calls += 1;
+            o.deep.value = 2;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 1 );
+
+          o.deep = {};
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'does create a dependency (on the parent) in an effect when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.deep.value = 2;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 1 );
+
+          o.deep = {};
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'does create a dependency (on the parent) in a reaction when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
+
+          const o = $.store ({ deep: { value: 1 } });
+
+          let calls = 0;
+
+          $.reaction ( () => {
+            calls += 1;
+            o.deep.value = 2;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep.value = 3;
+
+          t.is ( calls, 1 );
+
+          o.deep = {};
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'returns primitive values as is', t => {
+
+          const o = $.store ( 123 );
+
+          t.is ( o, 123 );
+
+        });
+
+        it ( 'returns unproxiable non-primitive values as is', t => {
+
+          const date = new Date ();
+          const o = $.store ( date );
+
+          t.is ( o, date );
+          t.false ( $.isStore ( o ) );
+
+        });
+
+        it ( 'returns unproxied "__proto__", "prototype" and "constructor" properties', t => {
+
+          const a = {};
+          const b = {};
+          const c = {};
+          const sa = $.store ({ prototype: a });
+          const sb = $.store ({ '__proto__': b });
+          const sc = $.store ({ constructr: c });
+
+          t.false ( $.isStore ( sa.__proto__ ) );
+          t.false ( $.isStore ( sb.prototype ) );
+          t.false ( $.isStore ( sc.constructor ) );
+
+        });
+
+        it ( 'returns unproxied "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "toLocaleString", "toSource", "toString", "valueOf", properties', t => {
+
+          const o = $.store ( {} );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.hasOwnProperty;
+            o.isPrototypeOf;
+            o.propertyIsEnumerable;
+            o.toLocaleString;
+            o.toSource;
+            o.toString;
+            o.valueOf;
+          });
+
+          t.is ( calls, 1 );
+
+          o.hasOwnProperty = 1;
+          o.isPrototypeOf = 1;
+          o.propertyIsEnumerable = 1;
+          o.toLocaleString = 1;
+          o.toSource = 1;
+          o.toString = 1;
+          o.valueOf = 1;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'returns the value being set', t => {
+
+          const o = $.store ({ value: undefined });
+
+          t.is ( o.value = 123, 123 );
+
+        });
+
+        it ( 'supports setting functions as is', t => {
+
+          const fn = () => {};
+          const o = $.store ({ value: () => {} });
+
+          o.value = fn;
+
+          t.is ( o.value, fn );
+
+        });
+
+        it ( 'supports wrapping a plain object', t => {
+
+          const o = $.store ( {} );
+
+          t.true ( $.isStore ( o ) );
+
+        });
+
+        it ( 'supports wrapping a deep array inside a plain object', t => {
+
+          const o = $.store ( { value: [] } );
+
+          t.true ( $.isStore ( o.value ) );
+
+        });
+
+        it ( 'supports wrapping a deep plain object inside a plain object', t => {
+
+          const o = $.store ( { value: {} } );
+
+          t.true ( $.isStore ( o.value ) );
+
+        });
+
+        it ( 'supports wrapping an array', t => {
+
+          const o = $.store ( [] );
+
+          t.true ( $.isStore ( o ) );
+
+        });
+
+        it ( 'supports wrapping a deep array inside an array', t => {
+
+          const o = $.store ( [[]] );
+
+          t.true ( $.isStore ( o[0] ) );
+
+        });
+
+        it ( 'supports wrapping a deep plain object inside an array', t => {
+
+          const o = $.store ( [{}] );
+
+          t.true ( $.isStore ( o[0] ) );
+
+        });
+
+        it ( 'supports reacting to deleting a shallow property', t => {
+
+          const o = $.store ( { value: 123 } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.value;
+          });
+
+          t.is ( calls, 1 );
+
+          delete o.value;
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports not reacting when deleting a shallow property that was undefined', t => {
+
+          const o = $.store ( { value: undefined } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.value;
+          });
+
+          t.is ( calls, 1 );
+
+          delete o.value;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'supports reacting to deleting a deep property', t => {
+
+          const o = $.store ( { deep: { value: 123 } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.deep.value;
+          });
+
+          t.is ( calls, 1 );
+
+          delete o.deep.value;
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports not reacting when deleting a deep property that was undefined', t => {
+
+          const o = $.store ( { deep: { value: undefined } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.deep.value;
+          });
+
+          t.is ( calls, 1 );
+
+          delete o.deep.value;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'supports reacting to own keys', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, baz: 3 } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            Object.keys ( o );
+          });
+
+          t.is ( calls, 1 );
+
+          o.qux = 4;
+
+          t.is ( calls, 2 );
+
+          o.foo = 2;
+          o.bar = 3;
+          o.baz = 4;
+          o.qux = 5;
+
+          t.is ( calls, 2 );
+
+          delete o.foo;
+
+          t.is ( calls, 3 );
+
+        });
+
+        it ( 'supports reacting to properties read by a getter', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.fn;
+          });
+
+          t.is ( calls, 1 );
+
+          o.foo = 10;
+
+          t.is ( calls, 2 );
+          t.is ( o.fn, 12 );
+
+          o.bar = 20;
+
+          t.is ( calls, 3 );
+          t.is ( o.fn, 30 );
+
+        });
+
+        it ( 'supports reacting to properties read by a regular function', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.fn ();
+          });
+
+          t.is ( calls, 1 );
+
+          o.foo = 10;
+
+          t.is ( calls, 2 );
+          t.is ( o.fn (), 12 );
+
+          o.bar = 20;
+
+          t.is ( calls, 3 );
+          t.is ( o.fn (), 30 );
+
+        });
+
+        it ( 'supports reacting to properties read by a regular function, called via the call method', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.fn.call ( o );
+          });
+
+          t.is ( calls, 1 );
+
+          o.foo = 10;
+
+          t.is ( calls, 2 );
+          t.is ( o.fn.call ( o ), 12 );
+
+          o.bar = 20;
+
+          t.is ( calls, 3 );
+          t.is ( o.fn.call ( o ), 30 );
+
+        });
+
+        it ( 'supports reacting to properties read by a regular function, called via the apply method', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.fn.apply ( o );
+          });
+
+          t.is ( calls, 1 );
+
+          o.foo = 10;
+
+          t.is ( calls, 2 );
+          t.is ( o.fn.apply ( o ), 12 );
+
+          o.bar = 20;
+
+          t.is ( calls, 3 );
+          t.is ( o.fn.apply ( o ), 30 );
+
+        });
+
+        it ( 'supports batching manually', t => {
+
+          const o = $.store ( { foo: 1, bar: 2 } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.foo;
+            o.bar;
+          });
+
+          t.is ( calls, 1 );
+
+          $.batch ( () => {
+
+            o.foo = 10;
+            o.bar = 20;
+
+            t.is ( calls, 1 );
+            t.is ( o.foo, 10 );
+            t.is ( o.bar, 20 );
+
+          });
+
+          t.is ( calls, 2 );
           t.is ( o.foo, 10 );
           t.is ( o.bar, 20 );
 
         });
 
-        t.is ( calls, 2 );
-        t.is ( o.foo, 10 );
-        t.is ( o.bar, 20 );
+        it ( 'supports batching setters automatically', t => {
 
-      });
+          const o = $.store ( { foo: 1, bar: 2, set fn ( increment ) { this.foo += increment; this.bar += increment; } } );
 
-      it ( 'supports batching setters automatically', t => {
+          let calls = 0;
 
-        const o = $.store ( { foo: 1, bar: 2, set fn ( increment ) { this.foo += increment; this.bar += increment; } } );
+          $.effect ( () => {
+            calls += 1;
+            o.foo;
+            o.bar;
+          });
 
-        let calls = 0;
+          t.is ( calls, 1 );
 
-        $.effect ( () => {
-          calls += 1;
-          o.foo;
-          o.bar;
+          o.fn = 1;
+
+          t.is ( calls, 2 );
+          t.is ( o.foo, 2 );
+          t.is ( o.bar, 3 );
+
         });
 
-        t.is ( calls, 1 );
+        it ( 'supports batching deletations automatically', t => {
 
-        o.fn = 1;
+          const o = $.store ( { foo: 1, bar: 2 } );
 
-        t.is ( calls, 2 );
-        t.is ( o.foo, 2 );
-        t.is ( o.bar, 3 );
+          let calls = 0;
 
-      });
+          $.effect ( () => {
+            calls += 1;
+            o.foo;
+            if ( 'foo' in o ) {}
+            Object.keys ( o );
+          });
 
-      it ( 'supports batching deletations automatically', t => {
+          t.is ( calls, 1 );
 
-        const o = $.store ( { foo: 1, bar: 2 } );
+          delete o.foo;
 
-        let calls = 0;
+          t.is ( calls, 2 );
 
-        $.effect ( () => {
-          calls += 1;
-          o.foo;
-          if ( 'foo' in o ) {}
-          Object.keys ( o );
         });
 
-        t.is ( calls, 1 );
+        it ( 'supports batching additions automatically', t => {
 
-        delete o.foo;
+          const o = $.store ( { bar: 2 } );
 
-        t.is ( calls, 2 );
+          let calls = 0;
 
-      });
+          $.effect ( () => {
+            calls += 1;
+            o.foo;
+            if ( 'foo' in o ) {}
+            Object.keys ( o );
+          });
 
-      it ( 'supports batching additions automatically', t => {
+          t.is ( calls, 1 );
 
-        const o = $.store ( { bar: 2 } );
+          o.foo = 1;
 
-        let calls = 0;
+          t.is ( calls, 2 );
 
-        $.effect ( () => {
-          calls += 1;
-          o.foo;
-          if ( 'foo' in o ) {}
-          Object.keys ( o );
         });
 
-        t.is ( calls, 1 );
+        it ( 'supports reacting to changes in deep arrays', t => {
 
-        o.foo = 1;
+          const o = $.store ( { value: [1, 2] } );
 
-        t.is ( calls, 2 );
+          let calls = 0;
 
-      });
+          $.effect ( () => {
+            calls += 1;
+            o.value.length;
+          });
 
-      it ( 'supports reacting to changes in deep arrays', t => {
+          t.is ( calls, 1 );
 
-        const o = $.store ( { value: [1, 2] } );
+          o.value.pop ();
 
-        let calls = 0;
+          t.is ( calls, 2 );
 
-        $.effect ( () => {
-          calls += 1;
-          o.value.length;
+          o.value.pop ();
+
+          t.is ( calls, 3 );
+
+          o.value.push ( 1 );
+
+          t.is ( calls, 4 );
+
         });
 
-        t.is ( calls, 1 );
+        it ( 'supports reacting to changes in top-level arrays', t => {
 
-        o.value.pop ();
+          const o = $.store ( [1, 2] );
 
-        t.is ( calls, 2 );
+          let calls = 0;
 
-        o.value.pop ();
+          $.effect ( () => {
+            calls += 1;
+            o.length;
+          });
 
-        t.is ( calls, 3 );
+          t.is ( calls, 1 );
 
-        o.value.push ( 1 );
+          o.pop ();
 
-        t.is ( calls, 4 );
+          t.is ( calls, 2 );
 
-      });
+          o.pop ();
 
-      it ( 'supports reacting to changes in top-level arrays', t => {
+          t.is ( calls, 3 );
 
-        const o = $.store ( [1, 2] );
+          o.push ( 1 );
 
-        let calls = 0;
+          t.is ( calls, 4 );
 
-        $.effect ( () => {
-          calls += 1;
-          o.length;
         });
 
-        t.is ( calls, 1 );
+        it ( 'supports reacting to changes at a specific index in deep arrays', t => {
 
-        o.pop ();
+          const o = $.store ( { value: [1, 2] } );
 
-        t.is ( calls, 2 );
+          let calls = 0;
 
-        o.pop ();
+          $.effect ( () => {
+            calls += 1;
+            o.value[0];
+          });
 
-        t.is ( calls, 3 );
+          t.is ( calls, 1 );
 
-        o.push ( 1 );
+          o.value.pop ();
 
-        t.is ( calls, 4 );
+          t.is ( calls, 1 );
 
-      });
+          o.value.push ( 10 );
 
-      it ( 'supports reacting to changes at a specific index in deep arrays', t => {
+          t.is ( calls, 1 );
 
-        const o = $.store ( { value: [1, 2] } );
+          o.value[0] = 123;
 
-        let calls = 0;
+          t.is ( calls, 2 );
 
-        $.effect ( () => {
-          calls += 1;
-          o.value[0];
+          o.value.unshift ( 1 );
+
+          t.is ( calls, 3 );
+
+          o.value.unshift ( 1 );
+
+          t.is ( calls, 3 );
+
+          o.value.unshift ( 2 );
+
+          t.is ( calls, 4 );
+
         });
 
-        t.is ( calls, 1 );
+        it ( 'supports reacting to changes at a specific index in top-level arrays', t => {
 
-        o.value.pop ();
+          const o = $.store ( [1, 2] );
 
-        t.is ( calls, 1 );
+          let calls = 0;
 
-        o.value.push ( 10 );
+          $.effect ( () => {
+            calls += 1;
+            o[0];
+          });
 
-        t.is ( calls, 1 );
+          t.is ( calls, 1 );
 
-        o.value[0] = 123;
+          o.pop ();
 
-        t.is ( calls, 2 );
+          t.is ( calls, 1 );
 
-        o.value.unshift ( 1 );
+          o.push ( 10 );
 
-        t.is ( calls, 3 );
+          t.is ( calls, 1 );
 
-        o.value.unshift ( 1 );
+          o[0] = 123;
 
-        t.is ( calls, 3 );
+          t.is ( calls, 2 );
 
-        o.value.unshift ( 2 );
+          o.unshift ( 1 );
 
-        t.is ( calls, 4 );
+          t.is ( calls, 3 );
 
-      });
+          o.unshift ( 1 );
 
-      it ( 'supports reacting to changes at a specific index in top-level arrays', t => {
+          t.is ( calls, 3 );
 
-        const o = $.store ( [1, 2] );
+          o.unshift ( 2 );
 
-        let calls = 0;
+          t.is ( calls, 4 );
 
-        $.effect ( () => {
-          calls += 1;
-          o[0];
         });
 
-        t.is ( calls, 1 );
+        it ( 'supports batching array methods automatically', t => {
 
-        o.pop ();
+          const o = $.store ( { value: [1, 2, 3] } );
 
-        t.is ( calls, 1 );
+          let calls = 0;
 
-        o.push ( 10 );
+          $.effect ( () => {
+            calls += 1;
+            o.value.forEach ( () => {} );
+          });
 
-        t.is ( calls, 1 );
+          t.is ( calls, 1 );
 
-        o[0] = 123;
+          o.value.forEach ( ( value, index ) => {
+            o.value[index] = value * 2;
+          });
 
-        t.is ( calls, 2 );
+          t.is ( calls, 2 );
 
-        o.unshift ( 1 );
-
-        t.is ( calls, 3 );
-
-        o.unshift ( 1 );
-
-        t.is ( calls, 3 );
-
-        o.unshift ( 2 );
-
-        t.is ( calls, 4 );
-
-      });
-
-      it ( 'supports batching array methods automatically', t => {
-
-        const o = $.store ( { value: [1, 2, 3] } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.value.forEach ( () => {} );
         });
 
-        t.is ( calls, 1 );
+        it ( 'supports reacting to property checks, deleting', t => {
 
-        o.value.forEach ( ( value, index ) => {
-          o.value[index] = value * 2;
+          const o = $.store ( { value: undefined } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            if ( 'value' in o ) {}
+          });
+
+          t.is ( calls, 1 );
+
+          delete o.value;
+
+          t.is ( calls, 2 );
+
+          delete o.value;
+
+          t.is ( calls, 2 );
+
         });
 
-        t.is ( calls, 2 );
+        it ( 'supports reacting to property checks, adding', t => {
 
-      });
+          const o = $.store ( {} );
 
-      it ( 'supports reacting to property checks, deleting', t => {
+          let calls = 0;
 
-        const o = $.store ( { value: undefined } );
+          $.effect ( () => {
+            calls += 1;
+            if ( 'value' in o ) {}
+          });
 
-        let calls = 0;
+          t.is ( calls, 1 );
 
-        $.effect ( () => {
-          calls += 1;
-          if ( 'value' in o ) {}
+          o.value = undefined;
+
+          t.is ( calls, 2 );
+
+          o.value = undefined;
+
+          t.is ( calls, 2 );
+
         });
 
-        t.is ( calls, 1 );
+        it ( 'survives reading a value inside a discarded root', t => {
 
-        delete o.value;
+          const o = $.store ({ value: 123 });
 
-        t.is ( calls, 2 );
+          let calls = 0;
 
-        delete o.value;
+          $.root ( dispose => {
 
-        t.is ( calls, 2 );
+            o.value;
 
-      });
+            $.root ( () => {
 
-      it ( 'supports reacting to property checks, adding', t => {
+              o.value;
 
-        const o = $.store ( {} );
+            });
 
-        let calls = 0;
+            dispose ();
 
-        $.effect ( () => {
-          calls += 1;
-          if ( 'value' in o ) {}
-        });
+          });
 
-        t.is ( calls, 1 );
+          $.effect ( () => {
 
-        o.value = undefined;
-
-        t.is ( calls, 2 );
-
-        o.value = undefined;
-
-        t.is ( calls, 2 );
-
-      });
-
-      it ( 'supports wrapping, unwrapping, and re-wrapping without losing reactivity', t => {
-
-        const o = $.store ( { foo: 1 } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.foo;
-        });
-
-        t.is ( calls, 1 );
-
-        const rewrapped = $.store ( $.store.unwrap ( o ) );
-
-        rewrapped.foo = 10;
-
-        t.is ( calls, 2 );
-        t.is ( o.foo, 10 );
-        t.is ( rewrapped.foo, 10 );
-
-      });
-
-      it ( 'survives reading a value inside a discarded root', t => {
-
-        const o = $.store ({ value: 123 });
-
-        let calls = 0;
-
-        $.root ( dispose => {
-
-          o.value;
-
-          $.root ( () => {
+            calls += 1;
 
             o.value;
 
           });
 
-          dispose ();
+          t.is ( calls, 1 );
+
+          o.value = 321;
+
+          t.is ( calls, 2 );
 
         });
 
-        $.effect ( () => {
+        it ( 'supports reacting to changes of keys caused by Object.defineProperty, adding enumerable property', t => {
 
-          calls += 1;
+          const o = $.store ( {} );
 
-          o.value;
+          let calls = 0;
 
-        });
+          $.effect ( () => {
+            calls += 1;
+            Object.keys ( o );
+          });
 
-        t.is ( calls, 1 );
+          t.is ( calls, 1 );
+          t.is ( o.value, undefined );
 
-        o.value = 321;
-
-        t.is ( calls, 2 );
-
-      });
-
-      it ( 'supports reacting to changes of keys caused by Object.defineProperty, adding enumerable property', t => {
-
-        const o = $.store ( {} );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          Object.keys ( o );
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, undefined );
-
-        Object.defineProperty ( o, 'value', {
-          enumerable: true,
-          value: 123
-        });
-
-        t.is ( calls, 2 );
-        t.is ( o.value, 123 );
-
-      });
-
-      it ( 'supports reacting to changes of keys caused by Object.defineProperty, deleting enumerable property', t => {
-
-        const o = $.store ( { value: 1 } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          Object.keys ( o );
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, 1 );
-
-        Object.defineProperty ( o, 'value', {
-          enumerable: false,
-          value: 123
-        });
-
-        t.is ( calls, 2 );
-        t.is ( o.value, 123 );
-
-      });
-
-      it ( 'supports not reacting to changes of keys caused by Object.defineProperty, overriding enumerable property', t => {
-
-        const o = $.store ( { value: 1 } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          Object.keys ( o );
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, 1 );
-
-        Object.defineProperty ( o, 'value', {
-          enumerable: true,
-          value: 123
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, 123 );
-
-      });
-
-      it ( 'supports not reacting to changes of keys caused by Object.defineProperty, adding non-enumerable property', t => {
-
-        const o = $.store ( {} );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          Object.keys ( o );
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, undefined );
-
-        Object.defineProperty ( o, 'value', {
-          enumerable: false,
-          value: 123
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, 123 );
-
-      });
-
-      it ( 'supports reacting to changes of in caused by Object.defineProperty, adding enumerable property', t => {
-
-        const o = $.store ( {} );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          if ( 'value' in o ) {}
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, undefined );
-
-        Object.defineProperty ( o, 'value', {
-          enumerable: true,
-          value: 123
-        });
-
-        t.is ( calls, 2 );
-        t.is ( o.value, 123 );
-
-      });
-
-      it ( 'supports reacting to changes of in caused by Object.defineProperty, deleting enumerable property',t => {
-
-        const o = $.store ( { value: 1 } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          if ( 'value' in o ) {}
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, 1 );
-
-        Object.defineProperty ( o, 'value', {
-          enumerable: false,
-          value: 123
-        });
-
-        t.is ( calls, 2 );
-        t.is ( o.value, 123 );
-
-      });
-
-      it ( 'supports not reacting to changes of in caused by Object.defineProperty, overriding enumerable property', t => {
-
-        const o = $.store ( { value: 1 } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          if ( 'value' in o ) {}
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, 1 );
-
-        Object.defineProperty ( o, 'value', {
-          enumerable: true,
-          value: 123
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, 123 );
-
-      });
-
-      it ( 'supports not reacting to changes of in caused by Object.defineProperty, adding non-enumerable property', t => {
-
-        const o = $.store ( {} );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          if ( 'value' in o ) {}
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, undefined );
-
-        Object.defineProperty ( o, 'value', {
-          enumerable: false,
-          value: 123
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.value, 123 );
-
-      });
-
-      it ( 'supports reacting to changes in getters caused by Object.defineProperty, addition', t => {
-
-        const o = $.store ( { foo: 1, bar: 2 } );
-
-        let calls = 0;
-        let args = [];
-
-        $.effect ( () => {
-          calls += 1;
-          args.push ( o.fn );
-        });
-
-        t.is ( calls, 1 );
-        t.deepEqual ( args, [undefined] );
-
-        Object.defineProperty ( o, 'fn', {
-            get: function () {
-              return this.foo + this.bar;
-            }
-          }
-        );
-
-        t.is ( calls, 2 );
-        t.deepEqual ( args, [undefined, 3] );
-
-      });
-
-      it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with value', t => {
-
-        const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
-
-        let calls = 0;
-        let args = [];
-
-        $.effect ( () => {
-          calls += 1;
-          args.push ( o.fn );
-        });
-
-        t.is ( calls, 1 );
-        t.deepEqual ( args, [3] );
-
-        Object.defineProperty ( o, 'fn', {
+          Object.defineProperty ( o, 'value', {
+            enumerable: true,
             value: 123
-          }
-        );
+          });
 
-        t.is ( calls, 2 );
-        t.deepEqual ( args, [3, 123] );
+          t.is ( calls, 2 );
+          t.is ( o.value, 123 );
 
-      });
-
-      it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with new getter', t => {
-
-        const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
-
-        let calls = 0;
-        let args = [];
-
-        $.effect ( () => {
-          calls += 1;
-          args.push ( o.fn );
         });
 
-        t.is ( calls, 1 );
-        t.deepEqual ( args, [3] );
+        it ( 'supports reacting to changes of keys caused by Object.defineProperty, deleting enumerable property', t => {
 
-        Object.defineProperty ( o, 'fn', {
-            get: function () {
-              return ( this.foo + this.bar ) * 10;
-            }
-          }
-        );
+          const o = $.store ( { value: 1 } );
 
-        t.is ( calls, 2 );
-        t.deepEqual ( args, [3, 30] );
+          let calls = 0;
 
-      });
+          $.effect ( () => {
+            calls += 1;
+            Object.keys ( o );
+          });
 
-      it ( 'supports not reacting to changes in getters caused by Object.defineProperty, override with same getter', t => {
+          t.is ( calls, 1 );
+          t.is ( o.value, 1 );
 
-        const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
-
-        let calls = 0;
-        let args = [];
-
-        $.effect ( () => {
-          calls += 1;
-          args.push ( o.fn );
-        });
-
-        t.is ( calls, 1 );
-        t.deepEqual ( args, [3] );
-
-        Object.defineProperty ( o, 'fn', {
-            get: Object.getOwnPropertyDescriptor ( o, 'fn' ).get
-          }
-        );
-
-        t.is ( calls, 1 );
-        t.deepEqual ( args, [3] );
-
-      });
-
-      it ( 'supports reacting to changes in setters caused by Object.defineProperty, addition', t => {
-
-        const o = $.store ( { foo: 1, bar: 2 } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.fn = 3;
-          o.fn;
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o.fn, 3 );
-        t.is ( o._fn, undefined );
-
-        Object.defineProperty ( o, 'fn', {
-            set: function ( value ) {
-              return this._fn = value * 10;
-            }
-          }
-        );
-
-        t.is ( calls, 2 );
-        t.is ( o.fn, undefined );
-        t.is ( o._fn, 30 );
-
-      });
-
-      it.skip ( 'supports reacting to changes in setters caused by Object.defineProperty, override with new setter', t => {
-
-        const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.fn = 3;
-          o.fn;
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o._fn, 3 );
-
-        Object.defineProperty ( o, 'fn', {
-            set: function ( value ) {
-              return this._fn = value * 10;
-            }
-          }
-        );
-
-        t.is ( calls, 2 );
-        t.is ( o._fn, 30 );
-
-      });
-
-      it.skip ( 'supports not reacting to changes in setters caused by Object.defineProperty, override with same setter', t => {
-
-        const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
-
-        let calls = 0;
-
-        $.effect ( () => {
-          calls += 1;
-          o.fn = 3;
-          o.fn;
-        });
-
-        t.is ( calls, 1 );
-        t.is ( o._fn, 3 );
-
-        Object.defineProperty ( o, 'fn', {
-            set: Object.getOwnPropertyDescriptor ( o, 'fn' ).set
-          }
-        );
-
-        t.is ( calls, 1 );
-        t.is ( o._fn, 3 );
-
-      });
-
-      it ( 'supports reacting to changes of value caused by Object.defineProperty', t => {
-
-        const o = $.store ( { value: 1 } );
-
-        let calls = 0;
-        let args = [];
-
-        $.effect ( () => {
-          calls += 1;
-          args.push ( o.value );
-        });
-
-        t.is ( calls, 1 );
-        t.deepEqual ( args, [1] );
-
-        Object.defineProperty ( o, 'value', {
+          Object.defineProperty ( o, 'value', {
+            enumerable: false,
             value: 123
-          }
-        );
+          });
 
-        t.is ( calls, 2 );
-        t.deepEqual ( args, [1, 123] );
+          t.is ( calls, 2 );
+          t.is ( o.value, 123 );
 
-      });
-
-      it ( 'supports not reacting to changes of value caused by Object.defineProperty', t => {
-
-        const o = $.store ( { value: 123 } );
-
-        let calls = 0;
-        let args = [];
-
-        $.effect ( () => {
-          calls += 1;
-          args.push ( o.value );
         });
 
-        t.is ( calls, 1 );
-        t.deepEqual ( args, [123] );
+        it ( 'supports not reacting to changes of keys caused by Object.defineProperty, overriding enumerable property', t => {
 
-        Object.defineProperty ( o, 'value', {
+          const o = $.store ( { value: 1 } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            Object.keys ( o );
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.value, 1 );
+
+          Object.defineProperty ( o, 'value', {
+            enumerable: true,
             value: 123
-          }
-        );
+          });
 
-        t.is ( calls, 1 );
-        t.deepEqual ( args, [123] );
+          t.is ( calls, 1 );
+          t.is ( o.value, 123 );
+
+        });
+
+        it ( 'supports not reacting to changes of keys caused by Object.defineProperty, adding non-enumerable property', t => {
+
+          const o = $.store ( {} );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            Object.keys ( o );
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.value, undefined );
+
+          Object.defineProperty ( o, 'value', {
+            enumerable: false,
+            value: 123
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.value, 123 );
+
+        });
+
+        it ( 'supports reacting to changes of in caused by Object.defineProperty, adding enumerable property', t => {
+
+          const o = $.store ( {} );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            if ( 'value' in o ) {}
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.value, undefined );
+
+          Object.defineProperty ( o, 'value', {
+            enumerable: true,
+            value: 123
+          });
+
+          t.is ( calls, 2 );
+          t.is ( o.value, 123 );
+
+        });
+
+        it ( 'supports reacting to changes of in caused by Object.defineProperty, deleting enumerable property',t => {
+
+          const o = $.store ( { value: 1 } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            if ( 'value' in o ) {}
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.value, 1 );
+
+          Object.defineProperty ( o, 'value', {
+            enumerable: false,
+            value: 123
+          });
+
+          t.is ( calls, 2 );
+          t.is ( o.value, 123 );
+
+        });
+
+        it ( 'supports not reacting to changes of in caused by Object.defineProperty, overriding enumerable property', t => {
+
+          const o = $.store ( { value: 1 } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            if ( 'value' in o ) {}
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.value, 1 );
+
+          Object.defineProperty ( o, 'value', {
+            enumerable: true,
+            value: 123
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.value, 123 );
+
+        });
+
+        it ( 'supports not reacting to changes of in caused by Object.defineProperty, adding non-enumerable property', t => {
+
+          const o = $.store ( {} );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            if ( 'value' in o ) {}
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.value, undefined );
+
+          Object.defineProperty ( o, 'value', {
+            enumerable: false,
+            value: 123
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.value, 123 );
+
+        });
+
+        it ( 'supports reacting to changes in getters caused by Object.defineProperty, addition', t => {
+
+          const o = $.store ( { foo: 1, bar: 2 } );
+
+          let calls = 0;
+          let args = [];
+
+          $.effect ( () => {
+            calls += 1;
+            args.push ( o.fn );
+          });
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [undefined] );
+
+          Object.defineProperty ( o, 'fn', {
+              get: function () {
+                return this.foo + this.bar;
+              }
+            }
+          );
+
+          t.is ( calls, 2 );
+          t.deepEqual ( args, [undefined, 3] );
+
+        });
+
+        it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with value', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
+
+          let calls = 0;
+          let args = [];
+
+          $.effect ( () => {
+            calls += 1;
+            args.push ( o.fn );
+          });
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [3] );
+
+          Object.defineProperty ( o, 'fn', {
+              value: 123
+            }
+          );
+
+          t.is ( calls, 2 );
+          t.deepEqual ( args, [3, 123] );
+
+        });
+
+        it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with new getter', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
+
+          let calls = 0;
+          let args = [];
+
+          $.effect ( () => {
+            calls += 1;
+            args.push ( o.fn );
+          });
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [3] );
+
+          Object.defineProperty ( o, 'fn', {
+              get: function () {
+                return ( this.foo + this.bar ) * 10;
+              }
+            }
+          );
+
+          t.is ( calls, 2 );
+          t.deepEqual ( args, [3, 30] );
+
+        });
+
+        it ( 'supports not reacting to changes in getters caused by Object.defineProperty, override with same getter', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
+
+          let calls = 0;
+          let args = [];
+
+          $.effect ( () => {
+            calls += 1;
+            args.push ( o.fn );
+          });
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [3] );
+
+          Object.defineProperty ( o, 'fn', {
+              get: Object.getOwnPropertyDescriptor ( o, 'fn' ).get
+            }
+          );
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [3] );
+
+        });
+
+        it ( 'supports reacting to changes in setters caused by Object.defineProperty, addition', t => {
+
+          const o = $.store ( { foo: 1, bar: 2 } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.fn = 3;
+            o.fn;
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o.fn, 3 );
+          t.is ( o._fn, undefined );
+
+          Object.defineProperty ( o, 'fn', {
+              set: function ( value ) {
+                return this._fn = value * 10;
+              }
+            }
+          );
+
+          t.is ( calls, 2 );
+          t.is ( o.fn, undefined );
+          t.is ( o._fn, 30 );
+
+        });
+
+        it.skip ( 'supports reacting to changes in setters caused by Object.defineProperty, override with new setter', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.fn = 3;
+            o.fn;
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o._fn, 3 );
+
+          Object.defineProperty ( o, 'fn', {
+              set: function ( value ) {
+                return this._fn = value * 10;
+              }
+            }
+          );
+
+          t.is ( calls, 2 );
+          t.is ( o._fn, 30 );
+
+        });
+
+        it.skip ( 'supports not reacting to changes in setters caused by Object.defineProperty, override with same setter', t => {
+
+          const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.fn = 3;
+            o.fn;
+          });
+
+          t.is ( calls, 1 );
+          t.is ( o._fn, 3 );
+
+          Object.defineProperty ( o, 'fn', {
+              set: Object.getOwnPropertyDescriptor ( o, 'fn' ).set
+            }
+          );
+
+          t.is ( calls, 1 );
+          t.is ( o._fn, 3 );
+
+        });
+
+        it ( 'supports reacting to changes of value caused by Object.defineProperty', t => {
+
+          const o = $.store ( { value: 1 } );
+
+          let calls = 0;
+          let args = [];
+
+          $.effect ( () => {
+            calls += 1;
+            args.push ( o.value );
+          });
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [1] );
+
+          Object.defineProperty ( o, 'value', {
+              value: 123
+            }
+          );
+
+          t.is ( calls, 2 );
+          t.deepEqual ( args, [1, 123] );
+
+        });
+
+        it ( 'supports not reacting to changes of value caused by Object.defineProperty', t => {
+
+          const o = $.store ( { value: 123 } );
+
+          let calls = 0;
+          let args = [];
+
+          $.effect ( () => {
+            calls += 1;
+            args.push ( o.value );
+          });
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [123] );
+
+          Object.defineProperty ( o, 'value', {
+              value: 123
+            }
+          );
+
+          t.is ( calls, 1 );
+          t.deepEqual ( args, [123] );
+
+        });
+
+        it ( 'treats number and string properties the same way', t => {
+
+          const o = $.store ([ 0 ]);
+
+          let callsNumber = 0;
+          let callsString = 0;
+
+          $.effect ( () => {
+            callsNumber += 1;
+            o[0];
+          });
+
+          $.effect ( () => {
+            callsString += 1;
+            o['0'];
+          });
+
+          t.is ( callsNumber, 1 );
+          t.is ( callsString, 1 );
+
+          o[0] = 1;
+
+          t.is ( callsNumber, 2 );
+          t.is ( callsString, 2 );
+
+          o['0'] = 2;
+
+          t.is ( callsNumber, 3 );
+          t.is ( callsString, 3 );
+
+        });
 
       });
 
-      it ( 'treats number and string properties the same way', t => {
+      describe ( 'unwrap', () => {
 
-        const o = $.store ([ 0 ]);
+        it ( 'supports unwrapping a plain object', t => {
 
-        let callsNumber = 0;
-        let callsString = 0;
+          const wrapped = $.store ( { value: [] } );
 
-        $.effect ( () => {
-          callsNumber += 1;
-          o[0];
+          t.true ( $.isStore ( wrapped ) );
+          t.true ( $.isStore ( wrapped.value ) );
+
+          const unwrapped = $.store.unwrap ( wrapped );
+
+          t.false ( $.isStore ( unwrapped ) );
+          t.false ( $.isStore ( unwrapped.value ) );
+
         });
 
-        $.effect ( () => {
-          callsString += 1;
-          o['0'];
+        it ( 'supports unwrapping an array', t => {
+
+          const wrapped = $.store ( [{}] );
+
+          t.true ( $.isStore ( wrapped ) );
+          t.true ( $.isStore ( wrapped[0] ) );
+
+          const unwrapped = $.store.unwrap ( wrapped );
+
+          t.false ( $.isStore ( unwrapped ) );
+          t.false ( $.isStore ( unwrapped[0] ) );
+
         });
 
-        t.is ( callsNumber, 1 );
-        t.is ( callsString, 1 );
+        it ( 'supports wrapping, unwrapping, and re-wrapping without losing reactivity', t => {
 
-        o[0] = 1;
+          const o = $.store ( { foo: 1 } );
 
-        t.is ( callsNumber, 2 );
-        t.is ( callsString, 2 );
+          let calls = 0;
 
-        o['0'] = 2;
+          $.effect ( () => {
+            calls += 1;
+            o.foo;
+          });
 
-        t.is ( callsNumber, 3 );
-        t.is ( callsString, 3 );
+          t.is ( calls, 1 );
+
+          const rewrapped = $.store ( $.store.unwrap ( o ) );
+
+          rewrapped.foo = 10;
+
+          t.is ( calls, 2 );
+          t.is ( o.foo, 10 );
+          t.is ( rewrapped.foo, 10 );
+
+        });
 
       });
 
