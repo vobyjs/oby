@@ -18,7 +18,9 @@ const lazyArrayPush = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T
   if ( arr instanceof Array ) {
     arr.push ( value );
   } else if ( arr ) {
-    obj[key] = [arr, value];
+    if ( value !== arr ) {
+      obj[key] = [arr, value];
+    }
   } else {
     obj[key] = value;
   }
@@ -29,10 +31,12 @@ const lazySetAdd = <T, U extends string> ( obj: Partial<Record<U, LazySet<T>>>, 
   if ( set instanceof Set ) {
     set.add ( value );
   } else if ( set ) {
-    const s = new Set<T> ();
-    s.add ( set );
-    s.add ( value );
-    obj[key] = s;
+    if ( value !== set ) {
+      const s = new Set<T> ();
+      s.add ( set );
+      s.add ( value );
+      obj[key] = s;
+    }
   } else {
     obj[key] = value;
   }
