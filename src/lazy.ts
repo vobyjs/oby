@@ -18,9 +18,7 @@ const lazyArrayPush = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T
   if ( arr instanceof Array ) {
     arr.push ( value );
   } else if ( arr ) {
-    if ( value !== arr ) {
-      obj[key] = [arr, value];
-    }
+    obj[key] = [arr, value];
   } else {
     obj[key] = value;
   }
