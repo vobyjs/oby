@@ -107,7 +107,10 @@ class StoreScheduler {
   static flush = (): void => {
     const {listeners, nodes} = StoreScheduler;
     StoreScheduler.reset ();
+    const traversed = new Set<StoreNode>();
     const traverse = ( node: StoreNode ): void => {
+      if ( traversed.has ( node ) ) return;
+      traversed.add ( node );
       lazySetEach ( node.parents, traverse );
       lazySetEach ( node.listeners, listener => {
         listeners.add ( listener );
