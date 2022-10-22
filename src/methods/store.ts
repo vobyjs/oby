@@ -599,7 +599,6 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 
 /* MAIN */
 
-//TODO: Add an option for immutable stores that are edited via set/merge/produce functions, which have none of the issues but poor DX
 //TODO: Maybe have the "on" method trigger immediately too like "$.on", or maybe the other way around, which seems more flexible
 //TODO: Explore converting target values back to numbers (the Proxy always receives strings) whenever possible, to save memory
 
