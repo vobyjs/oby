@@ -99,7 +99,7 @@ class StoreProperty extends StoreCleanable {
 
 class StoreScheduler {
   /* VARIABLES */
-  static active = false;
+  static active = 0;
   static listeners = new Set<CallbackFunction>();
   static nodes = new Set<StoreNode>();
   static waiting = false;
@@ -615,8 +615,6 @@ const store = <T> ( value: T, options?: StoreOptions ): T => {
 
 store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFunction ): DisposeFunction => {
 
-  StoreScheduler.active = true;
-
   /* VARIABLES */
 
   const targets = castArray ( target );
@@ -624,6 +622,8 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
   const nodes = targets.filter ( isStore ).map ( getNodeFromStore );
 
   /* ON */
+
+  StoreScheduler.active += 1;
 
   const disposers = selectors.map ( selector => {
     let inited = false;
@@ -643,6 +643,8 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
   /* OFF */
 
   return (): void => {
+
+    StoreScheduler.active -= 1;
 
     disposers.forEach ( disposer => {
       disposer ();
