@@ -7,6 +7,7 @@ import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import isStore from '~/methods/is_store';
 import reaction from '~/methods/reaction';
+import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
 import {castArray, isArray, isFunction} from '~/utils';
@@ -15,6 +16,8 @@ import type {IObservable, CallbackFunction, DisposeFunction, Observable, Observa
 /* TYPES */
 
 type StoreKey = string | number | symbol;
+
+type StoreReconcileable = Array<any> | Record<StoreKey, any>;
 
 type StoreTarget = Record<StoreKey, any>;
 
@@ -652,6 +655,97 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
   };
 
 };
+
+store.reconcile = (() => {
+
+  //TODO: Support getters, setters and symbols (symbols could be supported with Reflect.ownKeys, but that's like 2x slower)
+
+  const getType = ( value: unknown ): 0 | 1 | 2 => {
+
+    if ( isArray ( value ) ) return 1;
+
+    if ( isProxiable ( value ) ) return 2;
+
+    return 0;
+
+  };
+
+  const reconcileInner = <T extends StoreReconcileable> ( prev: T, next: T ): T => {
+
+    const uprev = getTarget ( prev );
+    const unext = getTarget ( next );
+
+    const prevKeys = Object.keys ( uprev );
+    const nextKeys = Object.keys ( unext );
+
+    for ( let i = 0, l = nextKeys.length; i < l; i++ ) {
+
+      const key = nextKeys[i];
+      const prevValue = uprev[key]
+      const nextValue = unext[key];
+
+      if ( !IS ( prevValue, nextValue ) ) {
+
+        const prevType = getType ( prevValue );
+        const nextType = getType ( nextValue );
+
+        if ( prevType && prevType === nextType ) {
+
+          reconcileInner ( prev[key], nextValue );
+
+          if ( prevType === 1 ) {
+
+            prev[key].length = nextValue.length;
+
+          }
+
+        } else {
+
+          prev[key] = nextValue;
+
+        }
+
+      } else if ( prevValue === undefined && !( key in uprev ) ) {
+
+        prev[key] = undefined;
+
+      }
+
+    }
+
+    for ( let i = 0, l = prevKeys.length; i < l; i++ ) {
+
+      const key = prevKeys[i];
+
+      if ( !( key in unext ) ) {
+
+        delete prev[key];
+
+      }
+
+    }
+
+    return prev;
+
+  };
+
+  const reconcile = <T extends StoreReconcileable> ( prev: T, next: T ): T => {
+
+    return batch ( () => {
+
+      return untrack ( () => {
+
+        return reconcileInner ( prev, next );
+
+      });
+
+    });
+
+  };
+
+  return reconcile;
+
+})();
 
 store.unwrap = <T> ( value: T ): T => {
 

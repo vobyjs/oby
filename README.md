@@ -594,15 +594,19 @@ You can just use the reactive object like you would with a regular non-reactive 
 
 - **Note**: A powerful function is provided, `$.store.on`, for listening to any changes happening _inside_ a store. Changes are batched automatically within a microtask for you. If you use this function it's advisable to not have multiple instances of the same object inside a single store, or you may hit some edge cases where a listener doesn't fire because another path where the same object is available, and where it was edited from, hasn't been discovered yet, since discovery is lazy as otherwise it would be expensive.
 
+- **Note**: A powerful function is provided, `$.store.reoncile`, that basically merges the content of the second argument into the first one, preserving wrapper objects in the first argument as much as possible, which can avoid many unnecessary re-renderings down the line. Currently getters/setters/symbols from the second argument are ignored, as supporting those would make this function significantly slower, and you most probably don't need them anyway if you are using this function.
+
 Interface:
 
 ```ts
-type StoreListenableTarget = Record<StoreKey, string | number | symbol> | (() => any);
+type StoreListenableTarget = Record<string | number | symbol, any> | (() => any);
+type StoreReconcileableTarget = Record<string | number | symbol, any> | Array<any>;
 type StoreOptions = {};
 
 function store <T> ( value: T, options?: StoreOptions ): T;
 
 store.on = function on ( target: ArrayMaybe<StoreListenableTarget>, callback: () => void ): (() => void);
+store.reconcile = function reconcile <T extends StoreReconcileableTarget> ( prev: T, next: T ): T;
 store.unwrap = function unwrap <T> ( value: T ): T;
 ```
 
@@ -644,6 +648,13 @@ const pobj = $.store.unwrap ( obj );
 // Get a non-reactive array out of a reactive one
 
 const parr = $.store.unwrap ( arr );
+
+// Reconcile a store with new data
+
+const rec = $.store ({ foo: { deep: { value: 123, other: '123' } } });
+const dataNext = { foo: { deep: { value: 321, other: '321' } } };
+
+$.store.reconcile ( rec, dataNext ); // Now "rec" contains the data from "dataNext", but none of its internal objects, in this case, got deleted or created, they just got updated
 
 // Listen for changes inside a store using a selector, necessary if you want to listen to a primitive
 

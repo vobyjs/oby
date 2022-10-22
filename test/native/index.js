@@ -7289,6 +7289,25 @@ describe ( 'oby', () => {
 
       });
 
+      describe ( 'reconcile', () => {
+
+        it ( 'reconciles a store with another', t => {
+
+          const data = { foo: { deep: { value: 123, value2: true } }, arr1: ['a', 'b', 'c'], arr2: ['a', 'b'] };
+          const dataNext = { foo: { deep: { value: 321, value3: 123 } }, arr1: ['d', 'e'], arr2: ['d', 'e', 'f'], value: true };
+
+          const o = $.store ( data );
+
+          t.notDeepEqual ( o, dataNext );
+
+          $.store.reconcile ( o, dataNext );
+
+          t.deepEqual ( o, dataNext );
+
+        });
+
+      });
+
       describe ( 'unwrap', () => {
 
         it ( 'supports unwrapping a plain object', t => {
