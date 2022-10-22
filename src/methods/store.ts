@@ -1,14 +1,16 @@
 
 /* IMPORT */
 
-import {IS, NOOP, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, TRACKING} from '~/constants';
+import {IS, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, TRACKING} from '~/constants';
+import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import isStore from '~/methods/is_store';
+import reaction from '~/methods/reaction';
 import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
-import {isArray} from '~/utils';
-import type {IObservable, Observable, ObservableOptions, StoreOptions, Signal} from '~/types';
+import {castArray, isArray, isFunction} from '~/utils';
+import type {IObservable, CallbackFunction, DisposeFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet, Signal} from '~/types';
 
 /* TYPES */
 
@@ -16,9 +18,15 @@ type StoreKey = string | number | symbol;
 
 type StoreTarget = Record<StoreKey, any>;
 
+type StoreSelectorFunction = () => void;
+
+type StoreListenableTarget = StoreTarget | StoreSelectorFunction;
+
 type StoreNode = {
+  parents: LazySet<StoreNode>,
   store: StoreTarget,
   signal: Signal,
+  listeners?: LazySet<CallbackFunction>,
   getters?: StoreMap<StoreKey, Function>,
   setters?: StoreMap<StoreKey, Function>,
   keys?: StoreKeys,
@@ -84,6 +92,39 @@ class StoreProperty extends StoreCleanable {
   dispose (): void {
     this.parent.properties?.delete ( this.key );
   }
+}
+
+class StoreScheduler {
+  /* VARIABLES */
+  static active = false;
+  static listeners = new Set<CallbackFunction>();
+  static nodes = new Set<StoreNode>();
+  static waiting = false;
+  /* API */
+  static flush = (): void => {
+    const {listeners, nodes} = StoreScheduler;
+    StoreScheduler.reset ();
+    const traverse = ( node: StoreNode ): void => {
+      lazySetEach ( node.parents, traverse );
+      lazySetEach ( node.listeners, listener => {
+        listeners.add ( listener );
+      });
+    };
+    nodes.forEach ( traverse );
+    listeners.forEach ( listener => listener () );
+  };
+  static register = ( node: StoreNode ): void => {
+    if ( !StoreScheduler.active ) return;
+    StoreScheduler.nodes.add ( node );
+    if ( StoreScheduler.waiting ) return;
+    StoreScheduler.waiting = true;
+    queueMicrotask ( StoreScheduler.flush );
+  };
+  static reset = (): void => {
+    StoreScheduler.waiting = false;
+    StoreScheduler.nodes = new Set ();
+    StoreScheduler.listeners = new Set ();
+  };
 }
 
 /* CONSTANTS */
@@ -160,6 +201,12 @@ const TRAPS = {
     const proxiable = isProxiable ( value );
     const property = listenable || proxiable ? node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) ) : undefined;
 
+    if ( property?.node ) {
+
+      lazySetAdd ( property.node, 'parents', node );
+
+    }
+
     if ( listenable && property ) {
 
       property.listen ();
@@ -199,11 +246,16 @@ const TRAPS = {
 
     } else {
 
-      const hadProperty = ( key in target );
+      const valuePrev = target[key];
+      const hadProperty = !!valuePrev || ( key in target );
 
       target[key] = value;
 
       batch ( () => {
+
+        if ( !hadProperty || !IS ( value, valuePrev ) ) {
+          StoreScheduler.register ( node );
+        }
 
         node.values?.observable.write ( 0 );
 
@@ -213,9 +265,18 @@ const TRAPS = {
         }
 
         const property = node.properties?.get ( key );
+
+        if ( property?.node ) {
+          lazySetDelete ( property.node, 'parents', node );
+        }
+
         if ( property ) {
           property.observable?.write ( value );
           property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
+        }
+
+        if ( property?.node ) {
+          lazySetAdd ( property.node, 'parents', node );
         }
 
       });
@@ -240,11 +301,18 @@ const TRAPS = {
 
     batch ( () => {
 
+      StoreScheduler.register ( node );
+
       node.keys?.observable.write ( 0 );
       node.values?.observable.write ( 0 );
       node.has?.get ( key )?.observable.write ( false );
 
       const property = node.properties?.get ( key );
+
+      if ( property?.node ) {
+        lazySetDelete ( property.node, 'parents', node );
+      }
+
       if ( property ) {
         property.observable?.write ( undefined );
         property.node = undefined;
@@ -271,6 +339,8 @@ const TRAPS = {
 
     batch ( () => {
 
+      StoreScheduler.register ( node );
+
       if ( !descriptor.get ) {
         node.getters?.delete ( key );
       } else if ( descriptor.get ) {
@@ -291,6 +361,11 @@ const TRAPS = {
       }
 
       const property = node.properties?.get ( key );
+
+      if ( property?.node ) {
+        lazySetDelete ( property.node, 'parents', node );
+      }
+
       if ( property ) {
         if ( 'get' in descriptor ) {
           property.observable?.write ( descriptor.get );
@@ -300,6 +375,10 @@ const TRAPS = {
           property.observable?.write ( value );
           property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
         }
+      }
+
+      if ( property?.node ) {
+        lazySetAdd ( property.node, 'parents', node );
       }
 
     });
@@ -360,7 +439,7 @@ const getNode = <T = StoreTarget> ( value: T, parent?: StoreNode ): StoreNode =>
   const store = new Proxy ( value, TRAPS );
   const signal = parent?.signal || ROOT.current;
   const {getters, setters} = getGettersAndSetters ( value );
-  const node: StoreNode = { store, signal };
+  const node: StoreNode = { parents: parent, store, signal };
 
   if ( getters ) node.getters = getters;
   if ( setters ) node.setters = setters;
@@ -378,6 +457,12 @@ const getNodeExisting = <T = StoreTarget> ( value: T ): StoreNode => {
   if ( !node ) throw new Error ( 'Impossible' );
 
   return node;
+
+};
+
+const getNodeFromStore = <T = StoreTarget> ( store: T ): StoreNode => {
+
+  return getNodeExisting ( getTarget ( store ) );
 
 };
 
@@ -511,8 +596,8 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 
 /* MAIN */
 
-//TODO: Support listening to everything
 //TODO: Add an option for immutable stores that are edited via set/merge/produce functions, which have none of the issues but poor DX
+//TODO: Maybe have the "on" method trigger immediately too like "$.on", or maybe the other way around, which seems more flexible
 //TODO: Explore converting target values back to numbers (the Proxy always receives strings) whenever possible, to save memory
 
 const store = <T> ( value: T, options?: StoreOptions ): T => {
@@ -524,6 +609,49 @@ const store = <T> ( value: T, options?: StoreOptions ): T => {
 };
 
 /* UTILITIES */
+
+store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFunction ): DisposeFunction => {
+
+  StoreScheduler.active = true;
+
+  /* VARIABLES */
+
+  const targets = castArray ( target );
+  const selectors = targets.filter ( isFunction );
+  const nodes = targets.filter ( isStore ).map ( getNodeFromStore );
+
+  /* ON */
+
+  const disposers = selectors.map ( selector => {
+    let inited = false;
+    return reaction ( () => {
+      if ( inited ) {
+        StoreScheduler.listeners.add ( listener );
+      }
+      inited = true;
+      selector ();
+    });
+  });
+
+  nodes.forEach ( node => {
+    lazySetAdd ( node, 'listeners', listener );
+  });
+
+  /* OFF */
+
+  return (): void => {
+
+    disposers.forEach ( disposer => {
+      disposer ();
+    });
+
+    nodes.forEach ( node => {
+      lazySetDelete ( node, 'listeners', listener );
+    });
+
+  };
+
+};
 
 store.unwrap = <T> ( value: T ): T => {
 

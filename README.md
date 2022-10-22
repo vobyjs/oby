@@ -592,13 +592,17 @@ You can just use the reactive object like you would with a regular non-reactive 
 
 - **Note**: Getters and setters that are properties of arrays, if for whatever reason you have those, won't be reactive.
 
+- **Note**: A powerful function is provided, `$.store.on`, for listening to any changes happening _inside_ a store. Changes are batched automatically within a microtask for you. If you use this function it's advisable to not have multiple instances of the same object inside a single store, or you may hit some edge cases where a listener doesn't fire because another path where the same object is available, and where it was edited from, hasn't been discovered yet, since discovery is lazy as otherwise it would be expensive.
+
 Interface:
 
 ```ts
+type StoreListenableTarget = Record<StoreKey, string | number | symbol> | (() => any);
 type StoreOptions = {};
 
 function store <T> ( value: T, options?: StoreOptions ): T;
 
+store.on = function on ( target: ArrayMaybe<StoreListenableTarget>, callback: () => void ): (() => void);
 store.unwrap = function unwrap <T> ( value: T ): T;
 ```
 
@@ -640,6 +644,30 @@ const pobj = $.store.unwrap ( obj );
 // Get a non-reactive array out of a reactive one
 
 const parr = $.store.unwrap ( arr );
+
+// Listen for changes inside a store using a selector, necessary if you want to listen to a primitive
+
+$.store.on ( () => obj.foo.deep, () => {
+  console.log ( '"obj.foo.deep" changed!' );
+});
+
+// Listen for changes inside a whole store
+
+$.store.on ( obj, () => {
+  console.log ( 'Something inside "obj" changed!' );
+});
+
+// Listen for changes inside a whole sub-store, which is just another store created automatically for you really
+
+$.store.on ( obj.foo, () => {
+  console.log ( 'Something inside "obj.foo" changed!' );
+});
+
+// Listen for changes inside multiple targets, the callback will still be fired once if multiple targets are edited within the same microtask
+
+$.store.on ( [obj, arr], () => {
+  console.log ( 'Something inside "obj" and/or "arr" changed!' );
+});
 ```
 
 #### `$.untrack`

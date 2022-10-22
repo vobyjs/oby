@@ -1,6 +1,12 @@
 
 /* MAIN */
 
+const castArray = <T> ( value: T[] | T ): T[] => {
+
+  return isArray ( value ) ? value : [value];
+
+};
+
 const castError = ( error: unknown ): Error => {
 
   if ( error instanceof Error ) return error;
@@ -39,4 +45,4 @@ const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
 
 /* EXPORT */
 
-export {castError, isArray, isFunction, isNumber, isObject, max};
+export {castArray, castError, isArray, isFunction, isNumber, isObject, max};

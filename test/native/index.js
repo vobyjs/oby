@@ -6980,6 +6980,315 @@ describe ( 'oby', () => {
 
       });
 
+      describe ( 'on', () => {
+
+        it ( 'automatically batches listeners', async t => {
+
+          const o = $.store ( { foo: 1, bar: 1 } );
+
+          let calls = 0;
+
+          $.store.on ( o, () => calls += 1 );
+
+          o.foo = 2;
+          o.foo = 3;
+          o.bar = 2;
+          o.bar = 3;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'detects when a new property is added', async t => {
+
+          const o = $.store ( { foo: 1 } );
+
+          let calls = 0;
+
+          $.store.on ( o, () => calls += 1 );
+
+          o.bar = undefined;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'detects when a new property is added with Object.defineProperty', async t => {
+
+          const o = $.store ( { foo: 1 } );
+
+          let calls = 0;
+
+          $.store.on ( o, () => calls += 1 );
+
+          Object.defineProperty ( o, 'bar', {
+            value: 1
+          });
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'detects when a property is deleted', async t => {
+
+          const o = $.store ( { foo: 1, bar: 1 } );
+
+          let calls = 0;
+
+          $.store.on ( o, () => calls += 1 );
+
+          delete o.bar;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'detects when nothing changes when setting', async t => {
+
+          const o = $.store ( { foo: { value: 1 }, bar: { value: 1 } } );
+
+          let calls = 0;
+
+          $.store.on ( [() => o.foo.value, o.bar], () => calls += 1 );
+
+          o.foo.value = 1;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 0 );
+
+        });
+
+        it ( 'returns a dispose function', async t => {
+
+          const o = $.store ( { foo: 1, bar: 1 } );
+
+          let calls = 0;
+
+          const dispose = $.store.on ( [() => o.foo, o], () => calls += 1 );
+
+          dispose ();
+
+          o.foo = 2;
+          o.bar = 2;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 0 );
+
+        });
+
+        it ( 'supports listening to a single primitive', async t => {
+
+          const o = $.store ( { foo: 1, bar: 1 } );
+
+          let calls = 0;
+
+          $.store.on ( () => o.foo, () => calls += 1 );
+
+          o.foo = 2;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+          o.bar = 2;
+
+          t.is ( calls, 1 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'supports listening to multiple primitives', async t => {
+
+          const o = $.store ( { foo: 1, bar: 1 } );
+
+          let calls = 0;
+
+          $.store.on ( [() => o.foo, () => o.bar], () => calls += 1 );
+
+          o.foo = 2;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+          o.bar = 2;
+
+          t.is ( calls, 1 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports listening to a single store', async t => {
+
+          const o = $.store ( { foo: 1, bar: 1 } );
+
+          let calls = 0;
+
+          $.store.on ( o, () => calls += 1 );
+
+          o.foo = 2;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+          o.bar = 2;
+
+          t.is ( calls, 1 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports listening to multiple stores', async t => {
+
+          const o = $.store ( { foo: { value: 1 }, bar: { value: 1 } } );
+
+          let calls = 0;
+
+          $.store.on ( [o.foo, o.bar], () => calls += 1 );
+
+          o.foo.value = 2;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+          o.bar.value = 2;
+
+          t.is ( calls, 1 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports listening to multiple primitives and stores', async t => {
+
+          const o = $.store ( { foo: { value: 1 }, bar: { value: 1 } } );
+
+          let calls = 0;
+
+          $.store.on ( [() => o.foo.value, o.bar], () => calls += 1 );
+
+          o.foo.value = 2;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+          o.bar.value = 2;
+
+          t.is ( calls, 1 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports listening to a single store under multiple, fully pre-traversed, parents', async t => {
+
+          const value = { value: 1 };
+          const o = $.store ( { foo: { deep1: value }, bar: { deep2: value } } );
+
+          let calls = '';
+
+          o.foo.deep1.value;
+          o.bar.deep2.value;
+
+          $.store.on ( o.foo, () => calls += '1' );
+          $.store.on ( o.bar, () => calls += '2' );
+
+          o.foo.deep1.value = 2;
+
+          t.is ( calls, '' );
+
+          await delay ( 1 );
+
+          t.is ( calls, '12' );
+
+          o.bar.deep2.value = 3;
+
+          t.is ( calls, '12' );
+
+          await delay ( 1 );
+
+          t.is ( calls, '1212' );
+
+        });
+
+        it.skip ( 'supports listening to a single store under multiple, not fully pre-traversed, parents', async t => { //TODO: This seems unimplementable without traversing the entire structure ahead of time, which is expensive
+
+          const value = { value: 1 };
+          const o = $.store ( { foo: { deep1: value }, bar: { deep2: value } } );
+
+          let calls = '';
+
+          $.store.on ( o.foo, () => calls += '1' );
+          $.store.on ( o.bar, () => calls += '2' );
+
+          o.foo.deep1.value = 2;
+
+          t.is ( calls, '' );
+
+          await delay ( 1 );
+
+          t.is ( calls, '12' );
+
+          o.bar.deep2.value = 3;
+
+          t.is ( calls, '12' );
+
+          await delay ( 1 );
+
+          t.is ( calls, '1212' );
+
+        });
+
+      });
+
       describe ( 'unwrap', () => {
 
         it ( 'supports unwrapping a plain object', t => {

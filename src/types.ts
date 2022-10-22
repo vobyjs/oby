@@ -23,6 +23,8 @@ type ISuspense = import ( '~/objects/suspense' ).default;
 
 type BatchFunction<T = unknown> = () => T;
 
+type CallbackFunction = () => void;
+
 type CleanupFunction = () => void;
 
 type DisposeFunction = () => void;
@@ -96,6 +98,8 @@ type StoreOptions = {};
 
 /* OTHERS */
 
+type ArrayMaybe<T = unknown> = T | T[];
+
 type Callable<T extends CallableFunction> = (T & { call: CallableFunctionCall<T> }) | ({ call: CallableFunctionCall<T>, apply?: never });
 
 type CallableFunction = ( ...args: any[] ) => any;
@@ -137,8 +141,8 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 /* EXPORT */
 
 export type {IComputation, IEffect, IMemo, IObservable, IObserver, IReaction, IRoot, ISuperRoot, ISuspense};
-export type {BatchFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
+export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Owner};
 export type {StoreOptions};
-export type {Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};
+export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};
