@@ -326,7 +326,7 @@ function isBatching (): boolean;
 Usage:
 
 ```ts
-import $ from 'voby';
+import $ from 'oby';
 
 // Checking if currently batching
 
@@ -512,7 +512,7 @@ function owner (): Owner;
 Usage:
 
 ```ts
-import $ from 'voby';
+import $ from 'oby';
 
 // Check if you are right below the super root
 
