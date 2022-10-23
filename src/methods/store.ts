@@ -5,6 +5,7 @@ import {IS, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SY
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
+import isBatching from '~/methods/is_batching';
 import isStore from '~/methods/is_store';
 import reaction from '~/methods/reaction';
 import untrack from '~/methods/untrack';
@@ -119,17 +120,24 @@ class StoreScheduler {
     nodes.forEach ( traverse );
     listeners.forEach ( listener => listener () );
   };
+  static flushIfNotBatching = (): void => {
+    if ( isBatching () ) {
+      setTimeout ( StoreScheduler.flushIfNotBatching, 0 );
+    } else {
+      StoreScheduler.flush ();
+    }
+  };
   static register = ( node: StoreNode ): void => {
     if ( !StoreScheduler.active ) return;
     StoreScheduler.nodes.add ( node );
     if ( StoreScheduler.waiting ) return;
     StoreScheduler.waiting = true;
-    queueMicrotask ( StoreScheduler.flush );
+    queueMicrotask ( StoreScheduler.flushIfNotBatching );
   };
   static reset = (): void => {
-    StoreScheduler.waiting = false;
-    StoreScheduler.nodes = new Set ();
     StoreScheduler.listeners = new Set ();
+    StoreScheduler.nodes = new Set ();
+    StoreScheduler.waiting = false;
   };
 }
 

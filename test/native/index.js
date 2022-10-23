@@ -7139,6 +7139,82 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'automatically waits for a sync batch to resolve', async t => {
+
+          const o = $.store ({ foo: 1 });
+
+          let calls = '';
+
+          $.reaction ( () => {
+
+            o.foo;
+
+            calls += 'r';
+
+          });
+
+          $.store.on ( o, () => {
+
+            calls += 's';
+
+          });
+
+          t.is ( calls, 'r' );
+
+          $.batch ( () => {
+
+            o.foo = 2;
+
+          });
+
+          t.is ( calls, 'rr' );
+
+          await delay ( 1 );
+
+          t.is ( calls, 'rrs' );
+
+        });
+
+        it ( 'automatically waits for an async batch to resolve', async t => {
+
+          const o = $.store ({ foo: 1 });
+
+          let calls = '';
+
+          $.reaction ( () => {
+
+            o.foo;
+
+            calls += 'r';
+
+          });
+
+          $.store.on ( o, () => {
+
+            calls += 's';
+
+          });
+
+          t.is ( calls, 'r' );
+
+          await $.batch ( async () => {
+
+            await delay ( 25 );
+
+            o.foo = 2;
+
+            await delay ( 25 );
+
+          });
+
+          t.is ( calls, 'rr' );
+
+          await delay ( 1 );
+
+          t.is ( calls, 'rrs' );
+
+        });
+
         it ( 'detects when a new property is added', async t => {
 
           const o = $.store ( { foo: 1 } );
