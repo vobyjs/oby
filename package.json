@@ -9,6 +9,7 @@
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
+    "all": "npm run compile && npm run compile:mangle && npm run test && npm run benchmark && npm run cleanup && npm run creation && npm run memory && npm run store && npm run updates",
     "benchmark": "tsex benchmark",
     "benchmark:watch": "tsex benchmark --watch",
     "clean": "tsex clean",
