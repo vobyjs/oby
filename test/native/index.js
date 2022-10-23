@@ -472,6 +472,24 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'batches changes within itself, even for async functions', async t => {
+
+      const a = $(9);
+      const b = $(99);
+
+      await $.batch ( async () => {
+        a ( 10 );
+        b ( 100 );
+        await delay ( 50 );
+        t.is ( a (), 9 );
+        t.is ( b (), 99 );
+      });
+
+      t.is ( a (), 10 );
+      t.is ( b (), 100 );
+
+    });
+
     it ( 'batches changes propagating outside of its scope', t => {
 
       $.root ( () => {
@@ -610,6 +628,46 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'does not swallow thrown errors', t => {
+
+      try {
+
+        $.batch ( () => {
+
+          throw new Error ( 'Something' );
+
+        });
+
+      } catch ( error ) {
+
+        t.true ( error instanceof Error );
+        t.is ( error.message, 'Something' );
+
+      }
+
+    });
+
+    it.skip ( 'does not swallow thrown errors, even for async functions', async t => { //FIXME: There's some bug in fava that prevents this from working
+
+      try {
+
+        await $.batch ( async () => {
+
+          await delay ( 50 );
+
+          throw new Error ( 'Something' );
+
+        });
+
+      } catch ( error ) {
+
+        t.true ( error instanceof Error );
+        t.is ( error.message, 'Something' );
+
+      }
+
+    });
+
     it ( 'returns the value being returned', t => {
 
       const o = $(0);
@@ -635,6 +693,56 @@ describe ( 'oby', () => {
           });
           t.is ( o (), 1 );
         });
+        t.is ( o (), 1 );
+      });
+
+      t.is ( o (), 4 );
+
+    });
+
+    it ( 'supports being nested, even for async functions', async t => {
+
+      const o = $(1);
+
+      await $.batch ( async () => {
+        o ( 2 );
+        await delay ( 50 );
+        t.is ( o (), 1 );
+        await $.batch ( async () => {
+          o ( 3 );
+          await delay ( 50 );
+          t.is ( o (), 1 );
+          await $.batch ( async () => {
+            o ( 4 );
+          });
+          await delay ( 50 );
+          t.is ( o (), 1 );
+        });
+        await delay ( 50 );
+        t.is ( o (), 1 );
+      });
+
+      t.is ( o (), 4 );
+
+    });
+
+    it ( 'supports being nested, even when mixing sync and async functions', async t => {
+
+      const o = $(1);
+
+      await $.batch ( async () => {
+        o ( 2 );
+        await delay ( 50 );
+        t.is ( o (), 1 );
+        $.batch ( () => {
+          o ( 3 );
+          t.is ( o (), 1 );
+          $.batch ( () => {
+            o ( 4 );
+          });
+          t.is ( o (), 1 );
+        });
+        await delay ( 50 );
         t.is ( o (), 1 );
       });
 

@@ -1,52 +1,102 @@
 
 /* IMPORT */
 
-import {BATCH} from '~/constants';
+import {BATCH, BATCH_COUNT} from '~/constants';
 import type {IObservable, BatchFunction} from '~/types';
 
-/* HELPERS */
+/* HELPERS - LIFECYCLE */
 
-const flush = <T> ( value: T, observable: IObservable<T> ): T => observable.write ( value );
-const stale = <T> ( value: T, observable: IObservable<T> ): void => observable.emit ( 1, false );
-const unstale = <T> ( value: T, observable: IObservable<T> ): void => observable.emit ( -1, false );
+const start = (): void => {
 
-/* MAIN */
+  BATCH_COUNT.current += 1;
 
-//TODO: Experiment with deleting batching and instead just queuing effects in a microtask
+  BATCH.current ||= new Map ();
 
-const batch = <T> ( fn: BatchFunction<T> ): T => {
+};
 
-  if ( BATCH.current ) { // Already batching
+const stop = (): void => {
 
-    return fn ();
+  BATCH_COUNT.current -= 1;
 
-  } else { // Starting batching
+  if ( BATCH_COUNT.current ) return;
 
-    const batch = BATCH.current = new Map ();
+  const batch = BATCH.current;
 
-    try {
+  if ( !batch ) return;
 
-      return fn ();
+  BATCH.current = undefined;
 
-    } finally {
+  if ( batch.size > 1 ) {
 
-      BATCH.current = undefined;
+    batch.forEach ( stale );
+    batch.forEach ( write );
+    batch.forEach ( unstale );
 
-      if ( batch.size > 1 ) {
+  } else {
 
-        batch.forEach ( stale );
-        batch.forEach ( flush );
-        batch.forEach ( unstale );
+    batch.forEach ( write );
 
-      } else {
+  }
 
-        batch.forEach ( flush );
+};
 
-      }
+const wrap = <T> ( fn: () => T, onBefore: () => void, onAfter: () => void ): T => {
+
+  onBefore ();
+
+  try {
+
+    const result = fn ();
+
+    if ( result instanceof Promise ) {
+
+      result.finally ( onAfter );
+
+    } else {
+
+      onAfter ();
 
     }
 
+    return result;
+
+  } catch ( error: unknown ) {
+
+    onAfter ();
+
+    throw error;
+
   }
+
+};
+
+/* HELPERS - FLUSHING */
+
+const stale = <T> ( value: T, observable: IObservable<T> ): void => {
+
+  observable.emit ( 1, false );
+
+};
+
+const unstale = <T> ( value: T, observable: IObservable<T> ): void => {
+
+  observable.emit ( -1, false );
+
+};
+
+const write = <T> ( value: T, observable: IObservable<T> ): void => {
+
+  observable.write ( value );
+
+};
+
+/* MAIN */
+
+//TODO: Experiment with deleting batching and instead "just" queuing stuff in a microtask, if possible without making a mess in userland
+
+const batch = <T> ( fn: BatchFunction<T> ): T => {
+
+  return wrap ( fn, start, stop );
 
 };
 

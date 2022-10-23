@@ -124,6 +124,8 @@ type LazyValue<T = unknown> = T | undefined;
 
 type Mapped<T = unknown> = { bool: boolean, result: T, root: IObserver };
 
+type PromiseMaybe<T = unknown> = T | Promise<T>;
+
 type Readable = <T = unknown> ( observable: IObservable<T> ) => ObservableReadonly<T>;
 
 type ResolvablePrimitive = null | undefined | boolean | number | bigint | string | symbol;
@@ -145,4 +147,4 @@ export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, 
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Owner};
 export type {StoreOptions};
-export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, Readable, Resolvable, Resolved, Signal, Writable};
+export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, PromiseMaybe, Readable, Resolvable, Resolved, Signal, Writable};
