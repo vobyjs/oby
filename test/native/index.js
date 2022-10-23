@@ -3614,6 +3614,34 @@ describe ( 'oby', () => {
 
   });
 
+  describe ( 'isBatching', it => {
+
+    it ( 'checks if batching is active', async t => {
+
+      t.false ( $.isBatching () );
+
+      await $.batch ( async () => {
+        t.true ( $.isBatching () );
+        await delay ( 50 );
+        t.true ( $.isBatching () );
+        $.batch ( () => {
+          t.true ( $.isBatching () );
+          $.batch ( () => {
+            t.true ( $.isBatching () );
+          });
+          t.true ( $.isBatching () );
+        });
+        t.true ( $.isBatching () );
+        await delay ( 50 );
+        t.true ( $.isBatching () );
+      });
+
+      t.false ( $.isBatching () );
+
+    });
+
+  });
+
   describe ( 'isObservable', it => {
 
     it ( 'checks if a value is an observable', t => {

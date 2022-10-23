@@ -15,6 +15,7 @@ import forIndex from '~/methods/for_index';
 import forValue from '~/methods/for_value';
 import get from '~/methods/get';
 import _if from '~/methods/if';
+import isBatching from '~/methods/is_batching';
 import isObservable from '~/methods/is_observable';
 import isStore from '~/methods/is_store';
 import memo from '~/methods/memo';
@@ -39,6 +40,6 @@ import type {ObservableOptions, Observable, ObservableReadonly, StoreOptions} fr
 /* EXPORT */
 
 export default $;
-export {batch, boolean, cleanup, context, disposed, effect, error, _for as for, forIndex, forValue, get, _if as if, isObservable, isStore, memo, observable, off, on, owner, reaction, readonly, resolve, root, selector, store, suspense, _switch as switch, ternary, tryCatch, untrack, _with as with};
+export {batch, boolean, cleanup, context, disposed, effect, error, _for as for, forIndex, forValue, get, _if as if, isBatching, isObservable, isStore, memo, observable, off, on, owner, reaction, readonly, resolve, root, selector, store, suspense, _switch as switch, ternary, tryCatch, untrack, _with as with};
 export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_UNTRACKED};
 export type {Observable, ObservableReadonly, ObservableOptions, StoreOptions};

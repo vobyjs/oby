@@ -18,8 +18,9 @@ npm install --save oby
 | [`$.context`](#context)           | [`$.forValue`](#forvalue) | [`$.readonly`](#readonly) | [`StoreOptions`](#storeoptions)             |
 | [`$.effect`](#effect)             | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   |                                             |
 | [`$.error`](#error)               | [`$.switch`](#switch)     | [`$.selector`](#selector) |                                             |
-| [`$.isObservable`](#isobservable) | [`$.ternary`](#ternary)   |                           |                                             |
-| [`$.isStore`](#isstore)           | [`$.tryCatch`](#trycatch) |                           |                                             |
+| [`$.isBatching`](#isbatching)     | [`$.ternary`](#ternary)   |                           |                                             |
+| [`$.isObservable`](#isobservable) | [`$.tryCatch`](#trycatch) |                           |                                             |
+| [`$.isStore`](#isstore)           |                           |                           |                                             |
 | [`$.memo`](#memo)                 |                           |                           |                                             |
 | [`$.on`](#on)                     |                           |                           |                                             |
 | [`$.off`](#off)                   |                           |                           |                                             |
@@ -310,6 +311,34 @@ $.memo ( () => {
 o ( 1 ); // No error is thrown, error handlers are not called
 
 o ( 2 ); // An error is thrown, so it's caught and passed to the registered error handlers
+```
+
+#### `$.isBatching`
+
+This function tells you if batching is currently active, which could be especially useful to know when batching asynchronous functions.
+
+Interface:
+
+```ts
+function isBatching (): boolean;
+```
+
+Usage:
+
+```ts
+import $ from 'voby';
+
+// Checking if currently batching
+
+$.isBatching (); // => false
+
+$.batch ( () => {
+
+  $.isBatching (); // => true
+
+});
+
+$.isBatching (); // => false
 ```
 
 #### `$.isObservable`
