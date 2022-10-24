@@ -130,15 +130,18 @@ class StoreScheduler {
   static register = ( node: StoreNode ): void => {
     if ( !StoreScheduler.active ) return;
     StoreScheduler.nodes.add ( node );
-    if ( StoreScheduler.waiting ) return;
-    StoreScheduler.waiting = true;
-    queueMicrotask ( StoreScheduler.flushIfNotBatching );
+    StoreScheduler.schedule ();
   };
   static reset = (): void => {
     StoreScheduler.listeners = new Set ();
     StoreScheduler.nodes = new Set ();
     StoreScheduler.waiting = false;
   };
+  static schedule = (): void => {
+    if ( StoreScheduler.waiting ) return;
+    StoreScheduler.waiting = true;
+    queueMicrotask ( StoreScheduler.flushIfNotBatching );
+  }
 }
 
 /* CONSTANTS */
@@ -640,6 +643,7 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
     return reaction ( () => {
       if ( inited ) {
         StoreScheduler.listeners.add ( listener );
+        StoreScheduler.schedule ();
       }
       inited = true;
       selector ();

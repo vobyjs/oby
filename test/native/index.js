@@ -7471,6 +7471,27 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'supports listening to a raw observable', async t => {
+
+          const o = $(1);
+
+          let calls = '';
+
+          $.store.on ( o, () => calls += 'a' );
+          $.store.on ( () => o (), () => calls += 'b' );
+
+          t.is ( calls, '' );
+
+          o ( 2 );
+
+          t.is ( calls, '' );
+
+          await delay ( 50 );
+
+          t.is ( calls, 'ab' );
+
+        });
+
         it.skip ( 'supports listening to a single store under multiple, not fully pre-traversed, parents', async t => { //TODO: This seems unimplementable without traversing the entire structure ahead of time, which is expensive
 
           const value = { value: 1 };
