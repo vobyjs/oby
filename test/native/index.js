@@ -4,6 +4,7 @@
 import {describe} from 'fava';
 import {setTimeout as delay} from 'node:timers/promises';
 import $ from '../../dist/index.js';
+import {SYMBOL_STORE_VALUES} from '../../dist/constants.js';
 import {observable} from '../../dist/index.js';
 
 /* HELPERS */
@@ -6171,6 +6172,101 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'supports not reacting when setting a primitive property to itself', t => {
+
+          const o = $.store ( { value: 1 } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = 1;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'supports not reacting when setting a non-primitive property to itself', t => {
+
+          const o = $.store ( { deep: { value: 2 } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.deep.value;
+          });
+
+          t.is ( calls, 1 );
+
+          o.deep = o.deep;
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'supports not reacting when setting a non-primitive property to itself, when reading all values', t => {
+
+          const o = $.store ([ 0 ]);
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o[SYMBOL_STORE_VALUES];
+          });
+
+          t.is ( calls, 1 );
+
+          o[0] = o[0];
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'supports not reacting when reading the length on a array, when reading all values, if the length does not actually change', t => {
+
+          const o = $.store ({ value: [0] });
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.value.length;
+          });
+
+          t.is ( calls, 1 );
+
+          o.value.splice ( 0, 1, 1 );
+
+          t.is ( calls, 1 );
+
+        });
+
+        it ( 'supports not reacting when reading the length on a non-array, when reading all values, if the length does not actually change', t => { //TODO
+
+          const o = $.store ({ length: 0 });
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o[SYMBOL_STORE_VALUES];
+          });
+
+          t.is ( calls, 1 );
+
+          o.length = o.length;
+
+          t.is ( calls, 1 );
+
+        });
+
         it ( 'supports reacting to own keys', t => {
 
           const o = $.store ( { foo: 1, bar: 2, baz: 3 } );
@@ -7519,6 +7615,48 @@ describe ( 'oby', () => {
           t.is ( calls, '1212' );
 
         });
+
+        it ( 'supports not reacting when setting a primitive property to itself', async t => {
+
+          const o = $.store ( { value: 1 } );
+
+          let calls = 0;
+
+          $.store.on ( () => o.value, () => {
+            calls += 1;
+          });
+
+          t.is ( calls, 0 );
+
+          o.value = 1;
+
+          await delay ( 50 );
+
+          t.is ( calls, 0 );
+
+        });
+
+        it ( 'supports not reacting when setting a non-primitive property to itself', async t => {
+
+          const o = $.store ( { deep: { value: 2 } } );
+
+          let calls = 0;
+
+          $.store.on ( o, () => {
+            calls += 1;
+          });
+
+          t.is ( calls, 0 );
+
+          o.deep = o.deep;
+
+          await delay ( 50 );
+
+          t.is ( calls, 0 );
+
+        });
+
+      });
 
       });
 

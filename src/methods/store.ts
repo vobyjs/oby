@@ -266,6 +266,8 @@ const TRAPS = {
       const valuePrev = target[key];
       const hadProperty = !!valuePrev || ( key in target );
 
+      if ( hadProperty && IS ( value, valuePrev ) && ( key !== 'length' || !Array.isArray ( target ) ) ) return true; // Array.prototype.length is special, it gets updated before this trap is called, we need to special-case it...
+
       target[key] = value;
 
       batch ( () => {
