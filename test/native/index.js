@@ -7842,6 +7842,23 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'supports only top-level stores', t => {
+
+          const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
+
+          try {
+
+            $.store._onRoots ( store.a, () => {} );
+
+          } catch ( error ) {
+
+            t.true ( error instanceof Error );
+            t.is ( error.message, 'Only top-level stores are supported' );
+
+          }
+
+        });
+
       });
 
       describe ( 'reconcile', () => {

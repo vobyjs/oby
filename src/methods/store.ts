@@ -770,6 +770,8 @@ store._onRoots = <K extends StoreKey, V extends unknown> ( target: Record<K, V>,
 
   const node = getNodeFromStore ( target );
 
+  if ( node.parents ) throw new Error ( 'Only top-level stores are supported' );
+
   /* ON */
 
   StoreListenersRoots.active += 1;
