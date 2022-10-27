@@ -678,7 +678,7 @@ const getTarget = <T> ( value: T ): T => {
 
 const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor ): boolean => {
 
-  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a.writable === !!b.writable && IS ( a.value, b.value ) && a.get === b.get && a.set === b.set );
+  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a['writ' + 'able'] === !!b['writ' + 'able'] && IS ( a.value, b.value ) && a.get === b.get && a.set === b.set ); //UGLY: Bailing out of mangling
 
 };
 
