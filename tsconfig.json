@@ -4,6 +4,6 @@
     "noImplicitAny": false,
     "noImplicitReturns": false,
     "noUnusedParameters": false,
-    "target": "es2018"
+    "target": "es2020"
   }
 }
