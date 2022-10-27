@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {IS, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, TRACKING} from '~/constants';
+import {IS, NOOP, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, TRACKING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
@@ -26,11 +26,16 @@ type StoreSelectorFunction = () => void;
 
 type StoreListenableTarget = StoreTarget | StoreSelectorFunction;
 
+type StoreListenerRegular = () => void;
+
+type StoreListenerRoots<T = unknown> = ( roots: T[] ) => void;
+
 type StoreNode = {
   parents: LazySet<StoreNode>,
   store: StoreTarget,
   signal: Signal,
-  listeners?: LazySet<CallbackFunction>,
+  listenersRegular?: LazySet<StoreListenerRegular>,
+  listenersRoots?: LazySet<StoreListenerRoots>,
   getters?: StoreMap<StoreKey, Function>,
   setters?: StoreMap<StoreKey, Function>,
   keys?: StoreKeys,
@@ -98,48 +103,109 @@ class StoreProperty extends StoreCleanable {
   }
 }
 
-class StoreScheduler {
+const StoreListenersRegular = {
   /* VARIABLES */
-  static active = 0;
-  static listeners = new Set<CallbackFunction>();
-  static nodes = new Set<StoreNode>();
-  static waiting = false;
+  active: 0,
+  listeners: new Set<CallbackFunction>(),
+  nodes: new Set<StoreNode>(),
   /* API */
-  static flush = (): void => {
-    const {listeners, nodes} = StoreScheduler;
-    StoreScheduler.reset ();
+  prepare: (): CallbackFunction => {
+    const {listeners, nodes} = StoreListenersRegular;
     const traversed = new Set<StoreNode>();
     const traverse = ( node: StoreNode ): void => {
       if ( traversed.has ( node ) ) return;
       traversed.add ( node );
       lazySetEach ( node.parents, traverse );
-      lazySetEach ( node.listeners, listener => {
+      lazySetEach ( node.listenersRegular, listener => {
         listeners.add ( listener );
       });
     };
     nodes.forEach ( traverse );
-    listeners.forEach ( listener => listener () );
-  };
-  static flushIfNotBatching = (): void => {
+    return (): void => {
+      listeners.forEach ( listener => {
+        listener ();
+      });
+    };
+  },
+  register: ( node: StoreNode ): void => {
+    StoreListenersRegular.nodes.add ( node );
+    StoreScheduler.schedule ();
+  },
+  reset: (): void => {
+    StoreListenersRegular.listeners = new Set ();
+    StoreListenersRegular.nodes = new Set ();
+  }
+};
+
+const StoreListenersRoots = {
+  /* VARIABLES */
+  active: 0,
+  nodes: new Map<StoreNode, Set<unknown>>(),
+  /* API */
+  prepare: (): CallbackFunction => {
+    const {nodes} = StoreListenersRoots;
+    return () => {
+      nodes.forEach ( ( rootsSet, store ) => {
+        const roots = Array.from ( rootsSet );
+        lazySetEach ( store.listenersRoots, listener => {
+          listener ( roots );
+        });
+      });
+    };
+  },
+  register: ( store: StoreNode, root: unknown ): void => {
+    const roots = StoreListenersRoots.nodes.get ( store ) || new Set ();
+    roots.add ( root );
+    StoreListenersRoots.nodes.set ( store, roots );
+    StoreScheduler.schedule ();
+  },
+  registerWith: ( current: StoreNode | undefined, parent: StoreNode, key: StoreKey ): void => {
+    if ( !parent.parents ) {
+      const root = current?.store || untrack ( () => parent.store[key] );
+      StoreListenersRoots.register ( parent, root );
+    } else {
+      const traverse = ( node: StoreNode ): void => {
+        lazySetEach ( node.parents, parent => {
+          if ( !parent.parents ) {
+            StoreListenersRoots.register ( parent, node.store );
+          }
+          traverse ( parent );
+        });
+      };
+      traverse ( current || parent );
+    }
+  },
+  reset: (): void => {
+    StoreListenersRoots.nodes = new Map ();
+  }
+};
+
+const StoreScheduler = {
+  /* VARIABLES */
+  active: false,
+  /* API */
+  flush: (): void => {
+    const flushRegular = StoreListenersRegular.prepare ();
+    const flushRoots = StoreListenersRoots.prepare ();
+    StoreScheduler.reset ();
+    flushRegular ();
+    flushRoots ();
+  },
+  flushIfNotBatching: (): void => {
     if ( isBatching () ) {
       setTimeout ( StoreScheduler.flushIfNotBatching, 0 );
     } else {
       StoreScheduler.flush ();
     }
-  };
-  static register = ( node: StoreNode ): void => {
-    if ( !StoreScheduler.active ) return;
-    StoreScheduler.nodes.add ( node );
-    StoreScheduler.schedule ();
-  };
-  static reset = (): void => {
-    StoreScheduler.listeners = new Set ();
-    StoreScheduler.nodes = new Set ();
-    StoreScheduler.waiting = false;
-  };
-  static schedule = (): void => {
-    if ( StoreScheduler.waiting ) return;
-    StoreScheduler.waiting = true;
+  },
+  reset: (): void => {
+    StoreScheduler.active = false;
+    StoreListenersRegular.reset ();
+    StoreListenersRoots.reset ();
+  },
+  schedule: (): void => {
+    if ( StoreScheduler.active ) return;
+    StoreScheduler.active = true;
     queueMicrotask ( StoreScheduler.flushIfNotBatching );
   }
 }
@@ -272,10 +338,6 @@ const TRAPS = {
 
       batch ( () => {
 
-        if ( !hadProperty || !IS ( value, valuePrev ) ) {
-          StoreScheduler.register ( node );
-        }
-
         node.values?.observable.write ( 0 );
 
         if ( !hadProperty ) {
@@ -296,6 +358,14 @@ const TRAPS = {
 
         if ( property?.node ) {
           lazySetAdd ( property.node, 'parents', node );
+        }
+
+        if ( StoreListenersRoots.active ) {
+          StoreListenersRoots.registerWith ( property?.node, node, key );
+        }
+
+        if ( StoreListenersRegular.active ) {
+          StoreListenersRegular.register ( node );
         }
 
       });
@@ -320,13 +390,15 @@ const TRAPS = {
 
     batch ( () => {
 
-      StoreScheduler.register ( node );
-
       node.keys?.observable.write ( 0 );
       node.values?.observable.write ( 0 );
       node.has?.get ( key )?.observable.write ( false );
 
       const property = node.properties?.get ( key );
+
+      if ( StoreListenersRoots.active ) {
+        StoreListenersRoots.registerWith ( property?.node, node, key );
+      }
 
       if ( property?.node ) {
         lazySetDelete ( property.node, 'parents', node );
@@ -335,6 +407,10 @@ const TRAPS = {
       if ( property ) {
         property.observable?.write ( undefined );
         property.node = undefined;
+      }
+
+      if ( StoreListenersRegular.active ) {
+        StoreListenersRegular.register ( node );
       }
 
     });
@@ -358,8 +434,6 @@ const TRAPS = {
 
     batch ( () => {
 
-      StoreScheduler.register ( node );
-
       if ( !descriptor.get ) {
         node.getters?.delete ( key );
       } else if ( descriptor.get ) {
@@ -381,6 +455,10 @@ const TRAPS = {
 
       const property = node.properties?.get ( key );
 
+      if ( StoreListenersRoots.active ) {
+        StoreListenersRoots.registerWith ( property?.node, node, key );
+      }
+
       if ( property?.node ) {
         lazySetDelete ( property.node, 'parents', node );
       }
@@ -398,6 +476,14 @@ const TRAPS = {
 
       if ( property?.node ) {
         lazySetAdd ( property.node, 'parents', node );
+      }
+
+      if ( StoreListenersRoots.active ) {
+        StoreListenersRoots.registerWith ( property?.node, node, key );
+      }
+
+      if ( StoreListenersRegular.active ) {
+        StoreListenersRegular.register ( node );
       }
 
     });
@@ -617,6 +703,7 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 
 //TODO: Maybe have the "on" method trigger immediately too like "$.on", or maybe the other way around, which seems more flexible
 //TODO: Explore converting target values back to numbers (the Proxy always receives strings) whenever possible, to save memory
+//TODO: Implement "_onRoots" better, perhaps provding string paths instead, which should be more powerful
 
 const store = <T> ( value: T, options?: StoreOptions ): T => {
 
@@ -638,13 +725,13 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
 
   /* ON */
 
-  StoreScheduler.active += 1;
+  StoreListenersRegular.active += 1;
 
   const disposers = selectors.map ( selector => {
     let inited = false;
     return reaction ( () => {
       if ( inited ) {
-        StoreScheduler.listeners.add ( listener );
+        StoreListenersRegular.listeners.add ( listener );
         StoreScheduler.schedule ();
       }
       inited = true;
@@ -653,22 +740,46 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
   });
 
   nodes.forEach ( node => {
-    lazySetAdd ( node, 'listeners', listener );
+    lazySetAdd ( node, 'listenersRegular', listener );
   });
 
   /* OFF */
 
   return (): void => {
 
-    StoreScheduler.active -= 1;
+    StoreListenersRegular.active -= 1;
 
     disposers.forEach ( disposer => {
       disposer ();
     });
 
     nodes.forEach ( node => {
-      lazySetDelete ( node, 'listeners', listener );
+      lazySetDelete ( node, 'listenersRegular', listener );
     });
+
+  };
+
+};
+
+store._onRoots = <K extends StoreKey, V extends unknown> ( target: Record<K, V>, listener: StoreListenerRoots<V> ): DisposeFunction => {
+
+  if ( !isStore ( target ) ) return NOOP;
+
+  const node = getNodeFromStore ( target );
+
+  /* ON */
+
+  StoreListenersRoots.active += 1;
+
+  lazySetAdd ( node, 'listenersRoots', listener );
+
+  /* OFF */
+
+  return (): void => {
+
+    StoreListenersRoots.active -= 1;
+
+    lazySetDelete ( node, 'listenersRoots', listener );
 
   };
 

@@ -7658,6 +7658,126 @@ describe ( 'oby', () => {
 
       });
 
+      describe ( 'onRoots', () => {
+
+        it ( 'can detect additions', async t => {
+
+          const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
+
+          $.store._onRoots ( store, roots => {
+            t.is ( roots.length, 2 );
+            t.true ( roots[0] === store.c );
+            t.true ( roots[1] === store.d );
+          });
+
+          store.c = { id: 'c' };
+          store.d = { id: 'd' };
+
+          await delay ( 50 );
+
+        });
+
+        it ( 'can detect deletions', async t => {
+
+          const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
+
+          const a = store.a;
+          const b = store.b;
+
+          $.store._onRoots ( store, roots => {
+            t.is ( roots.length, 2 );
+            t.true ( roots[0] === a );
+            t.true ( roots[1] === b );
+          });
+
+          delete store.a;
+          delete store.b;
+
+          await delay ( 50 );
+
+        });
+
+        it ( 'can detect mutations', async t => {
+
+          const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
+
+          $.store._onRoots ( store, roots => {
+            t.is ( roots.length, 2 );
+            t.true ( roots[0] === store.a );
+            t.true ( roots[1] === store.b );
+          });
+
+          store.a.value = 1;
+          store.b.value = 1;
+
+          await delay ( 50 );
+
+        });
+
+        it ( 'can detect defined properties', async t => {
+
+          const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
+
+          $.store._onRoots ( store, roots => {
+            t.is ( roots.length, 1 );
+            t.true ( roots[0] === store.c );
+          });
+
+          Object.defineProperty ( store, 'c', {
+            enumerable: true,
+            configurable: true,
+            value: {
+              id: 'c'
+            }
+          });
+
+          await delay ( 50 );
+
+        });
+
+        it ( 'can detect defined properties that overwrite', async t => {
+
+          const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
+
+          const a = store.a;
+
+          $.store._onRoots ( store, roots => {
+            t.is ( roots.length, 2 );
+            t.true ( roots[0] === a );
+            t.true ( roots[1] === store.a );
+          });
+
+          Object.defineProperty ( store, 'a', {
+            enumerable: true,
+            configurable: true,
+            value: {
+              id: 'c'
+            }
+          });
+
+          await delay ( 50 );
+
+        });
+
+        it ( 'can deduplicate mutations', async t => {
+
+          const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
+
+          $.store._onRoots ( store, roots => {
+            t.is ( roots.length, 2 );
+            t.true ( roots[0] === store.a );
+            t.true ( roots[1] === store.b );
+          });
+
+          store.a.foo = 1;
+          store.b.foo = 1;
+          store.a.bar = 1;
+          store.b.bar = 1;
+
+          await delay ( 50 );
+
+        });
+
       });
 
       describe ( 'reconcile', () => {
