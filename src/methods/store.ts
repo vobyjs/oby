@@ -164,7 +164,10 @@ const StoreListenersRoots = {
       const root = current?.store || untrack ( () => parent.store[key] );
       StoreListenersRoots.register ( parent, root );
     } else {
+      const traversed = new Set<StoreNode>();
       const traverse = ( node: StoreNode ): void => {
+        if ( traversed.has ( node ) ) return;
+        traversed.add ( node );
         lazySetEach ( node.parents, parent => {
           if ( !parent.parents ) {
             StoreListenersRoots.register ( parent, node.store );

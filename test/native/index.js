@@ -7582,7 +7582,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, '' );
 
-          await delay ( 50 );
+          await delay ( 1 );
 
           t.is ( calls, 'ab' );
 
@@ -7630,7 +7630,7 @@ describe ( 'oby', () => {
 
           o.value = 1;
 
-          await delay ( 50 );
+          await delay ( 1 );
 
           t.is ( calls, 0 );
 
@@ -7650,9 +7650,39 @@ describe ( 'oby', () => {
 
           o.deep = o.deep;
 
-          await delay ( 50 );
+          await delay ( 1 );
 
           t.is ( calls, 0 );
+
+        });
+
+        it ( 'supports circular references', async t => {
+
+          const circular = {};
+
+          circular.circular = circular;
+
+          const o = $.store ( circular );
+
+          let calls = 0;
+
+          $.store.on ( o, () => calls += 1 );
+
+          o.circular.circular.circular.circular.circular.value = 1;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+          o.circular.circular.circular.circular.circular.circular.circular.value = 2;
+
+          t.is ( calls, 1 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 2 );
 
         });
 
@@ -7673,7 +7703,7 @@ describe ( 'oby', () => {
           store.c = { id: 'c' };
           store.d = { id: 'd' };
 
-          await delay ( 50 );
+          await delay ( 1 );
 
         });
 
@@ -7693,7 +7723,7 @@ describe ( 'oby', () => {
           delete store.a;
           delete store.b;
 
-          await delay ( 50 );
+          await delay ( 1 );
 
         });
 
@@ -7710,7 +7740,7 @@ describe ( 'oby', () => {
           store.a.value = 1;
           store.b.value = 1;
 
-          await delay ( 50 );
+          await delay ( 1 );
 
         });
 
@@ -7731,7 +7761,7 @@ describe ( 'oby', () => {
             }
           });
 
-          await delay ( 50 );
+          await delay ( 1 );
 
         });
 
@@ -7755,7 +7785,7 @@ describe ( 'oby', () => {
             }
           });
 
-          await delay ( 50 );
+          await delay ( 1 );
 
         });
 
@@ -7774,7 +7804,41 @@ describe ( 'oby', () => {
           store.a.bar = 1;
           store.b.bar = 1;
 
-          await delay ( 50 );
+          await delay ( 1 );
+
+        });
+
+        it ( 'supports circular references', async t => {
+
+          const circular = {};
+
+          circular.circular = circular;
+
+          const store = $.store ({ circular });
+
+          let calls = 0;
+
+          $.store._onRoots ( store, roots => {
+            calls += 1;
+            t.is ( roots.length, 1 );
+            t.true ( roots[0] === store.circular );
+          });
+
+          store.circular.circular.circular.circular.circular.value = 1;
+
+          t.is ( calls, 0 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 1 );
+
+          store.circular.circular.circular.circular.circular.circular.circular.value = 2;
+
+          t.is ( calls, 1 );
+
+          await delay ( 1 );
+
+          t.is ( calls, 2 );
 
         });
 
