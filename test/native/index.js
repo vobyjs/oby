@@ -7229,7 +7229,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7265,7 +7265,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 'rr' );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 'rrs' );
 
@@ -7305,7 +7305,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 'rr' );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 'rrs' );
 
@@ -7323,7 +7323,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7343,7 +7343,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7361,7 +7361,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7379,7 +7379,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 0 );
 
@@ -7400,7 +7400,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 0 );
 
@@ -7418,7 +7418,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7426,7 +7426,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7444,7 +7444,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7452,7 +7452,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 2 );
 
@@ -7470,7 +7470,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7478,7 +7478,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 2 );
 
@@ -7496,7 +7496,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7504,7 +7504,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 2 );
 
@@ -7522,7 +7522,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7530,7 +7530,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 2 );
 
@@ -7553,7 +7553,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, '' );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, '12' );
 
@@ -7561,7 +7561,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, '12' );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, '1212' );
 
@@ -7582,7 +7582,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, '' );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 'ab' );
 
@@ -7602,7 +7602,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, '' );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, '12' );
 
@@ -7610,7 +7610,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, '12' );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, '1212' );
 
@@ -7630,7 +7630,7 @@ describe ( 'oby', () => {
 
           o.value = 1;
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 0 );
 
@@ -7650,7 +7650,7 @@ describe ( 'oby', () => {
 
           o.deep = o.deep;
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 0 );
 
@@ -7672,7 +7672,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7680,7 +7680,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 2 );
 
@@ -7703,7 +7703,7 @@ describe ( 'oby', () => {
           store.c = { id: 'c' };
           store.d = { id: 'd' };
 
-          await delay ( 1 );
+          await delay ( 50 );
 
         });
 
@@ -7723,7 +7723,7 @@ describe ( 'oby', () => {
           delete store.a;
           delete store.b;
 
-          await delay ( 1 );
+          await delay ( 50 );
 
         });
 
@@ -7740,7 +7740,7 @@ describe ( 'oby', () => {
           store.a.value = 1;
           store.b.value = 1;
 
-          await delay ( 1 );
+          await delay ( 50 );
 
         });
 
@@ -7761,7 +7761,7 @@ describe ( 'oby', () => {
             }
           });
 
-          await delay ( 1 );
+          await delay ( 50 );
 
         });
 
@@ -7785,7 +7785,7 @@ describe ( 'oby', () => {
             }
           });
 
-          await delay ( 1 );
+          await delay ( 50 );
 
         });
 
@@ -7804,7 +7804,7 @@ describe ( 'oby', () => {
           store.a.bar = 1;
           store.b.bar = 1;
 
-          await delay ( 1 );
+          await delay ( 50 );
 
         });
 
@@ -7828,7 +7828,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 1 );
 
@@ -7836,7 +7836,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 1 );
+          await delay ( 50 );
 
           t.is ( calls, 2 );
 
