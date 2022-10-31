@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {NOOP} from '~/constants';
 import Computation from '~/objects/computation';
 import Observable from '~/objects/observable';
 import {getExecution, setExecution, getCount} from '~/status';
@@ -122,6 +123,11 @@ class Memo<T = unknown> extends Computation {
           if ( status > 1 ) {
 
             this.update ( status === 3 );
+
+          } else if ( !this.observables ) { // It can never run again, freeing up some memory
+
+            this.fn = NOOP as any; //TSC
+            this.observable.dispose ();
 
           }
 
