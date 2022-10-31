@@ -34,7 +34,9 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   /* SIGNAL */
 
-  const signal = ROOT.current;
+  const signalRoot = ROOT.current;
+  const signalParent = { disposed: false };
+  const signal = { get disposed () { return signalRoot.disposed || signalParent.disposed; } };
 
   /* SELECTEDS */
 
@@ -57,18 +59,8 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   const cleanupAll = (): void => {
 
-    if ( !signal.disposed ) {
-
-      selecteds.forEach ( selected => {
-
-        selected.dispose ();
-
-      });
-
-    }
-
+    signalParent.disposed = true;
     selecteds.disposed = true;
-    selecteds = new DisposableMap ();
 
   };
 
