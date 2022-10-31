@@ -10,11 +10,7 @@ import type {IObservable, DisposeFunction, ListenerFunction, Observable, Observa
 
 const on = <T> ( observable: Observable<T> | ObservableReadonly<T> | IObservable<T>, listener: Callable<ListenerFunction<T>> ): DisposeFunction => {
 
-  if ( isObservableFrozen ( observable ) ) {
-
-    listener.call ( listener, observable () );
-
-  } else {
+  if ( !isObservableFrozen ( observable ) ) {
 
     target ( observable ).registerListener ( listener );
 

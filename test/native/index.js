@@ -4034,7 +4034,7 @@ describe ( 'oby', () => {
 
       $.on ( o, onChange );
 
-      t.is ( calls, 1 );
+      t.is ( calls, 0 );
 
       $.off ( o, onChange );
 
@@ -4042,11 +4042,15 @@ describe ( 'oby', () => {
       o ( 2 );
       o ( 3 );
 
-      t.is ( calls, 1 );
+      t.is ( calls, 0 );
 
       $.on ( o, onChange );
 
-      t.is ( calls, 2 );
+      t.is ( calls, 0 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
 
     });
 
@@ -4060,7 +4064,7 @@ describe ( 'oby', () => {
 
       $.on ( o, onChange );
 
-      t.is ( calls, 1 );
+      t.is ( calls, 0 );
 
       const result = $.off ( o, onChange );
 
@@ -4093,7 +4097,7 @@ describe ( 'oby', () => {
 
       $.on ( o, onChange );
 
-      t.is ( calls, 1 );
+      t.is ( calls, 0 );
 
       $.off ( o, onChange );
 
@@ -4101,11 +4105,13 @@ describe ( 'oby', () => {
       o ( 2 );
       o ( 3 );
 
-      t.is ( calls, 1 );
+      t.is ( calls, 0 );
 
       $.on ( o, onChange );
 
-      t.is ( calls, 2 );
+      o ( 1 );
+
+      t.is ( calls, 1 );
 
     });
 
@@ -4113,33 +4119,27 @@ describe ( 'oby', () => {
 
   describe ( 'on', it => {
 
-    it ( 'can call the registered function when registering', t => {
+    it ( 'does not call the registered function when registering', t => {
 
       const o = $(0);
 
-      $.on ( o, ( value, valuePrev ) => {
+      $.on ( o, t.fail );
 
-        t.is ( value, 0 );
-        t.is ( valuePrev, undefined );
-
-      });
+      t.pass ();
 
     });
 
-    it ( 'can call the registered function when registering, for frozen observables too', t => {
+    it ( 'does not can call the registered function when registering, for frozen observables too', t => {
 
       const o = $.memo ( () => 0 );
 
-      $.on ( o, ( value, valuePrev ) => {
+      $.on ( o, t.fail );
 
-        t.is ( value, 0 );
-        t.is ( valuePrev, undefined );
-
-      });
+      t.pass ();
 
     });
 
-    it ( 'can call the registered function with the current value and, if available, the previous value', t => {
+    it ( 'can call the registered function with the current value and the previous value', t => {
 
       const o = $(0);
 
@@ -4147,18 +4147,18 @@ describe ( 'oby', () => {
 
       $.on ( o, ( value, valuePrev ) => {
 
-        t.is ( value, calls ? 1 : 0 );
-        t.is ( valuePrev, calls ? 0 : undefined );
+        t.is ( value, 1 );
+        t.is ( valuePrev, 0 );
 
         calls += 1;
 
       });
 
-      t.is ( calls, 1 );
+      t.is ( calls, 0 );
 
       o ( 1 );
 
-      t.is ( calls, 2 );
+      t.is ( calls, 1 );
 
     });
 
@@ -4182,15 +4182,15 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( sequence, 'ba' );
+      t.is ( sequence, 'b' );
 
       o ( 1 );
 
-      t.is ( sequence, 'baab' );
+      t.is ( sequence, 'bab' );
 
       o ( 2 );
 
-      t.is ( sequence, 'baabab' );
+      t.is ( sequence, 'babab' );
 
     });
 
@@ -4214,15 +4214,15 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( sequence, 'ba' );
+      t.is ( sequence, 'b' );
 
       o ( 1 );
 
-      t.is ( sequence, 'baab' );
+      t.is ( sequence, 'bab' );
 
       o ( 2 );
 
-      t.is ( sequence, 'baabab' );
+      t.is ( sequence, 'babab' );
 
     });
 
@@ -4246,15 +4246,15 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( sequence, 'ba' );
+      t.is ( sequence, 'b' );
 
       o ( 1 );
 
-      t.is ( sequence, 'baab' );
+      t.is ( sequence, 'bab' );
 
       o ( 2 );
 
-      t.is ( sequence, 'baabab' );
+      t.is ( sequence, 'babab' );
 
     });
 
@@ -4266,10 +4266,12 @@ describe ( 'oby', () => {
 
         $.on ( o, ( value, valuePrev ) => {
 
-          t.is ( value, 0 );
-          t.is ( valuePrev, undefined );
+          t.is ( value, 1 );
+          t.is ( valuePrev, 0 );
 
         });
+
+        o ( 1 );
 
       });
 
@@ -4285,23 +4287,23 @@ describe ( 'oby', () => {
 
       $.on ( o, onChange );
 
+      t.is ( calls, 0 );
+
+      $.on ( o, onChange );
+      $.on ( o, onChange );
+      $.on ( o, onChange );
+
+      t.is ( calls, 0 );
+
+      o ( 1 );
+
       t.is ( calls, 1 );
 
-      $.on ( o, onChange );
-      $.on ( o, onChange );
-      $.on ( o, onChange );
-
-      t.is ( calls, 4 );
-
-      o ( 1 );
-
-      t.is ( calls, 5 );
-
       o ( 1 );
       o ( 1 );
       o ( 1 );
 
-      t.is ( calls, 5 );
+      t.is ( calls, 1 );
 
     });
 
@@ -4317,17 +4319,17 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( calls, 1 );
+      t.is ( calls, 0 );
 
       o ( 1 );
 
-      t.is ( calls, 2 );
+      t.is ( calls, 1 );
 
       dispose ();
 
       o ( 2 );
 
-      t.is ( calls, 2 );
+      t.is ( calls, 1 );
 
     });
 
@@ -4338,12 +4340,14 @@ describe ( 'oby', () => {
       const on = {
         call: ( thiz, value, valuePrev ) => {
           t.is ( thiz, on );
-          t.is ( value, 0 );
-          t.is ( valuePrev, undefined );
+          t.is ( value, 1 );
+          t.is ( valuePrev, 0 );
         }
       };
 
       $.on ( o, on );
+
+      o ( 1 );
 
     });
 

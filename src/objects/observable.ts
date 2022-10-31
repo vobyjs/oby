@@ -44,8 +44,6 @@ class Observable<T = unknown> {
 
   registerListener ( listener: Callable<ListenerFunction<T>> ): void {
 
-    listener.call ( listener, this.value );
-
     if ( lazySetHas ( this.listeners, listener ) ) return;
 
     lazySetAdd ( this, 'listeners', listener );
