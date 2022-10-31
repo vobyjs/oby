@@ -4,7 +4,6 @@
 import {ROOT} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import reaction from '~/methods/reaction';
-import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import type {SelectorFunction, ObservableReadonly} from '~/types';
@@ -40,21 +39,17 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
   /* SELECTEDS */
 
   let selecteds = new DisposableMap<unknown, SelectedObservable> ();
-
-  let valuePrev: T | undefined;
+  let selectedValue: T | undefined;
 
   reaction ( () => {
 
-    const selectedPrev = selecteds.get ( valuePrev );
-
-    if ( selectedPrev ) selectedPrev.write ( false );
-
+    const valuePrev = selectedValue;
     const valueNext = source ();
-    const selectedNext = selecteds.get ( valueNext );
 
-    if ( selectedNext ) selectedNext.write ( true );
+    selectedValue = valueNext;
 
-    valuePrev = valueNext;
+    selecteds.get ( valuePrev )?.write ( false );
+    selecteds.get ( valueNext )?.write ( true );
 
   });
 
@@ -93,7 +88,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
     } else {
 
-      selected = new SelectedObservable ( untrack ( source ) === value );
+      selected = new SelectedObservable ( value === selectedValue );
       selected.selecteds = selecteds;
       selected.source = value;
       selected.signal = signal;
