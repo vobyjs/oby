@@ -61,36 +61,44 @@ benchmark.group ( 'untrack', () => {
   benchmark ({
     name: 'o',
     fn: () => {
-      for ( let i = 0, l = 2_000_000; i < l; i++ ) {
-        $.untrack ( o );
-      }
+      $.effect ( () => {
+        for ( let i = 0, l = 2_000_000; i < l; i++ ) {
+          $.untrack ( o );
+        }
+      });
     }
   });
 
   benchmark ({
     name: 'ro',
     fn: () => {
-      for ( let i = 0, l = 2_000_000; i < l; i++ ) {
-        $.untrack ( ro );
-      }
+      $.effect ( () => {
+        for ( let i = 0, l = 2_000_000; i < l; i++ ) {
+          $.untrack ( ro );
+        }
+      });
     }
   });
 
   benchmark ({
     name: 'fo',
     fn: () => {
-      for ( let i = 0, l = 2_000_000; i < l; i++ ) {
-        $.untrack ( fo );
-      }
+      $.effect ( () => {
+        for ( let i = 0, l = 2_000_000; i < l; i++ ) {
+          $.untrack ( fo );
+        }
+      });
     }
   });
 
   benchmark ({
     name: 'fn',
     fn: () => {
-      for ( let i = 0, l = 2_000_000; i < l; i++ ) {
-        $.untrack ( fn );
-      }
+      $.effect ( () => {
+        for ( let i = 0, l = 2_000_000; i < l; i++ ) {
+          $.untrack ( fn );
+        }
+      });
     }
   });
 
