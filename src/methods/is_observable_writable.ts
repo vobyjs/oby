@@ -2,14 +2,14 @@
 /* IMPORT */
 
 import {SYMBOL_OBSERVABLE_WRITABLE} from '~/constants';
-import isObservable from '~/methods/is_observable';
+import {isFunction} from '~/utils';
 import type {Observable} from '~/types';
 
 /* MAIN */
 
 const isObservableWritable = <T = unknown> ( value: unknown ): value is Observable<T> => {
 
-  return isObservable ( value ) && ( SYMBOL_OBSERVABLE_WRITABLE in value );
+  return isFunction ( value ) && ( SYMBOL_OBSERVABLE_WRITABLE in value );
 
 };
 
