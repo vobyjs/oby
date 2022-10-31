@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {ROOT} from '~/constants';
+import {IS, ROOT} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import reaction from '~/methods/reaction';
 import {readable} from '~/objects/callable';
@@ -47,6 +47,8 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
     const valuePrev = selectedValue;
     const valueNext = source ();
+
+    if ( IS ( valuePrev, valueNext ) ) return;
 
     selectedValue = valueNext;
 

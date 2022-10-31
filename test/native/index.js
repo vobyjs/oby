@@ -5268,6 +5268,41 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'memoizes the source function', t => {
+
+      const values = [0, 1, 2, 3, 4];
+
+      const selectedFactor1 = $(0);
+      const selectedFactor2 = $(1);
+      const selected = () => selectedFactor1 () * selectedFactor2 ();
+
+      const select = value => selected ( value );
+      const selector = $.selector ( selected );
+
+      let sequence = '';
+
+      values.forEach ( value => {
+
+        $.effect ( () => {
+
+          sequence += value;
+
+          if ( !selector ( value )() ) return;
+
+          sequence += value;
+
+        });
+
+      });
+
+      t.is ( sequence, '001234' );
+
+      selectedFactor2 ( 2 );
+
+      t.is ( sequence, '001234' );
+
+    });
+
     it ( 'survives checking a value inside a discarded root', t => {
 
       const selected = $(-1);
