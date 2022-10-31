@@ -1,7 +1,6 @@
 
 /* IMPORT */
 
-import {NOOP} from '~/constants';
 import Reaction from '~/objects/reaction';
 import type {DisposeFunction, ReactionFunction} from '~/types';
 
@@ -10,14 +9,9 @@ import type {DisposeFunction, ReactionFunction} from '~/types';
 const reaction = ( fn: ReactionFunction ): DisposeFunction => {
 
   const reaction = new Reaction ( fn );
+  const dispose = reaction.dispose.bind ( reaction, true, true );
 
-  if ( !reaction.observables ) { // It can never run again, freeing up some memory
-
-    reaction.fn = NOOP;
-
-  }
-
-  return reaction.dispose.bind ( reaction, true, true );
+  return dispose;
 
 };
 

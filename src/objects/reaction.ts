@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {NOOP} from '~/constants';
 import suspended from '~/methods/suspended';
 import Computation from '~/objects/computation';
 import {getExecution, setExecution} from '~/status';
@@ -90,6 +91,10 @@ class Reaction extends Computation {
           if ( status > 1 ) {
 
             this.update ( status === 3 );
+
+          } else if ( !this.observables ) { // It can never run again, freeing up some memory
+
+            this.fn = NOOP;
 
           }
 
