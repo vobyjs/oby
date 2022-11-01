@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import {OWNER, SYMBOL_UNCACHED} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import CacheAbstract from '~/methods/for_abstract.cache';
 import resolve from '~/methods/resolve';
@@ -117,12 +117,16 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     const {cache, bool, fn, fnWithIndex} = this;
     const results: Resolved<R>[] = new Array ( values.length );
 
+    let uncached = true; // Whether all results are anew, if so this enables an optimization in Voby
+
     for ( let i = 0, l = values.length; i < l; i++ ) {
 
       const value = values[i];
       const cached = cache.get ( value );
 
       if ( cached && cached.bool !== bool ) {
+
+        uncached = false;
 
         cached.bool = bool;
         cached.index?.write ( i );
@@ -168,6 +172,12 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     }
 
     this.after ( values );
+
+    if ( uncached ) {
+
+      results[SYMBOL_UNCACHED] = true;
+
+    }
 
     return results;
 
