@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE, SYMBOL_RESOLVE_UNWRAPPED, SYMBOL_UNTRACKED} from '~/constants';
+import {SYMBOL_OBSERVABLE, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED} from '~/constants';
 import memo from '~/methods/memo';
 import {frozen} from '~/objects/callable';
 import {isFunction} from '~/utils';
@@ -15,17 +15,13 @@ const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never => 
 
   if ( isFunction ( value ) ) {
 
-    if ( SYMBOL_UNTRACKED in value ) {
+    if ( SYMBOL_UNTRACKED_UNWRAPPED in value ) {
 
-      if ( SYMBOL_RESOLVE_UNWRAPPED in value ) {
+      return resolve ( value () ) as any; //TSC
 
-        return resolve ( value () ) as any; //TSC
+    } else if ( SYMBOL_UNTRACKED in value ) {
 
-      } else {
-
-        return frozen ( resolve ( value () ) ) as any; //TSC
-
-      }
+      return frozen ( resolve ( value () ) ) as any; //TSC
 
     } else if ( SYMBOL_OBSERVABLE in value ) {
 
