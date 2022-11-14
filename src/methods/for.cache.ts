@@ -31,6 +31,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
   private cache: Map<T, MappedRoot<Resolved<R>>> = new Map ();
   private bool = false; // The bool is flipped with each iteration, the roots that don't have the updated one are disposed, it's like a cheap counter basically
   private prevCount: number = 0; // Number of previous items
+  private reuseCount: number = 0; // Number of previous items that got reused
   private nextCount: number = 0; // Number of next items
   private parent: IObserver = OWNER.current;
 
@@ -51,6 +52,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
   cleanup = (): void => {
 
     if ( !this.prevCount ) return; // There was nothing before, no need to cleanup
+
+    if ( this.prevCount === this.reuseCount ) return; // All the previous items were reused, no need to cleanup
 
     const {cache, bool} = this;
 
@@ -87,6 +90,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     this.parent.unregisterRoot ( this.roots );
 
     this.prevCount = this.cache.size;
+    this.reuseCount = 0;
     this.nextCount = 0;
 
     this.cleanup ();
@@ -96,6 +100,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
   before = ( values: readonly T[] ): void => {
 
     this.bool = !this.bool;
+    this.reuseCount = 0;
     this.nextCount = 0;
 
   };
@@ -107,6 +112,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     this.cleanup ();
 
     this.prevCount = this.nextCount;
+    this.reuseCount = 0;
 
   };
 
@@ -118,6 +124,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     const results: Resolved<R>[] = new Array ( values.length );
 
     let uncached = true; // Whether all results are anew, if so this enables an optimization in Voby
+    let reuseCount = 0;
 
     for ( let i = 0, l = values.length; i < l; i++ ) {
 
@@ -127,6 +134,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
       if ( cached && cached.bool !== bool ) {
 
         uncached = false;
+        reuseCount += 1;
 
         cached.bool = bool;
         cached.index?.write ( i );
@@ -170,6 +178,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
       }
 
     }
+
+    this.reuseCount = reuseCount;
 
     this.after ( values );
 
