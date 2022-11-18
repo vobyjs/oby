@@ -11,7 +11,7 @@ import reaction from '~/methods/reaction';
 import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
-import {castArray, isArray, isFunction} from '~/utils';
+import {castArray, isArray, isFunction, isObject} from '~/utils';
 import type {IObservable, CallbackFunction, DisposeFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet, Signal} from '~/types';
 
 /* TYPES */
@@ -692,6 +692,8 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 
   if ( value === null || typeof value !== 'object' ) return false;
 
+  if ( SYMBOL_STORE in value ) return true;
+
   if ( isArray ( value ) ) return true;
 
   const prototype = Object.getPrototypeOf ( value );
@@ -710,7 +712,7 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 
 const store = <T> ( value: T, options?: StoreOptions ): T => {
 
-  if ( !isProxiable ( value ) ) return value;
+  if ( !isObject ( value ) ) return value;
 
   return getStore ( value );
 

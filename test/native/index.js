@@ -6012,16 +6012,6 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'returns unproxiable non-primitive values as is', t => {
-
-          const date = new Date ();
-          const o = $.store ( date );
-
-          t.is ( o, date );
-          t.false ( $.isStore ( o ) );
-
-        });
-
         it ( 'returns unproxied "__proto__", "prototype" and "constructor" properties', t => {
 
           const a = {};
@@ -6660,6 +6650,50 @@ describe ( 'oby', () => {
           o.unshift ( 2 );
 
           t.is ( calls, 4 );
+
+        });
+
+        it ( 'supports reacting to changes on custom classes', t => {
+
+          class Foo {
+            constructor () {
+              this.foo = 0;
+              return $.store ( this );
+            }
+          }
+
+          class Bar extends Foo {
+            constructor () {
+              super ();
+              this.bar = 0;
+              return $.store ( this );
+            }
+          }
+
+          const foo = new Foo ();
+          const bar = new Bar ();
+
+          let calls = '';
+
+          $.effect ( () => {
+            foo.foo;
+            calls += 'f';
+          });
+
+          $.effect ( () => {
+            bar.bar;
+            calls += 'b';
+          });
+
+          t.is ( calls, 'fb' );
+
+          foo.foo += 1;
+
+          t.is ( calls, 'fbf' );
+
+          bar.bar += 1;
+
+          t.is ( calls, 'fbfb' );
 
         });
 
