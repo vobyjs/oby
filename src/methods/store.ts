@@ -546,11 +546,14 @@ const getNode = <T = StoreTarget> ( value: T, parent?: StoreNode ): StoreNode =>
 
   const store = new Proxy ( value, TRAPS );
   const signal = parent?.signal || ROOT.current;
-  const {getters, setters} = getGettersAndSetters ( value );
+  const gettersAndSetters = getGettersAndSetters ( value );
   const node: StoreNode = { parents: parent, store, signal };
 
-  if ( getters ) node.getters = getters;
-  if ( setters ) node.setters = setters;
+  if ( gettersAndSetters ) {
+    const {getters, setters} = gettersAndSetters;
+    if ( getters ) node.getters = getters;
+    if ( setters ) node.setters = setters;
+  }
 
   NODES.set ( value, node );
 
@@ -624,9 +627,9 @@ const getNodeProperty = ( node: StoreNode, key: StoreKey, value: unknown ): Stor
 
 };
 
-const getGettersAndSetters = ( value: StoreTarget ): { getters?: StoreMap<string | symbol, Function>, setters?: StoreMap<string | symbol, Function> } => {
+const getGettersAndSetters = ( value: StoreTarget ): { getters?: StoreMap<string | symbol, Function>, setters?: StoreMap<string | symbol, Function> } | undefined => {
 
-  if ( isArray ( value ) ) return {};
+  if ( isArray ( value ) ) return;
 
   let getters: StoreMap<string | symbol, Function> | undefined;
   let setters: StoreMap<string | symbol, Function> | undefined;
@@ -653,6 +656,8 @@ const getGettersAndSetters = ( value: StoreTarget ): { getters?: StoreMap<string
     }
 
   }
+
+  if ( !getters && !setters ) return;
 
   return { getters, setters };
 
