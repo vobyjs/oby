@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {IS, NOOP, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, TRACKING} from '~/constants';
+import {IS, NOOP, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED, TRACKING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
@@ -221,7 +221,7 @@ const SPECIAL_SYMBOLS = new Set<StoreKey> ([ SYMBOL_STORE, SYMBOL_STORE_OBSERVAB
 
 const UNREACTIVE_KEYS = new Set<StoreKey> ([ '__proto__', '__defineGetter__', '__defineSetter__', '__lookupGetter__', '__lookupSetter__', 'prototype', 'constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toSource', 'toString', 'valueOf' ]);
 
-const TRAPS = {
+const STORE_TRAPS = {
 
   /* API */
 
@@ -540,11 +540,25 @@ const TRAPS = {
 
 };
 
+const STORE_UNTRACK_TRAPS = {
+
+  /* API */
+
+  has: ( target: StoreTarget, key: StoreKey ): boolean => {
+
+    if ( key === SYMBOL_STORE_UNTRACKED ) return true;
+
+    return ( key in target );
+
+  }
+
+};
+
 /* HELPERS */
 
 const getNode = <T = StoreTarget> ( value: T, parent?: StoreNode ): StoreNode => {
 
-  const store = new Proxy ( value, TRAPS );
+  const store = new Proxy ( value, STORE_TRAPS );
   const signal = parent?.signal || ROOT.current;
   const gettersAndSetters = getGettersAndSetters ( value );
   const node: StoreNode = { parents: parent, store, signal };
@@ -681,6 +695,16 @@ const getTarget = <T> ( value: T ): T => {
 
 };
 
+const getUntracked = <T> ( value: T ): T => {
+
+  if ( !isObject ( value ) ) return value;
+
+  if ( isUntracked ( value ) ) return value;
+
+  return new Proxy ( value, STORE_UNTRACK_TRAPS );
+
+};
+
 const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor ): boolean => {
 
   return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a['writ' + 'able'] === !!b['writ' + 'able'] && IS ( a.value, b.value ) && a.get === b.get && a.set === b.set ); //UGLY: Bailing out of mangling
@@ -699,6 +723,8 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 
   if ( SYMBOL_STORE in value ) return true;
 
+  if ( SYMBOL_STORE_UNTRACKED in value ) return false;
+
   if ( isArray ( value ) ) return true;
 
   const prototype = Object.getPrototypeOf ( value );
@@ -706,6 +732,14 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
   if ( prototype === null ) return true;
 
   return ( Object.getPrototypeOf ( prototype ) === null );
+
+};
+
+const isUntracked = ( value: unknown ): boolean => {
+
+  if ( value === null || typeof value !== 'object' ) return false;
+
+  return ( SYMBOL_STORE_UNTRACKED in value );
 
 };
 
@@ -718,6 +752,8 @@ const isProxiable = ( value: unknown ): value is StoreTarget => { // Checks whet
 const store = <T> ( value: T, options?: StoreOptions ): T => {
 
   if ( !isObject ( value ) ) return value;
+
+  if ( isUntracked ( value ) ) return value;
 
   return getStore ( value );
 
@@ -887,6 +923,12 @@ store.reconcile = (() => {
   return reconcile;
 
 })();
+
+store.untrack = <T> ( value: T ): T => {
+
+  return getUntracked ( value );
+
+};
 
 store.unwrap = <T> ( value: T ): T => {
 

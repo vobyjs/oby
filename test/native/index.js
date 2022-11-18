@@ -7953,6 +7953,60 @@ describe ( 'oby', () => {
 
       });
 
+      describe ( 'untrack', () => {
+
+        it ( 'does nothing for primitives', t => {
+
+          const o = $.store ( { foo: $.store.untrack ( 123 ) } );
+
+          t.is ( o.foo, 123 );
+
+        });
+
+        it ( 'supports bailing out of tracking for an outer object', t => {
+
+          const o = $.store ( $.store.untrack ( {} ) );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.value;
+          });
+
+          t.is ( calls, 1 );
+          t.is ( $.isStore ( o ), false );
+
+          o.value = 123;
+
+          t.is ( calls, 1 );
+          t.is ( $.isStore ( o ), false );
+
+        });
+
+        it ( 'supports bailing out of tracking for an inner object', t => {
+
+          const o = $.store ( { foo: $.store.untrack ( {} ) } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.foo.value;
+          });
+
+          t.is ( calls, 1 );
+          t.is ( $.isStore ( o.foo ), false );
+
+          o.foo.value = 123;
+
+          t.is ( calls, 1 );
+          t.is ( $.isStore ( o.foo ), false );
+
+        });
+
+      });
+
       describe ( 'unwrap', () => {
 
         it ( 'supports unwrapping a plain object', t => {

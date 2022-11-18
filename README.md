@@ -640,6 +640,7 @@ function store <T> ( value: T, options?: StoreOptions ): T;
 
 store.on = function on ( target: ArrayMaybe<StoreListenableTarget>, callback: () => void ): (() => void);
 store.reconcile = function reconcile <T extends StoreReconcileableTarget> ( prev: T, next: T ): T;
+store.untrack = function untrack <T> ( value: T ): T;
 store.unwrap = function unwrap <T> ( value: T ): T;
 ```
 
@@ -673,6 +674,13 @@ $.effect ( () => {
 });
 
 arr.push ( 123 ); // Cause the effect to re-run
+
+// Untrack parts of a store, bailing out of automatic proxying
+
+const uobj = $.store ({
+  foo: {} // This object will become a store automatically
+  bar: $.store.untrack ( {} ) // This object will stay a plain object
+});
 
 // Get a non-reactive object out of a reactive one
 
