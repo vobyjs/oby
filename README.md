@@ -617,11 +617,13 @@ This function returns a deeply reactive version of the passed object, where prop
 
 You can just use the reactive object like you would with a regular non-reactive one, every aspect of the reactivity is handled for you under the hood, just remember to perform reads in a computation if you want to subscribe to them.
 
-- **Note**: Only the following types of values will be handled by the reactivity system: plain objects, plain arrays, primitives.
+- **Note**: Only the following types of values will be handled automatically by the reactivity system: plain objects, plain arrays, primitives.
 
 - **Note**: Assignments to the following properties won't be reactive, as making those reactive would have more cons than pros: `__proto__`, `prototype`, `constructor`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `toSource`, `toString`, `valueOf`, all `Array` methods.
 
 - **Note**: Getters and setters that are properties of arrays, if for whatever reason you have those, won't be reactive.
+
+- **Note**: Getters and setters that are assigned to symbols, if for whatever reason you have those, won't be reactive.
 
 - **Note**: A powerful function is provided, `$.store.on`, for listening to any changes happening _inside_ a store. Changes are batched automatically within a microtask for you. If you use this function it's advisable to not have multiple instances of the same object inside a single store, or you may hit some edge cases where a listener doesn't fire because another path where the same object is available, and where it was edited from, hasn't been discovered yet, since discovery is lazy as otherwise it would be expensive.
 

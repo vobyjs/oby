@@ -634,7 +634,7 @@ const getGettersAndSetters = ( value: StoreTarget ): { getters?: StoreMap<string
   let getters: StoreMap<string | symbol, Function> | undefined;
   let setters: StoreMap<string | symbol, Function> | undefined;
 
-  const keys = Reflect.ownKeys ( value );
+  const keys = Object.keys ( value );
 
   for ( let i = 0, l = keys.length; i < l; i++ ) {
 
