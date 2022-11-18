@@ -9,7 +9,7 @@
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "all": "npm run compile && npm run compile:mangle && npm run test && npm run benchmark && npm run cleanup && npm run creation && npm run memory && npm run read && npm run store && npm run updates",
+    "all": "npm run compile && npm run compile:mangle && npm run test && npm run benchmark && npm run cleanup && npm run creation && npm run memory && npm run read && npm run store && npm run store:creation && npm run updates",
     "benchmark": "tsex benchmark",
     "benchmark:watch": "tsex benchmark --watch",
     "clean": "tsex clean",
@@ -21,6 +21,7 @@
     "memory": "node tasks/memory.js",
     "read": "node tasks/read.js",
     "store": "node tasks/store.js",
+    "store:creation": "node tasks/store.creation.js",
     "test:native": "fava '**/native/**'",
     "test:native:watch": "fava -w '**/native/**'",
     "test:sinuous": "bash test/sinuous/index.sh",
