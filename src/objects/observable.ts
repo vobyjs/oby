@@ -62,9 +62,15 @@ class Observable<T = unknown> {
 
     if ( TRACKING.current ) {
 
-      this.registerObserver ( OWNER.current );
+      const owner = OWNER.current;
 
-      OWNER.current.registerObservable ( this as IObservable<any> ); //TSC
+      if ( owner.observables !== this ) {
+
+        this.registerObserver ( OWNER.current );
+
+        OWNER.current.registerObservable ( this as IObservable<any> ); //TSC
+
+      }
 
     }
 
