@@ -245,6 +245,8 @@ const STORE_TRAPS = {
 
         }
 
+        return;
+
       }
 
       if ( key === SYMBOL_STORE_VALUES ) {
@@ -258,6 +260,8 @@ const STORE_TRAPS = {
           node.values.observable.read ();
 
         }
+
+        return;
 
       }
 
