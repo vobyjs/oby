@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {IS, NOOP, ROOT, SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED, TRACKING} from '~/constants';
+import {IS, NOOP, ROOT, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED, TRACKING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
@@ -217,7 +217,7 @@ const StoreScheduler = {
 
 const NODES = new WeakMap<StoreTarget, StoreNode> ();
 
-const SPECIAL_SYMBOLS = new Set<StoreKey> ([ SYMBOL_STORE, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES ]);
+const SPECIAL_SYMBOLS = new Set<StoreKey> ([ SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES ]);
 
 const UNREACTIVE_KEYS = new Set<StoreKey> ([ '__proto__', '__defineGetter__', '__defineSetter__', '__lookupGetter__', '__lookupSetter__', 'prototype', 'constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toSource', 'toString', 'valueOf' ]);
 
@@ -232,6 +232,20 @@ const STORE_TRAPS = {
       if ( key === SYMBOL_STORE ) return true;
 
       if ( key === SYMBOL_STORE_TARGET ) return target;
+
+      if ( key === SYMBOL_STORE_KEYS ) {
+
+        if ( isListenable () ) {
+
+          const node = getNodeExisting ( target );
+
+          node.keys ||= getNodeKeys ( node );
+          node.keys.listen ();
+          node.keys.observable.read ();
+
+        }
+
+      }
 
       if ( key === SYMBOL_STORE_VALUES ) {
 
