@@ -574,7 +574,7 @@ const STORE_UNTRACK_TRAPS = {
 
 /* HELPERS */
 
-const getNode = <T = StoreTarget> ( value: T, parent?: StoreNode ): StoreNode => {
+const getNode = <T extends StoreTarget> ( value: T, parent?: StoreNode ): StoreNode => {
 
   const store = new Proxy ( value, STORE_TRAPS );
   const signal = parent?.signal || ROOT.current;
@@ -593,7 +593,7 @@ const getNode = <T = StoreTarget> ( value: T, parent?: StoreNode ): StoreNode =>
 
 };
 
-const getNodeExisting = <T = StoreTarget> ( value: T ): StoreNode => {
+const getNodeExisting = <T extends StoreTarget> ( value: T ): StoreNode => {
 
   const node = NODES.get ( value );
 
@@ -603,7 +603,7 @@ const getNodeExisting = <T = StoreTarget> ( value: T ): StoreNode => {
 
 };
 
-const getNodeFromStore = <T = StoreTarget> ( store: T ): StoreNode => {
+const getNodeFromStore = <T extends StoreTarget> ( store: T ): StoreNode => {
 
   return getNodeExisting ( getTarget ( store ) );
 
@@ -695,7 +695,7 @@ const getGettersAndSetters = ( value: StoreTarget ): { getters?: StoreMap<string
 
 };
 
-const getStore = <T = StoreTarget> ( value: T ): T => {
+const getStore = <T extends StoreTarget> ( value: T ): T => {
 
   if ( isStore ( value ) ) return value;
 
