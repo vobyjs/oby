@@ -2,8 +2,15 @@
 /* IMPORT */
 
 import benchmark from 'benchloop';
+import {OWNER, TRACKING} from '../dist/constants.js';
+import Memo from '../dist/objects/memo.js';
 import $ from '../dist/index.js';
 import {NOOP, OBJ, OBJ_HUGE} from './store.fixtures.js';
+
+/* HELPERS */ // Running the benchmark with tracking enabled
+
+OWNER.current = new Memo ( () => {} );
+TRACKING.current = true;
 
 /* MAIN */
 
