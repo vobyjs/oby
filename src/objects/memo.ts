@@ -10,6 +10,8 @@ import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
 
+//TODO: Do something about erroring memos, for memos it's probably incorrect to just swallow the error and set the value to "undefined"
+
 class Memo<T = unknown> extends Computation {
 
   /* VARIABLES */
