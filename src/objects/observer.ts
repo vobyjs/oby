@@ -85,6 +85,8 @@ class Observer {
 
       } else {
 
+        console.error ( error.stack ); // For convenience
+
         throw error;
 
       }
