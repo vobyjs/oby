@@ -66,9 +66,9 @@ class Observable<T = unknown> {
 
       if ( owner.observables !== this ) {
 
-        this.registerObserver ( OWNER.current );
+        this.registerObserver ( owner );
 
-        OWNER.current.registerObservable ( this as IObservable<any> ); //TSC
+        owner.registerObservable ( this as IObservable<any> ); //TSC
 
       }
 
