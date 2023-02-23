@@ -41,7 +41,7 @@ const isObject = ( value: unknown ): value is Record<number | string | symbol, u
 
 const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
 
-  return Math.max ( a, b ) as T | U; //TSC
+  return ( a > b ) ? a : b;
 
 };
 
