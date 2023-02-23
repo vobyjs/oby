@@ -13,6 +13,16 @@ const lazyArrayEach = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): void 
   }
 };
 
+const lazyArrayEachRight = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): void => {
+  if ( arr instanceof Array ) {
+    for ( let i = arr.length - 1; i >= 0; i-- ) {
+      fn ( arr[i] );
+    }
+  } else if ( arr ) {
+    fn ( arr );
+  }
+};
+
 const lazyArrayPush = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T>>>, key: U, value: T ): void => {
   const arr: LazyArray<T> = obj[key];
   if ( arr instanceof Array ) {
@@ -69,5 +79,5 @@ const lazySetHas = <T> ( set: LazySet<T>, value: T ): boolean => {
 
 /* EXPORT */
 
-export {lazyArrayEach, lazyArrayPush};
+export {lazyArrayEach, lazyArrayEachRight, lazyArrayPush};
 export {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas};

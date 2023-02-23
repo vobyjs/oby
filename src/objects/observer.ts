@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {OWNER, TRACKING, setOwner, setTracking} from '~/context';
-import {lazyArrayEach, lazyArrayPush, lazySetAdd, lazySetDelete} from '~/lazy';
+import {lazyArrayEach, lazyArrayEachRight, lazyArrayPush, lazySetAdd, lazySetDelete} from '~/lazy';
 import {castError} from '~/utils';
 import type {IObservable, IObserver, IRoot, CleanupFunction, ErrorFunction, ObservedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue, Signal} from '~/types';
 
@@ -101,7 +101,7 @@ class Observer {
 
     if ( observers ) {
       this.observers = undefined;
-      lazyArrayEach ( observers, observer => {
+      lazyArrayEachRight ( observers, observer => {
         observer.dispose ( true, true );
       });
     }
@@ -122,7 +122,7 @@ class Observer {
     if ( cleanups ) {
       this.cleanups = undefined;
       this.inactive = true;
-      lazyArrayEach ( cleanups, cleanup => cleanup.call ( cleanup ) );
+      lazyArrayEachRight ( cleanups, cleanup => cleanup.call ( cleanup ) );
       this.inactive = false;
     }
 

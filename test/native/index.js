@@ -891,7 +891,7 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
     });
 
@@ -919,15 +919,15 @@ describe ( 'oby', () => {
 
       o ( 1 );
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
       o ( 2 );
 
-      t.is ( sequence, 'abab' );
+      t.is ( sequence, 'baba' );
 
       o ( 3 );
 
-      t.is ( sequence, 'ababab' );
+      t.is ( sequence, 'bababa' );
 
     });
 
@@ -953,7 +953,7 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
     });
 
@@ -981,15 +981,15 @@ describe ( 'oby', () => {
 
       o ( 1 );
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
       o ( 2 );
 
-      t.is ( sequence, 'abab' );
+      t.is ( sequence, 'baba' );
 
       o ( 3 );
 
-      t.is ( sequence, 'ababab' );
+      t.is ( sequence, 'bababa' );
 
     });
 
@@ -1017,15 +1017,15 @@ describe ( 'oby', () => {
 
       o ( 1 );
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
       o ( 2 );
 
-      t.is ( sequence, 'abab' );
+      t.is ( sequence, 'baba' );
 
       o ( 3 );
 
-      t.is ( sequence, 'ababab' );
+      t.is ( sequence, 'bababa' );
 
     });
 
@@ -1054,13 +1054,13 @@ describe ( 'oby', () => {
 
         dispose ();
 
-        t.is ( sequence, 'ab' );
+        t.is ( sequence, 'ba' );
 
         dispose ();
         dispose ();
         dispose ();
 
-        t.is ( sequence, 'ab' );
+        t.is ( sequence, 'ba' );
 
       });
 
@@ -1088,7 +1088,7 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
     });
 
@@ -1136,15 +1136,15 @@ describe ( 'oby', () => {
 
       o ( 1 );
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
       o ( 2 );
 
-      t.is ( sequence, 'abab' );
+      t.is ( sequence, 'baba' );
 
       o ( 3 );
 
-      t.is ( sequence, 'ababab' );
+      t.is ( sequence, 'bababa' );
 
     });
 
@@ -1654,15 +1654,15 @@ describe ( 'oby', () => {
 
       o ( 1 );
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
       o ( 2 );
 
-      t.is ( sequence, 'abab' );
+      t.is ( sequence, 'baba' );
 
       o ( 3 );
 
-      t.is ( sequence, 'ababab' );
+      t.is ( sequence, 'bababa' );
 
     });
 
@@ -3888,15 +3888,15 @@ describe ( 'oby', () => {
 
       o ( 1 );
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
       o ( 2 );
 
-      t.is ( sequence, 'abab' );
+      t.is ( sequence, 'baba' );
 
       o ( 3 );
 
-      t.is ( sequence, 'ababab' );
+      t.is ( sequence, 'bababa' );
 
     });
 
@@ -4905,15 +4905,15 @@ describe ( 'oby', () => {
 
       o ( 1 );
 
-      t.is ( sequence, 'ab' );
+      t.is ( sequence, 'ba' );
 
       o ( 2 );
 
-      t.is ( sequence, 'abab' );
+      t.is ( sequence, 'baba' );
 
       o ( 3 );
 
-      t.is ( sequence, 'ababab' );
+      t.is ( sequence, 'bababa' );
 
     });
 
