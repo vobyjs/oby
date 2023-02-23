@@ -27,7 +27,7 @@ const getFresh = ( status: number ): boolean => {
 
 const setFresh = ( status: number, fresh: boolean ): number => {
 
-  return status | ( fresh ? 0b00000100 : 0 );
+  return ( fresh ? status | 0b00000100 : status );
 
 };
 
