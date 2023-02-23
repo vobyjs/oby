@@ -94,7 +94,9 @@ type Owner = {
 
 /* STORE */
 
-type StoreOptions = {};
+type StoreOptions = {
+  equals?: EqualsFunction<unknown> | false
+};
 
 /* OTHERS */
 

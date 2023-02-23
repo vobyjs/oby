@@ -6066,6 +6066,128 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'supports a custom equality function', t => {
+
+          const equals = ( next, prev ) => ( next % 10 ) === ( prev % 10 );
+          const o = $.store ({ value: 0 }, { equals });
+
+          t.is ( o.value, 0 );
+
+          o.value = 10;
+
+          t.is ( o.value, 0 );
+
+          o.value = 11;
+
+          t.is ( o.value, 11 );
+
+        });
+
+        it ( 'supports a false equality function', t => {
+
+          const o = $.store ({ value: true }, { equals: false });
+
+          let calls = 0;
+
+          $.effect ( () => {
+
+            calls += 1;
+
+            o.value;
+
+          });
+
+          t.is ( calls, 1 );
+
+          o.value = true;
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports a custom equality function, when setting property descriptors', t => {
+
+          const equals = ( next, prev ) => ( next % 10 ) === ( prev % 10 );
+          const o = $.store ({ value: 0 }, { equals });
+
+          t.is ( o.value, 0 );
+
+          Object.defineProperty ( o, 'value', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: 10
+          });
+
+          t.is ( o.value, 0 );
+
+          Object.defineProperty ( o, 'value', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: 11
+          });
+
+          t.is ( o.value, 11 );
+
+        });
+
+        it ( 'supports a custom equality function, which is inherited also', t => {
+
+          const equals = ( next, prev ) => ( next % 10 ) === ( prev % 10 );
+          const o = $.store ({ nested: { value: 0 } }, { equals });
+
+          t.is ( o.nested.value, 0 );
+
+          o.nested.value = 10;
+
+          t.is ( o.nested.value, 0 );
+
+          o.nested.value = 11;
+
+          t.is ( o.nested.value, 11 );
+
+        });
+
+        it ( 'supports a custom equality function, which can be overridden', t => {
+
+          const equals1 = ( next, prev ) => ( next % 10 ) === ( prev % 10 );
+          const equals2 = ( next, prev ) => next === 'a';
+          const other = $.store ({ value: 0 }, { equals: equals2 });
+          const o = $.store ({ value: 0, other }, { equals: equals1 });
+
+          t.is ( o.value, 0 );
+
+          o.value = 10;
+
+          t.is ( o.value, 0 );
+
+          o.value = 11;
+
+          t.is ( o.value, 11 );
+
+          o.value = 'a';
+
+          t.is ( o.value, 'a' );
+
+          // --------
+
+          t.is ( o.other.value, 0 );
+
+          o.other.value = 10;
+
+          t.is ( o.other.value, 0 );
+
+          o.other.value = 11;
+
+          t.is ( o.other.value, 11 );
+
+          o.other.value = 'a';
+
+          t.is ( o.other.value, 11 );
+
+        });
+
         it ( 'supports setting functions as is', t => {
 
           const fn = () => {};

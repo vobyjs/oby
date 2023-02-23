@@ -12,8 +12,8 @@ import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
 import {SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED} from '~/symbols';
-import {castArray, is, isArray, isFunction, isObject, noop} from '~/utils';
-import type {IObservable, CallbackFunction, DisposeFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet, Signal} from '~/types';
+import {castArray, is, isArray, isFunction, isObject, noop, nope} from '~/utils';
+import type {IObservable, CallbackFunction, DisposeFunction, EqualsFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet, Signal} from '~/types';
 
 /* TYPES */
 
@@ -42,7 +42,8 @@ type StoreNode = {
   keys?: StoreKeys,
   values?: StoreValues,
   has?: StoreMap<StoreKey, StoreHas>,
-  properties?: StoreMap<StoreKey, StoreProperty>
+  properties?: StoreMap<StoreKey, StoreProperty>,
+  equals?: EqualsFunction<unknown>
 };
 
 /* CLASSES */
@@ -281,8 +282,9 @@ const STORE_TRAPS = {
 
           const value = target[key];
           const property = node.properties.get ( key ) || node.properties.insert ( key, getNodeProperty ( node, key, value ) );
+          const options = node.equals ? { equals: node.equals } : undefined;
 
-          property.observable ||= getNodeObservable ( node, value );
+          property.observable ||= getNodeObservable ( node, value, options );
 
           const observable = readable ( property.observable );
 
@@ -312,10 +314,12 @@ const STORE_TRAPS = {
 
     }
 
-    if ( listenable && property ) {
+    if ( property && listenable ) {
+
+      const options = node.equals ? { equals: node.equals } : undefined;
 
       property.listen ();
-      property.observable ||= getNodeObservable ( node, value );
+      property.observable ||= getNodeObservable ( node, value, options );
       property.observable.read ();
 
     }
@@ -353,8 +357,9 @@ const STORE_TRAPS = {
 
       const valuePrev = target[key];
       const hadProperty = !!valuePrev || ( key in target );
+      const equals = node.equals || is;
 
-      if ( hadProperty && is ( value, valuePrev ) && ( key !== 'length' || !Array.isArray ( target ) ) ) return true; // Array.prototype.length is special, it gets updated before this trap is called, we need to special-case it...
+      if ( hadProperty && equals ( value, valuePrev ) && ( key !== 'length' || !Array.isArray ( target ) ) ) return true; // Array.prototype.length is special, it gets updated before this trap is called, we need to special-case it...
 
       target[key] = value;
 
@@ -443,16 +448,17 @@ const STORE_TRAPS = {
 
   defineProperty: ( target: StoreTarget, key: StoreKey, descriptor: PropertyDescriptor ): boolean => {
 
+    const node = getNodeExisting ( target );
+    const equals = node.equals || is;
+
     const hadProperty = ( key in target );
     const descriptorPrev = Reflect.getOwnPropertyDescriptor ( target, key );
 
-    if ( descriptorPrev && isEqualDescriptor ( descriptorPrev, descriptor ) ) return true;
+    if ( descriptorPrev && isEqualDescriptor ( descriptorPrev, descriptor, equals ) ) return true;
 
     const defined = Reflect.defineProperty ( target, key, descriptor );
 
     if ( !defined ) return false;
-
-    const node = getNodeExisting ( target );
 
     batch ( () => {
 
@@ -575,7 +581,7 @@ const STORE_UNTRACK_TRAPS = {
 
 /* HELPERS */
 
-const getNode = <T extends StoreTarget> ( value: T, parent?: StoreNode ): StoreNode => {
+const getNode = <T extends StoreTarget> ( value: T, parent?: StoreNode, equals?: EqualsFunction<unknown> | false ): StoreNode => {
 
   const store = new Proxy ( value, STORE_TRAPS );
   const signal = parent?.signal || ROOT;
@@ -586,6 +592,14 @@ const getNode = <T extends StoreTarget> ( value: T, parent?: StoreNode ): StoreN
     const {getters, setters} = gettersAndSetters;
     if ( getters ) node.getters = getters;
     if ( setters ) node.setters = setters;
+  }
+
+  if ( equals === false ) {
+    node.equals = nope;
+  } else if ( equals ) {
+    node.equals = equals;
+  } else if ( parent?.equals ) {
+    node.equals = parent.equals;
   }
 
   NODES.set ( value, node );
@@ -696,11 +710,11 @@ const getGettersAndSetters = ( value: StoreTarget ): { getters?: StoreMap<string
 
 };
 
-const getStore = <T extends StoreTarget> ( value: T ): T => {
+const getStore = <T extends StoreTarget> ( value: T, options?: StoreOptions ): T => {
 
   if ( isStore ( value ) ) return value;
 
-  const node = NODES.get ( value ) || getNode ( value );
+  const node = NODES.get ( value ) || getNode ( value, undefined, options?.equals );
 
   return node.store;
 
@@ -724,9 +738,9 @@ const getUntracked = <T> ( value: T ): T => {
 
 };
 
-const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor ): boolean => {
+const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor, equals: EqualsFunction<unknown> ): boolean => {
 
-  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a['writ' + 'able'] === !!b['writ' + 'able'] && is ( a.value, b.value ) && a.get === b.get && a.set === b.set ); //UGLY: Bailing out of mangling
+  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a['writ' + 'able'] === !!b['writ' + 'able'] && equals ( a.value, b.value ) && a.get === b.get && a.set === b.set ); //UGLY: Bailing out of mangling
 
 };
 
@@ -774,7 +788,7 @@ const store = <T> ( value: T, options?: StoreOptions ): T => {
 
   if ( isUntracked ( value ) ) return value;
 
-  return getStore ( value );
+  return getStore ( value, options );
 
 };
 

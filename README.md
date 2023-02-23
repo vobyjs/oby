@@ -634,7 +634,10 @@ Interface:
 ```ts
 type StoreListenableTarget = Record<string | number | symbol, any> | (() => any);
 type StoreReconcileableTarget = Record<string | number | symbol, any> | Array<any>;
-type StoreOptions = {};
+
+type StoreOptions = {
+  equals?: (( value: unknown, valuePrev: unknown ) => boolean) | false
+};
 
 function store <T> ( value: T, options?: StoreOptions ): T;
 
@@ -674,6 +677,12 @@ $.effect ( () => {
 });
 
 arr.push ( 123 ); // Cause the effect to re-run
+
+// Make a reactive object, with a custom equality function, which is inherited by children also
+
+const equals = ( value, valuePrev ) => Object.is ( value, valuePrev );
+
+const eobj = $.store ( { some: { arbitrary: { velue: true } } }, { equals } );
 
 // Untrack parts of a store, bailing out of automatic proxying
 
@@ -1419,7 +1428,9 @@ This type describes the options object that the `$.store` function can accept.
 Interface:
 
 ```ts
-type StoreOptions = {};
+type StoreOptions = {
+  equals?: (( value: unknown, valuePrev: unknown ) => boolean) | false
+};
 ```
 
 ## Thanks
