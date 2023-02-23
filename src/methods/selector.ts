@@ -1,11 +1,12 @@
 
 /* IMPORT */
 
-import {IS, ROOT} from '~/constants';
+import {ROOT} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import reaction from '~/methods/reaction';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
+import {is} from '~/utils';
 import type {SelectorFunction, ObservableReadonly} from '~/types';
 
 /* HELPERS */
@@ -48,7 +49,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
     const valuePrev = selectedValue;
     const valueNext = source ();
 
-    if ( IS ( valuePrev, valueNext ) ) return;
+    if ( is ( valuePrev, valueNext ) ) return;
 
     selectedValue = valueNext;
 

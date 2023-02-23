@@ -1,11 +1,11 @@
 
 /* IMPORT */
 
-import {IS} from '~/constants';
 import get from '~/methods/get';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import unwrap from '~/methods/resolve';
+import {is} from '~/utils';
 import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* MAIN */
@@ -26,7 +26,7 @@ function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], f
 
       if ( value.length === 1 ) return value[0];
 
-      if ( IS ( value[0], condition ) ) return value[1];
+      if ( is ( value[0], condition ) ) return value[1];
 
     }
 

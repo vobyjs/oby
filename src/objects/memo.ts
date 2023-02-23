@@ -1,11 +1,10 @@
 
 /* IMPORT */
 
-import {NOOP} from '~/constants';
 import Computation from '~/objects/computation';
 import Observable from '~/objects/observable';
 import {getExecution, setExecution, getCount} from '~/status';
-import {castError, max} from '~/utils';
+import {castError, max, noop} from '~/utils';
 import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
@@ -128,7 +127,7 @@ class Memo<T = unknown> extends Computation {
 
           } else if ( !this.observables ) { // It can never run again, freeing up some memory
 
-            this.fn = NOOP as any; //TSC
+            this.fn = noop as any; //TSC
             this.observable.dispose ();
 
           }

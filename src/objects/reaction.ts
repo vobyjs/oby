@@ -1,11 +1,10 @@
 
 /* IMPORT */
 
-import {NOOP} from '~/constants';
 import suspended from '~/methods/suspended';
 import Computation from '~/objects/computation';
 import {getExecution, setExecution} from '~/status';
-import {castError, isFunction, max} from '~/utils';
+import {castError, isFunction, max, noop} from '~/utils';
 import type {ReactionFunction} from '~/types';
 
 /* MAIN */
@@ -94,7 +93,7 @@ class Reaction extends Computation {
 
           } else if ( !this.observables ) { // It can never run again, freeing up some memory
 
-            this.fn = NOOP;
+            this.fn = noop;
 
           }
 

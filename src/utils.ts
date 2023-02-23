@@ -17,6 +17,8 @@ const castError = ( error: unknown ): Error => {
 
 };
 
+const {is} = Object;
+
 const {isArray} = Array;
 
 const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => {
@@ -43,6 +45,18 @@ const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
 
 };
 
+const noop = (): void => {
+
+  return;
+
+};
+
+const nope = (): false => {
+
+  return false;
+
+};
+
 /* EXPORT */
 
-export {castArray, castError, isArray, isFunction, isNumber, isObject, max};
+export {castArray, castError, is, isArray, isFunction, isNumber, isObject, max, noop, nope};

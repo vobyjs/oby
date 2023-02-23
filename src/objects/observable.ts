@@ -1,9 +1,10 @@
 
 /* IMPORT */
 
-import {BATCH, FALSE, IS, OWNER, ROOT, TRACKING} from '~/constants';
+import {BATCH, OWNER, ROOT, TRACKING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetHas} from '~/lazy';
 import {getExecution, getCount} from '~/status';
+import {is, nope} from '~/utils';
 import type {IComputation, IMemo, IObservable, IObserver, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, Callable, LazySet, Signal} from '~/types';
 
 /* MAIN */
@@ -34,7 +35,7 @@ class Observable<T = unknown> {
 
     if ( options?.equals !== undefined ) {
 
-      this.equals = options.equals || FALSE;
+      this.equals = options.equals || nope;
 
     }
 
@@ -118,7 +119,7 @@ class Observable<T = unknown> {
 
     } else {
 
-      const equals = this.equals || IS;
+      const equals = this.equals || is;
       const fresh = !equals ( value, this.value );
 
       if ( !this.parent ) {

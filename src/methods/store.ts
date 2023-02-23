@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {IS, NOOP, ROOT, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED, TRACKING} from '~/constants';
+import {ROOT, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED, TRACKING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
@@ -11,7 +11,7 @@ import reaction from '~/methods/reaction';
 import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
-import {castArray, isArray, isFunction, isObject} from '~/utils';
+import {castArray, is, isArray, isFunction, isObject, noop} from '~/utils';
 import type {IObservable, CallbackFunction, DisposeFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet, Signal} from '~/types';
 
 /* TYPES */
@@ -353,7 +353,7 @@ const STORE_TRAPS = {
       const valuePrev = target[key];
       const hadProperty = !!valuePrev || ( key in target );
 
-      if ( hadProperty && IS ( value, valuePrev ) && ( key !== 'length' || !Array.isArray ( target ) ) ) return true; // Array.prototype.length is special, it gets updated before this trap is called, we need to special-case it...
+      if ( hadProperty && is ( value, valuePrev ) && ( key !== 'length' || !Array.isArray ( target ) ) ) return true; // Array.prototype.length is special, it gets updated before this trap is called, we need to special-case it...
 
       target[key] = value;
 
@@ -725,7 +725,7 @@ const getUntracked = <T> ( value: T ): T => {
 
 const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor ): boolean => {
 
-  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a['writ' + 'able'] === !!b['writ' + 'able'] && IS ( a.value, b.value ) && a.get === b.get && a.set === b.set ); //UGLY: Bailing out of mangling
+  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a['writ' + 'able'] === !!b['writ' + 'able'] && is ( a.value, b.value ) && a.get === b.get && a.set === b.set ); //UGLY: Bailing out of mangling
 
 };
 
@@ -827,7 +827,7 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
 
 store._onRoots = <K extends StoreKey, V extends unknown> ( target: Record<K, V>, listener: StoreListenerRoots<V> ): DisposeFunction => {
 
-  if ( !isStore ( target ) ) return NOOP;
+  if ( !isStore ( target ) ) return noop;
 
   const node = getNodeFromStore ( target );
 
@@ -879,7 +879,7 @@ store.reconcile = (() => {
       const prevValue = uprev[key]
       const nextValue = unext[key];
 
-      if ( !IS ( prevValue, nextValue ) ) {
+      if ( !is ( prevValue, nextValue ) ) {
 
         const prevType = getType ( prevValue );
         const nextType = getType ( nextValue );
