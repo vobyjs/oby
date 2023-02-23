@@ -1,24 +1,24 @@
 
 /* IMPORT */
 
-import {BATCH} from '~/constants';
+import {BATCH, setBatch} from '~/context';
 import type {IObservable, BatchFunction} from '~/types';
 
 /* HELPERS - LIFECYCLE */
 
 const start = (): void => {
 
-  BATCH.current ||= new Map ();
+  setBatch ( new Map () );
 
 };
 
 const stop = (): void => {
 
-  const batch = BATCH.current;
+  const batch = BATCH;
 
   if ( !batch ) return;
 
-  BATCH.current = undefined;
+  setBatch ();
 
   if ( batch.size > 1 ) {
 
@@ -90,7 +90,7 @@ const write = <T> ( value: T, observable: IObservable<T> ): void => {
 
 const batch = <T> ( fn: BatchFunction<T> ): T => {
 
-  if ( BATCH.current ) {
+  if ( BATCH ) {
 
     return fn ();
 

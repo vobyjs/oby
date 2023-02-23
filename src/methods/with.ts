@@ -1,14 +1,14 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import {OWNER} from '~/context';
 import type {WithFunction} from '~/types';
 
 /* MAIN */
 
 const _with = (): (<T> ( fn: WithFunction<T> ) => T) => {
 
-  const owner = OWNER.current;
+  const owner = OWNER;
 
   return <T> ( fn: WithFunction<T> ): T => {
 

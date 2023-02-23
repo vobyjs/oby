@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import {OWNER} from '~/context';
 import CacheAbstract from '~/methods/for_abstract.cache';
 import get from '~/methods/get';
 import memo from '~/methods/memo';
@@ -26,7 +26,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
   private fn: MapIndexFunction<T, R>;
   private cache: IndexedRoot<T, Resolved<R>>[];
-  private parent: IObserver = OWNER.current;
+  private parent: IObserver = OWNER;
 
   /* CONSTRUCTOR */
 

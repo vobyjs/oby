@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import {OWNER} from '~/context';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import CacheAbstract from '~/methods/for_abstract.cache';
@@ -34,7 +34,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
   private fn: MapValueFunction<T, R>;
   private fnWithIndex: boolean;
   private cache: Map<T, MappedRoot<T, Resolved<R>>> = new Map ();
-  private parent: IObserver = OWNER.current;
+  private parent: IObserver = OWNER;
 
   /* CONSTRUCTOR */
 

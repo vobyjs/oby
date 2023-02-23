@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {BATCH, OWNER, ROOT, TRACKING} from '~/constants';
+import {BATCH, OWNER, ROOT, TRACKING} from '~/context';
 import {lazySetAdd, lazySetDelete, lazySetHas} from '~/lazy';
 import {getExecution, getCount} from '~/status';
 import {is, nope} from '~/utils';
@@ -14,7 +14,7 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   parent?: IMemo<T>;
-  signal: Signal = ROOT.current;
+  signal: Signal = ROOT;
   value: T;
   disposed?: true;
   equals?: EqualsFunction<T>;
@@ -61,9 +61,9 @@ class Observable<T = unknown> {
 
     if ( this.disposed || this.signal.disposed ) return;
 
-    if ( TRACKING.current ) {
+    if ( TRACKING ) {
 
-      const owner = OWNER.current;
+      const owner = OWNER;
 
       if ( owner.observables !== this ) {
 
@@ -111,9 +111,9 @@ class Observable<T = unknown> {
 
     if ( this.disposed ) throw new Error ( 'A disposed Observable can not be updated' );
 
-    if ( BATCH.current ) {
+    if ( BATCH ) {
 
-      BATCH.current.set ( this, value );
+      BATCH.set ( this, value );
 
       return value;
 

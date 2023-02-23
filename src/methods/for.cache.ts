@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import {OWNER} from '~/context';
 import cleanup from '~/methods/cleanup';
 import CacheAbstract from '~/methods/for_abstract.cache';
 import resolve from '~/methods/resolve';
@@ -34,7 +34,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
   private prevCount: number = 0; // Number of previous items
   private reuseCount: number = 0; // Number of previous items that got reused
   private nextCount: number = 0; // Number of next items
-  private parent: IObserver = OWNER.current;
+  private parent: IObserver = OWNER;
 
   /* CONSTRUCTOR */
 

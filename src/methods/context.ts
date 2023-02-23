@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import {OWNER} from '~/context';
 
 /* MAIN */
 
@@ -11,11 +11,11 @@ function context <T> ( symbol: symbol, value?: T ) {
 
   if ( arguments.length < 2 ) {
 
-    return OWNER.current.read<T> ( symbol );
+    return OWNER.read<T> ( symbol );
 
   } else {
 
-    return OWNER.current.write ( symbol, value );
+    return OWNER.write ( symbol, value );
 
   }
 

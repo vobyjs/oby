@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {ROOT, TRACKING} from '~/constants';
+import {ROOT, TRACKING} from '~/context';
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
@@ -578,7 +578,7 @@ const STORE_UNTRACK_TRAPS = {
 const getNode = <T extends StoreTarget> ( value: T, parent?: StoreNode ): StoreNode => {
 
   const store = new Proxy ( value, STORE_TRAPS );
-  const signal = parent?.signal || ROOT.current;
+  const signal = parent?.signal || ROOT;
   const gettersAndSetters = getGettersAndSetters ( value );
   const node: StoreNode = { parents: parent, store, signal };
 
@@ -732,7 +732,7 @@ const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor ): bool
 
 const isListenable = (): boolean => { // Checks whether the current owner can listen for observables
 
-  return TRACKING.current;
+  return TRACKING;
 
 };
 

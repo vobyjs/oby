@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {ROOT} from '~/constants';
+import {ROOT} from '~/context';
 import cleanup from '~/methods/cleanup';
 import reaction from '~/methods/reaction';
 import {readable} from '~/objects/callable';
@@ -35,7 +35,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   /* SIGNAL */
 
-  const signalRoot = ROOT.current;
+  const signalRoot = ROOT;
   const signalParent = { disposed: false };
   const signal = { get disposed () { return signalRoot.disposed || signalParent.disposed; } };
 

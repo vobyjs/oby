@@ -1,14 +1,14 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/constants';
+import {OWNER} from '~/context';
 import type {CleanupFunction, Callable} from '~/types';
 
 /* MAIN */
 
 const cleanup = ( fn: Callable<CleanupFunction> ): void => {
 
-  OWNER.current.registerCleanup ( fn );
+  OWNER.registerCleanup ( fn );
 
 };
 

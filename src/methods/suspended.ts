@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER, SUSPENSE, SUSPENSE_ENABLED} from '~/constants';
+import {OWNER, SUSPENSE, SUSPENSE_ENABLED} from '~/context';
 import {SYMBOL_SUSPENSE} from '~/symbols';
 import type {ISuspense} from '~/types';
 
@@ -9,9 +9,9 @@ import type {ISuspense} from '~/types';
 
 const suspended = (): number | undefined => {
 
-  if ( !SUSPENSE_ENABLED.current ) return;
+  if ( !SUSPENSE_ENABLED ) return;
 
-  const suspense = SUSPENSE.current || OWNER.current.read<ISuspense> ( SYMBOL_SUSPENSE );
+  const suspense = SUSPENSE || OWNER.read<ISuspense> ( SYMBOL_SUSPENSE );
 
   return suspense?.suspended;
 

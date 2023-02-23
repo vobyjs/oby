@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER, ROOT} from '~/constants';
+import {OWNER, ROOT} from '~/context';
 import Observer from '~/objects/observer';
 import {getExecution, getFresh, setFresh, getCount, changeCount} from '~/status';
 import type {IObserver, ObservedFunction, Signal} from '~/types';
@@ -12,8 +12,8 @@ class Computation extends Observer {
 
   /* VARIABLES */
 
-  parent: IObserver = OWNER.current;
-  signal: Signal = ROOT.current;
+  parent: IObserver = OWNER;
+  signal: Signal = ROOT;
   status: number = 0;
 
   /* API */

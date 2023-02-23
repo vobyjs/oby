@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER, ROOT} from '~/constants';
+import {OWNER, ROOT, setRoot} from '~/context';
 import suspended from '~/methods/suspended';
 import Observer from '~/objects/observer';
 import {isNumber} from '~/utils';
@@ -13,7 +13,7 @@ class Root extends Observer {
 
   /* VARIABLES */
 
-  parent: IObserver = OWNER.current;
+  parent: IObserver = OWNER;
   disposed?: boolean;
   pausable?: boolean;
 
@@ -54,9 +54,9 @@ class Root extends Observer {
     const dispose = this.dispose.bind ( this, true, true );
     const fnWithDispose = fn.bind ( undefined, dispose );
 
-    const rootPrev = ROOT.current;
+    const rootPrev = ROOT;
 
-    ROOT.current = this;
+    setRoot ( this );
 
     try {
 
@@ -64,7 +64,7 @@ class Root extends Observer {
 
     } finally {
 
-      ROOT.current = rootPrev;
+      setRoot ( rootPrev );
 
     }
 
