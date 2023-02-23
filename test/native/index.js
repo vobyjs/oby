@@ -2262,6 +2262,39 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'suppors error handlers that throw', t => {
+
+      let calls = '';
+
+      $.effect ( () => {
+
+        $.error ( () => {
+          calls += 'a';
+        });
+
+        $.effect ( () => {
+
+          $.error ( () => {
+            calls += 'b';
+            throw new Error ();
+          });
+
+          $.error ( () => {
+            calls += 'c';
+          });
+
+          $.effect ( () => {
+            throw new Error ();
+          });
+
+        });
+
+      });
+
+      t.is ( calls, 'ba' );
+
+    });
+
     it ( 'throws if the error handler in a computation throws', t => {
 
       t.throws ( () => {

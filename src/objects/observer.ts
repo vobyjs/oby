@@ -71,7 +71,23 @@ class Observer {
 
     if ( errors ) {
 
-      lazyArrayEach ( errors, fn => fn.call ( fn, error ) );
+      try {
+
+        lazyArrayEach ( errors, fn => fn.call ( fn, error ) );
+
+      } catch ( error: unknown ) {
+
+        if ( parent ) {
+
+          parent.catch ( castError ( error ), false );
+
+        } else {
+
+          throw error;
+
+        }
+
+      }
 
       return true;
 
