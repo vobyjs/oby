@@ -1,7 +1,6 @@
 
 /* IMPORT */
 
-import {ROOT} from '~/context';
 import cleanup from '~/methods/cleanup';
 import reaction from '~/methods/reaction';
 import {readable} from '~/objects/callable';
@@ -35,9 +34,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   /* SIGNAL */
 
-  const signalRoot = ROOT;
-  const signalParent = { disposed: false };
-  const signal = { get disposed () { return signalRoot.disposed || signalParent.disposed; } };
+  const signal = { disposed: false };
 
   /* SELECTEDS */
 
@@ -62,7 +59,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   const cleanupAll = (): void => {
 
-    signalParent.disposed = true;
+    signal.disposed = true;
     selecteds.disposed = true;
 
   };
