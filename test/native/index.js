@@ -4,7 +4,7 @@
 import {describe} from 'fava';
 import {setTimeout as delay} from 'node:timers/promises';
 import $ from '../../dist/index.js';
-import {SYMBOL_STORE_VALUES} from '../../dist/constants.js';
+import {SYMBOL_STORE_VALUES} from '../../dist/symbols.js';
 import {observable} from '../../dist/index.js';
 
 /* HELPERS */

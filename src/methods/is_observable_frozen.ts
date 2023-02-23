@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE_FROZEN} from '~/constants';
+import {SYMBOL_OBSERVABLE_FROZEN} from '~/symbols';
 import {isFunction} from '~/utils';
 import type {ObservableReadonly} from '~/types';
 

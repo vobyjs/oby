@@ -1,7 +1,6 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED} from '~/constants';
 import $ from '~/methods/$';
 import batch from '~/methods/batch';
 import boolean from '~/methods/boolean';
@@ -35,6 +34,7 @@ import ternary from '~/methods/ternary';
 import tryCatch from '~/methods/try_catch';
 import untrack from '~/methods/untrack';
 import _with from '~/methods/with';
+import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED} from '~/symbols';
 import type {ObservableOptions, Observable, ObservableReadonly, StoreOptions} from '~/types';
 
 /* EXPORT */

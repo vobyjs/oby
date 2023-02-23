@@ -1,11 +1,12 @@
 
 /* IMPORT */
 
-import {OWNER, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_SUSPENSE} from '~/constants';
+import {OWNER, SUSPENSE, SUSPENSE_ENABLED} from '~/constants';
 import {lazyArrayEach, lazySetEach} from '~/lazy';
 import suspended from '~/methods/suspended';
 import Effect from '~/objects/effect';
 import Observer from '~/objects/observer';
+import {SYMBOL_SUSPENSE} from '~/symbols';
 import {isFunction} from '~/utils';
 import type {IObserver, IRoot, SuspenseFunction} from '~/types';
 

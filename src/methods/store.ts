@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {ROOT, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED, TRACKING} from '~/constants';
+import {ROOT, TRACKING} from '~/constants';
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
@@ -11,6 +11,7 @@ import reaction from '~/methods/reaction';
 import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
+import {SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED} from '~/symbols';
 import {castArray, is, isArray, isFunction, isObject, noop} from '~/utils';
 import type {IObservable, CallbackFunction, DisposeFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet, Signal} from '~/types';
 

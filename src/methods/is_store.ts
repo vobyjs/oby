@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL_STORE} from '~/constants';
+import {SYMBOL_STORE} from '~/symbols';
 import {isObject} from '~/utils';
 
 /* MAIN */

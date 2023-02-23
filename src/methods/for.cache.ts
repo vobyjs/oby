@@ -1,13 +1,14 @@
 
 /* IMPORT */
 
-import {OWNER, SYMBOL_UNCACHED} from '~/constants';
+import {OWNER} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import CacheAbstract from '~/methods/for_abstract.cache';
 import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
+import {SYMBOL_UNCACHED} from '~/symbols';
 import type {IObservable, IObserver, MapFunction, Resolved} from '~/types';
 
 /* HELPERS */

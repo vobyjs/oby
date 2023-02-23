@@ -1,9 +1,9 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED} from '~/constants';
 import memo from '~/methods/memo';
 import {frozen} from '~/objects/callable';
+import {SYMBOL_OBSERVABLE, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED} from '~/symbols';
 import {isFunction} from '~/utils';
 import type {Resolvable, Resolved} from '../types';
 

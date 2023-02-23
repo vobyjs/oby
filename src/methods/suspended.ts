@@ -1,7 +1,8 @@
 
 /* IMPORT */
 
-import {OWNER, SUSPENSE, SUSPENSE_ENABLED, SYMBOL_SUSPENSE} from '~/constants';
+import {OWNER, SUSPENSE, SUSPENSE_ENABLED} from '~/constants';
+import {SYMBOL_SUSPENSE} from '~/symbols';
 import type {ISuspense} from '~/types';
 
 /* MAIN */

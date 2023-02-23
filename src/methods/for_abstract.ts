@@ -1,13 +1,13 @@
 
 /* IMPORT */
 
-import {SYMBOL_STORE_VALUES} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import get from '~/methods/get';
 import isStore from '~/methods/is_store';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import untrack from '~/methods/untrack';
+import {SYMBOL_STORE_VALUES} from '~/symbols';
 import type Cache from '~/methods/for_abstract.cache';
 import type {ObservableReadonly, FunctionMaybe, CallableFunction, Constructor, Resolved} from '~/types';
 

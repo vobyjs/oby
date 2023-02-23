@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE} from '~/constants';
+import {SYMBOL_OBSERVABLE} from '~/symbols';
 import {isFunction} from '~/utils';
 import type {IObservable, Observable, ObservableReadonly} from '~/types';
 

@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE} from '~/constants';
+import {SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE} from '~/symbols';
 import {isFunction} from '~/utils';
 import type {Observable, ObservableReadonly} from '~/types';
 
