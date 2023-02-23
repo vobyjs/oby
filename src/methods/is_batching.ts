@@ -1,13 +1,13 @@
 
 /* IMPORT */
 
-import {BATCH_COUNT} from '~/constants';
+import {BATCH} from '~/constants';
 
 /* MAIN */
 
 const isBatching = (): boolean => {
 
-  return !!BATCH_COUNT.current;
+  return !!BATCH.current;
 
 };
 

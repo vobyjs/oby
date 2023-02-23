@@ -1,24 +1,18 @@
 
 /* IMPORT */
 
-import {BATCH, BATCH_COUNT} from '~/constants';
+import {BATCH} from '~/constants';
 import type {IObservable, BatchFunction} from '~/types';
 
 /* HELPERS - LIFECYCLE */
 
 const start = (): void => {
 
-  BATCH_COUNT.current += 1;
-
   BATCH.current ||= new Map ();
 
 };
 
 const stop = (): void => {
-
-  BATCH_COUNT.current -= 1;
-
-  if ( BATCH_COUNT.current ) return;
 
   const batch = BATCH.current;
 
@@ -95,6 +89,8 @@ const write = <T> ( value: T, observable: IObservable<T> ): void => {
 //TODO: Experiment with deleting batching and instead "just" queuing stuff in a microtask, if possible without making a mess in userland
 
 const batch = <T> ( fn: BatchFunction<T> ): T => {
+
+  if ( BATCH.current ) return fn ();
 
   return wrap ( fn, start, stop );
 
