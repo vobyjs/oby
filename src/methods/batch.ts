@@ -90,9 +90,15 @@ const write = <T> ( value: T, observable: IObservable<T> ): void => {
 
 const batch = <T> ( fn: BatchFunction<T> ): T => {
 
-  if ( BATCH.current ) return fn ();
+  if ( BATCH.current ) {
 
-  return wrap ( fn, start, stop );
+    return fn ();
+
+  } else {
+
+    return wrap ( fn, start, stop );
+
+  }
 
 };
 
