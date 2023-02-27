@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import Root from '~/objects/root';
 import SuperRoot from '~/objects/superroot';
 import type {IObservable, IObserver, IRoot, ISuperRoot, ISuspense} from '~/types';
 
@@ -12,6 +13,7 @@ let SUPER_OWNER = new SuperRoot ();
 let BATCH: Map<IObservable<any>, unknown> | undefined;
 let OWNER: IObserver = SUPER_OWNER;
 let ROOT: IRoot | ISuperRoot = SUPER_OWNER;
+let ROOT_DISPOSED = Object.assign ( new Root (), { disposed: true } );
 let SUSPENSE: ISuspense | undefined;
 let SUSPENSE_ENABLED: boolean = false;
 let TRACKING: boolean = false;
@@ -29,5 +31,5 @@ const setTracking = ( value: boolean ) => TRACKING = value;
 
 /* EXPORT */
 
-export {BATCH, SUPER_OWNER, OWNER, ROOT, SUSPENSE, SUSPENSE_ENABLED, TRACKING};
+export {BATCH, SUPER_OWNER, OWNER, ROOT, ROOT_DISPOSED, SUSPENSE, SUSPENSE_ENABLED, TRACKING};
 export {setBatch, setOwner, setRoot, setSuspense, setSuspenseEnabled, setTracking};

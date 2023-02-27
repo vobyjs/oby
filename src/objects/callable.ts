@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {ROOT_DISPOSED} from '~/context';
 import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE} from '~/symbols';
 import {isFunction} from '~/utils';
 import type {IObservable, UpdateFunction, Frozen, Readable, Writable} from '~/types';
@@ -39,7 +40,7 @@ const frozen = (<T> ( value: T ) => {
 }) as Frozen; //TSC
 
 const readable = (<T> ( value: IObservable<T> ) => {
-  if ( value.disposed ) return frozen ( value.value );
+  if ( value.signal === ROOT_DISPOSED ) return frozen ( value.value );
   const fn = readableFunction.bind ( value as any ); //TSC
   fn[SYMBOL_OBSERVABLE] = true;
   fn[SYMBOL_OBSERVABLE_READABLE] = true;

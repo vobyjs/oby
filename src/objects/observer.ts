@@ -126,7 +126,7 @@ class Observer {
       this.observables = undefined;
       if ( immediate ) {
         lazyArrayEach ( observables, observable => {
-          if ( !observable.disposed && !observable.signal.disposed ) {
+          if ( !observable.signal.disposed ) {
             observable.unregisterObserver ( this );
           }
         });
@@ -171,7 +171,7 @@ class Observer {
 
     for ( let ai = 0, al = a.length; ai < al; ai++ ) { // Unlinking from previous Observables which are not next Observables too
       const av = a[ai];
-      if ( av.disposed || av.signal.disposed ) continue;
+      if ( av.signal.disposed ) continue;
       if ( av === b[ai] ) continue;
       bSet ||= new Set ( b );
       if ( bSet.has ( av ) ) continue;

@@ -61,7 +61,7 @@ class Memo<T = unknown> extends Computation {
 
   update ( fresh: boolean, first?: boolean ): void {
 
-    if ( fresh && !this.observable.disposed && !this.observable.signal.disposed ) { // The resulting value might change
+    if ( fresh && !this.observable.signal.disposed ) { // The resulting value might change
 
       const status = getExecution ( this.status );
 
@@ -87,7 +87,7 @@ class Memo<T = unknown> extends Computation {
 
           this.postdispose ();
 
-          if ( this.observable.disposed || this.observable.signal.disposed ) { // Maybe a memo disposed of itself via a root before returning, or caused itself to re-execute
+          if ( this.observable.signal.disposed ) { // Maybe a memo disposed of itself via a root before returning, or caused itself to re-execute
 
             this.observable.emit ( -1, false );
 

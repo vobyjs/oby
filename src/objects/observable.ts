@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {BATCH, OWNER, ROOT, TRACKING} from '~/context';
+import {BATCH, OWNER, ROOT, ROOT_DISPOSED, TRACKING} from '~/context';
 import {lazySetAdd, lazySetDelete, lazySetHas} from '~/lazy';
 import {getExecution, getCount} from '~/status';
 import {is, nope} from '~/utils';
@@ -16,7 +16,6 @@ class Observable<T = unknown> {
   parent?: IMemo<T>;
   signal: Signal = ROOT;
   value: T;
-  disposed?: true;
   equals?: EqualsFunction<T>;
   listeners?: LazySet<Callable<ListenerFunction<T>>>;
   observers?: LazySet<IObserver>;
@@ -59,7 +58,7 @@ class Observable<T = unknown> {
 
   registerSelf (): void {
 
-    if ( this.disposed || this.signal.disposed ) return;
+    if ( this.signal.disposed ) return;
 
     if ( TRACKING ) {
 
@@ -109,7 +108,7 @@ class Observable<T = unknown> {
 
   write ( value: T ): T {
 
-    if ( this.disposed ) throw new Error ( 'A disposed Observable can not be updated' );
+    if ( this.signal === ROOT_DISPOSED ) throw new Error ( 'A disposed Observable can not be updated' );
 
     if ( BATCH ) {
 
@@ -166,7 +165,7 @@ class Observable<T = unknown> {
 
   emit ( change: -1 | 1, fresh: boolean ): void {
 
-    if ( this.disposed || this.signal.disposed ) return;
+    if ( this.signal.disposed ) return;
 
     const computations = this.observers as LazySet<IComputation>; //TSC
 
@@ -192,7 +191,7 @@ class Observable<T = unknown> {
 
   listened ( valuePrev?: T ): void {
 
-    if ( this.disposed || this.signal.disposed ) return;
+    if ( this.signal.disposed ) return;
 
     const {listeners} = this;
 
@@ -218,7 +217,7 @@ class Observable<T = unknown> {
 
   dispose (): void {
 
-    this.disposed = true;
+    this.signal = ROOT_DISPOSED;
 
   }
 
