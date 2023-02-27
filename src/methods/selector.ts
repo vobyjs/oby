@@ -1,7 +1,9 @@
 
 /* IMPORT */
 
+import {OBSERVABLE_FALSE, OBSERVABLE_TRUE} from '~/constants';
 import cleanup from '~/methods/cleanup';
+import isObservableFrozen from '~/methods/is_observable_frozen';
 import reaction from '~/methods/reaction';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
@@ -31,6 +33,20 @@ class SelectedObservable extends Observable<boolean> { // This saves some memory
 /* MAIN */
 
 const selector = <T> ( source: () => T ): SelectorFunction<T> => {
+
+  /* FROZEN SOURCE */
+
+  if ( isObservableFrozen ( source ) ) {
+
+    const sourceValue = source ();
+
+    return ( value: T ): ObservableReadonly<boolean> => {
+
+      return value === sourceValue ? OBSERVABLE_TRUE : OBSERVABLE_FALSE;
+
+    }
+
+  }
 
   /* SIGNAL */
 
