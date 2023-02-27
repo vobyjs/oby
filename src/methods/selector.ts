@@ -4,6 +4,7 @@
 import {OBSERVABLE_FALSE, OBSERVABLE_TRUE} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import isObservableFrozen from '~/methods/is_observable_frozen';
+import memo from '~/methods/memo';
 import reaction from '~/methods/reaction';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
@@ -33,6 +34,10 @@ class SelectedObservable extends Observable<boolean> { // This saves some memory
 /* MAIN */
 
 const selector = <T> ( source: () => T ): SelectorFunction<T> => {
+
+  /* NORMALIZING SOURCE */
+
+  source = memo ( source );
 
   /* FROZEN SOURCE */
 
