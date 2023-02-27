@@ -91,6 +91,10 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   return ( value: T ): ObservableReadonly<boolean> => {
 
+    /* DISPOSED? */
+
+    if ( signal.disposed ) throw new Error ( 'A disposed Selector can not be used anymore' );
+
     /* INIT */
 
     let selected = selecteds.get ( value );

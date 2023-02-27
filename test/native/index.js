@@ -5373,6 +5373,23 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'throws when attempting to use it after disposing of the parent root', t => {
+
+      $.root ( dispose => {
+
+        const source = $(0);
+        const selector = $.selector ( source );
+
+        selector ( 1 );
+
+        dispose ();
+
+        t.throws ( () => selector ( 2 ), { message: 'A disposed Selector can not be used anymore' } );
+
+      });
+
+    });
+
     it ( 'treats 0 and -0 as the same value values', t => {
 
       const selected = $(0);
