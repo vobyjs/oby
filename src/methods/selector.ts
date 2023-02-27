@@ -44,7 +44,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
       return value === sourceValue ? OBSERVABLE_TRUE : OBSERVABLE_FALSE;
 
-    }
+    };
 
   }
 
