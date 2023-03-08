@@ -11,9 +11,8 @@ const ro = $.memo ( o );
 const fo = $.memo ( () => 0 );
 const fn = () => o ();
 
-benchmark.defaultOptions = Object.assign ( benchmark.defaultOptions, {
-  iterations: 1,
-  log: 'compact'
+benchmark.config ({
+  iterations: 1
 });
 
 benchmark.group ( 'regular', () => {

@@ -14,9 +14,8 @@ setTracking ( true );
 
 /* MAIN */
 
-benchmark.defaultOptions = Object.assign ( benchmark.defaultOptions, {
-  iterations: 5000,
-  log: 'compact'
+benchmark.config ({
+  iterations: 5_000
 });
 
 benchmark.group ( 'wrap', () => {
