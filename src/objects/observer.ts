@@ -101,7 +101,7 @@ class Observer {
 
       } else {
 
-        console.error ( error.stack ); // For convenience
+        // console.error ( error.stack ); // <-- Log "error.stack" to understand where the error happened
 
         throw error;
 
