@@ -880,6 +880,26 @@ store.reconcile = (() => {
 
   };
 
+  const reconcileOuter = <T extends StoreReconcileable> ( prev: T, next: T ): T => {
+
+    const uprev = getTarget ( prev );
+    const unext = getTarget ( next );
+
+    reconcileInner ( uprev, unext );
+
+    const prevType = getType ( uprev );
+    const nextType = getType ( unext );
+
+    if ( prevType === 1 || nextType === 1 ) {
+
+      uprev.length = unext.length;
+
+    }
+
+    return prev;
+
+  };
+
   const reconcileInner = <T extends StoreReconcileable> ( prev: T, next: T ): T => {
 
     const uprev = getTarget ( prev );
@@ -945,7 +965,7 @@ store.reconcile = (() => {
 
       return untrack ( () => {
 
-        return reconcileInner ( prev, next );
+        return reconcileOuter ( prev, next );
 
       });
 

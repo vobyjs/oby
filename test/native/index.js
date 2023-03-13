@@ -8123,6 +8123,36 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'can shrink the size of a top-level array', t => {
+
+          const data = ['a', 'b', 'c'];
+          const dataNext = ['a', 'b'];
+
+          const o = $.store ( data );
+
+          t.notDeepEqual ( o, dataNext );
+
+          $.store.reconcile ( o, dataNext );
+
+          t.deepEqual ( o, dataNext );
+
+        });
+
+        it ( 'can grow the size of a top-level array', t => {
+
+          const data = ['a', 'b'];
+          const dataNext = ['a', 'b', 'c'];
+
+          const o = $.store ( data );
+
+          t.notDeepEqual ( o, dataNext );
+
+          $.store.reconcile ( o, dataNext );
+
+          t.deepEqual ( o, dataNext );
+
+        });
+
       });
 
       describe ( 'untrack', () => {
