@@ -885,14 +885,14 @@ store.reconcile = (() => {
     const uprev = getTarget ( prev );
     const unext = getTarget ( next );
 
-    reconcileInner ( uprev, unext );
+    reconcileInner ( prev, next );
 
     const prevType = getType ( uprev );
     const nextType = getType ( unext );
 
     if ( prevType === 1 || nextType === 1 ) {
 
-      uprev.length = unext.length;
+      prev.length = next.length;
 
     }
 
