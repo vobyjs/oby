@@ -87,6 +87,7 @@ const write = <T> ( value: T, observable: IObservable<T> ): void => {
 /* MAIN */
 
 //TODO: Experiment with deleting batching and instead "just" queuing stuff in a microtask, if possible without making a mess in userland
+//FIXME: Batching seems to be somewhat broken, if it only parts of an update are wrapped in a batch it's possible to see glitches
 
 const batch = <T> ( fn: BatchFunction<T> ): T => {
 
