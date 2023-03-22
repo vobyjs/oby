@@ -2696,6 +2696,53 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'returns a memo to the same array if all values were cached', t => {
+
+      const external = $(0);
+      const values = $([1, 2, 3]);
+
+      const valuesWithExternal = () => {
+        external ();
+        return values ();
+      };
+
+      let calls = 0;
+
+      const result = $.for ( valuesWithExternal, value => {
+        calls += 1;
+        return value;
+      });
+
+      const result1 = result ();
+
+      t.is ( calls, 3 );
+      t.deepEqual ( result1, [1, 2, 3] );
+
+      external ( 1 );
+
+      const result2 = result ();
+
+      t.is ( calls, 3 );
+      t.deepEqual ( result2, [1, 2, 3] );
+      t.is ( result1, result2 );
+
+      values ([ 1, 2 ]);
+
+      const result3 = result ();
+
+      t.is ( calls, 3 );
+      t.deepEqual ( result3, [1, 2] );
+
+      external ( 2 );
+
+      const result4 = result ();
+
+      t.is ( calls, 3 );
+      t.deepEqual ( result4, [1, 2] );
+      t.is ( result3, result4 );
+
+    });
+
     it ( 'works with an array of non-unique values', t => {
 
       const array = $([ 1, 1, 2 ]);

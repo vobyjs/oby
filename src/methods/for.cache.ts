@@ -8,7 +8,7 @@ import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
-import {SYMBOL_UNCACHED} from '~/symbols';
+import {SYMBOL_CACHED, SYMBOL_UNCACHED} from '~/symbols';
 import type {IObservable, IObserver, MapFunction, Resolved} from '~/types';
 
 /* HELPERS */
@@ -124,7 +124,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     const {cache, bool, fn, fnWithIndex} = this;
     const results: Resolved<R>[] = new Array ( values.length );
 
-    let uncached = true; // Whether all results are anew, if so this enables an optimization in Voby
+    let resultsCached = true; // Whether all results are cached, if so this enables an optimization
+    let resultsUncached = true; // Whether all results are anew, if so this enables an optimization in Voby
     let reuseCount = 0;
 
     for ( let i = 0, l = values.length; i < l; i++ ) {
@@ -134,7 +135,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
       if ( cached && cached.bool !== bool ) {
 
-        uncached = false;
+        resultsUncached = false;
         reuseCount += 1;
 
         cached.bool = bool;
@@ -143,6 +144,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
         results[i] = cached.result!; //TSC
 
       } else {
+
+        resultsCached = false;
 
         const mapped = new MappedRoot<R> ();
 
@@ -184,7 +187,13 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
     this.after ( values );
 
-    if ( uncached ) {
+    if ( resultsCached ) {
+
+      results[SYMBOL_CACHED] = true;
+
+    }
+
+    if ( resultsUncached ) {
 
       results[SYMBOL_UNCACHED] = true;
 
