@@ -11,6 +11,7 @@ import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
+import {SYMBOL_CACHED, SYMBOL_UNCACHED} from '~/symbols';
 import type {IObservable, IObserver, MapValueFunction, Indexed, Resolved} from '~/types';
 
 /* HELPERS */
@@ -74,6 +75,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     const cacheNext: Map<T, MappedRoot<T, Resolved<R>>> = new Map ();
     const results: Resolved<R>[] = new Array ( values.length );
 
+    let resultsCached = true; // Whether all results are cached, if so this enables an optimization
+    let resultsUncached = true; // Whether all results are anew, if so this enables an optimization in Voby
     let leftovers: number[] = [];
 
     if ( cache.size ) {
@@ -84,6 +87,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
         const cached = cache.get ( value );
 
         if ( cached ) {
+
+          resultsUncached = false;
 
           cache.delete ( value );
           cacheNext.set ( value, cached );
@@ -142,6 +147,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
       }
 
+      resultsCached = false;
+
       const mapped = new MappedRoot<T, R> ();
 
       if ( isDuplicate ) {
@@ -181,6 +188,18 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     this.cleanup ();
 
     this.cache = cacheNext;
+
+    if ( resultsCached ) {
+
+      results[SYMBOL_CACHED] = true;
+
+    }
+
+    if ( resultsUncached ) {
+
+      results[SYMBOL_UNCACHED] = true;
+
+    }
 
     return results;
 
