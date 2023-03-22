@@ -8,6 +8,7 @@ import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
+import {SYMBOL_CACHED, SYMBOL_UNCACHED} from '~/symbols';
 import type {IObservable, IObserver, MapIndexFunction, Indexed, Resolved} from '~/types';
 
 /* HELPERS */
@@ -69,6 +70,9 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     const {cache, fn} = this;
     const results: Resolved<R>[] = new Array ( values.length );
 
+    let resultsCached = true; // Whether all results are cached, if so this enables an optimization
+    let resultsUncached = true; // Whether all results are anew, if so this enables an optimization in Voby
+
     for ( let i = 0, l = values.length; i < l; i++ ) {
 
       const value = values[i];
@@ -76,11 +80,15 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
       if ( cached ) {
 
+        resultsUncached = false;
+
         cached.source!.write ( value ); //TSC
 
         results[i] = cached.result!; //TSC
 
       } else {
+
+        resultsCached = false;
 
         const indexed = new IndexedRoot<T, Resolved<R>> ();
 
@@ -103,6 +111,18 @@ class Cache<T, R> extends CacheAbstract<T, R> {
     }
 
     this.cleanup ( values.length );
+
+    if ( resultsCached ) {
+
+      results[SYMBOL_CACHED] = true;
+
+    }
+
+    if ( resultsUncached ) {
+
+      results[SYMBOL_UNCACHED] = true;
+
+    }
 
     return results;
 
