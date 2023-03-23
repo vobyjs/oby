@@ -29,7 +29,7 @@ class Root extends Owner {
 
   wrap <T> ( fn: ObservedDisposableFunction<T> ): T {
 
-    const dispose = this.dispose.bind ( this );
+    const dispose = () => this.dispose ();
     const fnWithDispose = () => fn ( dispose );
 
     const rootPrev = ROOT;

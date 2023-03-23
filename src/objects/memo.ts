@@ -43,8 +43,6 @@ class Memo<T = unknown> extends Observer {
 
     this.observable.write ( value );
 
-    //TOOD: mark stuff also
-
   }
 
 }

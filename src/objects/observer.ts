@@ -4,6 +4,7 @@
 import {DIRTY_NO, DIRTY_MAYBE, DIRTY_YES} from '~/constants';
 import {OWNER} from '~/context';
 import Owner from '~/objects/owner';
+import {is} from '~/utils';
 import type {IObservable, IOwner} from '~/types';
 
 /* MAIN */
@@ -63,17 +64,22 @@ class Observer extends Owner {
 
   update (): void {
 
-    if ( this.status === DIRTY_MAYBE ) {
+    if ( is ( this.status, DIRTY_MAYBE ) ) { //TSC: We don't want the type narrowed here
+
       for ( const observable of this.observables ) {
+
         observable.parent?.update ();
-        if ( this.status === DIRTY_YES ) {
-          break;
-        }
+
+        if ( this.status === DIRTY_YES ) break;
+
       }
+
     }
 
     if ( this.status === DIRTY_YES ) {
+
       this.refresh ();
+
     }
 
     this.status = DIRTY_NO;

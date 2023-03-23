@@ -2,9 +2,9 @@
 /* IMPORT */
 
 import get from '~/methods/get';
+import isObservableFrozen from '~/methods/is_observable_frozen';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
-import unwrap from '~/methods/unwrap';
 import {is} from '~/utils';
 import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
@@ -16,7 +16,7 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: [T, R][], fallback?: u
 function _switch <T, R, F> ( when: FunctionMaybe<T>, values: [T, R][], fallback: F ): ObservableReadonly<Resolved<R | F>>;
 function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], fallback?: F ): ObservableReadonly<Resolved<R | F | undefined>> {
 
-  const value = unwrap ( memo ( () => {
+  const value = memo ( () => {
 
     const condition = get ( when );
 
@@ -32,13 +32,27 @@ function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], f
 
     return fallback;
 
-  }));
-
-  return memo ( () => {
-
-    return resolve ( get ( value ) );
-
   });
+
+  if ( isObservableFrozen ( value ) ) {
+
+    const valueUnwrapped = value ();
+
+    return memo ( () => {
+
+      return resolve ( valueUnwrapped );
+
+    });
+
+  } else {
+
+    return memo ( () => {
+
+      return resolve ( get ( value ) );
+
+    });
+
+  }
 
 }
 

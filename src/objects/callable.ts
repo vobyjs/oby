@@ -39,6 +39,7 @@ const frozen = (<T> ( value: T ) => {
 }) as Frozen; //TSC
 
 const readable = (<T> ( value: IObservable<T> ) => {
+  //TODO: Make a frozen one instead if disposed
   const fn = readableFunction.bind ( value as any ); //TSC
   fn[SYMBOL_OBSERVABLE] = true;
   fn[SYMBOL_OBSERVABLE_READABLE] = true;

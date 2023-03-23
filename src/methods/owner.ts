@@ -10,12 +10,14 @@ import type {Owner} from '~/types';
 
 /* MAIN */
 
+//TODO: Support Suspense
+
 const owner = (): Owner => {
 
   const isSuperRoot = ( OWNER instanceof SuperRoot );
   const isRoot = ( OWNER instanceof Root );
   const isSuspense = false; // ( OWNER instanceof Suspense );
-  const isComputation = ( OWNER instanceof Observer ); //TODO: This should be renamed
+  const isComputation = ( OWNER instanceof Observer );
 
   return {isSuperRoot, isRoot, isSuspense, isComputation};
 

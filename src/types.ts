@@ -11,6 +11,8 @@ type IObserver = import ( '~/objects/observer' ).default;
 
 type IOwner = import ( '~/objects/owner' ).default;
 
+type IReaction = import ( '~/objects/reaction' ).default;
+
 type IRoot = import ( '~/objects/root' ).default;
 
 type IScheduler = typeof import ( '~/objects/scheduler' ).default;
@@ -142,7 +144,7 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 /* EXPORT */
 
-export type {IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, IScheduler, ISuperRoot};
+export type {IEffect, IMemo, IObservable, IObserver, IOwner, IReaction, IRoot, IScheduler, ISuperRoot};
 export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Owner};

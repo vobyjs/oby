@@ -46,7 +46,7 @@ class Owner {
 
     const {contexts, parent} = this;
 
-    if ( contexts && symbol in contexts ) return contexts[symbol];
+    if ( symbol in contexts ) return contexts[symbol];
 
     return parent?.read<T> ( symbol );
 

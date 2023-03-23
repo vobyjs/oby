@@ -22,7 +22,7 @@ import observable from '~/methods/observable';
 // imp off from '~/methods/off';
 // imp on from '~/methods/on';
 import owner from '~/methods/owner';
-// imp reaction from '~/methods/reaction';
+import reaction from '~/methods/reaction';
 import readonly from '~/methods/readonly';
 import resolve from '~/methods/resolve';
 import root from '~/methods/root';
@@ -40,7 +40,7 @@ import type {ObservableOptions, Observable, ObservableReadonly, StoreOptions} fr
 /* EXPORT */
 
 export default $;
-export {boolean, cleanup, context, disposed, effect, get, _if as if, isObservable, memo, observable, owner, readonly, resolve, root, selector, _switch as switch, ternary, untrack, _with as with};
+export {boolean, cleanup, context, disposed, effect, get, _if as if, isObservable, memo, observable, owner, reaction, readonly, resolve, root, selector, _switch as switch, ternary, untrack, _with as with};
 // export {batch, boolean, cleanup, context, disposed, effect, error, _for as for, forIndex, forValue, get, _if as if, isBatching, isObservable, isStore, memo, observable, off, on, owner, reaction, readonly, resolve, root, selector, store, suspense, _switch as switch, ternary, tryCatch, untrack, _with as with};
 export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED};
 export type {Observable, ObservableReadonly, ObservableOptions, StoreOptions};

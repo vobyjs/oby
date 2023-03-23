@@ -5,6 +5,7 @@ import {OBSERVABLE_FALSE, OBSERVABLE_TRUE} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import isObservableFrozen from '~/methods/is_observable_frozen';
 import memo from '~/methods/memo';
+import reaction from '~/methods/reaction';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import {is} from '~/utils';
@@ -45,22 +46,18 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
     return ( value: T ): ObservableReadonly<boolean> => {
 
-      return value === sourceValue ? OBSERVABLE_TRUE : OBSERVABLE_FALSE;
+      return ( value === sourceValue ) ? OBSERVABLE_TRUE : OBSERVABLE_FALSE;
 
     };
 
   }
-
-  /* SIGNAL */
-
-  const signal = { disposed: false };
 
   /* SELECTEDS */
 
   let selecteds = new DisposableMap<unknown, SelectedObservable> ();
   let selectedValue: T | undefined;
 
-  memo ( () => { // TODO: this should be a reaction
+  reaction ( () => {
 
     const valuePrev = selectedValue;
     const valueNext = source ();
@@ -78,7 +75,6 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   const cleanupAll = (): void => {
 
-    signal.disposed = true;
     selecteds.disposed = true;
 
   };
@@ -88,10 +84,6 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
   /* SELECTOR */
 
   return ( value: T ): ObservableReadonly<boolean> => {
-
-    /* DISPOSED? */
-
-    if ( signal.disposed ) throw new Error ( 'A disposed Selector can not be used anymore' );
 
     /* INIT */
 
