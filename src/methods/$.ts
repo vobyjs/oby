@@ -1,35 +1,35 @@
 
 /* IMPORT */
 
-import batch from '~/methods/batch';
+// imp batch from '~/methods/batch';
 import boolean from '~/methods/boolean';
 import cleanup from '~/methods/cleanup';
 import context from '~/methods/context';
 import disposed from '~/methods/disposed';
 import effect from '~/methods/effect';
-import error from '~/methods/error';
-import _for from '~/methods/for';
-import forIndex from '~/methods/for_index';
-import forValue from '~/methods/for_value';
+// imp error from '~/methods/error';
+// imp _for from '~/methods/for';
+// imp forIndex from '~/methods/for_index';
+// imp forValue from '~/methods/for_value';
 import get from '~/methods/get';
 import _if from '~/methods/if';
-import isBatching from '~/methods/is_batching';
+// imp isBatching from '~/methods/is_batching';
 import isObservable from '~/methods/is_observable';
-import isStore from '~/methods/is_store';
+// imp isStore from '~/methods/is_store';
 import memo from '~/methods/memo';
-import off from '~/methods/off';
-import on from '~/methods/on';
+// imp off from '~/methods/off';
+// imp on from '~/methods/on';
 import owner from '~/methods/owner';
-import reaction from '~/methods/reaction';
+// imp reaction from '~/methods/reaction';
 import readonly from '~/methods/readonly';
 import resolve from '~/methods/resolve';
 import root from '~/methods/root';
 import selector from '~/methods/selector';
-import store from '~/methods/store';
-import suspense from '~/methods/suspense';
+// imp store from '~/methods/store';
+// imp suspense from '~/methods/suspense';
 import _switch from '~/methods/switch';
 import ternary from '~/methods/ternary';
-import tryCatch from '~/methods/try_catch';
+// imp tryCatch from '~/methods/try_catch';
 import untrack from '~/methods/untrack';
 import _with from '~/methods/with';
 import {writable} from '~/objects/callable';
@@ -49,35 +49,35 @@ function $ <T> ( value?: T, options?: ObservableOptions<T | undefined> ) {
 
 /* UTILITIES */
 
-$.batch = batch;
+// $.batch = batch;
 $.boolean = boolean;
 $.cleanup = cleanup;
 $.context  = context;
 $.disposed = disposed;
 $.effect = effect;
-$.error = error;
-$.for = _for;
-$.forIndex = forIndex;
-$.forValue = forValue;
+// $.error = error;
+// $.for = _for;
+// $.forIndex = forIndex;
+// $.forValue = forValue;
 $.get = get;
 $.if = _if;
-$.isBatching = isBatching;
+// $.isBatching = isBatching;
 $.isObservable = isObservable;
-$.isStore = isStore;
+// $.isStore = isStore;
 $.memo = memo;
-$.off = off;
-$.on = on;
+// $.off = off;
+// $.on = on;
 $.owner = owner;
-$.reaction = reaction;
+// $.reaction = reaction;
 $.readonly = readonly;
 $.resolve = resolve;
 $.root = root;
 $.selector = selector;
-$.store = store;
-$.suspense = suspense;
+// $.store = store;
+// $.suspense = suspense;
 $.switch = _switch;
 $.ternary = ternary;
-$.tryCatch = tryCatch;
+// $.tryCatch = tryCatch;
 $.untrack = untrack;
 $.with = _with;
 

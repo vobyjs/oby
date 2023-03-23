@@ -22,10 +22,8 @@
     "read": "node tasks/read.js",
     "store": "node tasks/store.js",
     "store:creation": "node tasks/store.creation.js",
-    "test:native": "fava '**/native/**'",
-    "test:native:watch": "fava -w '**/native/**'",
-    "test:sinuous": "bash test/sinuous/index.sh",
-    "test": "npm run test:sinuous && npm run test:native",
+    "test": "tsex test",
+    "test:watch": "tsex test:watch",
     "updates": "node tasks/updates.js",
     "prepublishOnly": "npm run clean && npm run compile && npm run compile:mangle && npm run test"
   },

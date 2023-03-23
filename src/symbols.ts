@@ -1,0 +1,22 @@
+
+/* MAIN */
+
+const SYMBOL_CACHED = Symbol ( 'Cached' );
+const SYMBOL_OBSERVABLE = Symbol ( 'Observable' );
+const SYMBOL_OBSERVABLE_FROZEN = Symbol ( 'Frozen' );
+const SYMBOL_OBSERVABLE_READABLE = Symbol ( 'Readable' );
+const SYMBOL_OBSERVABLE_WRITABLE = Symbol ( 'Writable' );
+const SYMBOL_STORE = Symbol ( 'Store' );
+const SYMBOL_STORE_KEYS = Symbol ( 'Keys' );
+const SYMBOL_STORE_OBSERVABLE = Symbol ( 'Observable' );
+const SYMBOL_STORE_TARGET = Symbol ( 'Target' );
+const SYMBOL_STORE_VALUES = Symbol ( 'Values' );
+const SYMBOL_STORE_UNTRACKED = Symbol ( 'Untracked' );
+const SYMBOL_SUSPENSE = Symbol ( 'Suspense' );
+const SYMBOL_UNCACHED = Symbol ( 'Uncached' );
+const SYMBOL_UNTRACKED = Symbol ( 'Untracked' );
+const SYMBOL_UNTRACKED_UNWRAPPED = Symbol ( 'Unwrapped' );
+
+/* EXPORT */
+
+export {SYMBOL_CACHED, SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED, SYMBOL_SUSPENSE, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED};
