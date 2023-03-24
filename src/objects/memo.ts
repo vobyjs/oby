@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {DIRTY_MAYBE_YES} from '~/constants';
 import Observable from '~/objects/observable';
 import Observer from '~/objects/observer';
 import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
@@ -27,13 +28,13 @@ class Memo<T = unknown> extends Observer {
 
   /* API */
 
-  stale ( status: 1 | 2 | 3 ): void {
+  stale ( status: 2 | 3 ): void {
 
     if ( this.status === status ) return;
 
     super.stale ( status );
 
-    this.observable.stale ( status );
+    this.observable.stale ( DIRTY_MAYBE_YES );
 
   }
 

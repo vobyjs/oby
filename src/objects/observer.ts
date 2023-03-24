@@ -34,11 +34,11 @@ class Observer extends Owner {
 
   dispose (): void {
 
-    super.dispose ();
-
     this.observables.forEach ( observable => observable.observers.delete ( this ) );
 
     this.observables.clear ();
+
+    super.dispose ();
 
   }
 
@@ -50,7 +50,7 @@ class Observer extends Owner {
 
   }
 
-  stale ( status: 1 | 2 | 3 ): void {
+  stale ( status: 2 | 3 ): void {
 
     this.status = status;
 

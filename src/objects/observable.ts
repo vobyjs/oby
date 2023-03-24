@@ -39,7 +39,7 @@ class Observable<T = unknown> {
 
   /* API */
 
-  stale ( status: 1 | 2 | 3 ): void {
+  stale ( status: 2 | 3 ): void {
 
     this.observers.forEach ( observer => observer.stale ( status ) );
 

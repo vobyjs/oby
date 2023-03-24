@@ -1966,7 +1966,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports automatically registering a function to be called when the parent effect updates', t => {
+    it.only ( 'supports automatically registering a function to be called when the parent effect updates', async t => {
 
       const o = $(0);
 
@@ -1983,23 +1983,31 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '' );
 
       o ( 1 );
+
+      await tick ();
 
       t.is ( sequence, 'ab' );
 
       o ( 2 );
 
+      await tick ();
+
       t.is ( sequence, 'abab' );
 
       o ( 3 );
+
+      await tick ();
 
       t.is ( sequence, 'ababab' );
 
     });
 
-    it ( 'updates when the dependencies change', t => {
+    it.only ( 'updates when the dependencies change', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -2012,11 +2020,13 @@ describe ( 'oby', () => {
       a ( 3 );
       b ( 7 );
 
+      await tick ();
+
       t.is ( c (), 10 );
 
     });
 
-    it ( 'updates when the dependencies change inside other effects', t => {
+    it.only ( 'updates when the dependencies change inside other effects', async t => {
 
       const a = $(0);
       const b = $(0);
@@ -2027,6 +2037,8 @@ describe ( 'oby', () => {
         a ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       $.effect ( () => {
@@ -2035,13 +2047,21 @@ describe ( 'oby', () => {
         a ( 0 );
       });
 
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
       b ( 1 );
 
-      t.is ( calls, 5 );
+      t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 3 );
 
       a ( 1 );
 
-      t.is ( calls, 6 );
+      t.is ( calls, 3 );
+      await tick ();
+      t.is ( calls, 4 );
 
     });
 
@@ -3820,32 +3840,38 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'get', it => {
+  describe ( 'get', it => {
 
-    it ( 'creates a dependency in a memo', t => {
+    it.only ( 'creates a dependency in a memo', t => {
 
       const o = $(1);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        $.get ( o );
+        return $.get ( o );
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), 2 );
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), 3 );
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a dependency in an effect', t => {
+    it.only ( 'creates a dependency in an effect', async t => {
 
       const o = $(1);
 
@@ -3856,19 +3882,25 @@ describe ( 'oby', () => {
         $.get ( o );
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a dependency in an reaction', t => {
+    it.only ( 'creates a dependency in an reaction', async t => {
 
       const o = $(1);
 
@@ -3879,19 +3911,25 @@ describe ( 'oby', () => {
         $.get ( o );
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'gets the value out of a function', t => {
+    it.only ( 'gets the value out of a function', t => {
 
       const o = () => 123;
 
@@ -3899,7 +3937,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'gets the value out of an observable', t => {
+    it.only ( 'gets the value out of an observable', t => {
 
       const o = $(123);
 
@@ -3907,13 +3945,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'gets the value out of a non-function and non-observable', t => {
+    it.only ( 'gets the value out of a non-function and non-observable', t => {
 
       t.is ( $.get ( 123 ), 123 );
 
     });
 
-    it ( 'gets, optionally, the value out only of an observable', t => {
+    it.only ( 'gets, optionally, the value out only of an observable', t => {
 
       const fn = () => 123;
       const o = $(123);
@@ -3925,9 +3963,9 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'if', it => {
+  describe ( 'if', it => {
 
-    it ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
+    it.only ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
 
       let sequence = '';
 
@@ -3941,20 +3979,35 @@ describe ( 'oby', () => {
         sequence += 'f';
       };
 
-      $.if ( condition, valueTrue, valueFalse );
+      const memo = $.if ( condition, valueTrue, valueFalse );
 
       condition ( 2 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 3 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 't' );
 
       condition ( 0 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( false );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 'tf' );
 
       condition ( 4 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 5 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 'tft' );
 

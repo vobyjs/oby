@@ -3,6 +3,7 @@
 
 import Observer from '~/objects/observer';
 import Scheduler from '~/objects/scheduler';
+import {isFunction} from '~/utils';
 import type {EffectFunction} from '~/types';
 
 /* MAIN */
@@ -29,13 +30,13 @@ class Effect extends Observer {
 
   dispose (): void {
 
-    super.dispose ();
-
     Scheduler.pop ( this );
+
+    super.dispose ();
 
   }
 
-  stale ( status: 1 | 2 | 3 ): void {
+  stale ( status: 2 | 3 ): void {
 
     if ( this.status === status ) return;
 
@@ -49,7 +50,13 @@ class Effect extends Observer {
 
     this.dispose ();
 
-    this.wrap ( this.fn, this, this );
+    const cleanup = this.wrap ( this.fn, this, this );
+
+    if ( isFunction ( cleanup ) ) {
+
+      this.cleanups.push ( cleanup );
+
+    }
 
   }
 
