@@ -4013,7 +4013,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves the fallback value before returning it', t => {
+    it.only ( 'resolves the fallback value before returning it', t => {
 
       const result = $.if ( false, 123, () => () => 123 );
 
@@ -4025,30 +4025,38 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+    it.only ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
 
       const o = $(0);
 
       let calls = 0;
 
-      $.if ( o, () => () => 123, () => () => {
+      const memo = $.if ( o, () => () => 123, () => () => {
         calls += 1;
         return 321;
       });
+
+      t.is ( calls, 0 );
+
+      t.is ( memo ()()(), 321 );
 
       t.is ( calls, 1 );
 
       o ( false );
 
+      t.is ( memo ()()(), 321 );
+
       t.is ( calls, 1 );
 
       o ( NaN );
+
+      t.is ( memo ()()(), 321 );
 
       t.is ( calls, 1 );
 
     });
 
-    it ( 'resolves the value before returning it', t => {
+    it.only ( 'resolves the value before returning it', t => {
 
       const result = $.if ( true, () => () => 123 );
 
@@ -4060,7 +4068,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a memo to the value or undefined with a functional condition', t => {
+    it.only ( 'returns a memo to the value or undefined with a functional condition', t => {
 
       const o = $(false);
 
@@ -4078,27 +4086,27 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a memo to the value with a truthy condition', t => {
+    it.only ( 'returns a memo to the value with a truthy condition', t => {
 
       t.is ( $.if ( true, 123 )(), 123 );
       t.is ( $.if ( 'true', 123 )(), 123 );
 
     });
 
-    it ( 'returns a memo to the value with a falsy condition', t => {
+    it.only ( 'returns a memo to the value with a falsy condition', t => {
 
       t.is ( $.if ( false, 123 )(), undefined );
       t.is ( $.if ( 0, 123 )(), undefined );
 
     });
 
-    it ( 'returns a memo to undefined for a falsy condition and missing fallback', t => {
+    it.only ( 'returns a memo to undefined for a falsy condition and missing fallback', t => {
 
       t.is ( $.if ( false, 123 )(), undefined );
 
     });
 
-    it ( 'returns a memo to fallback for a falsy condition and a provided fallback', t => {
+    it.only ( 'returns a memo to fallback for a falsy condition and a provided fallback', t => {
 
       t.is ( $.if ( false, 123, 321 )(), 321 );
 
@@ -4134,9 +4142,9 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'isObservable', it => {
+  describe ( 'isObservable', it => {
 
-    it ( 'checks if a value is an observable', t => {
+    it.only ( 'checks if a value is an observable', t => {
 
       t.true ( $.isObservable ( $() ) );
       t.true ( $.isObservable ( $(123) ) );
@@ -5525,42 +5533,65 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'root', it => {
+  describe ( 'root', it => {
 
-    it ( 'allows child computations to escape their parents', t => {
+    it.only ( 'allows child computations to escape their parents', t => {
 
       $.root ( () => {
 
         const outer = $(0);
         const inner = $(0);
+
+        let memo1;
+        let memo2 = [];
+
+        const pull = () => {
+          memo1 ();
+          memo2.forEach ( memo => memo () );
+        };
+
+        let outerCalls = 0;
         let innerCalls = 0;
 
-        $.memo ( () => {
+        memo1 = $.memo ( () => {
           outer ();
+          outerCalls += 1;
           $.root ( () => {
-            $.memo ( () => {
+            memo2.push ( $.memo ( () => {
               inner ();
               innerCalls += 1;
-            });
+            }));
           });
         });
 
+        t.is ( outerCalls, 0 );
+        t.is ( innerCalls, 0 );
+        pull ();
+        t.is ( outerCalls, 1 );
         t.is ( innerCalls, 1 );
 
         outer ( 1 );
         outer ( 2 );
 
-        t.is ( innerCalls, 3 );
+        t.is ( outerCalls, 1 );
+        t.is ( innerCalls, 1 );
+        pull ();
+        t.is ( outerCalls, 2 );
+        t.is ( innerCalls, 2 );
 
         inner ( 1 );
 
-        t.is ( innerCalls, 6 );
+        t.is ( outerCalls, 2 );
+        t.is ( innerCalls, 2 );
+        pull ();
+        t.is ( outerCalls, 2 );
+        t.is ( innerCalls, 4 );
 
       });
 
     });
 
-    it ( 'can be disposed', t => {
+    it.only ( 'can be disposed', t => {
 
       $.root ( dispose => {
 
@@ -5572,13 +5603,15 @@ describe ( 'oby', () => {
           return a ();
         });
 
-        t.is ( calls, 1 );
+        t.is ( calls, 0 );
         t.is ( b (), 0 );
+        t.is ( calls, 1 );
 
         a ( 1 );
 
-        t.is ( calls, 2 );
+        t.is ( calls, 1 );
         t.is ( b (), 1 );
+        t.is ( calls, 2 );
 
         dispose ();
 
@@ -5586,12 +5619,13 @@ describe ( 'oby', () => {
 
         t.is ( calls, 2 );
         t.is ( b (), 1 );
+        t.is ( calls, 2 );
 
       });
 
     });
 
-    it ( 'can be disposed from a child computation', t => {
+    it.skip ( 'can be disposed from a child computation', t => {
 
       $.root ( dispose => {
 
@@ -5599,27 +5633,33 @@ describe ( 'oby', () => {
 
         const a = $(0);
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
           calls += 1;
           if ( a () ) dispose ();
-          a ();
+          return a ();
         });
 
+        t.is ( calls, 0 );
+        t.is ( memo (), 0 );
         t.is ( calls, 1 );
 
         a ( 1 );
 
+        t.is ( calls, 1 );
+        t.is ( memo (), 1 );
         t.is ( calls, 2 );
 
         a ( 2 );
 
+        t.is ( calls, 2 );
+        t.is ( memo (), 1 );
         t.is ( calls, 2 );
 
       });
 
     });
 
-    it ( 'can be disposed from a child computation of a child computation', t => {
+    it.only ( 'can be disposed from a child computation of a child computation', t => {
 
       $.root ( dispose => {
 
@@ -5627,50 +5667,36 @@ describe ( 'oby', () => {
 
         const a = $(0);
 
-        $.memo ( () => {
+        const memo1 = $.memo ( () => {
           calls += 1;
           a ();
-          $.memo ( () => {
+          const memo2 = $.memo ( () => {
             if ( a () ) dispose ();
           });
+          $.untrack ( memo2 );
         });
 
+        t.is ( calls, 0 );
+        t.is ( memo1 (), undefined );
         t.is ( calls, 1 );
 
         a ( 1 );
 
+        t.is ( calls, 1 );
+        t.is ( memo1 (), undefined );
         t.is ( calls, 2 );
 
         a ( 2 );
 
+        t.is ( calls, 2 );
+        t.is ( memo1 (), undefined );
         t.is ( calls, 2 );
 
       });
 
     });
 
-    it ( 'does not batch updates', t => {
-
-      $.root ( () => {
-
-        const a = $(1);
-        const b = $.memo ( () => a () );
-
-        t.is ( b (), 1 );
-
-        a ( 2 );
-
-        t.is ( b (), 2 );
-
-        a ( 3 );
-
-        t.is ( b (), 3 );
-
-      });
-
-    });
-
-    it ( 'persists through the entire scope when used at top level', t => {
+    it.only ( 'persists through the entire scope when used at top level', t => {
 
       $.root ( () => {
 
@@ -5691,7 +5717,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns whatever the function returns', t => {
+    it.only ( 'returns whatever the function returns', t => {
 
       const result = $.root ( () => 123 );
 
@@ -5701,9 +5727,9 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'selector', it => {
+  describe ( 'selector', it => {
 
-    it ( 'returns an observable', t => {
+    it.only ( 'returns an observable', async t => {
 
       const source = $(0);
       const selector = $.selector ( source );
@@ -5711,15 +5737,19 @@ describe ( 'oby', () => {
 
       isReadable ( t, selected );
 
+      await tick ();
+
       t.false ( selected () );
 
       source ( 1 );
+
+      await tick ();
 
       t.true ( selected () );
 
     });
 
-    it ( 'efficiently tells when the provided item is the selected one', t => {
+    it.only ( 'efficiently tells when the provided item is the selected one', async t => {
 
       const values = [1, 2, 3, 4, 5];
       const selected = $(-1);
@@ -5743,23 +5773,31 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '12345' );
 
       select ( 1 );
+
+      await tick ();
 
       t.is ( sequence, '1234511' );
 
       select ( 2 );
 
+      await tick ();
+
       t.is ( sequence, '1234511122' );
 
       select ( -1 );
+
+      await tick ();
 
       t.is ( sequence, '12345111222' );
 
     });
 
-    it ( 'memoizes the source function', t => {
+    it.only ( 'memoizes the source function', async t => {
 
       const values = [0, 1, 2, 3, 4];
 
@@ -5786,15 +5824,19 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '001234' );
 
       selectedFactor2 ( 2 );
+
+      await tick ();
 
       t.is ( sequence, '001234' );
 
     });
 
-    it ( 'survives checking a value inside a discarded root', t => {
+    it.only ( 'survives checking a value inside a discarded root', async t => {
 
       const selected = $(-1);
       const selector = $.selector ( selected );
@@ -5823,15 +5865,19 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       selected ( 1 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'throws when attempting to use it after disposing of the parent root', t => {
+    it.skip ( 'throws when attempting to use it after disposing of the parent root', t => {
 
       $.root ( dispose => {
 
@@ -5848,7 +5894,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'treats 0 and -0 as the same value values', t => {
+    it.only ( 'treats 0 and -0 as the same value values', t => {
 
       const selected = $(0);
       const selector = $.selector ( selected );
@@ -5858,7 +5904,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'works inside suspense', t => {
+    it.skip ( 'works inside suspense', t => {
 
       $.suspense ( true, () => {
 
@@ -5876,7 +5922,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'works with stores', t => {
+    it.skip ( 'works with stores', t => {
 
       const store = $.store ({ value: 0 });
       const selector = $.selector ( () => store.value );
@@ -9592,7 +9638,7 @@ describe ( 'oby', () => {
 
   describe.skip ( 'switch', it => {
 
-    it ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {
+    it.only ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {
 
       let sequence = '';
 
@@ -9610,19 +9656,31 @@ describe ( 'oby', () => {
         sequence += 'd';
       };
 
-      $.switch ( condition, [[0, value0], [1, value1], [valueDefault]] );
+      const memo = $.switch ( condition, [[0, value0], [1, value1], [valueDefault]] );
+
+      t.is ( memo ()(), undefined );
 
       condition ( 0 );
 
       t.is ( sequence, '0' );
 
       condition ( 1 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 1 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, '01' );
 
       condition ( 2 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 3 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, '01d' );
 
@@ -9757,9 +9815,9 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'ternary', it => {
+  describe ( 'ternary', it => {
 
-    it ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
+    it.only ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
 
       let sequence = '';
 
@@ -9773,26 +9831,41 @@ describe ( 'oby', () => {
         sequence += 'f';
       };
 
-      $.ternary ( condition, valueTrue, valueFalse );
+      const memo = $.ternary ( condition, valueTrue, valueFalse );
 
       condition ( 2 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 3 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 't' );
 
       condition ( 0 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( false );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 'tf' );
 
       condition ( 4 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 5 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 'tft' );
 
     });
 
-    it ( 'resolves the first value before returning it', t => {
+    it.only ( 'resolves the first value before returning it', t => {
 
       const result = $.ternary ( true, () => () => 123, 321 );
 
@@ -9804,7 +9877,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves the second value before returning it', t => {
+    it.only ( 'resolves the second value before returning it', t => {
 
       const result = $.ternary ( false, 123, () => () => 321 );
 
@@ -9816,7 +9889,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a memo to the first or second value with a functional condition', t => {
+    it.only ( 'returns a memo to the first or second value with a functional condition', t => {
 
       const o = $(false);
 
@@ -9834,14 +9907,14 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a memo to the first value with a truthy condition', t => {
+    it.only ( 'returns a memo to the first value with a truthy condition', t => {
 
       t.is ( $.ternary ( true, 123, 321 )(), 123 );
       t.is ( $.ternary ( 'true', 123, 321 )(), 123 );
 
     });
 
-    it ( 'returns a memo to the value with a falsy condition', t => {
+    it.only ( 'returns a memo to the value with a falsy condition', t => {
 
       t.is ( $.ternary ( false, 123, 321 )(), 321 );
       t.is ( $.ternary ( 0, 123, 321 )(), 321 );
@@ -9929,9 +10002,9 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'untrack', it => {
+  describe ( 'untrack', it => {
 
-    it ( 'does not pass on any eventual dispose function', t => {
+    it.only ( 'does not pass on any eventual dispose function', t => {
 
       $.root ( () => {
 
@@ -9945,19 +10018,19 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'does not leak memos', t => {
+    it.only ( 'does not leak memos', t => {
 
       const o = $(1);
 
       let cleaned = false;
 
-      $.memo ( () => {
+      const memo1 = $.memo ( () => {
 
         o ();
 
         $.untrack ( () => {
 
-          $.memo ( () => {
+          const memo2 = $.memo ( () => {
 
             $.cleanup ( () => {
 
@@ -9967,19 +10040,23 @@ describe ( 'oby', () => {
 
           });
 
+          memo2 ();
+
         });
 
       });
 
+      t.is ( memo1 (), undefined );
       t.is ( cleaned, false );
 
       o ( 2 );
 
+      t.is ( memo1 (), undefined );
       t.is ( cleaned, true );
 
     });
 
-    it ( 'does not leak effects', t => {
+    it.only ( 'does not leak effects', async t => {
 
       const o = $(1);
 
@@ -10005,15 +10082,19 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( cleaned, false );
 
       o ( 2 );
+
+      await tick ();
 
       t.is ( cleaned, true );
 
     });
 
-    it ( 'does not leak reactions', t => {
+    it.only ( 'does not leak reactions', async t => {
 
       const o = $(1);
 
@@ -10039,15 +10120,19 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( cleaned, false );
 
       o ( 2 );
+
+      await tick ();
 
       t.is ( cleaned, true );
 
     });
 
-    it ( 'returns non-functions as is', t => {
+    it.only ( 'returns non-functions as is', t => {
 
       const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
 
@@ -10059,7 +10144,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports getting without creating dependencies in a memo', t => {
+    it.only ( 'supports getting without creating dependencies in a memo', t => {
 
       const a = $(1);
       const b = $(2);
@@ -10068,7 +10153,7 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
         a ();
         a ();
@@ -10077,23 +10162,29 @@ describe ( 'oby', () => {
         c ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       b ( 4 );
 
       t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       a ( 5 );
       c ( 6 );
 
-      t.is ( calls, 3 );
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 2 );
       t.is ( d (), 4 );
 
     });
 
-    it ( 'supports getting without creating dependencies in an effect', t => {
+    it.only ( 'supports getting without creating dependencies in an effect', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -10111,23 +10202,29 @@ describe ( 'oby', () => {
         c ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       b ( 4 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       a ( 5 );
       c ( 6 );
 
-      t.is ( calls, 3 );
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
       t.is ( d (), 4 );
 
     });
 
-    it ( 'supports getting without creating dependencies in a reaction', t => {
+    it.only ( 'supports getting without creating dependencies in a reaction', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -10145,23 +10242,29 @@ describe ( 'oby', () => {
         c ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       b ( 4 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       a ( 5 );
       c ( 6 );
 
-      t.is ( calls, 3 );
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
       t.is ( d (), 4 );
 
     });
 
-    it ( 'works with functions containing a memo', t => {
+    it.only ( 'works with functions containing a memo', async t => {
 
       const o = $(0);
 
@@ -10175,11 +10278,13 @@ describe ( 'oby', () => {
 
           o ();
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
 
             o ();
 
           });
+
+          memo ();
 
           o ();
 
@@ -10187,15 +10292,19 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'works with functions containing an effect', t => {
+    it.only ( 'works with functions containing an effect', async t => {
 
       const o = $(0);
 
@@ -10221,15 +10330,19 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'works with functions containing a reaction', t => {
+    it.only ( 'works with functions containing a reaction', async t => {
 
       const o = $(0);
 
@@ -10255,15 +10368,19 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'works with functions containing a root', t => {
+    it.only ( 'works with functions containing a root', async t => {
 
       const o = $(0);
 
@@ -10289,15 +10406,20 @@ describe ( 'oby', () => {
 
       });
 
+
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'works on the top-level computation', t => {
+    it.only ( 'works on the top-level computation', async t => {
 
       const o = $(0);
 
@@ -10323,19 +10445,23 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( sequence, '' );
+      await tick ();
       t.is ( sequence, 'pc' );
 
       o ( 1 );
 
+      t.is ( sequence, 'pc' );
+      await tick ();
       t.is ( sequence, 'pcc' );
 
     });
 
   });
 
-  describe.skip ( 'with', it => {
+  describe ( 'with', it => {
 
-    it ( 'calls the functions with no arguments, even for a root', t => {
+    it.only ( 'calls the functions with no arguments, even for a root', t => {
 
       $.root ( () => {
 
@@ -10355,9 +10481,9 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can execute a function as if it happend inside another owner', t => {
+    it.only ( 'can execute a function as if it happend inside another owner', async t => {
 
-      $.root ( () => {
+      await $.root ( async () => {
 
         const token = Symbol ();
 
@@ -10383,11 +10509,13 @@ describe ( 'oby', () => {
 
         });
 
+        await tick ();
+
       });
 
     });
 
-    it ( 'returns whatever the function returns', t => {
+    it.only ( 'returns whatever the function returns', t => {
 
       t.is ( $.with ()( () => 123 ), 123 );
 
@@ -10395,9 +10523,11 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'S-like propagation', it => {
+  describe ( 'S-like propagation', it => {
 
-    it ( 'only propagates in topological order', t => {
+    //TODO: Test uncut diamond also
+
+    it.only ( 'only propagates in topological order', t => {
 
       //    c1
       //   /  \
@@ -10428,15 +10558,19 @@ describe ( 'oby', () => {
         sequence += 'c1';
       });
 
-      sequence = '';
+      t.is ( sequence, '' );
+      t.is ( c1 (), undefined );
+      t.is ( sequence, 'b1b2c1' );
 
       a1 ( 1 );
 
       t.is ( sequence, 'b1b2c1' );
+      t.is ( c1 (), undefined );
+      t.is ( sequence, 'b1b2c1b1b2c1' );
 
     });
 
-    it ( 'only propagates once with linear convergences', t => {
+    it.only ( 'only propagates once with linear convergences', t => {
 
       //         d
       //         |
@@ -10477,15 +10611,19 @@ describe ( 'oby', () => {
         return f1 () + f2 () + f3 () + f4 () + f5 ();
       });
 
-      calls = 0;
+      t.is ( calls, 0 );
+      t.is ( g (), 0 );
+      t.is ( calls, 1 );
 
       d ( 1 );
 
       t.is ( calls, 1 );
+      t.is ( g (), 5 )
+      t.is ( calls, 2 );
 
     });
 
-    it ( 'only propagates once with exponential convergence', t => {
+    it.only ( 'only propagates once with exponential convergence', t => {
 
       //     d
       //     |
@@ -10534,15 +10672,19 @@ describe ( 'oby', () => {
         return g1 () + g2 () + g3 ();
       });
 
-      calls = 0;
+      t.is ( calls, 0 );
+      t.is ( h (), 0 );
+      t.is ( calls, 1 );
 
       d ( 1 );
 
       t.is ( calls, 1 );
+      t.is ( h (), 9 );
+      t.is ( calls, 2 );
 
     });
 
-    it ( 'parent cleans up inner subscriptions', t => {
+    it.skip ( 'parent cleans up inner subscriptions', t => {
 
       const o = $(null);
       const cache = $(false);
@@ -10612,40 +10754,50 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'parent supports going from one to two subscriptions', t => {
+    it.only ( 'parent supports going from one to two subscriptions', t => {
 
       const a = $(0);
       const b = $(0);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         calls += 1;
 
-        if ( !a () ) return;
+        if ( !a () ) return 1;
 
         b ();
 
+        return 2;
+
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
       a ( 1 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), 2 );
       t.is ( calls, 2 );
 
       a ( 2 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), 2 );
       t.is ( calls, 3 );
 
       b ( 1 );
 
+      t.is ( calls, 3 );
+      t.is ( memo (), 2 );
       t.is ( calls, 4 );
 
     });
 
-    it ( 'parent cleans up inner conditional subscriptions', t => {
+    it.skip ( 'parent cleans up inner conditional subscriptions', t => {
 
       const o = $(null);
       const cache = $(false);

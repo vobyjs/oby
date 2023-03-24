@@ -6,6 +6,7 @@ import cleanup from '~/methods/cleanup';
 import isObservableFrozen from '~/methods/is_observable_frozen';
 import memo from '~/methods/memo';
 import reaction from '~/methods/reaction';
+import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import {is} from '~/utils';
@@ -55,7 +56,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
   /* SELECTEDS */
 
   let selecteds = new DisposableMap<unknown, SelectedObservable> ();
-  let selectedValue: T | undefined;
+  let selectedValue: T | undefined = untrack ( source );
 
   reaction ( () => {
 

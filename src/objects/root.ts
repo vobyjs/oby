@@ -21,7 +21,7 @@ class Root extends Owner {
 
     super ();
 
-    this.parent.observers.push ( this );
+    this.parent.roots.push ( this );
 
   }
 

@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
-import type {IObserver, IOwner, CleanupFunction, ObservedFunction, Callable, Contexts} from '~/types';
+import type {IObserver, IOwner, IRoot, CleanupFunction, ObservedFunction, Callable, Contexts} from '~/types';
 
 /* MAIN */
 
@@ -17,7 +17,8 @@ class Owner {
   parent?: IOwner;
   cleanups: Callable<CleanupFunction>[];
   contexts: Contexts;
-  observers: Owner[];
+  observers: IObserver[];
+  roots: IRoot[];
 
   /* CONSTRUCTOR */
 
@@ -26,6 +27,7 @@ class Owner {
     this.cleanups = [];
     this.contexts = {};
     this.observers = [];
+    this.roots = [];
 
   }
 
