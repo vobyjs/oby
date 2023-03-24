@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {DIRTY_YES} from '~/constants';
 import {OBSERVER} from '~/context';
 import {is, nope} from '~/utils';
 import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
@@ -38,9 +39,9 @@ class Observable<T = unknown> {
 
   /* API */
 
-  stale ( root: boolean ): void {
+  stale ( status: 1 | 2 | 3 ): void {
 
-    this.observers.forEach ( observer => observer.stale ( root ) );
+    this.observers.forEach ( observer => observer.stale ( status ) );
 
   }
 
@@ -60,7 +61,7 @@ class Observable<T = unknown> {
 
     if ( !fresh ) return value;
 
-    this.stale ( true );
+    this.stale ( DIRTY_YES );
 
     this.value = value;
 

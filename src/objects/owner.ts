@@ -34,7 +34,7 @@ class Owner {
   dispose (): void {
 
     this.observers.forEach ( observer => observer.dispose () );
-    this.cleanups.forEach ( cleanup => cleanup.call ( cleanup ) );
+    this.cleanups.reverse ().forEach ( cleanup => cleanup.call ( cleanup ) );
 
     this.cleanups = [];
     this.contexts = {};

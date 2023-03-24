@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {DIRTY_NO, DIRTY_MAYBE, DIRTY_YES} from '~/constants';
+import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants';
 import {OWNER} from '~/context';
 import Owner from '~/objects/owner';
 import {is} from '~/utils';
@@ -15,7 +15,7 @@ class Observer extends Owner {
 
   parent: IOwner = OWNER;
   observables: Set<IObservable>;
-  status: 0 | 1 | 2;
+  status: 0 | 1 | 2 | 3;
 
   /* CONSTRUCTOR */
 
@@ -50,9 +50,9 @@ class Observer extends Owner {
 
   }
 
-  stale ( root: boolean ): void {
+  stale ( status: 1 | 2 | 3 ): void {
 
-    this.status = root ? DIRTY_YES : DIRTY_MAYBE;
+    this.status = status;
 
   }
 
@@ -64,7 +64,7 @@ class Observer extends Owner {
 
   update (): void {
 
-    if ( is ( this.status, DIRTY_MAYBE ) ) { //TSC: We don't want the type narrowed here
+    if ( is ( this.status, DIRTY_MAYBE_YES ) ) { //TSC: We don't want the type narrowed here
 
       for ( const observable of this.observables ) {
 
@@ -78,11 +78,17 @@ class Observer extends Owner {
 
     if ( this.status === DIRTY_YES ) {
 
+      this.status = DIRTY_MAYBE_NO;
+
       this.refresh ();
 
     }
 
-    this.status = DIRTY_NO;
+    if ( this.status === DIRTY_MAYBE_NO ) {
+
+      this.status = DIRTY_NO;
+
+    }
 
   }
 

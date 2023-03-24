@@ -35,9 +35,11 @@ class Effect extends Observer {
 
   }
 
-  stale ( root: boolean ): void {
+  stale ( status: 1 | 2 | 3 ): void {
 
-    super.stale ( root );
+    if ( this.status === status ) return;
+
+    super.stale ( status );
 
     Scheduler.push ( this );
 

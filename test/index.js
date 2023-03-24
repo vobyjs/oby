@@ -33,13 +33,21 @@ const isWritable = ( t, value ) => {
 
 };
 
+const tick = () => {
+
+  return delay ( 0 );
+
+};
+
 /* MAIN */
 
-describe.skip ( 'oby', () => {
+//TODO: Add tests that check for laziness everywhere
 
-  describe.skip ( '$', it => {
+describe ( 'oby', () => {
 
-    it ( 'is both a getter and a setter', t => {
+  describe ( '$', it => {
+
+    it.only ( 'is both a getter and a setter', t => {
 
       const o = $();
 
@@ -59,30 +67,36 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'creates a dependency in a memo when getting', t => {
+    it.only ( 'creates a dependency in a memo when getting', t => {
 
       const o = $(1);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        o ();
+        return o ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), 2 );
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), 3 );
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a dependency in an effect when getting', t => {
+    it.only ( 'creates a dependency in an effect when getting', async t => {
 
       const o = $(1);
 
@@ -93,19 +107,25 @@ describe.skip ( 'oby', () => {
         o ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a dependency in a reaction when getting', t => {
+    it.only ( 'creates a dependency in a reaction when getting', async t => {
 
       const o = $(1);
 
@@ -116,44 +136,57 @@ describe.skip ( 'oby', () => {
         o ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a single dependency in a memo even if getting multiple times', t => {
+    it.only ( 'creates a single dependency in a memo even if getting multiple times', t => {
 
       const o = $(1);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
         o ();
         o ();
         o ();
+        return o ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), 2 );
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), 3 );
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a single dependency in an effect even if getting multiple times', t => {
+    it.only ( 'creates a single dependency in an effect even if getting multiple times', async t => {
 
       const o = $(1);
 
@@ -166,19 +199,25 @@ describe.skip ( 'oby', () => {
         o ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a single dependency in a reaction even if getting multiple times', t => {
+    it.only ( 'creates a single dependency in a reaction even if getting multiple times', async t => {
 
       const o = $(1);
 
@@ -191,37 +230,47 @@ describe.skip ( 'oby', () => {
         o ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'does not create a dependency in a memo when setting', t => {
+    it.only ( 'does not create a dependency in a memo when instantiating', t => {
 
       let o;
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
         o = $(1);
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 1 );
 
       o ( 2 );
 
       t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'does not create a dependency in an effect when setting', t => {
+    it.only ( 'does not create a dependency in an effect when instantiating', async t => {
 
       let o;
       let calls = 0;
@@ -231,15 +280,19 @@ describe.skip ( 'oby', () => {
         o = $(1);
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'does not create a dependency in a reaction when setting', t => {
+    it.only ( 'does not create a dependency in a reaction when instantiating', async t => {
 
       let o;
       let calls = 0;
@@ -249,36 +302,110 @@ describe.skip ( 'oby', () => {
         o = $(1);
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'does not create a dependency in a memo when setting with a function', t => {
+    it.only ( 'does not create a dependency in a memo when setting', t => {
 
-      const o = $(1);
-
+      let o = $(1);
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        o ( prev => prev + 1 );
-        o ( prev => prev + 1 );
-        o ( prev => prev + 1 );
+        o ( 2 );
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 1 );
 
       o ( 5 );
 
       t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'does not create a dependency in an effect when setting with a function', t => {
+    it.only ( 'does not create a dependency in an effect when setting', async t => {
+
+      let o = $(1);
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        o ( 2 );
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      o ( 5 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
+
+    });
+
+    it.only ( 'does not create a dependency in a reaction when setting', async t => {
+
+      let o = $(1);
+      let calls = 0;
+
+      $.reaction ( () => {
+        calls += 1;
+        o ( 2 );
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      o ( 5 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
+
+    });
+
+    it.only ( 'does not create a dependency in a memo when setting with a function', t => {
+
+      const o = $(1);
+
+      let calls = 0;
+
+      const memo = $.memo ( () => {
+        calls += 1;
+        o ( prev => prev + 1 );
+        o ( prev => prev + 1 );
+        o ( prev => prev + 1 );
+      });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
+
+      o ( 5 );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
+
+    });
+
+    it.only ( 'does not create a dependency in an effect when setting with a function', async t => {
 
       const o = $(1);
 
@@ -291,15 +418,19 @@ describe.skip ( 'oby', () => {
         o ( prev => prev + 1 );
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 5 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'does not create a dependency in a reaction when setting with a function', t => {
+    it.only ( 'does not create a dependency in a reaction when setting with a function', async t => {
 
       const o = $(1);
 
@@ -312,44 +443,55 @@ describe.skip ( 'oby', () => {
         o ( prev => prev + 1 );
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 5 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'does not emit when the setter does not change the value', t => {
+    it.only ( 'does not emit when the setter does not change the value', t => {
 
       const o = $(1);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        o ();
+        return o ();
       });
 
       const filteredValues = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, () => {}, Symbol ()];
 
       for ( const [index, value] of filteredValues.entries () ) {
 
-        const callsExpected = index + 2;
+        const callsExpectedBefore = index;
+        const callsExpectedAfter = index + 1;
+
+        t.is ( calls, callsExpectedBefore );
 
         o ( () => value );
 
-        t.is ( calls, callsExpected );
+        t.is ( calls, callsExpectedBefore );
+        t.is ( memo (), value );
+        t.is ( calls, callsExpectedAfter );
 
         o ( () => value );
 
-        t.is ( calls, callsExpected );
+        t.is ( calls, callsExpectedAfter );
+        t.is ( memo (), value );
+        t.is ( calls, callsExpectedAfter );
 
       }
 
     });
 
-    it ( 'returns the value being set', t => {
+    it.only ( 'returns the value being set', t => {
 
       const o = $();
 
@@ -357,7 +499,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'returns the value being set even if equal to the previous value', t => {
+    it.only ( 'returns the value being set even if equal to the previous value', t => {
 
       const equals = () => true;
 
@@ -369,7 +511,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'supports an initial value', t => {
+    it.only ( 'supports an initial value', t => {
 
       const o = $(123);
 
@@ -377,7 +519,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'supports a custom equality function', t => {
+    it.only ( 'supports a custom equality function', t => {
 
       const equals = ( next, prev ) => next[0] === prev[0];
 
@@ -404,7 +546,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'supports a false equality function', t => {
+    it.only ( 'supports a false equality function', async t => {
 
       const equals = false;
 
@@ -419,19 +561,25 @@ describe.skip ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( value => value.foo = true );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       o ( o () );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'supports updating with a new primitive value', t => {
+    it.only ( 'supports updating with a new primitive value', t => {
 
       const o = $(1);
 
@@ -440,7 +588,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'supports updating with a new object value', t => {
+    it.only ( 'supports updating with a new object value', t => {
 
       const valuePrev = [];
       const valueNext = [];
@@ -454,7 +602,7 @@ describe.skip ( 'oby', () => {
 
   });
 
-  describe.skip ( 'batch', it => {
+  describe.skip ( 'batch', it => { //TODO: Split into implict and explicit (for async functions)
 
     it ( 'batches changes within itself', t => {
 
@@ -753,16 +901,16 @@ describe.skip ( 'oby', () => {
 
   });
 
-  describe.skip ( 'boolean', it => {
+  describe ( 'boolean', it => {
 
-    it ( 'returns a boolean for static values', t => {
+    it.only ( 'returns a boolean for static values', t => {
 
       t.true ( $.boolean ( 'true' ) );
       t.false ( $.boolean ( '' ) );
 
     });
 
-    it ( 'returns a function for dynamic values', t => {
+    it.only ( 'returns a function for dynamic values', t => {
 
       const o = $('true');
       const bool = $.boolean ( o );
@@ -777,15 +925,15 @@ describe.skip ( 'oby', () => {
 
   });
 
-  describe.skip ( 'cleanup', it => {
+  describe ( 'cleanup', it => {
 
-    it ( 'does not cause the parent memo to re-execute', t => {
+    it.only ( 'does not cause the parent memo to re-execute', t => {
 
       const disposed = $(false);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         calls += 1;
 
@@ -803,13 +951,19 @@ describe.skip ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
+
       disposed ( true );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
       t.is ( calls, 2 );
 
     });
 
-    it ( 'does not cause the parent effect to re-execute', t => {
+    it.only ( 'does not cause the parent effect to re-execute', async t => {
 
       const disposed = $(false);
 
@@ -833,13 +987,19 @@ describe.skip ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
       disposed ( true );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'does not cause the parent reaction to re-execute', t => {
+    it.only ( 'does not cause the parent reaction to re-execute', async t => {
 
       const disposed = $(false);
 
@@ -863,19 +1023,25 @@ describe.skip ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
       disposed ( true );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'registers a function to be called when the parent computation is disposed', t => {
+    it.only ( 'registers a function to be called when the parent computation is disposed', t => {
 
       let sequence = '';
 
       $.root ( dispose => {
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
 
           $.cleanup ( () => {
             sequence += 'a';
@@ -887,6 +1053,7 @@ describe.skip ( 'oby', () => {
 
         });
 
+        memo ();
         dispose ();
 
       });
@@ -895,13 +1062,13 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'registers a function to be called when the parent computation updates', t => {
+    it.only ( 'registers a function to be called when the parent computation updates', t => {
 
       const o = $(0);
 
       let sequence = '';
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         o ();
 
@@ -915,27 +1082,31 @@ describe.skip ( 'oby', () => {
 
       });
 
+      t.is ( memo (), undefined );
       t.is ( sequence, '' );
 
       o ( 1 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'baba' );
 
       o ( 3 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'bababa' );
 
     });
 
-    it ( 'registers a function to be called when the parent computation is disposed', t => {
+    it.only ( 'registers a function to be called when the parent computation is disposed', async t => {
 
       let sequence = '';
 
-      $.root ( dispose => {
+      await $.root ( async dispose => {
 
         $.effect ( () => {
 
@@ -949,6 +1120,8 @@ describe.skip ( 'oby', () => {
 
         });
 
+        await tick ();
+
         dispose ();
 
       });
@@ -957,7 +1130,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'registers a function to be called when the parent effect updates', t => {
+    it.only ( 'registers a function to be called when the parent effect updates', async t => {
 
       const o = $(0);
 
@@ -977,23 +1150,31 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '' );
 
       o ( 1 );
+
+      await tick ();
 
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      await tick ();
+
       t.is ( sequence, 'baba' );
 
       o ( 3 );
+
+      await tick ();
 
       t.is ( sequence, 'bababa' );
 
     });
 
-    it ( 'registers a function to be called when the parent reaction updates', t => {
+    it.only ( 'registers a function to be called when the parent reaction updates', async t => {
 
       const o = $(0);
 
@@ -1013,23 +1194,31 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '' );
 
       o ( 1 );
+
+      await tick ();
 
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      await tick ();
+
       t.is ( sequence, 'baba' );
 
       o ( 3 );
+
+      await tick ();
 
       t.is ( sequence, 'bababa' );
 
     });
 
-    it ( 'registers a function to be called when the parent root is disposed', t => {
+    it.only ( 'registers a function to be called when the parent root is disposed', t => {
 
       $.root ( dispose => {
 
@@ -1066,7 +1255,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'registers a function to be called when the parent suspense is disposed', t => {
+    it.skip ( 'registers a function to be called when the parent suspense is disposed', t => {
 
       let sequence = '';
 
@@ -1092,7 +1281,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'returns undefined', t => {
+    it.only ( 'returns undefined', t => {
 
       const result1 = $.cleanup ( () => {} );
       const result2 = $.cleanup ( () => {} );
@@ -1102,7 +1291,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'supports a callable object', t => {
+    it.only ( 'supports a callable object', async t => {
 
       const o = $(0);
 
@@ -1132,17 +1321,25 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '' );
 
       o ( 1 );
+
+      await tick ();
 
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      await tick ();
+
       t.is ( sequence, 'baba' );
 
       o ( 3 );
+
+      await tick ();
 
       t.is ( sequence, 'bababa' );
 
@@ -1150,9 +1347,9 @@ describe.skip ( 'oby', () => {
 
   });
 
-  describe.skip ( 'context', it => {
+  describe ( 'context', it => {
 
-    it ( 'can read and write context values inside an effect', t => {
+    it.only ( 'can read and write context values inside an effect', async t => {
 
       $.effect ( () => {
 
@@ -1165,11 +1362,13 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'can read and write context values inside a memo', t => {
+    it.only ( 'can read and write context values inside a memo', t => {
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         const ctx = Symbol ();
         const value = { foo: 123 };
@@ -1180,9 +1379,11 @@ describe.skip ( 'oby', () => {
 
       });
 
+      memo ();
+
     });
 
-    it ( 'can read and write context values inside a reaction', t => {
+    it.only ( 'can read and write context values inside a reaction', async t => {
 
       $.reaction ( () => {
 
@@ -1195,9 +1396,11 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'can read and write context values inside a root', t => {
+    it.only ( 'can read and write context values inside a root', t => {
 
       $.root ( () => {
 
@@ -1212,7 +1415,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'can read and write context values inside a suspense', t => {
+    it.skip ( 'can read and write context values inside a suspense', t => {
 
       $.suspense ( false, () => {
 
@@ -1227,7 +1430,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'can read and write context values inside a deep effect', t => {
+    it.only ( 'can read and write context values inside a deep effect', async t => {
 
       $.effect ( () => {
 
@@ -1244,28 +1447,34 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'can read and write context values inside a deep memo', t => {
+    it.only ( 'can read and write context values inside a deep memo', t => {
 
-      $.memo ( () => {
+      const memo1 = $.memo ( () => {
 
         const ctx = Symbol ();
         const value = { foo: 123 };
 
         $.context ( ctx, value );
 
-        $.memo ( () => {
+        const memo2 = $.memo ( () => {
 
           t.is ( $.context ( ctx ), value );
 
         });
 
+        memo2 ();
+
       });
+
+      memo1 ();
 
     });
 
-    it ( 'can read and write context values inside a deep reaction', t => {
+    it.only ( 'can read and write context values inside a deep reaction', async t => {
 
       $.reaction ( () => {
 
@@ -1282,9 +1491,11 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'can read and write context values inside a deep root', t => {
+    it.only ( 'can read and write context values inside a deep root', t => {
 
       $.root ( () => {
 
@@ -1303,7 +1514,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'can read and write context values inside a deep suspense', t => {
+    it.skip ( 'can read and write context values inside a deep suspense', t => {
 
       $.suspense ( false, () => {
 
@@ -1322,7 +1533,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'returns undefined when setting', t => {
+    it.only ( 'returns undefined when setting', async t => {
 
       $.effect ( () => {
 
@@ -1335,9 +1546,11 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'returns undefined for unknown contexts', t => {
+    it.only ( 'returns undefined for unknown contexts', async t => {
 
       $.effect ( () => {
 
@@ -1347,9 +1560,11 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'supports overriding the outer context', t => {
+    it.only ( 'supports overriding the outer context', async t => {
 
       $.effect ( () => {
 
@@ -1372,9 +1587,11 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'supports setting the value to undefined', t => {
+    it.only ( 'supports setting the value to undefined', async t => {
 
       $.effect ( () => {
 
@@ -1388,9 +1605,11 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'works even outside a manually created owner', t => {
+    it.only ( 'works even outside a manually created owner', async t => {
 
       const ctx = Symbol ();
       const value = { foo: 123 };
@@ -1411,15 +1630,17 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( $.context ( ctx ), value );
 
     });
 
   });
 
-  describe.skip ( 'disposed', it => {
+  describe ( 'disposed', it => {
 
-    it ( 'returns an observable that tells if the parent got disposed or not', async t => {
+    it.only ( 'returns an observable that tells if the parent got disposed or not', async t => {
 
       const a = $(1);
       const values = [];
@@ -1440,7 +1661,12 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
       a ( 2 );
+
+      await tick ();
+
       a ( 3 );
 
       await delay ( 50 );
@@ -1449,7 +1675,7 @@ describe.skip ( 'oby', () => {
 
     });
 
-    it ( 'returns a readable observable', t => {
+    it.only ( 'returns a readable observable', t => {
 
       const o = $.disposed ();
 
@@ -1459,9 +1685,9 @@ describe.skip ( 'oby', () => {
 
   });
 
-  describe.skip ( 'effect', it => {
+  describe ( 'effect', it => {
 
-    it ( 'can not be running multiple times concurrently', t => {
+    it.only ( 'can not be running multiple times concurrently', async t => {
 
       const o = $(0);
 
@@ -1487,19 +1713,23 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'checks if the returned value is actually a function', t => {
+    it.only ( 'checks if the returned value is actually a function', async t => {
 
-      t.notThrows ( () => {
+      await t.notThrowsAsync ( async () => {
 
         $.effect ( () => 123 );
+
+        await tick ();
 
       });
 
     });
 
-    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
+    it.only ( 'cleans up dependencies properly when causing itself to re-execute', async t => {
 
       const a = $(0);
       const b = $(0);
@@ -1516,19 +1746,25 @@ describe.skip ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 2 );
 
       a ( 2 );
 
       t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 2 );
 
       b ( 1 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'cleans up inner effects', t => {
+    it.only ( 'cleans up inner effects', async t => {
 
       const o = $(0);
       const active = $(true);
@@ -1549,16 +1785,20 @@ describe.skip ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       active ( false );
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'returns a disposer', t => {
+    it.only ( 'returns a disposer', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -1568,17 +1808,21 @@ describe.skip ( 'oby', () => {
         c ( a () + b () );
       });
 
+      await tick ();
+
       t.is ( c (), 3 );
 
       dispose ();
 
       a ( 2 );
 
+      await tick ();
+
       t.is ( c (), 3 );
 
     });
 
-    it ( 'returns undefined to the function', t => {
+    it.only ( 'returns undefined to the function', async t => {
 
       const a = $(1);
       const aPrev = $();
@@ -1591,27 +1835,35 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( a (), 1 );
       t.is ( aPrev (), undefined );
 
       a ( 2 );
+
+      await tick ();
 
       t.is ( a (), 2 );
       t.is ( aPrev (), undefined );
 
       a ( 3 );
 
+      await tick ();
+
       t.is ( a (), 3 );
       t.is ( aPrev (), undefined );
 
       a ( 4 );
+
+      await tick ();
 
       t.is ( a (), 4 );
       t.is ( aPrev (), undefined );
 
     });
 
-    it ( 'supports dynamic dependencies', t => {
+    it.only ( 'supports dynamic dependencies', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -1622,15 +1874,19 @@ describe.skip ( 'oby', () => {
         c ( bool () ? a () : b () );
       });
 
+      await tick ();
+
       t.is ( c (), 2 );
 
       bool ( true );
+
+      await tick ();
 
       t.is ( c (), 1 );
 
     });
 
-    it ( 'supports manually registering a function to be called when the parent effect updates', t => {
+    it.only ( 'supports manually registering a function to be called when the parent effect updates', async t => {
 
       const o = $(0);
 
@@ -1650,23 +1906,31 @@ describe.skip ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '' );
 
       o ( 1 );
+
+      await tick ();
 
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      await tick ();
+
       t.is ( sequence, 'baba' );
 
       o ( 3 );
+
+      await tick ();
 
       t.is ( sequence, 'bababa' );
 
     });
 
-    it ( 'supports manually registering a function to be called when the parent effect throws', t => {
+    it.skip ( 'supports manually registering a function to be called when the parent effect throws', t => {
 
       const o = $(0);
 

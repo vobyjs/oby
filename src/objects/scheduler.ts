@@ -27,7 +27,7 @@ class Scheduler {
 
   push ( effect: IEffect ): void {
 
-    if ( this.running.has ( effect ) ) return;
+    // if ( this.running.has ( effect ) ) return; //TODO: more sophisticated maybe
 
     this.queue.add ( effect );
 

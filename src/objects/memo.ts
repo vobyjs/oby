@@ -27,11 +27,13 @@ class Memo<T = unknown> extends Observer {
 
   /* API */
 
-  stale ( root: boolean ): void {
+  stale ( status: 1 | 2 | 3 ): void {
 
-    super.stale ( root );
+    if ( this.status === status ) return;
 
-    this.observable.stale ( false );
+    super.stale ( status );
+
+    this.observable.stale ( status );
 
   }
 
