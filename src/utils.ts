@@ -21,6 +21,23 @@ const {is} = Object;
 
 const {isArray} = Array;
 
+const isEqual = ( a: unknown[], b: unknown[] ): boolean => {
+
+  if ( a.length !== b.length ) return false;
+
+  for ( let i = 0, l = a.length; i < l; i++ ) {
+
+    const valueA = a[i];
+    const valueB = b[i];
+
+    if ( !is ( valueA, valueB ) ) return false;
+
+  }
+
+  return true;
+
+};
+
 const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => {
 
   return typeof value === 'function';
@@ -59,4 +76,4 @@ const nope = (): false => {
 
 /* EXPORT */
 
-export {castArray, castError, is, isArray, isFunction, isNumber, isObject, max, noop, nope};
+export {castArray, castError, is, isArray, isEqual, isFunction, isNumber, isObject, max, noop, nope};

@@ -3,6 +3,7 @@
 
 import {DIRTY_YES} from '~/constants';
 import {OBSERVER} from '~/context';
+import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import {is, nope} from '~/utils';
 import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
 
@@ -57,7 +58,7 @@ class Observable<T = unknown> {
 
   write ( value: T ): T {
 
-    const fresh = !this.equals ( value, this.value );
+    const fresh = ( this.value === SYMBOL_VALUE_INITIAL ) || !this.equals ( value, this.value );
 
     if ( !fresh ) return value;
 

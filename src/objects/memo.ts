@@ -4,6 +4,7 @@
 import {DIRTY_MAYBE_YES} from '~/constants';
 import Observable from '~/objects/observable';
 import Observer from '~/objects/observer';
+import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
@@ -23,7 +24,7 @@ class Memo<T = unknown> extends Observer {
     super ();
 
     this.fn = fn;
-    this.observable = new Observable<T> ( undefined as any, options, this ); //TSC
+    this.observable = new Observable<T> ( SYMBOL_VALUE_INITIAL as any, options, this ); //TSC
 
   }
 
