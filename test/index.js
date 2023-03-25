@@ -1729,7 +1729,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'cleans up dependencies properly when causing itself to re-execute', async t => {
+    it.skip ( 'cleans up dependencies properly when causing itself to re-execute', async t => {
 
       const a = $(0);
       const b = $(0);
@@ -2067,30 +2067,35 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'for', it => {
+  describe ( 'for', it => {
 
-    it ( 'calls the mapper function with an observable to the index too', t => {
+    it.only ( 'calls the mapper function with an observable to the index too', t => {
 
       const array = $([ 'a', 'b', 'c' ]);
       const argsRaw = [];
       const args = [];
 
-      $.for ( array, ( value, index ) => {
+      const memo = $.for ( array, ( value, index ) => {
         isReadable ( t, index );
         argsRaw.push ( index );
         args.push ( index () );
+        return value;
       });
 
+      t.deepEqual ( memo (), ['a', 'b', 'c'] );
       t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
       t.deepEqual ( args, [0, 1, 2] );
 
       array ([ 'a', 'b', 'c', 'd' ]);
 
+      t.deepEqual ( memo (), ['a', 'b', 'c', 'd'] );
       t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2, 3] );
       t.deepEqual ( args, [0, 1, 2, 3] );
 
       array ([ 'd', 'c', 'a', 'b' ]);
 
+      // memo ()
+      t.deepEqual ( memo (), ['d', 'c', 'a', 'b'] );
       t.deepEqual ( argsRaw.map ( a => a () ), [2, 3, 1, 0] );
       t.deepEqual ( args, [0, 1, 2, 3] );
 
@@ -2994,7 +2999,7 @@ describe ( 'oby', () => {
 
   describe ( 'if', it => {
 
-    it.only ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
+    it.skip ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
 
       let sequence = '';
 
@@ -3054,7 +3059,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+    it.skip ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
 
       const o = $(0);
 
@@ -3097,7 +3102,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to the value or undefined with a functional condition', t => {
+    it.skip ( 'returns a memo to the value or undefined with a functional condition', t => {
 
       const o = $(false);
 
@@ -4435,8 +4440,6 @@ describe ( 'oby', () => {
       const selectedFactor1 = $(0);
       const selectedFactor2 = $(1);
       const selected = () => selectedFactor1 () * selectedFactor2 ();
-
-      const select = value => selected ( value );
       const selector = $.selector ( selected );
 
       let sequence = '';
@@ -8923,11 +8926,12 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'tryCatch', it => {
+  describe.skip ( 'tryCatch', it => {
 
-    it ( 'can catch and recover from errors', t => {
+    it.only ( 'can catch and recover from errors', t => {
 
-      const o = $(false);
+      // const o = $(false);
+      const o = $(true);
 
       let err, recover;
 

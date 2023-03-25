@@ -82,13 +82,17 @@ class Observer extends Owner {
 
       this.refresh ();
 
-    }
+      if ( this.status === DIRTY_MAYBE_NO ) {
 
-    if ( this.status === DIRTY_YES || this.status === DIRTY_MAYBE_YES ) {
+        this.status = DIRTY_NO;
 
-      // this.update ();
+      } else {
 
-    } else if ( this.status === DIRTY_MAYBE_NO ) {
+        this.refresh ();
+
+      }
+
+    } else {
 
       this.status = DIRTY_NO;
 

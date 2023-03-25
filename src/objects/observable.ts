@@ -47,9 +47,9 @@ class Observable<T = unknown> {
 
   read (): T {
 
-    OBSERVER?.link ( this );
-
     this.parent?.update ();
+
+    OBSERVER?.link ( this );
 
     return this.value;
 

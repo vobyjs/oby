@@ -2,7 +2,6 @@
 /* IMPORT */
 
 import get from '~/methods/get';
-import isObservableFrozen from '~/methods/is_observable_frozen';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import {is} from '~/utils';
@@ -34,25 +33,11 @@ function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], f
 
   });
 
-  if ( isObservableFrozen ( value ) ) {
+  return memo ( () => {
 
-    const valueUnwrapped = value ();
+    return resolve ( get ( value ) );
 
-    return memo ( () => {
-
-      return resolve ( valueUnwrapped );
-
-    });
-
-  } else {
-
-    return memo ( () => {
-
-      return resolve ( get ( value ) );
-
-    });
-
-  }
+  });
 
 }
 
