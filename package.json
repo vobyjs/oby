@@ -23,7 +23,7 @@
     "store": "node tasks/store.js",
     "store:creation": "node tasks/store.creation.js",
     "test": "tsex test",
-    "test:watch": "tsex test:watch",
+    "test:watch": "tsex test --watch",
     "updates": "node tasks/updates.js",
     "prepublishOnly": "npm run clean && npm run compile && npm run compile:mangle && npm run test"
   },

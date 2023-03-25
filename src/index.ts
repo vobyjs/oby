@@ -25,7 +25,7 @@ import readonly from '~/methods/readonly';
 import resolve from '~/methods/resolve';
 import root from '~/methods/root';
 import selector from '~/methods/selector';
-// imp store from '~/methods/store';
+import store from '~/methods/store';
 // imp suspense from '~/methods/suspense';
 import _switch from '~/methods/switch';
 import ternary from '~/methods/ternary';
@@ -38,6 +38,6 @@ import type {ObservableOptions, Observable, ObservableReadonly, StoreOptions} fr
 /* EXPORT */
 
 export default $;
-export {batch, boolean, cleanup, context, disposed, effect, get, _if as if, isBatching, isObservable, isStore, memo, observable, on, owner, reaction, readonly, resolve, root, selector, _switch as switch, ternary, untrack, _with as with};
+export {batch, boolean, cleanup, context, disposed, effect, get, _if as if, isBatching, isObservable, isStore, memo, observable, on, owner, reaction, readonly, resolve, root, selector, _switch as switch, store, ternary, untrack, _with as with};
 export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED};
 export type {Observable, ObservableReadonly, ObservableOptions, StoreOptions};
