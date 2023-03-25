@@ -14,6 +14,7 @@ class Memo<T = unknown> extends Observer {
 
   fn: MemoFunction<T>;
   observable: IObservable<T>;
+  inited: boolean = false;
 
   /* CONSTRUCTOR */
 

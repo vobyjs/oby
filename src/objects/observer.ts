@@ -84,7 +84,11 @@ class Observer extends Owner {
 
     }
 
-    if ( this.status === DIRTY_MAYBE_NO ) {
+    if ( this.status === DIRTY_YES || this.status === DIRTY_MAYBE_YES ) {
+
+      // this.update ();
+
+    } else if ( this.status === DIRTY_MAYBE_NO ) {
 
       this.status = DIRTY_NO;
 
