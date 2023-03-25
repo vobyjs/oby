@@ -2,12 +2,12 @@
 /* IMPORT */
 
 import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
-import type {IObserver, IOwner, IRoot, CleanupFunction, ObservedFunction, Callable, Contexts} from '~/types';
+import {castError} from '~/utils';
+import type {IObserver, IOwner, IRoot, CleanupFunction, ErrorFunction, ObservedFunction, Callable, Contexts} from '~/types';
 
 /* MAIN */
 
 //TODO: signal prop
-//TODO: errors prop
 //TODO: roots prop
 
 class Owner {
@@ -17,6 +17,7 @@ class Owner {
   parent?: IOwner;
   cleanups: Callable<CleanupFunction>[];
   contexts: Contexts;
+  errorHandler?: ErrorFunction;
   observers: IObserver[];
   roots: IRoot[];
 
@@ -32,6 +33,28 @@ class Owner {
   }
 
   /* API */
+
+  catch ( error: Error, silent: boolean ): boolean {
+
+    if ( this.errorHandler ) {
+
+      this.errorHandler ( error ); //TODO: This assumes the error handler will never throw, which from the point of view of Owner we can't really know
+
+      return true;
+
+    } else {
+
+      if ( this.parent?.catch ( error, true ) ) return true;
+
+      if ( silent ) return false;
+
+      // console.error ( error.stack ); // <-- Log "error.stack" to understand where the error happened
+
+      throw error;
+
+    }
+
+  }
 
   dispose (): void {
 
@@ -71,6 +94,10 @@ class Owner {
     try {
 
       return fn ();
+
+    } catch ( error: unknown ) {
+
+      this.catch ( castError ( error ), false );
 
     } finally {
 

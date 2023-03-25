@@ -8,7 +8,6 @@ import cleanup from '~/methods/cleanup';
 import context from '~/methods/context';
 import disposed from '~/methods/disposed';
 import effect from '~/methods/effect';
-// imp error from '~/methods/error';
 // imp _for from '~/methods/for';
 // imp forValue from '~/methods/for_value';
 import get from '~/methods/get';
@@ -29,15 +28,19 @@ import store from '~/methods/store';
 // imp suspense from '~/methods/suspense';
 import _switch from '~/methods/switch';
 import ternary from '~/methods/ternary';
-// imp tryCatch from '~/methods/try_catch';
+import tryCatch from '~/methods/try_catch';
 import untrack from '~/methods/untrack';
 import _with from '~/methods/with';
-import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED} from '~/symbols';
+import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_ON_CALLBACK, SYMBOL_ON_DEPENDENCIES, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED} from '~/symbols';
 import type {ObservableOptions, Observable, ObservableReadonly, StoreOptions} from '~/types';
+
+//TODO: KeepAlive (+useContext returns signal?)
+//TODO: set observable inside memo throws
+//TODO: check places where memo(() => {}) is called
 
 /* EXPORT */
 
 export default $;
-export {batch, boolean, cleanup, context, disposed, effect, get, _if as if, isBatching, isObservable, isStore, memo, observable, on, owner, reaction, readonly, resolve, root, selector, _switch as switch, store, ternary, untrack, _with as with};
-export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED};
+export {batch, boolean, cleanup, context, disposed, effect, get, _if as if, isBatching, isObservable, isStore, memo, observable, on, owner, reaction, readonly, resolve, root, selector, _switch as switch, store, ternary, tryCatch, untrack, _with as with};
+export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_ON_CALLBACK, SYMBOL_ON_DEPENDENCIES, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED};
 export type {Observable, ObservableReadonly, ObservableOptions, StoreOptions};
