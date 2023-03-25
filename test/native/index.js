@@ -2395,10 +2395,11 @@ describe ( 'oby', () => {
       const argsRaw = [];
       const args = [];
 
-      $.for ( array, ( value, index ) => {
+      const memo = $.for ( array, ( value, index ) => {
         isReadable ( t, index );
         argsRaw.push ( index );
         args.push ( index () );
+        return value;
       });
 
       t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
@@ -2411,6 +2412,7 @@ describe ( 'oby', () => {
 
       array ([ 'd', 'c', 'a', 'b' ]);
 
+      t.deepEqual ( memo (), ['d', 'c', 'a', 'b'] );
       t.deepEqual ( argsRaw.map ( a => a () ), [2, 3, 1, 0] );
       t.deepEqual ( args, [0, 1, 2, 3] );
 

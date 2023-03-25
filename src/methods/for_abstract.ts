@@ -8,7 +8,7 @@ import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import untrack from '~/methods/untrack';
 import {SYMBOL_CACHED, SYMBOL_STORE_VALUES} from '~/symbols';
-import {isArray} from '~/utils';
+import {isArray, isEqual} from '~/utils';
 import type Cache from '~/methods/for_abstract.cache';
 import type {ObservableReadonly, FunctionMaybe, CallableFunction, Constructor, Resolved} from '~/types';
 
@@ -45,7 +45,7 @@ const forAbstract = <T, R, F> ( Cache: Constructor<Cache<T, R>, [CallableFunctio
 
     });
 
-    if ( isArray ( resultsNext ) && resultsNext[SYMBOL_CACHED] && isArray ( resultsPrev ) && resultsPrev.length === resultsNext.length ) return resultsPrev;
+    if ( isArray ( resultsNext ) && resultsNext[SYMBOL_CACHED] && isArray ( resultsPrev ) && isEqual ( resultsPrev, resultsNext ) ) return resultsPrev;
 
     resultsPrev = resultsNext;
 
