@@ -9,6 +9,7 @@ class Scheduler {
 
   /* VARIABLES */
 
+  batch?: Promise<void>;
   queue: Set<IEffect>;
   running: Set<IEffect>;
   scheduled: boolean;
@@ -59,9 +60,37 @@ class Scheduler {
 
     queueMicrotask ( () => {
 
-      this.scheduled = false;
+      queueMicrotask ( () => {
 
-      this.flush ();
+        const batch = this.batch;
+
+        if ( batch ) {
+
+          batch.finally ( () => {
+
+            queueMicrotask ( () => {
+
+              queueMicrotask ( () => {
+
+                this.scheduled = false;
+
+                this.flush ();
+
+              });
+
+            });
+
+          });
+
+        } else {
+
+          this.scheduled = false;
+
+          this.flush ();
+
+        }
+
+      });
 
     });
 

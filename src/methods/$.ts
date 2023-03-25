@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-// imp batch from '~/methods/batch';
+import batch from '~/methods/batch';
 import boolean from '~/methods/boolean';
 import cleanup from '~/methods/cleanup';
 import context from '~/methods/context';
@@ -9,16 +9,14 @@ import disposed from '~/methods/disposed';
 import effect from '~/methods/effect';
 // imp error from '~/methods/error';
 // imp _for from '~/methods/for';
-// imp forIndex from '~/methods/for_index';
 // imp forValue from '~/methods/for_value';
 import get from '~/methods/get';
 import _if from '~/methods/if';
-// imp isBatching from '~/methods/is_batching';
+import isBatching from '~/methods/is_batching';
 import isObservable from '~/methods/is_observable';
-// imp isStore from '~/methods/is_store';
+import isStore from '~/methods/is_store';
 import memo from '~/methods/memo';
-// imp off from '~/methods/off';
-// imp on from '~/methods/on';
+import on from '~/methods/on';
 import owner from '~/methods/owner';
 import reaction from '~/methods/reaction';
 import readonly from '~/methods/readonly';
@@ -49,7 +47,7 @@ function $ <T> ( value?: T, options?: ObservableOptions<T | undefined> ) {
 
 /* UTILITIES */
 
-// $.batch = batch;
+$.batch = batch;
 $.boolean = boolean;
 $.cleanup = cleanup;
 $.context  = context;
@@ -57,16 +55,14 @@ $.disposed = disposed;
 $.effect = effect;
 // $.error = error;
 // $.for = _for;
-// $.forIndex = forIndex;
 // $.forValue = forValue;
 $.get = get;
 $.if = _if;
-// $.isBatching = isBatching;
+$.isBatching = isBatching;
 $.isObservable = isObservable;
-// $.isStore = isStore;
+$.isStore = isStore;
 $.memo = memo;
-// $.off = off;
-// $.on = on;
+$.on = on;
 $.owner = owner;
 $.reaction = reaction;
 $.readonly = readonly;

@@ -21,7 +21,7 @@ type ISuperRoot = import ( '~/objects/superroot' ).default;
 
 /* FUNCTIONS */
 
-type BatchFunction<T = unknown> = () => T;
+type BatchFunction<T = unknown> = () => PromiseMaybe<T>;
 
 type CallbackFunction = () => void;
 

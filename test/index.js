@@ -3048,373 +3048,6 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'forIndex', it => {
-
-    it ( 'calls the mapper function with the index too', t => {
-
-      const array = $([ 'a', 'b', 'c' ]);
-      const args = [];
-
-      $.forIndex ( array, ( value, index ) => {
-        args.push ( index );
-      });
-
-      t.deepEqual ( args, [0, 1, 2] );
-
-      array ([ 'a', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-    });
-
-    it ( 'disposes of any reactivity when the values array is emptied', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        $.cleanup ( () => {
-          args.push ( value () );
-        });
-      });
-
-      array ( [] );
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent computation is disposed', t => {
-
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.memo ( () => {
-          $.forIndex ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent effect is disposed', t => {
-
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.effect ( () => {
-          $.forIndex ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent reaction is disposed', t => {
-
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.reaction ( () => {
-          $.forIndex ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent root is disposed', t => {
-
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.forIndex ( array, value => {
-          $.memo ( () => {
-            args.push ( value () );
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity created for indexes that got deleted', t => {
-
-      const o = $(0);
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        $.memo ( () => {
-          o ();
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 2 ]);
-
-      t.deepEqual ( args, [1, 2, 11] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      array ([ 11 ]);
-
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      o ( 1 );
-
-      t.deepEqual ( args, [1, 2, 11, 22, 11] );
-
-    });
-
-    it ( 'renders results for unknown indexes', t => {
-
-      const array = $([ 1, 2, 3 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        args.push ( value () );
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 1, 2, 3, 4 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 4] );
-
-      array ([ 1, 2, 3, 4, 5 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 4, 5] );
-
-    });
-
-    it ( 'renders results for updated values', t => {
-
-      const array = $([ 1, 2, 3 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        return $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 3, 2, 1 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 3, 1] );
-
-    });
-
-    it ( 'resolves the fallback value before returning it', t => {
-
-      const result = $.forIndex ( [], () => () => 123, () => () => 321 );
-
-      isReadable ( t, result );
-      isReadable ( t, result () );
-      isReadable ( t, result ()() );
-
-      t.is ( result ()()(), 321 );
-
-    });
-
-    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
-
-      const o = $([]);
-
-      let calls = 0;
-
-      $.forIndex ( o, () => () => 123, () => () => {
-        calls += 1;
-        return 321;
-      });
-
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'resolves the mapped value before returning it', t => {
-
-      const result = $.forIndex ( [1], () => () => () => 123 );
-
-      isReadable ( t, result );
-      isReadable ( t, result ()[0] );
-      isReadable ( t, result ()[0]() );
-
-      t.is ( result ()[0]()(), 123 );
-
-    });
-
-    it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
-
-      t.deepEqual ( $.forIndex ( [], () => () => 123 )(), [] );
-
-    });
-
-    it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
-
-      t.is ( $.forIndex ( [], () => () => 123, 123 )(), 123 );
-
-    });
-
-    it ( 'returns a memo to the same array if all values were cached', t => {
-
-      const external = $(0);
-      const values = $([1, 2, 3]);
-
-      const valuesWithExternal = () => {
-        external ();
-        return values ();
-      };
-
-      let calls = 0;
-
-      const result = $.forIndex ( valuesWithExternal, value => {
-        calls += 1;
-        return value ();
-      });
-
-      const result1 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result1, [1, 2, 3] );
-
-      external ( 1 );
-
-      const result2 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result2, [1, 2, 3] );
-      t.is ( result1, result2 );
-
-      values ([ 1, 2 ]);
-
-      const result3 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result3, [1, 2] );
-
-      external ( 2 );
-
-      const result4 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result4, [1, 2] );
-      t.is ( result3, result4 );
-
-    });
-
-    it ( 'unwraps observables in the input', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([ o1, o2, 3 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-      o1 ( 11 );
-
-      t.deepEqual ( args, [1, 2, 3, 11] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2, 3, 11, 22] );
-
-      array ([ 11, 22, 3 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 11, 22] );
-
-    });
-
-    it ( 'works with an array of non-unique values', t => {
-
-      const array = $([ 1, 1, 2 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 1, 2] );
-
-      array ([ 2, 2, 1 ]);
-
-      t.deepEqual ( args, [1, 1, 2, 2, 2, 1] );
-
-    });
-
-  });
-
   describe.skip ( 'forValue', it => {
 
     it ( 'calls the mapper function with an observable to the index', t => {
@@ -4177,9 +3810,9 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'memo', it => {
+  describe ( 'memo', it => {
 
-    it ( 'bypasses the comparator function on first run', t => {
+    it.skip ( 'bypasses the comparator function on first run', t => {
 
       const o = $.memo ( () => 123, { equals: () => true } );
 
@@ -4187,7 +3820,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can not be running multiple times concurrently', t => {
+    it.skip ( 'can not be running multiple times concurrently', t => {
 
       const o = $(0);
 
@@ -4219,14 +3852,14 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
+    it.skip ( 'cleans up dependencies properly when causing itself to re-execute', t => {
 
       const a = $(0);
       const b = $(0);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         calls += 1;
 
@@ -4236,6 +3869,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 2 );
 
       a ( 2 );
@@ -4248,18 +3883,18 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'cleans up inner memos', t => {
+    it.only ( 'cleans up inner memos', t => {
 
       const o = $(0);
       const active = $(true);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo1 = $.memo ( () => {
 
         if ( !active () ) return;
 
-        $.memo ( () => {
+        const memo2 = $.memo ( () => {
 
           calls += 1;
 
@@ -4267,24 +3902,30 @@ describe ( 'oby', () => {
 
         });
 
+        $.untrack ( memo2 );
+
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo1 (), undefined );
       t.is ( calls, 1 );
 
       active ( false );
       o ( 1 );
 
       t.is ( calls, 1 );
+      t.is ( memo1 (), undefined );
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'does not throw when disposing of itself', t => {
+    it.only ( 'does not throw when disposing of itself', t => {
 
       t.notThrows ( () => {
 
         $.root ( dispose => {
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
 
             dispose ();
 
@@ -4292,13 +3933,15 @@ describe ( 'oby', () => {
 
           });
 
+          memo ();
+
         });
 
       });
 
     });
 
-    it ( 'returns a readable observable', t => {
+    it.only ( 'returns a readable observable', t => {
 
       const o = $.memo ( () => {} );
 
@@ -4306,7 +3949,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns an observable with the return of the function', t => {
+    it.only ( 'returns an observable with the return of the function', t => {
 
       const a = $(1);
       const b = $(2);
@@ -4317,7 +3960,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns an observable with value undefined if the function does not return anything', t => {
+    it.only ( 'returns an observable with value undefined if the function does not return anything', t => {
 
       const o = $.memo ( () => {} );
 
@@ -4326,7 +3969,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports a custom equality function', t => {
+    it.only ( 'supports a custom equality function', t => {
 
       const o = $(2);
       const equals = value => ( value % 2 === 0 );
@@ -4348,7 +3991,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports dynamic dependencies', t => {
+    it.only ( 'supports dynamic dependencies', t => {
 
       const a = $(1);
       const b = $(2);
@@ -4363,13 +4006,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports manually registering a function to be called when the parent computation updates', t => {
+    it.only ( 'supports manually registering a function to be called when the parent computation updates', t => {
 
       const o = $(0);
 
       let sequence = '';
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         o ();
 
@@ -4383,23 +4026,27 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( memo (), undefined );
       t.is ( sequence, '' );
 
       o ( 1 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'baba' );
 
       o ( 3 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'bababa' );
 
     });
 
-    it ( 'supports manually registering a function to be called when the parent computation throws', t => {
+    it.skip ( 'supports manually registering a function to be called when the parent computation throws', t => {
 
       const o = $(0);
 
@@ -4435,7 +4082,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'updates the observable with the last value when causing itself to re-execute', t => {
+    it.skip ( 'updates the observable with the last value when causing itself to re-execute', t => {
 
       const o = $(0);
 
@@ -4453,7 +4100,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'updates the observable when the dependencies change', t => {
+    it.only ( 'updates the observable when the dependencies change', t => {
 
       const a = $(1);
       const b = $(2);
@@ -4497,9 +4144,9 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'observable', it => {
+  describe ( 'observable', it => {
 
-    it ( 'is both a getter and a setter', t => {
+    it.only ( 'is both a getter and a setter', t => {
 
       const o = observable ();
 
@@ -9636,7 +9283,7 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'switch', it => {
+  describe ( 'switch', it => {
 
     it.only ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {
 
@@ -9686,7 +9333,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves the value of a case before returning it', t => {
+    it.only ( 'resolves the value of a case before returning it', t => {
 
       const result = $.switch ( 1, [[1, () => () => '1'], [2, '2'], [1, '1.1']] );
 
@@ -9698,7 +9345,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves the value of the default case before returning it', t => {
+    it.only ( 'resolves the value of the default case before returning it', t => {
 
       const result = $.switch ( 2, [[1, '1'], [() => () => 'default'], [2, '2'] [1, '1.1']] );
 
@@ -9710,7 +9357,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves the fallback value before returning it', t => {
+    it.only ( 'resolves the fallback value before returning it', t => {
 
       const result = $.switch ( 2, [[1, '1']], () => () => 'fallback' );
 
@@ -9722,30 +9369,38 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+    it.only ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
 
       const o = $(2);
 
       let calls = 0;
 
-      $.switch ( o, [[1, '1']], () => () => {
+      const memo = $.switch ( o, [[1, '1']], () => () => {
         calls += 1;
         return 321;
       });
+
+      t.is ( calls, 0 );
+
+      t.is ( memo ()()(), 321 );
 
       t.is ( calls, 1 );
 
       o ( 3 );
 
+      t.is ( memo ()()(), 321 );
+
       t.is ( calls, 1 );
 
       o ( 4 );
+
+      t.is ( memo ()()(), 321 );
 
       t.is ( calls, 1 );
 
     });
 
-    it ( 'returns a memo to matching case or the default case with a functional condition', t => {
+    it.only ( 'returns a memo to matching case or the default case with a functional condition', t => {
 
       const o = $(1);
 
@@ -9763,7 +9418,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a memo to the value of the default case if no case before it matches', t => {
+    it.only ( 'returns a memo to the value of the default case if no case before it matches', t => {
 
       const result = $.switch ( 2, [[1, '1'], ['default'], [2, '2'] [1, '1.1']] );
 
@@ -9771,7 +9426,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a memo to the value of the first matching case', t => {
+    it.only ( 'returns a memo to the value of the first matching case', t => {
 
       const result1 = $.switch ( 1, [[1, '1'], [2, '2'], [1, '1.1']] );
 
@@ -9783,7 +9438,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a memo to undefined if no condition matches and there is no default case', t => {
+    it.only ( 'returns a memo to undefined if no condition matches and there is no default case', t => {
 
       const result = $.switch ( 1, [[2, '2'], [3, '3']] );
 
@@ -9791,7 +9446,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns a memo to fallback if no condition matches and there is no default case', t => {
+    it.only ( 'returns a memo to fallback if no condition matches and there is no default case', t => {
 
       const result = $.switch ( 1, [[2, '2'], [3, '3']], 123 );
 
@@ -9799,7 +9454,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'treats 0 and -0 as different values', t => {
+    it.only ( 'treats 0 and -0 as different values', t => {
 
       const condition = $(0);
 
