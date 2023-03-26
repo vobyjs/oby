@@ -2234,12 +2234,12 @@ describe ( 'oby', () => {
       const argsRaw = [];
       const args = [];
 
-      const memo = $.forValue ( array, ( value, index ) => {
+      const memo = $.for ( array, ( value, index ) => {
         isReadable ( t, index );
         argsRaw.push ( index );
         args.push ( index () );
         return value;
-      });
+      }, [], true );
 
       t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
       t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
@@ -2265,12 +2265,12 @@ describe ( 'oby', () => {
       const argsRaw = [];
       const args = [];
 
-      const memo = $.forValue ( array, ( value ) => {
+      const memo = $.for ( array, ( value ) => {
         isReadable ( t, value );
         argsRaw.push ( value );
         args.push ( value () );
         return value;
-      });
+      }, [], true );
 
       t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
       t.deepEqual ( argsRaw.map ( a => a () ), ['a', 'b', 'c'] );
@@ -2295,12 +2295,12 @@ describe ( 'oby', () => {
       const array = $([1, 2, 3]);
       const args = [];
 
-      const memo = $.forValue ( array, value => {
+      const memo = $.for ( array, value => {
         $.cleanup ( () => {
           args.push ( value () );
         });
         return value;
-      });
+      }, [], true );
 
       t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
       t.deepEqual ( args, [] );
@@ -2321,7 +2321,7 @@ describe ( 'oby', () => {
 
       const dispose = $.root ( dispose => {
         const memo = $.memo ( () => {
-          const memo = $.forValue ( array, value => {
+          const memo = $.for ( array, value => {
             const memo = $.memo ( () => {
               args.push ( value () );
             });
@@ -2329,7 +2329,7 @@ describe ( 'oby', () => {
               memo ();
             });
             return memo;
-          });
+          }, [], true );
           memo ();
         });
         memo ();
@@ -2362,7 +2362,7 @@ describe ( 'oby', () => {
 
       const dispose = $.root ( dispose => {
         $.effect ( () => {
-          const memo = $.forValue ( array, value => {
+          const memo = $.for ( array, value => {
             const memo = $.memo ( () => {
               args.push ( value () );
             });
@@ -2370,7 +2370,7 @@ describe ( 'oby', () => {
               memo ();
             });
             return memo;
-          });
+          }, [], true );
           memo ();
         });
         return dispose;
@@ -2401,7 +2401,7 @@ describe ( 'oby', () => {
       const args = [];
 
       const dispose = $.root ( dispose => {
-        const memo = $.forValue ( array, value => {
+        const memo = $.for ( array, value => {
           const memo = $.memo ( () => {
             args.push ( value () );
           });
@@ -2409,7 +2409,7 @@ describe ( 'oby', () => {
             memo ();
           });
           return memo;
-        });
+        }, [], true );
         $.effect ( () => {
           memo ();
         });
@@ -2440,11 +2440,11 @@ describe ( 'oby', () => {
       const array = $([o1, o2]);
       const args = [];
 
-      const memo = $.forValue ( array, value => {
+      const memo = $.for ( array, value => {
         const memo = $.memo ( () => {
           args.push ( value () );
           return value ();
-        });
+        }, [], true );
         return memo;
       });
 
@@ -2484,11 +2484,11 @@ describe ( 'oby', () => {
       const array = $([o, o]);
       const args = [];
 
-      const memo = $.forValue ( array, value => {
+      const memo = $.for ( array, value => {
         return $.memo ( () => {
           args.push ( value () );
           return value ();
-        });
+        }, [], true );
       });
 
       t.deepEqual ( memo ().map ( call ), [1, 1] );
@@ -2521,10 +2521,10 @@ describe ( 'oby', () => {
       const array = $([1, 2, 3]);
       const args = [];
 
-      const memo = $.forValue ( array, value => {
+      const memo = $.for ( array, value => {
         args.push ( value () );
         return value;
-      });
+      }, [], true );
 
       t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
       t.deepEqual ( args, [1, 2, 3] );
@@ -2547,11 +2547,11 @@ describe ( 'oby', () => {
       const argsRaw = [];
       const args = [];
 
-      const memo = $.forValue ( array, value => {
+      const memo = $.for ( array, value => {
         argsRaw.push ( value );
         args.push ( value () );
         return value;
-      });
+      }, [], true );
 
       t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
       t.deepEqual ( argsRaw.map ( a => a () ), [1, 2, 3] );
@@ -2567,7 +2567,7 @@ describe ( 'oby', () => {
 
     it.only ( 'resolves the fallback value before returning it', t => {
 
-      const result = $.forValue ( [], () => () => 123, () => () => 321 );
+      const result = $.for ( [], () => () => 123, () => () => 321, true );
 
       isReadable ( t, result );
       isReadable ( t, result () );
@@ -2583,10 +2583,10 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      const memo = $.forValue ( o, () => () => 123, () => () => {
+      const memo = $.for ( o, () => () => 123, () => () => {
         calls += 1;
         return 321;
-      });
+      }, true);
 
       t.is ( calls, 0 );
       t.is ( memo ()()(), 321 );
@@ -2608,7 +2608,7 @@ describe ( 'oby', () => {
 
     it.only ( 'resolves the mapped value before returning it', t => {
 
-      const result = $.forValue ( [1], () => () => () => 123 );
+      const result = $.for ( [1], () => () => () => 123, [], true );
 
       isReadable ( t, result );
       isReadable ( t, result ()[0] );
@@ -2620,13 +2620,13 @@ describe ( 'oby', () => {
 
     it.only ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
 
-      t.deepEqual ( $.forValue ( [], () => () => 123 )(), [] );
+      t.deepEqual ( $.for ( [], () => () => 123 )(), [], true );
 
     });
 
     it.only ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
 
-      t.is ( $.forValue ( [], () => () => 123, 123 )(), 123 );
+      t.is ( $.for ( [], () => () => 123, 123 )(), 123, true );
 
     });
 
@@ -2642,10 +2642,10 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      const result = $.forValue ( valuesWithExternal, value => {
+      const result = $.for ( valuesWithExternal, value => {
         calls += 1;
         return value ();
-      });
+      }, [], true );
 
       t.is ( calls, 0 );
 
@@ -2692,13 +2692,13 @@ describe ( 'oby', () => {
       const array = $([ 1, 1, 2 ]);
       const args = [];
 
-      const memo = $.forValue ( array, value => {
+      const memo = $.for ( array, value => {
         const memo = $.memo ( () => {
           args.push ( value () );
           return value ();
         });
         return memo;
-      });
+      }, [], true );
 
       t.deepEqual ( memo ().map ( call ), [1, 1, 2] );
       t.deepEqual ( args, [1, 1, 2] );
@@ -7617,7 +7617,7 @@ describe ( 'oby', () => {
             calls += 1;
             o ();
           });
-        });
+        }, [], true );
         memo ();
       });
 
@@ -7650,12 +7650,12 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.suspense ( suspended, () => {
-        const memo = $.forValue ( array, () => {
+        const memo = $.for ( array, () => {
           $.effect ( () => {
             calls += 1;
             o ();
           });
-        });
+        }, [], true );
         memo ();
       });
 

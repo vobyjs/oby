@@ -4,7 +4,7 @@
 import {OWNER} from '~/context';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
-import CacheAbstract from '~/methods/for_abstract.cache';
+import CacheAbstract from '~/methods/for.cache.abstract';
 import get from '~/methods/get';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
@@ -28,7 +28,7 @@ class MappedRoot<T = unknown, R = unknown> extends Root { // This saves some mem
 
 //TODO: Optimize this more
 
-class Cache<T, R> extends CacheAbstract<T, R> {
+class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
 
   /* VARIABLES */
 
@@ -215,6 +215,6 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
 /* EXPORT */
 
-export default Cache;
+export default CacheUnkeyed;
 
 //TODO: REVIEW

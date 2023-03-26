@@ -5,7 +5,7 @@ import type {CallableFunction, Resolved} from '~/types';
 
 /* MAIN */
 
-class Cache<T, R> {
+class CacheAbstract<T, R> {
 
   /* CONSTRUCTOR */
 
@@ -21,6 +21,6 @@ class Cache<T, R> {
 
 /* EXPORT */
 
-export default Cache;
+export default CacheAbstract;
 
 //TODO: REVIEW

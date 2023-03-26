@@ -2,15 +2,17 @@
 /* IMPORT */
 
 import benchmark from 'benchloop';
-import {setOwner, setTracking} from '../dist/context.js';
+import {setObserver, setOwner} from '../dist/context.js';
 import Memo from '../dist/objects/memo.js';
 import $ from '../dist/index.js';
 import {NOOP, OBJ, OBJ_HUGE} from './store.fixtures.js';
 
 /* HELPERS */ // Running the benchmark with tracking enabled
 
-setOwner ( new Memo ( () => {} ) );
-setTracking ( true );
+const memo = new Memo ( () => {} );
+
+setObserver ( memo );
+setOwner ( memo );
 
 /* MAIN */
 

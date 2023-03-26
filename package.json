@@ -15,7 +15,7 @@
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
     "compile": "tsex compile",
-    "compile:mangle": "mangler --folder dist --ext js --props 'foo,bar'",
+    "compile:mangle": "mangler --folder dist --ext js --props 'fooexample,barexample'",
     "compile:watch": "tsex compile --watch",
     "creation": "node tasks/creation.js",
     "memory": "node tasks/memory.js",
@@ -42,6 +42,6 @@
     "js-simple-mangler": "^2.0.0",
     "scex": "^1.1.0",
     "tsex": "^2.2.4",
-    "typescript": "^5.0.2"
+    "typescript": "^4.9.5"
   }
 }

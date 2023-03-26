@@ -3,7 +3,7 @@
 
 import {OWNER} from '~/context';
 import cleanup from '~/methods/cleanup';
-import CacheAbstract from '~/methods/for_abstract.cache';
+import CacheAbstract from '~/methods/for.cache.abstract';
 import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
@@ -23,7 +23,7 @@ class MappedRoot<T = unknown> extends Root { // This saves some memory compared 
 
 /* MAIN */
 
-class Cache<T, R> extends CacheAbstract<T, R> {
+class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 
   /* VARIABLES */
 
@@ -213,6 +213,6 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
 /* EXPORT */
 
-export default Cache;
+export default CacheKeyed;
 
 //TODO: REVIEW

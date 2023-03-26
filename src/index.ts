@@ -9,7 +9,6 @@ import context from '~/methods/context';
 import disposed from '~/methods/disposed';
 import effect from '~/methods/effect';
 import _for from '~/methods/for';
-import forValue from '~/methods/for_value';
 import get from '~/methods/get';
 import _if from '~/methods/if';
 import isBatching from '~/methods/is_batching';
@@ -50,7 +49,7 @@ import type {EffectOptions, Observable, ObservableReadonly, ObservableOptions, S
 /* EXPORT */
 
 export default $;
-export {batch, boolean, cleanup, context, disposed, effect, _for as for, forValue, get, _if as if, isBatching, isObservable, isStore, memo, observable, on, owner, readonly, resolve, root, selector, suspense, _switch as switch, store, ternary, tryCatch, untrack, _with as with};
+export {batch, boolean, cleanup, context, disposed, effect, _for as for, get, _if as if, isBatching, isObservable, isStore, memo, observable, on, owner, readonly, resolve, root, selector, suspense, _switch as switch, store, ternary, tryCatch, untrack, _with as with};
 export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_ON_CALLBACK, SYMBOL_ON_DEPENDENCIES, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED};
 export type {EffectOptions, Observable, ObservableReadonly, ObservableOptions, StoreOptions};
 
