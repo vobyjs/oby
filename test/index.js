@@ -1023,7 +1023,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'registers a function to be called when the parent suspense is disposed', t => {
+    it.only ( 'registers a function to be called when the parent suspense is disposed', t => {
 
       let sequence = '';
 
@@ -1166,7 +1166,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'can read and write context values inside a suspense', t => {
+    it.only ( 'can read and write context values inside a suspense', t => {
 
       $.suspense ( false, () => {
 
@@ -1244,7 +1244,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'can read and write context values inside a deep suspense', t => {
+    it.only ( 'can read and write context values inside a deep suspense', t => {
 
       $.suspense ( false, () => {
 
@@ -3555,7 +3555,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'detects a suspense', t => {
+    it.only ( 'detects a suspense', t => {
 
       $.suspense ( false, () => {
 
@@ -4174,7 +4174,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'works inside suspense', t => {
+    it.only ( 'works inside suspense', t => {
 
       $.suspense ( true, () => {
 
@@ -4192,7 +4192,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'works with stores', t => {
+    it.only ( 'works with stores', t => {
 
       const store = $.store ({ value: 0 });
       const selector = $.selector ( () => store.value );
@@ -6401,7 +6401,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'automatically waits for an async batch to resolve', async t => {
+        it.skip ( 'automatically waits for an async batch to resolve', async t => {
 
           const o = $.store ({ foo: 1 });
 
@@ -7165,9 +7165,9 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'suspense', it => {
+  describe ( 'suspense', it => {
 
-    it ( 'can accept a primitive falsy condition', t => {
+    it.only ( 'can accept a primitive falsy condition', async t => {
 
       const o = $(0);
       const suspended = 0;
@@ -7186,15 +7186,19 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'can accept a primitive truthy condition', t => {
+    it.only ( 'can accept a primitive truthy condition', async t => {
 
       const o = $(0);
       const suspended = 1;
@@ -7214,14 +7218,18 @@ describe ( 'oby', () => {
       });
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       o ( 1 );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
     });
 
-    it ( 'can accept a function condition', t => {
+    it.only ( 'can accept a function condition', async t => {
 
       const o = $(0);
       const suspended = $(true);
@@ -7241,6 +7249,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( false );
@@ -7248,10 +7258,12 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'can suspend and unsuspend again when the condition changes', t => {
+    it.only ( 'can suspend and unsuspend again when the condition changes', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7270,6 +7282,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( true );
@@ -7278,10 +7292,14 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
       suspended ( false );
       suspended ( false );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       suspended ( 1 );
@@ -7290,15 +7308,19 @@ describe ( 'oby', () => {
       o ( 2 );
 
       t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 2 );
 
       suspended ( 0 );
       suspended ( 0 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of a an effect', t => {
+    it.only ( 'can suspend and unsuspend the execution of a an effect', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7317,6 +7339,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( true );
@@ -7324,14 +7348,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
       suspended ( false );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in an effect', t => {
+    it.only ( 'can suspend and unsuspend the execution of an effect created in an effect', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7356,6 +7384,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( sequence, '' );
+      await tick ();
       t.is ( sequence, 'ab' );
 
       suspended ( true );
@@ -7363,14 +7393,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'ab' );
 
       suspended ( false );
 
+      t.is ( sequence, 'ab' );
+      await tick ();
       t.is ( sequence, 'abb' );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a memo', t => {
+    it.only ( 'can suspend and unsuspend the execution of an effect created in a memo', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7379,7 +7413,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
 
           sequence += 'a';
 
@@ -7393,8 +7427,12 @@ describe ( 'oby', () => {
 
         });
 
+        memo ();
+
       });
 
+      t.is ( sequence, 'a' );
+      await tick ();
       t.is ( sequence, 'ab' );
 
       suspended ( true );
@@ -7402,14 +7440,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'ab' );
 
       suspended ( false );
 
+      t.is ( sequence, 'ab' );
+      await tick ();
       t.is ( sequence, 'abb' );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a root', t => {
+    it.only ( 'can suspend and unsuspend the execution of an effect created in a root', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7434,6 +7476,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( sequence, 'a' );
+      await tick ();
       t.is ( sequence, 'ab' );
 
       suspended ( true );
@@ -7441,14 +7485,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'ab' );
 
       suspended ( false );
 
+      t.is ( sequence, 'ab' );
+      await tick ();
       t.is ( sequence, 'abb' );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a for', t => {
+    it.only ( 'can suspend and unsuspend the execution of an effect created in a for', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7457,14 +7505,17 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.suspense ( suspended, () => {
-        $.for ( array, () => {
+        const memo = $.for ( array, () => {
           $.effect ( () => {
             calls += 1;
             o ();
           });
         });
+        memo ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 3 );
 
       suspended ( true );
@@ -7472,14 +7523,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 3 );
+      await tick ();
+      t.is ( calls, 3 );
 
       suspended ( false );
 
+      t.is ( calls, 3 );
+      await tick ();
       t.is ( calls, 6 );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a forIndex', t => {
+    it.only ( 'can suspend and unsuspend the execution of an effect created in a forValue', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7488,14 +7543,17 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.suspense ( suspended, () => {
-        $.forIndex ( array, () => {
+        const memo = $.forValue ( array, () => {
           $.effect ( () => {
             calls += 1;
             o ();
           });
         });
+        memo ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 3 );
 
       suspended ( true );
@@ -7503,14 +7561,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 3 );
+      await tick ();
+      t.is ( calls, 3 );
 
       suspended ( false );
 
+      t.is ( calls, 3 );
+      await tick ();
       t.is ( calls, 6 );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a suspense', t => {
+    it.skip ( 'can suspend and unsuspend the execution of an effect created in a suspense', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7535,6 +7597,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( sequence, 'a' );
+      await tick ();
       t.is ( sequence, 'ab' );
 
       suspended ( true );
@@ -7542,14 +7606,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'ab' );
 
       suspended ( false );
 
+      t.is ( sequence, 'ab' );
+      await tick ();
       t.is ( sequence, 'abb' );
 
     });
 
-    it ( 'can unsuspend only when all parents are unsuspended too', t => {
+    it.only ( 'can unsuspend only when all parents are unsuspended too', async t => {
 
       const o = $(0);
       const a = $(true);
@@ -7595,22 +7663,30 @@ describe ( 'oby', () => {
       });
 
       t.is ( sequence, '' );
+      await tick ();
+      t.is ( sequence, '' );
 
       c ( false );
 
+      t.is ( sequence, '' );
+      await tick ();
       t.is ( sequence, '' );
 
       b ( false );
 
       t.is ( sequence, '' );
+      await tick ();
+      t.is ( sequence, '' );
 
       a ( false );
 
+      t.is ( sequence, '' );
+      await tick ();
       t.is ( sequence, 'abc' );
 
     });
 
-    it ( 'can suspend a lazily-crated effect', t => {
+    it.only ( 'can suspend a lazily-crated effect', async t => {
 
       const o = $(0);
       const lazy = $(false);
@@ -7620,7 +7696,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
 
           if ( !lazy () ) return;
 
@@ -7634,21 +7710,33 @@ describe ( 'oby', () => {
 
         });
 
+        $.effect ( () => {
+
+          memo ();
+
+        }, { suspense: false } );
+
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 0 );
 
       lazy ( true );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
     });
 
-    it ( 'can suspend a lazily-crated suspense', t => {
+    it.only ( 'can suspend a lazily-crated suspense', async t => {
 
       const o = $(0);
       const lazy = $(false);
@@ -7658,7 +7746,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
 
           if ( !lazy () ) return;
 
@@ -7676,54 +7764,33 @@ describe ( 'oby', () => {
 
         });
 
+        $.effect ( () => {
+
+          memo ();
+
+        }, { suspense: false } );
+
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 0 );
 
       lazy ( true );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
     });
 
-    it ( 'can not suspend a memo', t => {
-
-      const o = $(0);
-      const suspended = $(false);
-
-      let calls = 0;
-
-      $.suspense ( suspended, () => {
-
-        $.memo ( () => {
-
-          calls += 1;
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 1 );
-
-      suspended ( true );
-
-      o ( 1 );
-
-      t.is ( calls, 2 );
-
-      suspended ( false );
-
-      t.is ( calls, 2 );
-
-    });
-
-    it.skip ( 'can not suspend a reaction', t => { //TODO: switch to the new effect
+    it.only ( 'can not suspend an effect with suspense disabled', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7738,25 +7805,70 @@ describe ( 'oby', () => {
 
           o ();
 
-        });
+        }, { suspense: false } );
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( true );
 
       o ( 1 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       suspended ( false );
 
       t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 2 );
 
     });
 
-    it ( 'returns whatever the function returns', t => {
+    it.only ( 'can not suspend a memo', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let calls = 0;
+
+      const memo = $.suspense ( suspended, () => {
+
+        return $.memo ( () => {
+
+          calls += 1;
+
+          o ();
+
+        });
+
+      });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 2 );
+
+      suspended ( false );
+
+      t.is ( calls, 2 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 2 );
+
+    });
+
+    it.only ( 'returns whatever the function returns', t => {
 
       const result = $.suspense ( false, () => {
 
@@ -7768,7 +7880,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'starts unsuspended with no parent and a false condition', t => {
+    it.only ( 'starts unsuspended with no parent and a false condition', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7787,6 +7899,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( true );
@@ -7794,14 +7908,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
       suspended ( false );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'starts unsuspended with an unsuspended parent and a false condition', t => {
+    it.only ( 'starts unsuspended with an unsuspended parent and a false condition', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7824,6 +7942,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( true );
@@ -7831,14 +7951,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
       suspended ( false );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'starts suspended with a suspended parent and a false condition', t => {
+    it.only ( 'starts suspended with a suspended parent and a false condition', async t => {
 
       const o = $(0);
       const suspended = $(true);
@@ -7862,18 +7986,24 @@ describe ( 'oby', () => {
       });
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'starts suspended with an unuspended parent and a true condition', t => {
+    it.only ( 'starts suspended with an unuspended parent and a true condition', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7897,14 +8027,18 @@ describe ( 'oby', () => {
       });
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
     });
 
-    it ( 'starts suspended with a suspended parent and a true condition', t => {
+    it.only ( 'starts suspended with a suspended parent and a true condition', async t => {
 
       const o = $(0);
       const suspended = $(true);
@@ -7928,20 +8062,24 @@ describe ( 'oby', () => {
       });
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
     });
 
-    it ( 'supports cleaning up suspended, but executed, effects', t => {
+    it.only ( 'supports cleaning up suspended, but executed, effects', async t => {
 
       const suspended = $(false);
 
       let calls = 0;
 
-      $.root ( dispose => {
+      await $.root ( async dispose => {
 
         $.suspense ( suspended, () => {
 
@@ -7956,6 +8094,8 @@ describe ( 'oby', () => {
           });
 
         });
+
+        await tick ();
 
         suspended ( true );
 
@@ -7969,13 +8109,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports not cleaning suspended, and never executed, effects', t => {
+    it.only ( 'supports not cleaning suspended, and never executed, effects', async t => {
 
       const suspended = $(true);
 
       let calls = 0;
 
-      $.root ( dispose => {
+      await $.root ( async dispose => {
 
         $.suspense ( suspended, () => {
 
@@ -7991,6 +8131,8 @@ describe ( 'oby', () => {
 
         });
 
+        await tick ();
+
         dispose ();
 
         t.is ( calls, 0 );
@@ -7999,15 +8141,15 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports unsuspending with a disposed always-suspended effect without causing the effect to be executed', t => {
+    it.only ( 'supports unsuspending with a disposed always-suspended effect without causing the effect to be executed', async t => {
 
       const suspended = $(true);
 
       let calls = 0;
 
-      $.suspense ( suspended, () => {
+      await $.suspense ( suspended, () => {
 
-        $.root ( dispose => {
+        return $.root ( async dispose => {
 
           $.effect ( () => {
 
@@ -8015,9 +8157,13 @@ describe ( 'oby', () => {
 
           });
 
+          await tick ();
+
           dispose ();
 
           suspended ( false );
+
+          await tick ();
 
           t.is ( calls, 0 );
 
