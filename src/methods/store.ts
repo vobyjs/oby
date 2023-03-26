@@ -4,9 +4,9 @@
 import {OBSERVER} from '~/context';
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import cleanup from '~/methods/cleanup';
+import effect from '~/methods/effect';
 import isBatching from '~/methods/is_batching';
 import isStore from '~/methods/is_store';
-import reaction from '~/methods/reaction';
 import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
@@ -791,7 +791,7 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
 
   const disposers = selectors.map ( selector => {
     let inited = false;
-    return reaction ( () => {
+    return effect ( () => { //TODO:
       if ( inited ) {
         StoreListenersRegular.listeners.add ( listener );
         StoreScheduler.schedule ();

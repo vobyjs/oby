@@ -4,8 +4,8 @@
 import {OBSERVABLE_FALSE, OBSERVABLE_TRUE} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import isObservableFrozen from '~/methods/is_observable_frozen';
+import effect from '~/methods/effect';
 import memo from '~/methods/memo';
-import reaction from '~/methods/reaction';
 import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
@@ -58,7 +58,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
   let selecteds = new DisposableMap<unknown, SelectedObservable> ();
   let selectedValue: T | undefined = untrack ( source );
 
-  reaction ( () => {
+  effect ( () => { //TODO: Maybe this should be synchronous really
 
     const valuePrev = selectedValue;
     const valueNext = source ();
@@ -70,7 +70,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
     selecteds.get ( valuePrev )?.write ( false );
     selecteds.get ( valueNext )?.write ( true );
 
-  });
+  }, { suspense: false } );
 
   /* CLEANUP ALL */
 

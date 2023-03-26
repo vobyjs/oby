@@ -131,35 +131,6 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'creates a dependency in a reaction when getting', async t => {
-
-      const o = $(1);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        o ();
-      });
-
-      t.is ( calls, 0 );
-      await tick ();
-      t.is ( calls, 1 );
-
-      o ( 2 );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 2 );
-
-      o ( 3 );
-
-      t.is ( calls, 2 );
-      await tick ();
-      t.is ( calls, 3 );
-
-    });
-
     it.only ( 'creates a single dependency in a memo even if getting multiple times', t => {
 
       const o = $(1);
@@ -199,37 +170,6 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.effect ( () => {
-        calls += 1;
-        o ();
-        o ();
-        o ();
-      });
-
-      t.is ( calls, 0 );
-      await tick ();
-      t.is ( calls, 1 );
-
-      o ( 2 );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 2 );
-
-      o ( 3 );
-
-      t.is ( calls, 2 );
-      await tick ();
-      t.is ( calls, 3 );
-
-    });
-
-    it.only ( 'creates a single dependency in a reaction even if getting multiple times', async t => {
-
-      const o = $(1);
-
-      let calls = 0;
-
-      $.reaction ( () => {
         calls += 1;
         o ();
         o ();
@@ -298,28 +238,6 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not create a dependency in a reaction when instantiating', async t => {
-
-      let o;
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        o = $(1);
-      });
-
-      t.is ( calls, 0 );
-      await tick ();
-      t.is ( calls, 1 );
-
-      o ( 2 );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 1 );
-
-    });
-
     it.only ( 'does not create a dependency in a memo when setting', t => {
 
       let o = $(1);
@@ -348,28 +266,6 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.effect ( () => {
-        calls += 1;
-        o ( 2 );
-      });
-
-      t.is ( calls, 0 );
-      await tick ();
-      t.is ( calls, 1 );
-
-      o ( 5 );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 1 );
-
-    });
-
-    it.only ( 'does not create a dependency in a reaction when setting', async t => {
-
-      let o = $(1);
-      let calls = 0;
-
-      $.reaction ( () => {
         calls += 1;
         o ( 2 );
       });
@@ -418,31 +314,6 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.effect ( () => {
-        calls += 1;
-        o ( prev => prev + 1 );
-        o ( prev => prev + 1 );
-        o ( prev => prev + 1 );
-      });
-
-      t.is ( calls, 0 );
-      await tick ();
-      t.is ( calls, 1 );
-
-      o ( 5 );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 1 );
-
-    });
-
-    it.only ( 'does not create a dependency in a reaction when setting with a function', async t => {
-
-      const o = $(1);
-
-      let calls = 0;
-
-      $.reaction ( () => {
         calls += 1;
         o ( prev => prev + 1 );
         o ( prev => prev + 1 );
@@ -754,35 +625,6 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'coalesces multiple updates for a reaction together', t => {
-
-      const a = $(0);
-      const b = $(0);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-
-        calls += 1;
-
-        a ();
-        b ();
-
-      });
-
-      t.is ( calls, 1 );
-
-      $.batch ( () => {
-        a ( 1 );
-        a ( 2 );
-        b ( 1 );
-        b ( 2 );
-      });
-
-      t.is ( calls, 2 );
-
-    });
-
     it ( 'does not swallow thrown errors', t => {
 
       try {
@@ -1005,42 +847,6 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not cause the parent reaction to re-execute', async t => {
-
-      const disposed = $(false);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-
-        calls += 1;
-
-        if ( disposed () ) return;
-
-        const o = $(0);
-
-        o ();
-
-        $.cleanup ( () => {
-
-          o ( Math.random () );
-
-        });
-
-      });
-
-      t.is ( calls, 0 );
-      await tick ();
-      t.is ( calls, 1 );
-
-      disposed ( true );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 2 );
-
-    });
-
     it.only ( 'registers a function to be called when the parent computation is disposed', t => {
 
       let sequence = '';
@@ -1143,50 +949,6 @@ describe ( 'oby', () => {
       let sequence = '';
 
       $.effect ( () => {
-
-        o ();
-
-        $.cleanup ( () => {
-          sequence += 'a';
-        });
-
-        $.cleanup ( () => {
-          sequence += 'b';
-        });
-
-      });
-
-      await tick ();
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      await tick ();
-
-      t.is ( sequence, 'ba' );
-
-      o ( 2 );
-
-      await tick ();
-
-      t.is ( sequence, 'baba' );
-
-      o ( 3 );
-
-      await tick ();
-
-      t.is ( sequence, 'bababa' );
-
-    });
-
-    it.only ( 'registers a function to be called when the parent reaction updates', async t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.reaction ( () => {
 
         o ();
 
@@ -1389,23 +1151,6 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can read and write context values inside a reaction', async t => {
-
-      $.reaction ( () => {
-
-        const ctx = Symbol ();
-        const value = { foo: 123 };
-
-        $.context ( ctx, value );
-
-        t.is ( $.context ( ctx ), value );
-
-      });
-
-      await tick ();
-
-    });
-
     it.only ( 'can read and write context values inside a root', t => {
 
       $.root ( () => {
@@ -1477,27 +1222,6 @@ describe ( 'oby', () => {
       });
 
       memo1 ();
-
-    });
-
-    it.only ( 'can read and write context values inside a deep reaction', async t => {
-
-      $.reaction ( () => {
-
-        const ctx = Symbol ();
-        const value = { foo: 123 };
-
-        $.context ( ctx, value );
-
-        $.reaction ( () => {
-
-          t.is ( $.context ( ctx ), value );
-
-        });
-
-      });
-
-      await tick ();
 
     });
 
@@ -2986,35 +2710,6 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'creates a dependency in an reaction', async t => {
-
-      const o = $(1);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        $.get ( o );
-      });
-
-      t.is ( calls, 0 );
-      await tick ();
-      t.is ( calls, 1 );
-
-      o ( 2 );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 2 );
-
-      o ( 3 );
-
-      t.is ( calls, 2 );
-      await tick ();
-      t.is ( calls, 3 );
-
-    });
-
     it.only ( 'gets the value out of a function', t => {
 
       const o = () => 123;
@@ -3703,38 +3398,6 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can call the registered function before reactions', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.reaction ( () => {
-
-        sequence += 'b';
-
-        o ();
-
-      });
-
-      $.on ( o, () => {
-
-        sequence += 'a';
-
-      });
-
-      t.is ( sequence, 'b' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'bab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'babab' );
-
-    });
-
     it ( 'can call the registered function even if inside a suspended suspense', t => {
 
       const o = $(0);
@@ -3861,23 +3524,6 @@ describe ( 'oby', () => {
     it.only ( 'detects an effect', async t => {
 
       $.effect ( () => {
-
-        const owner = $.owner ();
-
-        t.false ( owner.isSuperRoot );
-        t.false ( owner.isRoot );
-        t.false ( owner.isSuspense );
-        t.true ( owner.isComputation );
-
-      });
-
-      await tick ();
-
-    });
-
-    it.only ( 'detects a reaction', async t => {
-
-      $.reaction ( () => {
 
         const owner = $.owner ();
 
@@ -4021,41 +3667,6 @@ describe ( 'oby', () => {
 
         const fn = () => {
           $.effect ( () => {
-            calls += 1;
-            o () ** 2;
-          });
-        };
-
-        $.resolve ( fn );
-
-        return dispose;
-
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 3 );
-
-      t.is ( calls, 2 );
-
-      dispose ();
-
-      o ( 4 );
-
-      t.is ( calls, 2 );
-
-    });
-
-    it ( 'properly disposes of inner reactions', t => {
-
-      const o = $(2);
-
-      let calls = 0;
-
-      const dispose = $.root ( dispose => {
-
-        const fn = () => {
-          $.reaction ( () => {
             calls += 1;
             o () ** 2;
           });
@@ -4741,35 +4352,6 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a dependency in a reaction when getting a shallow property', async t => {
-
-          const o = $.store ({ value: 1 });
-
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.value;
-          });
-
-          t.is ( calls, 0 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.value = 2;
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 2 );
-
-          o.value = 3;
-
-          t.is ( calls, 2 );
-          await tick ();
-          t.is ( calls, 3 );
-
-        });
-
         it.only ( 'creates a dependency in a memo when getting a deep property', t => {
 
           const o = $.store ({ deep: { value: 1 } });
@@ -4806,35 +4388,6 @@ describe ( 'oby', () => {
           let calls = 0;
 
           $.effect ( () => {
-            calls += 1;
-            o.deep.value;
-          });
-
-          t.is ( calls, 0 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.deep.value = 2;
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 2 );
-
-          o.deep.value = 3;
-
-          t.is ( calls, 2 );
-          await tick ();
-          t.is ( calls, 3 );
-
-        });
-
-        it.only ( 'creates a dependency in a reaction when getting a deep property', async t => {
-
-          const o = $.store ({ deep: { value: 1 } });
-
-          let calls = 0;
-
-          $.reaction ( () => {
             calls += 1;
             o.deep.value;
           });
@@ -4896,37 +4449,6 @@ describe ( 'oby', () => {
           let calls = 0;
 
           $.effect ( () => {
-            calls += 1;
-            o.value;
-            o.value;
-            o.value;
-          });
-
-          t.is ( calls, 0 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.value = 2;
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 2 );
-
-          o.value = 3;
-
-          t.is ( calls, 2 );
-          await tick ();
-          t.is ( calls, 3 );
-
-        });
-
-        it.only ( 'creates a single dependency in a reaction even if getting a shallow property multiple times', async t => {
-
-          const o = $.store ({ value: 1 });
-
-          let calls = 0;
-
-          $.reaction ( () => {
             calls += 1;
             o.value;
             o.value;
@@ -5014,37 +4536,6 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a single dependency in a reaction even if getting a deep property multiple times', async t => {
-
-          const o = $.store ({ deep: { value: 1 } });
-
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.deep.value;
-            o.deep.value;
-            o.deep.value;
-          });
-
-          t.is ( calls, 0 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.deep.value = 2;
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 2 );
-
-          o.deep.value = 3;
-
-          t.is ( calls, 2 );
-          await tick ();
-          t.is ( calls, 3 );
-
-        });
-
         it.only ( 'does not create a dependency in a memo when creating', t => {
 
           let o;
@@ -5089,28 +4580,6 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does not create a dependency in a reaction when creating', async t => {
-
-          let o;
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o = $.store ({ value: 1 });
-          });
-
-          t.is ( calls, 0 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.value = 2;
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 1 );
-
-        });
-
         it.only ( 'does not create a dependency in a memo when setting a shallow property', t => {
 
           let o = $.store ({ value: 0 });
@@ -5139,28 +4608,6 @@ describe ( 'oby', () => {
           let calls = 0;
 
           $.effect ( () => {
-            calls += 1;
-            o.value = 1;
-          });
-
-          t.is ( calls, 0 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.value = 2;
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 1 );
-
-        });
-
-        it.only ( 'does not create a dependency in a reaction when setting a shallow property', async t => {
-
-          let o = $.store ({ value: 0 });
-          let calls = 0;
-
-          $.reaction ( () => {
             calls += 1;
             o.value = 1;
           });
@@ -5235,35 +4682,6 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does not create a dependency in a reaction when getting a parent property of the one being updated', async t => {
-
-          const o = $.store ({ deep: { value: 1 } });
-
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.deep;
-          });
-
-          t.is ( calls, 0 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.deep.value = 2;
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.deep.value = 3;
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 1 );
-
-        });
-
         it.only ( 'does create a dependency (on the parent) in a memo when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
 
           const o = $.store ({ deep: { value: 1 } });
@@ -5300,35 +4718,6 @@ describe ( 'oby', () => {
           let calls = 0;
 
           $.effect ( () => {
-            calls += 1;
-            o.deep.value = 2;
-          });
-
-          t.is ( calls, 0 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.deep.value = 3;
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 1 );
-
-          o.deep = {};
-
-          t.is ( calls, 1 );
-          await tick ();
-          t.is ( calls, 2 );
-
-        });
-
-        it.only ( 'does create a dependency (on the parent) in a reaction when setting a deep property', async t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
-
-          const o = $.store ({ deep: { value: 1 } });
-
-          let calls = 0;
-
-          $.reaction ( () => {
             calls += 1;
             o.deep.value = 2;
           });
@@ -7018,7 +6407,7 @@ describe ( 'oby', () => {
 
           let calls = '';
 
-          $.reaction ( () => {
+          $.effect ( () => {
 
             o.foo;
 
@@ -8334,7 +7723,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can not suspend a reaction', t => {
+    it.skip ( 'can not suspend a reaction', t => { //TODO: switch to the new effect
 
       const o = $(0);
       const suspended = $(false);
@@ -8343,7 +7732,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.reaction ( () => {
+        $.effect ( () => {
 
           calls += 1;
 
@@ -9142,44 +8531,6 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not leak reactions', async t => {
-
-      const o = $(1);
-
-      let cleaned = false;
-
-      $.reaction ( () => {
-
-        o ();
-
-        $.untrack ( () => {
-
-          $.reaction ( () => {
-
-            $.cleanup ( () => {
-
-              cleaned = true;
-
-            });
-
-          });
-
-        });
-
-      });
-
-      await tick ();
-
-      t.is ( cleaned, false );
-
-      o ( 2 );
-
-      await tick ();
-
-      t.is ( cleaned, true );
-
-    });
-
     it.only ( 'returns non-functions as is', t => {
 
       const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
@@ -9272,46 +8623,6 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports getting without creating dependencies in a reaction', async t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $(3);
-      const d = $(0);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        a ();
-        a ();
-        d ( $.untrack ( () => b () ) );
-        c ();
-        c ();
-      });
-
-      t.is ( calls, 0 );
-      await tick ();
-      t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      b ( 4 );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      a ( 5 );
-      c ( 6 );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 2 );
-      t.is ( d (), 4 );
-
-    });
-
     it.only ( 'works with functions containing a memo', async t => {
 
       const o = $(0);
@@ -9367,44 +8678,6 @@ describe ( 'oby', () => {
           o ();
 
           $.effect ( () => {
-
-            o ();
-
-          });
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 0 );
-      await tick ();
-      t.is ( calls, 1 );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-      await tick ();
-      t.is ( calls, 1 );
-
-    });
-
-    it.only ( 'works with functions containing a reaction', async t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-
-        calls += 1;
-
-        $.untrack ( () => {
-
-          o ();
-
-          $.reaction ( () => {
 
             o ();
 

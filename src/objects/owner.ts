@@ -3,7 +3,7 @@
 
 import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
 import {castError} from '~/utils';
-import type {IObserver, IOwner, IRoot, CleanupFunction, ErrorFunction, ObservedFunction, Callable, Contexts} from '~/types';
+import type {IObserver, IOwner, IRoot, ISuspense, CleanupFunction, ErrorFunction, ObservedFunction, Callable, Contexts} from '~/types';
 
 /* MAIN */
 
@@ -20,6 +20,7 @@ class Owner {
   errorHandler?: ErrorFunction;
   observers: IObserver[];
   roots: IRoot[];
+  suspenses: ISuspense[];
 
   /* CONSTRUCTOR */
 
@@ -29,6 +30,7 @@ class Owner {
     this.contexts = {};
     this.observers = [];
     this.roots = [];
+    this.suspenses = [];
 
   }
 
