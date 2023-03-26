@@ -18,7 +18,7 @@ const suspense = <T> ( when: FunctionMaybe<unknown>, fn: SuspenseFunction<T> ): 
 
     suspense.toggle ( get ( condition ) );
 
-  });
+  }, { sync: true } );
 
   return suspense.wrap ( fn );
 

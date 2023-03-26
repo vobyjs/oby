@@ -791,14 +791,14 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
 
   const disposers = selectors.map ( selector => {
     let inited = false;
-    return effect ( () => { //TODO:
+    return effect ( () => {
       if ( inited ) {
         StoreListenersRegular.listeners.add ( listener );
         StoreScheduler.schedule ();
       }
       inited = true;
       selector ();
-    });
+    }, { suspense: false } );
   });
 
   nodes.forEach ( node => {

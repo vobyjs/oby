@@ -16,6 +16,7 @@ class Effect extends Observer {
 
   fn: EffectFunction;
   suspense?: ISuspense;
+  sync?: boolean;
 
   /* CONSTRUCTOR */
 
@@ -25,6 +26,7 @@ class Effect extends Observer {
 
     this.fn = fn;
     this.suspense = SUSPENSE_ENABLED && options?.suspense !== false ? this.read ( SYMBOL_SUSPENSE ) : undefined;
+    this.sync = !!options?.sync;
 
     this.schedule ();
 
@@ -34,7 +36,7 @@ class Effect extends Observer {
 
   dispose (): void {
 
-    Scheduler.pop ( this );
+    this.unschedule ();
 
     super.dispose ();
 
@@ -42,7 +44,25 @@ class Effect extends Observer {
 
   schedule (): void {
 
-    Scheduler.push ( this );
+    if ( this.sync ) {
+
+      this.update ();
+
+    } else {
+
+      Scheduler.push ( this );
+
+    }
+
+  }
+
+  unschedule (): void {
+
+    if ( !this.sync ) {
+
+      Scheduler.pop ( this );
+
+    }
 
   }
 

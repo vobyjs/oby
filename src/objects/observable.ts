@@ -42,7 +42,7 @@ class Observable<T = unknown> {
 
   stale ( status: 2 | 3 ): void {
 
-    this.observers.forEach ( observer => observer.stale ( status ) );
+    [...this.observers].forEach ( observer => observer.stale ( status ) ); //TODO: cloning is needed for sync calling, maybe we can do it differently
 
   }
 
@@ -62,9 +62,9 @@ class Observable<T = unknown> {
 
     if ( !fresh ) return value;
 
-    this.stale ( DIRTY_YES );
-
     this.value = value;
+
+    this.stale ( DIRTY_YES );
 
     return value;
 

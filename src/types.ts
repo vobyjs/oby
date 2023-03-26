@@ -49,8 +49,6 @@ type ObservedFunction<T = unknown> = () => T;
 
 type ObservedDisposableFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
 
-type ReactionFunction = () => CleanupFunction | void;
-
 type SelectorFunction<T = unknown> = ( value: T ) => ObservableReadonly<boolean>;
 
 type SuspenseFunction<T = unknown> = () => T;
@@ -66,7 +64,8 @@ type WithFunction<T = unknown> = () => T;
 /* EFFECT */
 
 type EffectOptions = {
-  suspense?: boolean
+  suspense?: boolean,
+  sync?: boolean
 };
 
 /* OBSERVABLE */
@@ -150,8 +149,8 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 
 /* EXPORT */
 
-export type {IEffect, IMemo, IObservable, IObserver, IOwner, IReaction, IRoot, IScheduler, ISuperRoot, ISuspense};
-export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
+export type {IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, IScheduler, ISuperRoot, ISuspense};
+export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
 export type {EffectOptions};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Owner};

@@ -58,7 +58,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
   let selecteds = new DisposableMap<unknown, SelectedObservable> ();
   let selectedValue: T | undefined = untrack ( source );
 
-  effect ( () => { //TODO: Maybe this should be synchronous really
+  effect ( () => {
 
     const valuePrev = selectedValue;
     const valueNext = source ();
@@ -70,7 +70,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
     selecteds.get ( valuePrev )?.write ( false );
     selecteds.get ( valueNext )?.write ( true );
 
-  }, { suspense: false } );
+  }, { suspense: false, sync: true } );
 
   /* CLEANUP ALL */
 
