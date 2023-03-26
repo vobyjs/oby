@@ -57,3 +57,5 @@ const batch = async <T> ( fn: BatchFunction<T> ): Promise<Awaited<T>> => {
 /* MAIN */
 
 export default batch;
+
+//TODO: REVIEW

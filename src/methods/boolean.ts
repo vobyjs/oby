@@ -26,3 +26,5 @@ const boolean = ( value: FunctionMaybe<unknown> ): FunctionMaybe<boolean> => {
 /* EXPORT */
 
 export default boolean;
+
+//TODO: REVIEW

@@ -16,3 +16,5 @@ const forValue = <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapValueFu
 /* EXPORT */
 
 export default forValue;
+
+//TODO: REVIEW

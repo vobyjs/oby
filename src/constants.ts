@@ -13,7 +13,12 @@ const DIRTY_YES = 3; // The observer is dirty, for sure
 const OBSERVABLE_FALSE = frozen ( false );
 const OBSERVABLE_TRUE = frozen ( true );
 
+const UNAVAILABLE: any = new Proxy ( {}, new Proxy ( {}, { get () { throw new Error ( 'Unavailable' ) } } ) );
+
 /* EXPORT */
 
 export {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES};
 export {OBSERVABLE_FALSE, OBSERVABLE_TRUE};
+export {UNAVAILABLE};
+
+//TODO: REVIEW

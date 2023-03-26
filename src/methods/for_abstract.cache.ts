@@ -22,3 +22,5 @@ class Cache<T, R> {
 /* EXPORT */
 
 export default Cache;
+
+//TODO: REVIEW

@@ -105,3 +105,5 @@ class Effect extends Observer {
 /* EXPORT */
 
 export default Effect;
+
+//TODO: REVIEW

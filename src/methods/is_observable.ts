@@ -16,3 +16,5 @@ const isObservable = <T = unknown> ( value: unknown ): value is Observable<T> | 
 /* EXPORT */
 
 export default isObservable;
+
+//TODO: REVIEW

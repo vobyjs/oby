@@ -58,3 +58,5 @@ const forAbstract = <T, R, F> ( Cache: Constructor<Cache<T, R>, [CallableFunctio
 /* EXPORT */
 
 export default forAbstract;
+
+//TODO: REVIEW

@@ -79,3 +79,5 @@ const nope = (): false => {
 /* EXPORT */
 
 export {castArray, castError, is, isArray, isEqual, isFunction, isNumber, isObject, max, noop, nope};
+
+//TODO: REVIEW

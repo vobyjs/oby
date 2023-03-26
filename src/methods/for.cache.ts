@@ -214,3 +214,5 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 /* EXPORT */
 
 export default Cache;
+
+//TODO: REVIEW

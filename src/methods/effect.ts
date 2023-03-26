@@ -20,3 +20,5 @@ const effect = ( fn: EffectFunction, options?: EffectOptions ): DisposeFunction 
 /* EXPORT */
 
 export default effect;
+
+//TODO: REVIEW

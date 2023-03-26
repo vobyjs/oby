@@ -16,3 +16,5 @@ const isBatching = (): boolean => {
 /* EXPORT */
 
 export default isBatching;
+
+//TODO: REVIEW

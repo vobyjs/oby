@@ -24,3 +24,5 @@ const on = <T> ( dependencies: ObservableReadonly[], fn: () => T ): (() => T) =>
 /* EXPORT */
 
 export default on;
+
+//TODO: REVIEW
