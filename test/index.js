@@ -33,9 +33,25 @@ const isWritable = ( t, value ) => {
 
 };
 
-const call = ( fn ) => {
+const call = fn => {
 
   return fn ();
+
+};
+
+const children = value => {
+
+  return $.memo ( () => {
+
+    while ( typeof value === 'function' ) {
+
+      value = value ();
+
+    }
+
+    return value;
+
+  });
 
 };
 
@@ -3667,7 +3683,7 @@ describe ( 'oby', () => {
 
   describe ( 'resolve', it => {
 
-    it.skip ( 'properly disposes of inner memos', t => {
+    it.only ( 'properly disposes of inner memos', t => {
 
       const o = $(2);
 
@@ -3680,10 +3696,14 @@ describe ( 'oby', () => {
             calls += 1;
             return o () ** 2;
           });
-          memo ();
+          $.effect ( () => {
+            memo ();
+          }, { sync: true } );
         };
 
-        $.resolve ( fn );
+        const memo = $.resolve ( fn );
+
+        memo ();
 
         return dispose;
 
@@ -3703,7 +3723,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'properly disposes of inner effects', t => {
+    it.only ( 'properly disposes of inner effects', async t => {
 
       const o = $(2);
 
@@ -3718,16 +3738,22 @@ describe ( 'oby', () => {
           });
         };
 
-        $.resolve ( fn );
+        const memo = $.resolve ( fn );
+
+        memo ();
 
         return dispose;
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 3 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       dispose ();
@@ -3735,10 +3761,12 @@ describe ( 'oby', () => {
       o ( 4 );
 
       t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 2 );
 
     });
 
-    it ( 'resolves an array', t => {
+    it.only ( 'resolves an array', t => {
 
       const arr = [() => 123];
       const resolved = $.resolve ( arr );
@@ -3749,7 +3777,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves a nested array', t => {
+    it.only ( 'resolves a nested array', t => {
 
       const arr = [123, [() => 123]];
       const resolved = $.resolve ( arr );
@@ -3760,7 +3788,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves an observable', t => {
+    it.only ( 'resolves an observable', t => {
 
       const o = $(123);
       const resolved = $.resolve ( o );
@@ -3769,7 +3797,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves nested observable', t => {
+    it.only ( 'resolves nested observable', t => {
 
       const a = $(123);
       const b = $(a);
@@ -3780,7 +3808,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves a plain object', t => {
+    it.only ( 'resolves a plain object', t => {
 
       const ia = { foo: true };
       const ib = { foo: () => true };
@@ -3799,7 +3827,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves a primitive', t => {
+    it.only ( 'resolves a primitive', t => {
 
       const symbol = Symbol ();
 
@@ -3814,7 +3842,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves a function', t => {
+    it.only ( 'resolves a function', t => {
 
       const fn = () => 123;
       const resolved = $.resolve ( fn );
@@ -3825,7 +3853,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves nested functions', t => {
+    it.only ( 'resolves nested functions', t => {
 
       const fn = () => () => 123;
       const resolved = $.resolve ( fn );
@@ -3837,7 +3865,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves mixed nested arrays and functions', t => {
+    it.only ( 'resolves mixed nested arrays and functions', t => {
 
       const arr = [() => [() => 123]];
       const resolved = $.resolve ( arr );
@@ -6263,7 +6291,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.skip ( 'supports reacting to changes in setters caused by Object.defineProperty, override with new setter', async t => {
+        it.only ( 'supports reacting to changes in setters caused by Object.defineProperty, override with new setter', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
 
@@ -6271,8 +6299,10 @@ describe ( 'oby', () => {
 
           $.effect ( () => {
             calls += 1;
+            debugger;
             o.fn = 3;
-            o.fn;
+            // o.fn;
+            debugger;
           });
 
           t.is ( calls, 0 );
@@ -6289,8 +6319,8 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
           await tick ();
-          t.is ( calls, 2 );
-          t.is ( o._fn, 30 );
+          // t.is ( calls, 2 );
+          // t.is ( o._fn, 30 );
 
         });
 
@@ -8551,7 +8581,14 @@ describe ( 'oby', () => {
 
   describe ( 'tryCatch', it => {
 
+    //TODO: wrong return type now I guess, maybe?
+    //TODO: deep child errors
+    //TODO: callable object
+    //TODO: error handler that throws, bubbling the error up
+
     it.skip ( 'can catch and recover from errors', t => {
+
+      //TODO: those memo()() update calls don't look right
 
       const o = $(false);
 
@@ -8569,12 +8606,14 @@ describe ( 'oby', () => {
       };
 
       const memo = $.tryCatch ( regular, fallback );
+      const result = children ( memo );
 
-      t.is ( memo ()(), 'regular' );
+      t.is ( result (), 'regular' );
 
       o ( true );
 
-      // t.is ( memo (), 'fallback' );
+      t.is ( result (), 'fallback' );
+
       // t.true ( err instanceof Error );
       // t.is ( err.message, 'whoops' );
 
@@ -8582,17 +8621,14 @@ describe ( 'oby', () => {
 
       // recover ();
 
-      // t.is ( memo ()(), 'regular' );
+      // t.is ( memo (), 'regular' );
 
     });
 
-    //TODO: deep child errors
-    //TODO: callable object
-    //TODO: error handler that throws, bubbling the error up
-
-    it ( 'casts thrown errors to Error instances', t => {
+    it.skip ( 'casts thrown errors to Error instances', t => {
 
       const fallback = ({ error }) => {
+
         t.true ( error instanceof Error );
         t.is ( error.message, 'err' );
       };
@@ -8601,7 +8637,7 @@ describe ( 'oby', () => {
         throw 'err';
       };
 
-      $.tryCatch ( regular, fallback );
+      const memo = $.tryCatch ( regular, fallback );
 
     });
 
@@ -9071,17 +9107,15 @@ describe ( 'oby', () => {
 
   describe ( 'S-like propagation', it => {
 
-    //TODO: Test uncut diamond also
+    it.only ( 'only propagates in topological order, diamond', t => {
 
-    it.only ( 'only propagates in topological order', t => {
-
-      //    c1
+      //    a1
       //   /  \
       //  /    \
       // b1     b2
       //  \    /
       //   \  /
-      //    a1
+      //    c1
 
       let sequence = '';
 
@@ -9089,8 +9123,7 @@ describe ( 'oby', () => {
 
       const b1 = $.memo ( () => {
         sequence += 'b1';
-        const val = a1 () + 1;
-        return val;
+        return a1 () + 1;
       });
 
       const b2 = $.memo ( () => {

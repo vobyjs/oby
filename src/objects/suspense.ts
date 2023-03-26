@@ -28,7 +28,7 @@ class Suspense extends Owner {
     setSuspenseEnabled ( true );
 
     this.parent.suspenses.push ( this );
-    this.suspended = OWNER.read<ISuspense> ( SYMBOL_SUSPENSE )?.suspended || 0; //TODO: This probably requires a +1, because .toggle is called immediately
+    this.suspended = ( OWNER.read<ISuspense> ( SYMBOL_SUSPENSE )?.suspended || 0 ); //TODO: This probably requires a +1, because .toggle is called immediately
 
     this.write ( SYMBOL_SUSPENSE, this );
 

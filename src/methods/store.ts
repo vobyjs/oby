@@ -800,7 +800,7 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
       }
       inited = true;
       selector ();
-    }, { suspense: false } );
+    }, { suspense: false, sync: true } );
   });
 
   nodes.forEach ( node => {

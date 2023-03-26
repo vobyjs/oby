@@ -44,6 +44,8 @@ import type {EffectOptions, Observable, ObservableReadonly, ObservableOptions, S
 //TODO: unify for and forValue
 //TODO: delete old implementation
 //TODO: maybe rename tryCatch to try
+//TODO: maybe setting in memos should be forbidden or made explicit at least
+//TODO: "val" + "ue" delete
 
 /* EXPORT */
 

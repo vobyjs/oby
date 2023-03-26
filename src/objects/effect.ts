@@ -86,9 +86,11 @@ class Effect extends Observer {
 
     if ( this.status === status ) return;
 
+    const isScheduled = ( this.sync && ( this.status === 2 || this.status === 3 ) );
+
     super.stale ( status );
 
-    this.schedule ();
+    if ( !isScheduled ) this.schedule ();
 
   }
 
