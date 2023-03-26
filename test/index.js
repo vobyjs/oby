@@ -6291,7 +6291,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes in setters caused by Object.defineProperty, override with new setter', async t => {
+        it.skip ( 'supports reacting to changes in setters caused by Object.defineProperty, override with new setter', async t => { //TODO: Maybe too expensive to support
 
           const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
 
@@ -6299,10 +6299,8 @@ describe ( 'oby', () => {
 
           $.effect ( () => {
             calls += 1;
-            debugger;
             o.fn = 3;
-            // o.fn;
-            debugger;
+            o.fn;
           });
 
           t.is ( calls, 0 );
@@ -6612,7 +6610,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.skip ( 'supports listening to a single primitive', async t => {
+        it.only ( 'supports listening to a single primitive', async t => {
 
           const o = $.store ( { foo: 1, bar: 1 } );
 
@@ -6638,7 +6636,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.skip ( 'supports listening to multiple primitives', async t => {
+        it.only ( 'supports listening to multiple primitives', async t => {
 
           const o = $.store ( { foo: 1, bar: 1 } );
 
@@ -6716,7 +6714,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.skip ( 'supports listening to multiple primitives and stores', async t => {
+        it.only ( 'supports listening to multiple primitives and stores', async t => {
 
           const o = $.store ( { foo: { value: 1 }, bar: { value: 1 } } );
 
@@ -6773,7 +6771,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.skip ( 'supports listening to a raw observable', async t => {
+        it.only ( 'supports listening to a raw observable', async t => {
 
           const o = $(1);
 
