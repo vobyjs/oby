@@ -479,157 +479,229 @@ describe ( 'oby', () => {
 
   });
 
-  describe.skip ( 'batch', it => { //TODO: Split into implict and explicit (for async functions)
+  describe ( 'batch', it => {
 
-    it ( 'batches changes within itself', t => {
+    it.only ( 'batches synchronous changes implicitly, for a memo', t => {
 
-      const a = $(9);
-      const b = $(99);
-
-      $.batch ( () => {
-        a ( 10 );
-        b ( 100 );
-        t.is ( a (), 9 );
-        t.is ( b (), 99 );
-      });
-
-      t.is ( a (), 10 );
-      t.is ( b (), 100 );
-
-    });
-
-    it ( 'batches changes within itself, even for async functions', async t => {
-
-      const a = $(9);
-      const b = $(99);
-
-      await $.batch ( async () => {
-        a ( 10 );
-        b ( 100 );
-        await delay ( 50 );
-        t.is ( a (), 9 );
-        t.is ( b (), 99 );
-      });
-
-      t.is ( a (), 10 );
-      t.is ( b (), 100 );
-
-    });
-
-    it ( 'batches changes propagating outside of its scope', t => {
-
-      $.root ( () => {
-
-        const a = $(9);
-        const b = $(99);
-
-        const c = $.memo ( () => {
-          return a () + b ();
-        });
-
-        $.batch ( () => {
-          a ( 10 );
-          b ( 100 );
-          t.is ( c (), 9 + 99 );
-        });
-
-        t.is ( c (), 10 + 100 );
-
-      });
-
-    });
-
-    it ( 'coalesces multiple events for the same observable together', t => {
-
-      const o = $(1);
+      const a = $(0);
+      const b = $(1);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        o ();
+        return a () + b ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
-      $.batch ( () => {
+      a ( 10 );
+      b ( 100 );
 
-        o ( 2 );
-        o ( 3 );
-        o ( 4 );
-        o ( 5 );
-
-        t.is ( calls, 1 );
-
-      });
-
+      t.is ( calls, 1 );
+      t.is ( memo (), 110 );
       t.is ( calls, 2 );
 
     });
 
-    it ( 'coalesces multiple updates for a memo together', t => {
+    it.only ( 'batches synchronous changes implicitly, for an effect', async t => {
 
       const a = $(0);
-      const b = $(0);
-
-      let calls = 0;
-
-      $.memo ( () => {
-
-        calls += 1;
-
-        a ();
-        b ();
-
-      });
-
-      t.is ( calls, 1 );
-
-      $.batch ( () => {
-        a ( 1 );
-        a ( 2 );
-        b ( 1 );
-        b ( 2 );
-      });
-
-      t.is ( calls, 2 );
-
-    });
-
-    it ( 'coalesces multiple updates for an effect together', t => {
-
-      const a = $(0);
-      const b = $(0);
+      const b = $(1);
 
       let calls = 0;
 
       $.effect ( () => {
-
         calls += 1;
-
         a ();
         b ();
-
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
-      $.batch ( () => {
-        a ( 1 );
-        a ( 2 );
-        b ( 1 );
-        b ( 2 );
+      a ( 10 );
+      b ( 100 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+    });
+
+    it.only ( 'batches asynchronous changes implicitly, for a memo', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      const memo = $.memo ( () => {
+        calls += 1;
+        return a () + b ();
       });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
+      t.is ( calls, 1 );
+
+      a ( 10 );
+      await tick ();
+      b ( 100 );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), 110 );
+      t.is ( calls, 2 );
+
+    });
+
+    it.only ( 'batches asynchronous changes manually, for an effect', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      await $.batch ( async () => {
+        a ( 10 );
+        await tick ();
+        b ( 100 );
+        t.is ( calls, 1 );
+      });
+
+      await tick ();
 
       t.is ( calls, 2 );
 
     });
 
-    it ( 'does not swallow thrown errors', t => {
+    it.only ( 'does not batch synchronous changes implicitly, for a manually pulled memo', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      const memo = $.memo ( () => {
+        calls += 1;
+        return a () + b ();
+      });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
+      t.is ( calls, 1 );
+
+      a ( 10 );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), 11 );
+      t.is ( calls, 2 );
+
+      b ( 100 );
+
+      t.is ( calls, 2 );
+      t.is ( memo (), 110 );
+      t.is ( calls, 3 );
+
+    });
+
+    it.only ( 'does not batch synchronous changes implicitly, for a synchronous effect', t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      a ( 10 );
+
+      t.is ( calls, 2 );
+
+      b ( 100 );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it.only ( 'does not batch synchronous changes manually, for a synchronous effect', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      await $.batch ( () => {
+        a ( 10 );
+        b ( 100 );
+        t.is ( calls, 3 );
+      });
+
+    });
+
+    it.only ( 'does not batch asynchronous changes implicitly, for an effect', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      a ( 10 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+      b ( 100 );
+
+      t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 3 );
+
+    });
+
+    it.only ( 'does not swallow thrown errors, for sync functions', async t => {
 
       try {
 
-        $.batch ( () => {
+        await $.batch ( () => {
 
           throw new Error ( 'Something' );
 
@@ -644,13 +716,13 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'does not swallow thrown errors, even for async functions', async t => { //FIXME: There's some bug in fava that prevents this from working
+    it.only ( 'does not swallow thrown errors, for async functions', async t => {
 
       try {
 
         await $.batch ( async () => {
 
-          await delay ( 50 );
+          await tick ();
 
           throw new Error ( 'Something' );
 
@@ -665,85 +737,59 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns the value being returned', t => {
+    it.only ( 'returns the value being returned, for sync functions', async t => {
 
       const o = $(0);
 
-      const result = $.batch ( () => o () );
+      const result = await $.batch ( () => o () );
 
       t.is ( result, 0 );
 
     });
 
-    it ( 'supports being nested', t => {
+    it.only ( 'returns the value being returned, for async functions', async t => {
 
-      const o = $(1);
+      const o = $(0);
 
-      $.batch ( () => {
-        o ( 2 );
-        t.is ( o (), 1 );
-        $.batch ( () => {
-          o ( 3 );
-          t.is ( o (), 1 );
-          $.batch ( () => {
-            o ( 4 );
-          });
-          t.is ( o (), 1 );
-        });
-        t.is ( o (), 1 );
+      const result = await $.batch ( async () => {
+        await tick ();
+        return o ();
       });
 
-      t.is ( o (), 4 );
+      t.is ( result, 0 );
 
     });
 
-    it ( 'supports being nested, even for async functions', async t => {
+    it.only ( 'supports being nested', async t => {
 
-      const o = $(1);
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
 
       await $.batch ( async () => {
-        o ( 2 );
-        await delay ( 50 );
-        t.is ( o (), 1 );
+        a ( 10 );
+        await tick ();
         await $.batch ( async () => {
-          o ( 3 );
-          await delay ( 50 );
-          t.is ( o (), 1 );
-          await $.batch ( async () => {
-            o ( 4 );
-          });
-          await delay ( 50 );
-          t.is ( o (), 1 );
+          b ( 100 );
         });
-        await delay ( 50 );
-        t.is ( o (), 1 );
+        await tick ();
+        t.is ( calls, 1 );
       });
 
-      t.is ( o (), 4 );
+      await tick ();
 
-    });
-
-    it ( 'supports being nested, even when mixing sync and async functions', async t => {
-
-      const o = $(1);
-
-      await $.batch ( async () => {
-        o ( 2 );
-        await delay ( 50 );
-        t.is ( o (), 1 );
-        $.batch ( () => {
-          o ( 3 );
-          t.is ( o (), 1 );
-          $.batch ( () => {
-            o ( 4 );
-          });
-          t.is ( o (), 1 );
-        });
-        await delay ( 50 );
-        t.is ( o (), 1 );
-      });
-
-      t.is ( o (), 4 );
+      t.is ( calls, 2 );
 
     });
 
@@ -7355,6 +7401,39 @@ describe ( 'oby', () => {
 
       t.is ( calls, 1 );
       await tick ();
+      t.is ( calls, 2 );
+
+    });
+
+    it.only ( 'can suspend and unsuspend the execution of a sync effect', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.effect ( () => {
+
+          calls += 1;
+
+          o ();
+
+        }, { sync: true } );
+
+      });
+
+      t.is ( calls, 1 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+      suspended ( false );
+
       t.is ( calls, 2 );
 
     });

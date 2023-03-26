@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import {BATCH} from '~/context';
 import type {IEffect} from '~/types';
 
 /* MAIN */
@@ -14,7 +15,6 @@ class Scheduler {
 
   /* VARIABLES */
 
-  batch?: Promise<void>;
   queue: Set<IEffect>;
   running: Set<IEffect>;
   scheduled: boolean;
@@ -67,11 +67,9 @@ class Scheduler {
 
       queueMicrotask ( () => {
 
-        const batch = this.batch;
+        if ( BATCH ) {
 
-        if ( batch ) {
-
-          batch.finally ( () => {
+          BATCH.finally ( () => {
 
             queueMicrotask ( () => {
 
