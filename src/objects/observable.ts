@@ -10,7 +10,12 @@ import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions
 /* MAIN */
 
 //TODO: signal prop
+//TODO: disposing
 //TODO: direct listeners prop
+//TODO: read -> get, write -> set
+//TODO: lazy
+//TODO: direct listeners? it's potentially problematic though
+//TODO: signal prop
 
 class Observable<T = unknown> {
 
@@ -40,12 +45,6 @@ class Observable<T = unknown> {
 
   /* API */
 
-  stale ( status: 2 | 3 ): void {
-
-    [...this.observers].forEach ( observer => observer.stale ( status ) ); //TODO: cloning is needed for sync calling, maybe we can do it differently
-
-  }
-
   read (): T {
 
     this.parent?.update ();
@@ -67,6 +66,12 @@ class Observable<T = unknown> {
     this.stale ( DIRTY_YES );
 
     return value;
+
+  }
+
+  stale ( status: 2 | 3 ): void {
+
+    [...this.observers].forEach ( observer => observer.stale ( status ) ); //TODO: cloning is needed for sync calling, maybe we can do it differently
 
   }
 

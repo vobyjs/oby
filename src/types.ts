@@ -35,11 +35,7 @@ type ErrorFunction = ( error: Error ) => void;
 
 type EqualsFunction<T = unknown> = ( value: T, valuePrev: T ) => boolean;
 
-type ListenerFunction<T = unknown> = ( value: T, valuePrev?: T ) => void;
-
 type MapFunction<T = unknown, R = unknown> = ( value: T, index: ObservableReadonly<number> ) => R;
-
-type MapIndexFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: number ) => R;
 
 type MapValueFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: ObservableReadonly<number> ) => R;
 
@@ -129,8 +125,6 @@ type LazySet<T = unknown> = Set<T> | T | undefined;
 
 type LazyValue<T = unknown> = T | undefined;
 
-type Mapped<T = unknown> = { bool: boolean, result: T, root: IObserver };
-
 type PromiseMaybe<T = unknown> = T | Promise<T>;
 
 type Readable = <T = unknown> ( observable: IObservable<T> ) => ObservableReadonly<T>;
@@ -150,9 +144,9 @@ type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
 /* EXPORT */
 
 export type {IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, IScheduler, ISuperRoot, ISuspense};
-export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
+export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
 export type {EffectOptions};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Owner};
 export type {StoreOptions};
-export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, PromiseMaybe, Readable, Resolvable, Resolved, Signal, Writable};
+export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, PromiseMaybe, Readable, Resolvable, Resolved, Signal, Writable};

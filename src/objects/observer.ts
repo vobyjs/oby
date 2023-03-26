@@ -9,6 +9,8 @@ import type {IObservable, IOwner} from '~/types';
 
 /* MAIN */
 
+//TODO: lazy
+
 class Observer extends Owner {
 
   /* VARIABLES */
@@ -50,15 +52,15 @@ class Observer extends Owner {
 
   }
 
-  stale ( status: 2 | 3 ): void {
+  run (): void {
 
-    this.status = status;
+    throw new Error ( 'Abstract method' );
 
   }
 
-  refresh (): void {
+  stale ( status: 2 | 3 ): void {
 
-    throw new Error ( 'Abstract method' );
+    this.status = status;
 
   }
 
@@ -80,7 +82,7 @@ class Observer extends Owner {
 
       this.status = DIRTY_MAYBE_NO;
 
-      this.refresh ();
+      this.run ();
 
       if ( this.status === DIRTY_MAYBE_NO ) {
 
@@ -88,7 +90,7 @@ class Observer extends Owner {
 
       } else {
 
-        this.refresh ();
+        this.run ();
 
       }
 

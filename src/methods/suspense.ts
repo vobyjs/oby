@@ -14,13 +14,13 @@ const suspense = <T> ( when: FunctionMaybe<unknown>, fn: SuspenseFunction<T> ): 
   const suspense = new Suspense ();
   const condition = boolean ( when );
 
-  effect ( () => { //TODO: this should be sync
+  effect ( () => {
 
     suspense.toggle ( get ( condition ) );
 
   }, { sync: true } );
 
-  return suspense.wrap ( fn );
+  return suspense.wrap ( fn )!; //TSC: Assuming it won't throw, for convenience, but slightly incorrect
 
 };
 

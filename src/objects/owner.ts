@@ -7,8 +7,12 @@ import type {IObserver, IOwner, IRoot, ISuspense, CleanupFunction, ErrorFunction
 
 /* MAIN */
 
+//TODO: roots are Sets
 //TODO: signal prop
-//TODO: roots prop
+//TODO: lazy
+//TODO: rename errorHandler
+//TODO: test that disposal goes from right to left
+//TODO: maybe renamed read->get write->set
 
 class Owner {
 
@@ -17,9 +21,9 @@ class Owner {
   parent?: IOwner;
   cleanups: Callable<CleanupFunction>[];
   contexts: Contexts;
-  errorHandler?: ErrorFunction;
+  errorHandler?: Callable<ErrorFunction>;
   observers: IObserver[];
-  roots: IRoot[];
+  roots: (IRoot | (() => IRoot[]))[];
   suspenses: ISuspense[];
 
   /* CONSTRUCTOR */
@@ -38,9 +42,11 @@ class Owner {
 
   catch ( error: Error, silent: boolean ): boolean {
 
-    if ( this.errorHandler ) {
+    const {errorHandler} = this;
 
-      this.errorHandler ( error ); //TODO: This assumes the error handler will never throw, which from the point of view of Owner we can't really know
+    if ( errorHandler ) {
+
+      errorHandler.call ( errorHandler, error ); //UGLY: This assumes that the error handler won't throw, which we know, but Owner shouldn't know
 
       return true;
 
@@ -60,12 +66,14 @@ class Owner {
 
   dispose (): void {
 
-    this.observers.forEach ( observer => observer.dispose () );
+    this.observers.reverse ().forEach ( observer => observer.dispose () );
+    this.suspenses.reverse ().forEach ( suspense => suspense.dispose () );
     this.cleanups.reverse ().forEach ( cleanup => cleanup.call ( cleanup ) );
 
     this.cleanups = [];
     this.contexts = {};
     this.observers = [];
+    this.suspenses = [];
 
   }
 
@@ -81,11 +89,12 @@ class Owner {
 
   write <T> ( symbol: symbol, value: T ): void {
 
+    this.contexts ||= {};
     this.contexts[symbol] = value;
 
   }
 
-  wrap <T> ( fn: ObservedFunction<T>, owner: IOwner, observer: IObserver | undefined ): T {
+  wrap <T> ( fn: ObservedFunction<T>, owner: IOwner, observer: IObserver | undefined ): T | undefined {
 
     const ownerPrev = OWNER;
     const observerPrev = OBSERVER;

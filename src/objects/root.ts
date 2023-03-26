@@ -8,6 +8,7 @@ import type {IOwner, ObservedDisposableFunction} from '~/types';
 /* MAIN */
 
 //TODO: Throw when registering stuff after disposing, mainly relevant when roots are used
+//TODO: disposed prop?
 
 class Root extends Owner {
 
@@ -21,13 +22,21 @@ class Root extends Owner {
 
     super ();
 
-    this.parent.roots.push ( this );
+    this.parent.roots.push ( this ); //TODO: Only if suspense is used?
 
   }
 
   /* API */
 
-  wrap <T> ( fn: ObservedDisposableFunction<T> ): T {
+  dispose (): void {
+
+    //TODO: remove root from parent
+
+    super.dispose ();
+
+  }
+
+  wrap <T> ( fn: ObservedDisposableFunction<T> ): T | undefined {
 
     const dispose = () => this.dispose ();
     const fnWithDispose = () => fn ( dispose );

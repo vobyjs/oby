@@ -15,7 +15,6 @@ class Memo<T = unknown> extends Observer {
 
   fn: MemoFunction<T>;
   observable: IObservable<T>;
-  inited: boolean = false;
 
   /* CONSTRUCTOR */
 
@@ -40,11 +39,11 @@ class Memo<T = unknown> extends Observer {
 
   }
 
-  refresh (): void {
+  run (): void {
 
     this.dispose ();
 
-    const value = this.wrap ( this.fn, this, this );
+    const value = this.wrap ( this.fn, this, this )!; //FIXME: this type assertion isn't quite right
 
     this.observable.write ( value );
 

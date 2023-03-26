@@ -13,7 +13,7 @@ function untrack <T> ( fn: UntrackFunction<T> | T ) {
 
   if ( isFunction ( fn ) ) {
 
-    const trackingPrev = OBSERVER;
+    const observerPrev = OBSERVER;
 
     try {
 
@@ -23,7 +23,7 @@ function untrack <T> ( fn: UntrackFunction<T> | T ) {
 
     } finally {
 
-      setObserver ( trackingPrev );
+      setObserver ( observerPrev );
 
     }
 

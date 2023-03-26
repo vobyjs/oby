@@ -7,14 +7,17 @@ import type {ObservableReadonly} from '~/types';
 
 /* MAIN */
 
-const on = <T> ( dependencies: ObservableReadonly[], callback: () => T ): (() => T) => {
+//TODO: return current and prev values in effect
+//TODO: make this  memory efficient like direct listeners, somehow, maybee che scheduler should accept callable things
 
-  const onCallback = () => untrack ( callback );
+const on = <T> ( dependencies: ObservableReadonly[], fn: () => T ): (() => T) => {
 
-  onCallback[SYMBOL_ON_CALLBACK] = callback;
-  onCallback[SYMBOL_ON_DEPENDENCIES] = dependencies;
+  const callback = () => untrack ( fn );
 
-  return onCallback;
+  callback[SYMBOL_ON_CALLBACK] = fn;
+  callback[SYMBOL_ON_DEPENDENCIES] = dependencies;
+
+  return callback;
 
 };
 

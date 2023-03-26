@@ -5,6 +5,11 @@ import type {IEffect} from '~/types';
 
 /* MAIN */
 
+//TODO: review/rewrite/optimize this
+//TODO: rename methods, push -> schedule pop -> unschedule flush -> run
+
+// Using 2 microtasks to give a chance to things using 1 microtask (like refs in Voby) to run first
+
 class Scheduler {
 
   /* VARIABLES */

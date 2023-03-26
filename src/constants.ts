@@ -5,10 +5,10 @@ import {frozen} from '~/objects/callable';
 
 /* MAIN */
 
-const DIRTY_NO = 0;
-const DIRTY_MAYBE_NO = 1;
-const DIRTY_MAYBE_YES = 2;
-const DIRTY_YES = 3;
+const DIRTY_NO = 0; // The observer is not dirty, for sure
+const DIRTY_MAYBE_NO = 1; // The observer is not dirty, possibly
+const DIRTY_MAYBE_YES = 2; // The observer is dirty, possibly
+const DIRTY_YES = 3; // The observer is dirty, for sure
 
 const OBSERVABLE_FALSE = frozen ( false );
 const OBSERVABLE_TRUE = frozen ( true );

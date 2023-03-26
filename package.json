@@ -9,13 +9,13 @@
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "all": "npm run compile && npm run compile:mangle && npm run test && npm run benchmark && npm run cleanup && npm run creation && npm run memory && npm run read && npm run store && npm run store:creation && npm run updates",
+    "all": "scex -sb compile compile:mangle test benchmark cleanup creation memory read store store:creation updates",
     "benchmark": "tsex benchmark",
     "benchmark:watch": "tsex benchmark --watch",
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
     "compile": "tsex compile",
-    "compile:mangle": "mangler --folder dist --ext js --props 'fnWithIndex,key,insert,node,getters,setters,properties,selecteds,source,listen,listened,listeners,listenersRegular,listenersRoots,registerListener,unregisterListener,fn,bool,read,wrap,after,cache,count,emit,stale,source,index,value,valueReadonly,write,signal,before,errors,parent,parents,pausable,target,result,update,toggle,frozen,current,dispose,unstale,inactive,effects,cleanups,contexts,roots,readable,writable,nextCount,observers,prevCount,suspenses,suspended,observables,postdispose,statusCount,statusFresh,registerSelf,registerError,registerEffect,statusExecution,registerCleanup,unregisterEffect,registerSuspense,registerObserver,unregisterSuspense,registerObservable,unregisterObserver,registerRoot,unregisterRoot,observablesLeftover'",
+    "compile:mangle": "mangler --folder dist --ext js --props 'foo,bar'",
     "compile:watch": "tsex compile --watch",
     "creation": "node tasks/creation.js",
     "memory": "node tasks/memory.js",
@@ -25,7 +25,7 @@
     "test": "tsex test",
     "test:watch": "tsex test --watch",
     "updates": "node tasks/updates.js",
-    "prepublishOnly": "npm run clean && npm run compile && npm run compile:mangle && npm run test"
+    "prepublishOnly": "scex -s clean compile compile:mangle test"
   },
   "keywords": [
     "observable",
@@ -39,10 +39,9 @@
   "devDependencies": {
     "benchloop": "^2.1.0",
     "fava": "^0.2.0",
-    "ispy": "^0.1.2",
     "js-simple-mangler": "^2.0.0",
-    "tape": "^5.6.3",
-    "tsex": "^2.2.2",
-    "typescript": "^4.9.5"
+    "scex": "^1.1.0",
+    "tsex": "^2.2.4",
+    "typescript": "^5.0.2"
   }
 }

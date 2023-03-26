@@ -17,7 +17,7 @@ class Suspense extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
-  suspended: number; // 0: UNSUSPENDED, 1: THIS_SUSPENDED, 2+: THIS_AND_PARENT_SUSPENDED
+  suspended: number;
 
   /* CONSTRUCTOR */
 
@@ -28,7 +28,7 @@ class Suspense extends Owner {
     setSuspenseEnabled ( true );
 
     this.parent.suspenses.push ( this );
-    this.suspended = OWNER.read<ISuspense> ( SYMBOL_SUSPENSE )?.suspended || 0;
+    this.suspended = OWNER.read<ISuspense> ( SYMBOL_SUSPENSE )?.suspended || 0; //TODO: This probably requires a +1, because .toggle is called immediately
 
     this.write ( SYMBOL_SUSPENSE, this );
 
@@ -40,7 +40,7 @@ class Suspense extends Owner {
 
     if ( !this.suspended && !force ) return; // Already suspended, this can happen at instantion time
 
-    this.suspended += force ? 1 : -1;
+    this.suspended += ( force ? 1 : -1 );
 
     if ( this.suspended ) return; // Still suspended, nothing to resume
 
@@ -48,8 +48,8 @@ class Suspense extends Owner {
 
     const notifyOwner = ( owner: IOwner ): void => {
       lazyArrayEach ( owner.observers, notifyObserver );
-      lazyArrayEach ( owner.roots, notifyRoot );
       lazyArrayEach ( owner.suspenses, notifySuspense );
+      lazyArrayEach ( owner.roots, notifyRoot );
     };
 
     const notifyObserver = ( observer: IObserver ): void => {
@@ -77,7 +77,7 @@ class Suspense extends Owner {
 
   }
 
-  wrap <T> ( fn: SuspenseFunction<T> ): T {
+  wrap <T> ( fn: SuspenseFunction<T> ): T | undefined {
 
     return super.wrap ( fn, this, undefined );
 

@@ -10,6 +10,8 @@ import type {ISuspense, EffectFunction, EffectOptions} from '~/types';
 
 /* MAIN */
 
+//TODO: lazy
+
 class Effect extends Observer {
 
   /* VARIABLES */
@@ -39,6 +41,20 @@ class Effect extends Observer {
     this.unschedule ();
 
     super.dispose ();
+
+  }
+
+  run (): void {
+
+    this.dispose ();
+
+    const cleanup = this.wrap ( this.fn, this, this );
+
+    if ( isFunction ( cleanup ) ) {
+
+      this.cleanups.push ( cleanup );
+
+    }
 
   }
 
@@ -73,20 +89,6 @@ class Effect extends Observer {
     super.stale ( status );
 
     this.schedule ();
-
-  }
-
-  refresh (): void {
-
-    this.dispose ();
-
-    const cleanup = this.wrap ( this.fn, this, this );
-
-    if ( isFunction ( cleanup ) ) {
-
-      this.cleanups.push ( cleanup );
-
-    }
 
   }
 

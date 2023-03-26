@@ -1,3 +1,5 @@
+//TODO: Review this again, maybe things changed
+
 # Oby
 
 A tiny Observable implementation, the brilliant primitive you need to build a powerful reactive system.

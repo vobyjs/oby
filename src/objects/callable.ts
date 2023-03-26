@@ -7,6 +7,8 @@ import type {IObservable, UpdateFunction, Frozen, Readable, Writable} from '~/ty
 
 /* MAIN */
 
+//TODO: streamline this, maybe use one symbol? maybe attach the instance to the symbol instead?
+
 function frozenFunction <T> ( this: T ): T {
   if ( arguments.length ) throw new Error ( 'A readonly Observable can not be updated' );
   return this;
