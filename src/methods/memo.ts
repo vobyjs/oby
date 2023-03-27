@@ -3,7 +3,6 @@
 
 import {readable} from '~/objects/callable';
 import Memo from '~/objects/memo';
-// import PoolMemo from '~/objects/pool.values';
 import type {MemoFunction, ObservableReadonly, ObservableOptions} from '~/types';
 
 /* MAIN */
@@ -13,7 +12,6 @@ import type {MemoFunction, ObservableReadonly, ObservableOptions} from '~/types'
 const memo = <T> ( fn: MemoFunction<T>, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T> => {
 
   const memo = new Memo ( fn, options );
-  // const memo = PoolMemo.alloc ( fn, options );
   const observable = readable ( memo.observable );
 
   return observable;

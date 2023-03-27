@@ -2,8 +2,8 @@
 /* IMPORT */
 
 import {OWNER, ROOT, SUSPENSE_ENABLED, setRoot} from '~/context';
+import {lazySetAdd, lazySetDelete} from '~/lazy';
 import Owner from '~/objects/owner';
-import {PoolOwnerRoots} from '~/objects/pool';
 import type {IOwner, WrappedDisposableFunction} from '~/types';
 
 /* MAIN */
@@ -24,7 +24,7 @@ class Root extends Owner {
     super ();
 
     if ( SUSPENSE_ENABLED ) {
-      PoolOwnerRoots.register ( this.parent, this );
+      lazySetAdd ( this.parent, 'roots', this );
     }
 
   }
@@ -34,7 +34,7 @@ class Root extends Owner {
   dispose ( deep: boolean ): void {
 
     if ( SUSPENSE_ENABLED ) {
-      PoolOwnerRoots.unregister ( this.parent, this );
+      lazySetDelete ( this.parent, 'roots', this );
     }
 
     super.dispose ( deep );

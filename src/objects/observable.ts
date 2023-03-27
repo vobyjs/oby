@@ -3,10 +3,9 @@
 
 import {DIRTY_YES} from '~/constants';
 import {OBSERVER} from '~/context';
-import {PoolObservableObservers} from '~/objects/pool';
 import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import {is, nope} from '~/utils';
-import type {IMemo, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
+import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -20,7 +19,7 @@ class Observable<T = unknown> {
   parent?: IMemo<T>;
   value: T;
   equals?: EqualsFunction<T>;
-  // observers?: PoolSet<IObserver>;
+  observers: LazySet<IObserver>;
 
   /* CONSTRUCTOR */
 
@@ -71,7 +70,9 @@ class Observable<T = unknown> {
 
   stale ( status: 2 | 3 ): void {
 
-    [...PoolObservableObservers.getOrCreate ( this )].forEach ( observer => observer.stale ( status ) ); //TODO: cloning is needed for sync calling, maybe we can do it differently
+    const arr = this.observers instanceof Set ? [...this.observers] : ( this.observers ? [this.observers] : [] );
+
+    arr.forEach ( observer => observer.stale ( status ) ); //TODO: cloning is needed for sync calling, maybe we can do it differently
 
   }
 

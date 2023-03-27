@@ -3,9 +3,9 @@
 
 import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants';
 import {OWNER} from '~/context';
+import {lazyArrayPush, lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import Owner from '~/objects/owner';
-import {PoolObservableObservers, PoolObserverObservables, PoolOwnerObservers} from '~/objects/pool';
-import type {IObservable, IOwner} from '~/types';
+import type {IObservable, IOwner, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -15,7 +15,7 @@ class Observer extends Owner {
 
   parent: IOwner = OWNER;
   status: 0 | 1 | 2 | 3 = DIRTY_YES;
-  // observables: PoolSet<IObservable>;
+  observables: LazySet<IObservable>;
 
   /* CONSTRUCTOR */
 
@@ -23,44 +23,17 @@ class Observer extends Owner {
 
     super ();
 
-    PoolOwnerObservers.register ( this.parent, this );
+    lazyArrayPush ( this.parent, 'observers', this );
 
   }
-
-  // hydrate (): this {
-
-  //   this.parent = OWNER;
-  //   this.status = DIRTY_YES;
-
-  //   PoolOwnerObservers.register ( this.parent, this );
-
-  //   return this;
-
-  // }
-
-  // dehydrate (): this {
-
-  //   this.parent = NOOP_PARENT;
-
-  //   return this;
-
-  // }
-
-
 
   /* API */
 
   dispose ( deep: boolean ): void {
 
-    if ( deep ) {
+    lazySetEach ( this.observables, observable => lazySetDelete ( observable, 'observers', this ) );
 
-      PoolObserverObservables.forEachAndDelete ( this, observable => PoolObservableObservers.unregister ( observable, this ) );
-
-    } else {
-
-      PoolObserverObservables.forEachAndReset ( this, observable => PoolObservableObservers.unregister ( observable, this ) );
-
-    }
+    this.observables = new Set ();
 
     super.dispose ( deep );
 
@@ -68,8 +41,9 @@ class Observer extends Owner {
 
   link ( observable: IObservable<any> ): void {
 
-    PoolObserverObservables.register ( this, observable );
-    PoolObservableObservers.register ( observable, this );
+    lazySetAdd ( this, 'observables', observable );
+
+    lazySetAdd ( observable, 'observers', this );
 
   }
 
@@ -89,11 +63,11 @@ class Observer extends Owner {
 
     if ( this.status === DIRTY_MAYBE_YES ) {
 
-      PoolObserverObservables.forEach ( this, observable => {
+      lazySetEach ( this.observables, observable => {
 
         observable.parent?.update ();
 
-        if ( this.status === DIRTY_YES ) return false;
+        if ( this.status === DIRTY_YES ) return false; //FIXME: this doesn't bail out the loop though
 
       });
 

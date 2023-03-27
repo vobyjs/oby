@@ -2,8 +2,8 @@
 /* IMPORT */
 
 import {SUSPENSE_ENABLED} from '~/context';
+import {lazyArrayPush} from '~/lazy';
 import Observer from '~/objects/observer';
-import {PoolOwnerCleanups} from '~/objects/pool';
 import Scheduler from '~/objects/scheduler';
 import {SYMBOL_SUSPENSE} from '~/symbols';
 import {isFunction} from '~/utils';
@@ -62,7 +62,7 @@ class Effect extends Observer {
 
     if ( isFunction ( cleanup ) ) {
 
-      PoolOwnerCleanups.register ( this, cleanup );
+      lazyArrayPush ( this, 'cleanups', cleanup );
 
     }
 

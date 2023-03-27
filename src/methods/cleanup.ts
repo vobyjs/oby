@@ -2,14 +2,14 @@
 /* IMPORT */
 
 import {OWNER} from '~/context';
-import {PoolOwnerCleanups} from '~/objects/pool';
+import {lazyArrayPush} from '~/lazy';
 import type {CleanupFunction, Callable} from '~/types';
 
 /* MAIN */
 
 const cleanup = ( fn: Callable<CleanupFunction> ): void => {
 
-  PoolOwnerCleanups.register ( OWNER, fn );
+  lazyArrayPush ( OWNER, 'cleanups', fn );
 
 };
 

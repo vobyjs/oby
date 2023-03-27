@@ -3,9 +3,9 @@
 
 import {UNAVAILABLE} from '~/constants';
 import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
-import {PoolOwnerCleanups, PoolOwnerObservers, PoolOwnerSuspenses} from '~/objects/pool';
+import {lazyArrayEachRight} from '~/lazy';
 import {castError} from '~/utils';
-import type {IObserver, IOwner, ErrorFunction, WrappedFunction, Callable, Contexts} from '~/types';
+import type {IObserver, IOwner, IRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet} from '~/types';
 
 /* MAIN */
 
@@ -16,10 +16,10 @@ class Owner {
   parent?: IOwner;
   contexts?: Contexts;
   errorHandler?: Callable<ErrorFunction>;
-  // cleanups: PoolArray<Callable<CleanupFunction>>;
-  // observers: PoolArray<IObserver>;
-  // roots: PoolSet<IRoot | (() => IRoot[])>;
-  // suspenses: PoolArray<ISuspense>;
+  cleanups: LazyArray<Callable<CleanupFunction>>;
+  observers: LazyArray<IObserver>;
+  roots: LazySet<IRoot | (() => IRoot[])>;
+  suspenses: LazyArray<ISuspense>;
 
   /* API */
 
@@ -51,22 +51,15 @@ class Owner {
 
     //TODO: Maybe write this more cleanly
 
-    if ( deep ) {
+    lazyArrayEachRight ( this.observers, observer => observer.dispose ( true ) );
+    this.observers = [];
+    lazyArrayEachRight ( this.suspenses, suspense => suspense.dispose ( true ) );
+    this.suspenses = [];
+    lazyArrayEachRight ( this.cleanups, cleanup => cleanup.call ( cleanup ) );
+    this.cleanups = [];
 
-      PoolOwnerObservers.forEachRightAndDelete ( this, observer => observer.dispose ( true ) );
-      PoolOwnerSuspenses.forEachRightAndDelete ( this, suspense => suspense.dispose ( true ) );
-      PoolOwnerCleanups.forEachRightAndDelete ( this, cleanup => cleanup.call ( cleanup ) );
-
-      if ( this.contexts ) {
-        this.contexts = {};
-      }
-
-    } else {
-
-      PoolOwnerObservers.forEachRightAndReset ( this, observer => observer.dispose ( true ) );
-      PoolOwnerSuspenses.forEachRightAndReset ( this, suspense => suspense.dispose ( true ) );
-      PoolOwnerCleanups.forEachRightAndReset ( this, cleanup => cleanup.call ( cleanup ) );
-
+    if ( this.contexts ) {
+      this.contexts = {};
     }
 
   }

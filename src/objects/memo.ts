@@ -27,40 +27,6 @@ class Memo<T = unknown> extends Observer {
 
   }
 
-  // hydrate ( fn: MemoFunction<T>, options?: ObservableOptions<T> ): this {
-
-  //   super.hydrate ();
-
-  //   this.fn = fn;
-  //   this.observable = new Observable<T> ( SYMBOL_VALUE_INITIAL as any, options, this ); //TSC
-
-  //   return this;
-
-  // }
-
-  // dehydrate (): this {
-
-  //   super.dehydrate ();
-
-  //   this.fn = NOOP_FN;
-  //   this.observable = NOOP_OBSERVABLE;
-
-  //   return this;
-
-  // }
-
-  // dipose ( deep: boolean ) {
-
-  //   super.dispose ( deep );
-
-  //   if ( deep ) {
-
-  //     PoolMemo.free ( this );
-
-  //   }
-
-  // }
-
   /* API */
 
   stale ( status: 2 | 3 ): void {
