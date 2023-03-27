@@ -46,8 +46,6 @@ class Observer extends Owner {
 
   link ( observable: IObservable<any> ): void {
 
-    if ( this.observables.length ) return;
-
     const sizePrev = observable.observers.size;
 
     observable.observers.add ( this );
