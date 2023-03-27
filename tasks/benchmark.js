@@ -104,7 +104,7 @@ const benchmark = async () => {
 
   const results = {};
 
-  const runs = new Array ( 500 ).fill ( 0 ).map ( ( _, index ) => index );
+  const runs = new Array ( 100 ).fill ( 0 ).map ( ( _, index ) => index );
 
   for ( const layers in expected ) {
 

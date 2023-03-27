@@ -3,9 +3,9 @@
 
 import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants';
 import {OWNER} from '~/context';
-import {lazyArrayPush, lazySetAdd, lazySetEach} from '~/lazy';
+import {lazyArrayPush} from '~/lazy';
 import Owner from '~/objects/owner';
-import type {IObservable, IOwner, LazySet} from '~/types';
+import type {IObservable, IOwner} from '~/types';
 
 /* MAIN */
 
@@ -15,7 +15,7 @@ class Observer extends Owner {
 
   parent: IOwner = OWNER;
   status: 0 | 1 | 2 | 3 = DIRTY_YES;
-  observables: LazySet<IObservable> = undefined;
+  observables: Set<IObservable> = new Set ();
   sync?: boolean;
 
   /* CONSTRUCTOR */
@@ -32,9 +32,8 @@ class Observer extends Owner {
 
   dispose ( deep: boolean ): void {
 
-    lazySetEach ( this.observables, observable => { observable.observers.delete ( this ); } );
-
-    this.observables = undefined;
+    this.observables.forEach ( observable => observable.observers.delete ( this ) );
+    this.observables.clear ();
 
     super.dispose ( deep );
 
@@ -42,7 +41,7 @@ class Observer extends Owner {
 
   link ( observable: IObservable<any> ): void {
 
-    lazySetAdd ( this, 'observables', observable );
+    this.observables.add ( observable );
 
     observable.observers.add ( this );
 
@@ -64,13 +63,13 @@ class Observer extends Owner {
 
     if ( this.status === DIRTY_MAYBE_YES ) {
 
-      lazySetEach ( this.observables, observable => { //TODO: This looks potentially expensive
+      for ( const observable of this.observables ) {
 
         observable.parent?.update ();
 
-        if ( this.status === DIRTY_YES ) return false; //FIXME: this doesn't bail out the loop though
+        if ( this.status === DIRTY_YES ) break;
 
-      });
+      }
 
     }
 
