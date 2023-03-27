@@ -5,23 +5,37 @@ import type {LazyArray, LazySet} from '~/types';
 
 /* MAIN */
 
-const lazyArrayEach = <T> ( arr: LazyArray<T>, fn: ( value: T ) => false | void ): void => {
+const lazyArrayEach = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): void => {
   if ( arr instanceof Array ) {
     for ( let i = 0, l = arr.length; i < l; i++ ) {
-      if ( fn ( arr[i] ) === false ) break;
+      fn ( arr[i] );
     }
   } else if ( arr ) {
     fn ( arr );
   }
 };
 
-const lazyArrayEachRight = <T> ( arr: LazyArray<T>, fn: ( value: T ) => false | void ): void => {
+const lazyArrayEachRight = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): void => {
   if ( arr instanceof Array ) {
     for ( let i = arr.length - 1; i >= 0; i-- ) {
-      if ( fn ( arr[i] ) === false ) break;
+      fn ( arr[i] );
     }
   } else if ( arr ) {
     fn ( arr );
+  }
+};
+
+const lazyArrayPop = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T>>>, key: U, fn: ( value: T ) => void ): void => {
+  const arr: LazyArray<T> = obj[key];
+  if ( arr instanceof Array ) {
+    while ( true ) {
+      const value = arr.pop ();
+      if ( value === undefined ) break;
+      fn ( value );
+    }
+  } else if ( arr ) {
+    fn ( arr );
+    obj[key] = undefined;
   }
 };
 
@@ -61,10 +75,10 @@ const lazySetDelete = <T, U extends string> ( obj: Partial<Record<U, LazySet<T>>
   }
 };
 
-const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => false | void ): void => {
+const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => void ): void => {
   if ( set instanceof Set ) {
     for ( const value of set ) {
-      if ( fn ( value ) === false ) break;
+      fn ( value );
     }
   } else if ( set ) {
     fn ( set );
@@ -81,7 +95,7 @@ const lazySetHas = <T> ( set: LazySet<T>, value: T ): boolean => {
 
 /* EXPORT */
 
-export {lazyArrayEach, lazyArrayEachRight, lazyArrayPush};
+export {lazyArrayEach, lazyArrayEachRight, lazyArrayPop, lazyArrayPush};
 export {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas};
 
 //TODO: REVIEW

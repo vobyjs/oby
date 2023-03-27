@@ -39,13 +39,13 @@ class Scheduler {
 
         const current = this.running;
 
-        current.forEach ( observer => {
+        for ( const observer of current ) {
 
           current?.delete ( observer );
 
           observer.stale ( DIRTY_YES );
 
-        });
+        }
 
         this.running = undefined;
 

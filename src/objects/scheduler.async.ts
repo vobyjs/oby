@@ -25,7 +25,11 @@ class Scheduler {
     this.running = this.waiting;
     this.waiting = new Set ();
 
-    this.running.forEach ( effect => effect.update () );
+    for ( const effect of this.running ) {
+
+      effect.update ();
+
+    }
 
     this.running = undefined;
 

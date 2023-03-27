@@ -15,7 +15,7 @@ class Observer extends Owner {
 
   parent: IOwner = OWNER;
   status: 0 | 1 | 2 | 3 = DIRTY_YES;
-  observables: Set<IObservable> = new Set ();
+  observables: IObservable[] = [];
   sync?: boolean;
 
   /* CONSTRUCTOR */
@@ -32,8 +32,13 @@ class Observer extends Owner {
 
   dispose ( deep: boolean ): void {
 
-    this.observables.forEach ( observable => observable.observers.delete ( this ) );
-    this.observables.clear ();
+    for ( let i = 0, l = this.observables.length; i < l; i++ ) {
+
+      this.observables[i].observers.delete ( this );
+
+    }
+
+    this.observables = [];
 
     super.dispose ( deep );
 
@@ -41,9 +46,17 @@ class Observer extends Owner {
 
   link ( observable: IObservable<any> ): void {
 
-    this.observables.add ( observable );
+    if ( this.observables.length ) return;
+
+    const sizePrev = observable.observers.size;
 
     observable.observers.add ( this );
+
+    const sizeNext = observable.observers.size;
+
+    if ( sizeNext === sizePrev ) return;
+
+    this.observables.push ( observable );
 
   }
 
@@ -63,7 +76,9 @@ class Observer extends Owner {
 
     if ( this.status === DIRTY_MAYBE_YES ) {
 
-      for ( const observable of this.observables ) {
+      for ( let i = 0, l = this.observables.length; i < l; i++ ) {
+
+        const observable = this.observables[i];
 
         observable.parent?.update ();
 
