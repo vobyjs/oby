@@ -42,6 +42,11 @@ const cellx = layers => {
             })
           };
 
+          // $.effect ( s.prop1, { sync: true } );
+          // $.effect ( s.prop2, { sync: true } );
+          // $.effect ( s.prop3, { sync: true } );
+          // $.effect ( s.prop4, { sync: true } );
+
           // $.effect ( s.prop1 );
           // $.effect ( s.prop2 );
           // $.effect ( s.prop3 );
@@ -98,13 +103,13 @@ const benchmark = async () => {
     50: [[-2, -4, 1, 6], [2, -1, 4, 4]],
     100: [[-3, -6, -2, 2], [-2, -4, 2, 3]],
     1000: [[-3, -6, -2, 2], [-2, -4, 2, 3]],
-    // 2500: [[-3, -6, -2, 2], [-2, -4, 2, 3]],
-    // 5000: [[2, 4, -1, -6], [-2, 1, -4, -4]]
+    2500: [[-3, -6, -2, 2], [-2, -4, 2, 3]],
+    5000: [[2, 4, -1, -6], [-2, 1, -4, -4]]
   };
 
   const results = {};
 
-  const runs = new Array ( 100 ).fill ( 0 ).map ( ( _, index ) => index );
+  const runs = new Array ( 10 ).fill ( 0 ).map ( ( _, index ) => index );
 
   for ( const layers in expected ) {
 
