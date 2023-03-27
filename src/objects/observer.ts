@@ -15,7 +15,7 @@ class Observer extends Owner {
 
   parent: IOwner = OWNER;
   status: 0 | 1 | 2 | 3 = DIRTY_YES;
-  observables: LazySet<IObservable>;
+  observables: LazySet<IObservable> = undefined;
 
   /* CONSTRUCTOR */
 
@@ -33,7 +33,7 @@ class Observer extends Owner {
 
     lazySetEach ( this.observables, observable => lazySetDelete ( observable, 'observers', this ) );
 
-    this.observables = new Set ();
+    this.observables = undefined;
 
     super.dispose ( deep );
 

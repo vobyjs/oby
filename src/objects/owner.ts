@@ -14,12 +14,12 @@ class Owner {
   /* VARIABLES */
 
   parent?: IOwner;
-  contexts?: Contexts;
+  contexts: Contexts | undefined;
   errorHandler?: Callable<ErrorFunction>;
-  cleanups: LazyArray<Callable<CleanupFunction>>;
-  observers: LazyArray<IObserver>;
-  roots: LazySet<IRoot | (() => IRoot[])>;
-  suspenses: LazyArray<ISuspense>;
+  cleanups: LazyArray<Callable<CleanupFunction>> = undefined;
+  observers: LazyArray<IObserver> = undefined;
+  roots: LazySet<IRoot | (() => IRoot[])> = undefined;
+  suspenses: LazyArray<ISuspense> = undefined;
 
   /* API */
 
@@ -52,15 +52,29 @@ class Owner {
     //TODO: Maybe write this more cleanly
 
     lazyArrayEachRight ( this.observers, observer => observer.dispose ( true ) );
-    this.observers = [];
     lazyArrayEachRight ( this.suspenses, suspense => suspense.dispose ( true ) );
-    this.suspenses = [];
     lazyArrayEachRight ( this.cleanups, cleanup => cleanup.call ( cleanup ) );
-    this.cleanups = [];
 
-    if ( this.contexts ) {
-      this.contexts = {};
-    }
+    // if ( this.observers ) {
+    //   this.observers.length = 0;
+    // }
+
+    // if ( this.suspenses ) {
+    //   this.suspenses.length = 0;
+    // }
+
+    // if ( this.cleanups ) {
+    //   this.cleanups.length = 0;
+    // }
+
+    this.observers = undefined;
+    this.suspenses = undefined;
+    this.cleanups = undefined;
+    this.contexts = undefined;
+
+    // if ( this.contexts ) {
+    //   this.contexts = null;
+    // }
 
   }
 

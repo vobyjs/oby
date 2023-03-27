@@ -3,6 +3,7 @@
 
 import {DIRTY_YES} from '~/constants';
 import {OBSERVER} from '~/context';
+import {lazySetEach} from '~/lazy';
 import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import {is, nope} from '~/utils';
 import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
@@ -19,7 +20,7 @@ class Observable<T = unknown> {
   parent?: IMemo<T>;
   value: T;
   equals?: EqualsFunction<T>;
-  observers: LazySet<IObserver>;
+  observers: LazySet<IObserver> = undefined;
 
   /* CONSTRUCTOR */
 
@@ -69,6 +70,8 @@ class Observable<T = unknown> {
   }
 
   stale ( status: 2 | 3 ): void {
+
+    // lazySetEach ( this.observers, observer => observer.stale ( status ) );
 
     const arr = this.observers instanceof Set ? [...this.observers] : ( this.observers ? [this.observers] : [] );
 

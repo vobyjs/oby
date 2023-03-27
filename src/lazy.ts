@@ -5,18 +5,20 @@ import type {LazyArray, LazySet} from '~/types';
 
 /* MAIN */
 
-const lazyArrayEach = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): void => {
+const lazyArrayEach = <T> ( arr: LazyArray<T>, fn: ( value: T ) => false | void ): void => {
   if ( arr instanceof Array ) {
-    arr.forEach ( fn );
+    for ( let i = 0, l = arr.length; i < l; i++ ) {
+      if ( fn ( arr[i] ) === false ) break;
+    }
   } else if ( arr ) {
     fn ( arr );
   }
 };
 
-const lazyArrayEachRight = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): void => {
+const lazyArrayEachRight = <T> ( arr: LazyArray<T>, fn: ( value: T ) => false | void ): void => {
   if ( arr instanceof Array ) {
     for ( let i = arr.length - 1; i >= 0; i-- ) {
-      fn ( arr[i] );
+      if ( fn ( arr[i] ) === false ) break;
     }
   } else if ( arr ) {
     fn ( arr );
@@ -59,10 +61,10 @@ const lazySetDelete = <T, U extends string> ( obj: Partial<Record<U, LazySet<T>>
   }
 };
 
-const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => void ): void => {
+const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => false | void ): void => {
   if ( set instanceof Set ) {
     for ( const value of set ) {
-      fn ( value );
+      if ( fn ( value ) === false ) break;
     }
   } else if ( set ) {
     fn ( set );
