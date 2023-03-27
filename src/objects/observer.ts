@@ -3,7 +3,7 @@
 
 import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants';
 import {OWNER} from '~/context';
-import {lazyArrayPush, lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
+import {lazyArrayPush, lazySetAdd, lazySetEach} from '~/lazy';
 import Owner from '~/objects/owner';
 import type {IObservable, IOwner, LazySet} from '~/types';
 
@@ -16,6 +16,7 @@ class Observer extends Owner {
   parent: IOwner = OWNER;
   status: 0 | 1 | 2 | 3 = DIRTY_YES;
   observables: LazySet<IObservable> = undefined;
+  sync?: boolean;
 
   /* CONSTRUCTOR */
 
@@ -31,7 +32,7 @@ class Observer extends Owner {
 
   dispose ( deep: boolean ): void {
 
-    lazySetEach ( this.observables, observable => lazySetDelete ( observable, 'observers', this ) );
+    lazySetEach ( this.observables, observable => { observable.observers.delete ( this ); } );
 
     this.observables = undefined;
 
@@ -43,7 +44,7 @@ class Observer extends Owner {
 
     lazySetAdd ( this, 'observables', observable );
 
-    lazySetAdd ( observable, 'observers', this );
+    observable.observers.add ( this );
 
   }
 
@@ -63,7 +64,7 @@ class Observer extends Owner {
 
     if ( this.status === DIRTY_MAYBE_YES ) {
 
-      lazySetEach ( this.observables, observable => {
+      lazySetEach ( this.observables, observable => { //TODO: This looks potentially expensive
 
         observable.parent?.update ();
 

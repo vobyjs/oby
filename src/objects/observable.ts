@@ -3,15 +3,12 @@
 
 import {DIRTY_YES} from '~/constants';
 import {OBSERVER} from '~/context';
-import {lazySetEach} from '~/lazy';
+import Scheduler from '~/objects/scheduler.sync';
 import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import {is, nope} from '~/utils';
-import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions, LazySet} from '~/types';
+import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
-
-//TODO: signal prop
-//TODO: disposing
 
 class Observable<T = unknown> {
 
@@ -20,7 +17,7 @@ class Observable<T = unknown> {
   parent?: IMemo<T>;
   value: T;
   equals?: EqualsFunction<T>;
-  observers: LazySet<IObserver> = undefined;
+  observers: Set<IObserver> = new Set ();
 
   /* CONSTRUCTOR */
 
@@ -63,7 +60,13 @@ class Observable<T = unknown> {
 
     this.value = value;
 
+    Scheduler.counter += 1;
+
     this.stale ( DIRTY_YES );
+
+    Scheduler.counter -= 1;
+
+    Scheduler.flush ();
 
     return value;
 
@@ -71,11 +74,19 @@ class Observable<T = unknown> {
 
   stale ( status: 2 | 3 ): void {
 
-    // lazySetEach ( this.observers, observer => observer.stale ( status ) );
+    for ( const observer of this.observers ) {
 
-    const arr = this.observers instanceof Set ? [...this.observers] : ( this.observers ? [this.observers] : [] );
+      if ( observer.sync ) {
 
-    arr.forEach ( observer => observer.stale ( status ) ); //TODO: cloning is needed for sync calling, maybe we can do it differently
+        Scheduler.push ( observer );
+
+      } else {
+
+        observer.stale ( status );
+
+      }
+
+    }
 
   }
 
@@ -92,5 +103,3 @@ class Observable<T = unknown> {
 /* EXPORT */
 
 export default Observable;
-
-//TODO: REVIEW

@@ -13,7 +13,9 @@ type IOwner = import ( '~/objects/owner' ).default;
 
 type IRoot = import ( '~/objects/root' ).default;
 
-type IScheduler = typeof import ( '~/objects/scheduler' ).default;
+type ISchedulerAsync = typeof import ( '~/objects/scheduler.async' ).default;
+
+type ISchedulerSync = typeof import ( '~/objects/scheduler.sync' ).default;
 
 type ISuperRoot = import ( '~/objects/superroot' ).default;
 
@@ -113,8 +115,6 @@ type Constructor<T = unknown, Arguments extends unknown[] = []> = { new ( ...arg
 
 type Contexts = Record<symbol, any>;
 
-type Frozen = <T = unknown> ( value: T ) => ObservableReadonly<T>;
-
 type FunctionMaybe<T = unknown> = (() => T) | T;
 
 type Indexed<T = unknown> = T extends ObservableReadonly<infer U> ? ObservableReadonly<U> : ObservableReadonly<T>;
@@ -127,8 +127,6 @@ type LazyValue<T = unknown> = T | undefined;
 
 type PromiseMaybe<T = unknown> = T | Promise<T>;
 
-type Readable = <T = unknown> ( observable: IObservable<T> ) => ObservableReadonly<T>;
-
 type ResolvablePrimitive = null | undefined | boolean | number | bigint | string | symbol;
 type ResolvableArray = Resolvable[];
 type ResolvableObject = { [Key in string | number | symbol]?: Resolvable };
@@ -139,16 +137,14 @@ type Resolved<T = unknown> = T;
 
 type Signal = { disposed?: boolean };
 
-type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
-
 /* EXPORT */
 
-export type {IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, IScheduler, ISuperRoot, ISuspense};
+export type {IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
 export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
 export type {EffectOptions};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Owner};
 export type {StoreOptions};
-export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, PromiseMaybe, Readable, Resolvable, Resolved, Signal, Writable};
+export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, PromiseMaybe, Resolvable, Resolved, Signal};
 
 //TODO: REVIEW

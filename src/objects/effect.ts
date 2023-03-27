@@ -4,7 +4,7 @@
 import {SUSPENSE_ENABLED} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import Observer from '~/objects/observer';
-import Scheduler from '~/objects/scheduler';
+import Scheduler from '~/objects/scheduler.async';
 import {SYMBOL_SUSPENSE} from '~/symbols';
 import {isFunction} from '~/utils';
 import type {ISuspense, EffectFunction, EffectOptions} from '~/types';
@@ -27,17 +27,22 @@ class Effect extends Observer {
 
     this.fn = fn;
 
-    if ( SUSPENSE_ENABLED ) {
-      if ( options?.suspense !== false ) {
-        const suspense = this.get<ISuspense> ( SYMBOL_SUSPENSE );
-        if ( suspense ) {
-          this.suspense = suspense;
-        }
+    if ( SUSPENSE_ENABLED && options?.suspense !== false ) {
+
+      const suspense = this.get<ISuspense> ( SYMBOL_SUSPENSE );
+
+      if ( suspense ) {
+
+        this.suspense = suspense;
+
       }
+
     }
 
     if ( options?.sync ) {
+
       this.sync = true;
+
     }
 
     this.schedule ();
@@ -76,7 +81,23 @@ class Effect extends Observer {
 
     } else {
 
-      Scheduler.push ( this );
+      Scheduler.schedule ( this );
+
+    }
+
+  }
+
+  stale ( status: 2 | 3 ): void {
+
+    const statusPrev = this.status;
+
+    if ( statusPrev === status ) return;
+
+    this.status = status;
+
+    if ( !this.sync || ( statusPrev !== 2 && statusPrev !== 3 ) ) { // It isn't currently executing, so let's schedule it
+
+      this.schedule ();
 
     }
 
@@ -86,21 +107,9 @@ class Effect extends Observer {
 
     if ( !this.sync ) {
 
-      Scheduler.pop ( this );
+      Scheduler.unschedule ( this );
 
     }
-
-  }
-
-  stale ( status: 2 | 3 ): void {
-
-    if ( this.status === status ) return;
-
-    const isScheduled = ( this.sync && ( this.status === 2 || this.status === 3 ) );
-
-    super.stale ( status );
-
-    if ( !isScheduled ) this.schedule ();
 
   }
 

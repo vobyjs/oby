@@ -5,18 +5,20 @@ import {UNAVAILABLE} from '~/constants';
 import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
 import {lazyArrayEachRight} from '~/lazy';
 import {castError} from '~/utils';
-import type {IObserver, IOwner, IRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet} from '~/types';
+import type {IObserver, IOwner, IRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue} from '~/types';
 
 /* MAIN */
+
+//TODO: Throw when registering stuff after disposing, maybe
 
 class Owner {
 
   /* VARIABLES */
 
   parent?: IOwner;
-  contexts: Contexts | undefined;
-  errorHandler?: Callable<ErrorFunction>;
   cleanups: LazyArray<Callable<CleanupFunction>> = undefined;
+  contexts: LazyValue<Contexts> = undefined;
+  errorHandler?: Callable<ErrorFunction>;
   observers: LazyArray<IObserver> = undefined;
   roots: LazySet<IRoot | (() => IRoot[])> = undefined;
   suspenses: LazyArray<ISuspense> = undefined;
@@ -29,7 +31,7 @@ class Owner {
 
     if ( errorHandler ) {
 
-      errorHandler.call ( errorHandler, error ); //UGLY: This assumes that the error handler won't throw, which we know, but Owner shouldn't know
+      errorHandler.call ( errorHandler, error ); //UGLY: This assumes that the error handler won't throw, which we know, but Owner shouldn't assume
 
       return true;
 
@@ -49,32 +51,14 @@ class Owner {
 
   dispose ( deep: boolean ): void {
 
-    //TODO: Maybe write this more cleanly
-
     lazyArrayEachRight ( this.observers, observer => observer.dispose ( true ) );
     lazyArrayEachRight ( this.suspenses, suspense => suspense.dispose ( true ) );
     lazyArrayEachRight ( this.cleanups, cleanup => cleanup.call ( cleanup ) );
 
-    // if ( this.observers ) {
-    //   this.observers.length = 0;
-    // }
-
-    // if ( this.suspenses ) {
-    //   this.suspenses.length = 0;
-    // }
-
-    // if ( this.cleanups ) {
-    //   this.cleanups.length = 0;
-    // }
-
-    this.observers = undefined;
-    this.suspenses = undefined;
     this.cleanups = undefined;
     this.contexts = undefined;
-
-    // if ( this.contexts ) {
-    //   this.contexts = null;
-    // }
+    this.observers = undefined;
+    this.suspenses = undefined;
 
   }
 

@@ -45,6 +45,8 @@ import type {EffectOptions, Observable, ObservableReadonly, ObservableOptions, S
 //TODO: maybe rename tryCatch to try
 //TODO: maybe setting in memos should be forbidden or made explicit at least
 //TODO: "val" + "ue" delete
+//TODO: disposed/signal optimization
+//TODO: REview things again, add some comments when needed
 
 /* EXPORT */
 

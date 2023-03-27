@@ -15,6 +15,7 @@ class Memo<T = unknown> extends Observer {
 
   fn: MemoFunction<T>;
   observable: IObservable<T>;
+  sync?: false;
 
   /* CONSTRUCTOR */
 
@@ -23,21 +24,11 @@ class Memo<T = unknown> extends Observer {
     super ();
 
     this.fn = fn;
-    this.observable = new Observable<T> ( SYMBOL_VALUE_INITIAL as any, options, this ); //TSC
+    this.observable = new Observable<T> ( SYMBOL_VALUE_INITIAL as any, options, this ); //TSC: Maybe implement the initial value more cleanly
 
   }
 
   /* API */
-
-  stale ( status: 2 | 3 ): void {
-
-    if ( this.status === status ) return;
-
-    super.stale ( status );
-
-    this.observable.stale ( DIRTY_MAYBE_YES );
-
-  }
 
   run (): void {
 
@@ -46,6 +37,16 @@ class Memo<T = unknown> extends Observer {
     const value = this.wrap ( this.fn, this, this );
 
     this.observable.set ( value );
+
+  }
+
+  stale ( status: 2 | 3 ): void {
+
+    if ( this.status === status ) return;
+
+    this.status = status;
+
+    this.observable.stale ( DIRTY_MAYBE_YES );
 
   }
 

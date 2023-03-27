@@ -8,9 +8,6 @@ import type {IOwner, WrappedDisposableFunction} from '~/types';
 
 /* MAIN */
 
-//TODO: Throw when registering stuff after disposing, mainly relevant when roots are used
-//TODO: disposed prop?
-
 class Root extends Owner {
 
   /* VARIABLES */
@@ -24,7 +21,9 @@ class Root extends Owner {
     super ();
 
     if ( SUSPENSE_ENABLED ) {
+
       lazySetAdd ( this.parent, 'roots', this );
+
     }
 
   }
@@ -34,7 +33,9 @@ class Root extends Owner {
   dispose ( deep: boolean ): void {
 
     if ( SUSPENSE_ENABLED ) {
+
       lazySetDelete ( this.parent, 'roots', this );
+
     }
 
     super.dispose ( deep );
