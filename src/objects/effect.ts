@@ -3,14 +3,13 @@
 
 import {SUSPENSE_ENABLED} from '~/context';
 import Observer from '~/objects/observer';
+import {PoolOwnerCleanups} from '~/objects/pool';
 import Scheduler from '~/objects/scheduler';
 import {SYMBOL_SUSPENSE} from '~/symbols';
 import {isFunction} from '~/utils';
 import type {ISuspense, EffectFunction, EffectOptions} from '~/types';
 
 /* MAIN */
-
-//TODO: lazy
 
 class Effect extends Observer {
 
@@ -27,8 +26,19 @@ class Effect extends Observer {
     super ();
 
     this.fn = fn;
-    this.suspense = SUSPENSE_ENABLED && options?.suspense !== false ? this.read ( SYMBOL_SUSPENSE ) : undefined;
-    this.sync = !!options?.sync;
+
+    if ( SUSPENSE_ENABLED ) {
+      if ( options?.suspense !== false ) {
+        const suspense = this.get<ISuspense> ( SYMBOL_SUSPENSE );
+        if ( suspense ) {
+          this.suspense = suspense;
+        }
+      }
+    }
+
+    if ( options?.sync ) {
+      this.sync = true;
+    }
 
     this.schedule ();
 
@@ -36,23 +46,23 @@ class Effect extends Observer {
 
   /* API */
 
-  dispose (): void {
+  dispose ( deep: boolean ): void {
 
     this.unschedule ();
 
-    super.dispose ();
+    super.dispose ( deep );
 
   }
 
   run (): void {
 
-    this.dispose ();
+    this.dispose ( false );
 
     const cleanup = this.wrap ( this.fn, this, this );
 
     if ( isFunction ( cleanup ) ) {
 
-      this.cleanups.push ( cleanup );
+      PoolOwnerCleanups.register ( this, cleanup );
 
     }
 
@@ -107,5 +117,3 @@ class Effect extends Observer {
 /* EXPORT */
 
 export default Effect;
-
-//TODO: REVIEW

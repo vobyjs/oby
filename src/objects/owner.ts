@@ -1,42 +1,25 @@
 
 /* IMPORT */
 
+import {UNAVAILABLE} from '~/constants';
 import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
+import {PoolOwnerCleanups, PoolOwnerObservers, PoolOwnerSuspenses} from '~/objects/pool';
 import {castError} from '~/utils';
-import type {IObserver, IOwner, IRoot, ISuspense, CleanupFunction, ErrorFunction, ObservedFunction, Callable, Contexts} from '~/types';
+import type {IObserver, IOwner, ErrorFunction, WrappedFunction, Callable, Contexts} from '~/types';
 
 /* MAIN */
-
-//TODO: roots are Sets
-//TODO: signal prop
-//TODO: lazy
-//TODO: rename errorHandler
-//TODO: test that disposal goes from right to left
-//TODO: maybe renamed read->get write->set
 
 class Owner {
 
   /* VARIABLES */
 
   parent?: IOwner;
-  cleanups: Callable<CleanupFunction>[];
-  contexts: Contexts;
+  contexts?: Contexts;
   errorHandler?: Callable<ErrorFunction>;
-  observers: IObserver[];
-  roots: (IRoot | (() => IRoot[]))[];
-  suspenses: ISuspense[];
-
-  /* CONSTRUCTOR */
-
-  constructor () {
-
-    this.cleanups = [];
-    this.contexts = {};
-    this.observers = [];
-    this.roots = [];
-    this.suspenses = [];
-
-  }
+  // cleanups: PoolArray<Callable<CleanupFunction>>;
+  // observers: PoolArray<IObserver>;
+  // roots: PoolSet<IRoot | (() => IRoot[])>;
+  // suspenses: PoolArray<ISuspense>;
 
   /* API */
 
@@ -56,7 +39,7 @@ class Owner {
 
       if ( silent ) return false;
 
-      // console.error ( error.stack ); // <-- Log "error.stack" to understand where the error happened
+      // console.error ( error.stack ); // <-- Log "error.stack" to better understand where the error happened
 
       throw error;
 
@@ -64,37 +47,48 @@ class Owner {
 
   }
 
-  dispose (): void {
+  dispose ( deep: boolean ): void {
 
-    this.observers.reverse ().forEach ( observer => observer.dispose () );
-    this.suspenses.reverse ().forEach ( suspense => suspense.dispose () );
-    this.cleanups.reverse ().forEach ( cleanup => cleanup.call ( cleanup ) );
+    //TODO: Maybe write this more cleanly
 
-    this.cleanups = [];
-    this.contexts = {};
-    this.observers = [];
-    this.suspenses = [];
+    if ( deep ) {
+
+      PoolOwnerObservers.forEachRightAndDelete ( this, observer => observer.dispose ( true ) );
+      PoolOwnerSuspenses.forEachRightAndDelete ( this, suspense => suspense.dispose ( true ) );
+      PoolOwnerCleanups.forEachRightAndDelete ( this, cleanup => cleanup.call ( cleanup ) );
+
+      if ( this.contexts ) {
+        this.contexts = {};
+      }
+
+    } else {
+
+      PoolOwnerObservers.forEachRightAndReset ( this, observer => observer.dispose ( true ) );
+      PoolOwnerSuspenses.forEachRightAndReset ( this, suspense => suspense.dispose ( true ) );
+      PoolOwnerCleanups.forEachRightAndReset ( this, cleanup => cleanup.call ( cleanup ) );
+
+    }
 
   }
 
-  read <T> ( symbol: symbol ): T | undefined {
+  get <T> ( symbol: symbol ): T | undefined {
 
     const {contexts, parent} = this;
 
-    if ( symbol in contexts ) return contexts[symbol];
+    if ( contexts && symbol in contexts ) return contexts[symbol];
 
-    return parent?.read<T> ( symbol );
+    return parent?.get<T> ( symbol );
 
   }
 
-  write <T> ( symbol: symbol, value: T ): void {
+  set <T> ( symbol: symbol, value: T ): void {
 
     this.contexts ||= {};
     this.contexts[symbol] = value;
 
   }
 
-  wrap <T> ( fn: ObservedFunction<T>, owner: IOwner, observer: IObserver | undefined ): T | undefined {
+  wrap <T> ( fn: WrappedFunction<T>, owner: IOwner, observer: IObserver | undefined ): T { //TODO: Maybe make this monomorphic
 
     const ownerPrev = OWNER;
     const observerPrev = OBSERVER;
@@ -110,6 +104,8 @@ class Owner {
 
       this.catch ( castError ( error ), false );
 
+      return UNAVAILABLE; // Returning a value that is the least likely to cause bugs
+
     } finally {
 
       setOwner ( ownerPrev );
@@ -124,5 +120,3 @@ class Owner {
 /* EXPORT */
 
 export default Owner;
-
-//TODO: REVIEW

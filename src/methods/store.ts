@@ -244,7 +244,7 @@ const STORE_TRAPS = {
 
           node.keys ||= getNodeKeys ( node );
           node.keys.listen ();
-          node.keys.observable.read ();
+          node.keys.observable.get ();
 
         }
 
@@ -260,7 +260,7 @@ const STORE_TRAPS = {
 
           node.values ||= getNodeValues ( node );
           node.values.listen ();
-          node.values.observable.read ();
+          node.values.observable.get ();
 
         }
 
@@ -321,7 +321,7 @@ const STORE_TRAPS = {
 
       property.listen ();
       property.observable ||= getNodeObservable ( node, value, options );
-      property.observable.read ();
+      property.observable.get ();
 
     }
 
@@ -364,11 +364,11 @@ const STORE_TRAPS = {
 
       target[key] = value;
 
-      node.values?.observable.write ( 0 );
+      node.values?.observable.set ( 0 );
 
       if ( !hadProperty ) {
-        node.keys?.observable.write ( 0 );
-        node.has?.get ( key )?.observable.write ( true );
+        node.keys?.observable.set ( 0 );
+        node.has?.get ( key )?.observable.set ( true );
       }
 
       const property = node.properties?.get ( key );
@@ -378,7 +378,7 @@ const STORE_TRAPS = {
       }
 
       if ( property ) {
-        property.observable?.write ( value );
+        property.observable?.set ( value );
         property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
       }
 
@@ -412,9 +412,9 @@ const STORE_TRAPS = {
 
     const node = getNodeExisting ( target );
 
-    node.keys?.observable.write ( 0 );
-    node.values?.observable.write ( 0 );
-    node.has?.get ( key )?.observable.write ( false );
+    node.keys?.observable.set ( 0 );
+    node.values?.observable.set ( 0 );
+    node.has?.get ( key )?.observable.set ( false );
 
     const property = node.properties?.get ( key );
 
@@ -427,7 +427,7 @@ const STORE_TRAPS = {
     }
 
     if ( property ) {
-      property.observable?.write ( undefined );
+      property.observable?.set ( undefined );
       property.node = undefined;
     }
 
@@ -468,8 +468,8 @@ const STORE_TRAPS = {
     }
 
     if ( hadProperty !== !!descriptor.enumerable ) {
-      node.keys?.observable.write ( 0 );
-      node.has?.get ( key )?.observable.write ( !!descriptor.enumerable );
+      node.keys?.observable.set ( 0 );
+      node.has?.get ( key )?.observable.set ( !!descriptor.enumerable );
     }
 
     const property = node.properties?.get ( key );
@@ -484,11 +484,11 @@ const STORE_TRAPS = {
 
     if ( property ) {
       if ( 'get' in descriptor ) {
-        property.observable?.write ( descriptor.get );
+        property.observable?.set ( descriptor.get );
         property.node = undefined;
       } else {
         const value = descriptor['val' + 'ue']; //UGLY: Bailing out of mangling
-        property.observable?.write ( value );
+        property.observable?.set ( value );
         property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
       }
     }
@@ -526,7 +526,7 @@ const STORE_TRAPS = {
       const has = node.has.get ( key ) || node.has.insert ( key, getNodeHas ( node, key, value ) );
 
       has.listen ();
-      has.observable.read ();
+      has.observable.get ();
 
     }
 
@@ -544,7 +544,7 @@ const STORE_TRAPS = {
 
       node.keys ||= getNodeKeys ( node );
       node.keys.listen ();
-      node.keys.observable.read ();
+      node.keys.observable.get ();
 
     }
 

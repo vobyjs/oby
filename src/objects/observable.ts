@@ -3,19 +3,15 @@
 
 import {DIRTY_YES} from '~/constants';
 import {OBSERVER} from '~/context';
+import {PoolObservableObservers} from '~/objects/pool';
 import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import {is, nope} from '~/utils';
-import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
+import type {IMemo, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
 
 //TODO: signal prop
 //TODO: disposing
-//TODO: direct listeners prop
-//TODO: read -> get, write -> set
-//TODO: lazy
-//TODO: direct listeners? it's potentially problematic though
-//TODO: signal prop
 
 class Observable<T = unknown> {
 
@@ -23,17 +19,20 @@ class Observable<T = unknown> {
 
   parent?: IMemo<T>;
   value: T;
-  equals: EqualsFunction<T>;
-  observers: Set<IObserver>;
+  equals?: EqualsFunction<T>;
+  // observers?: PoolSet<IObserver>;
 
   /* CONSTRUCTOR */
 
   constructor ( value: T, options?: ObservableOptions<T>, parent?: IMemo<T> ) {
 
-    this.parent = parent;
     this.value = value;
-    this.equals = is;
-    this.observers = new Set ();
+
+    if ( parent ) {
+
+      this.parent = parent;
+
+    }
 
     if ( options?.equals !== undefined ) {
 
@@ -45,7 +44,7 @@ class Observable<T = unknown> {
 
   /* API */
 
-  read (): T {
+  get (): T {
 
     this.parent?.update ();
 
@@ -55,9 +54,10 @@ class Observable<T = unknown> {
 
   }
 
-  write ( value: T ): T {
+  set ( value: T ): T {
 
-    const fresh = ( this.value === SYMBOL_VALUE_INITIAL ) || !this.equals ( value, this.value );
+    const equals = this.equals || is;
+    const fresh = ( this.value === SYMBOL_VALUE_INITIAL ) || !equals ( value, this.value );
 
     if ( !fresh ) return value;
 
@@ -71,7 +71,7 @@ class Observable<T = unknown> {
 
   stale ( status: 2 | 3 ): void {
 
-    [...this.observers].forEach ( observer => observer.stale ( status ) ); //TODO: cloning is needed for sync calling, maybe we can do it differently
+    [...PoolObservableObservers.getOrCreate ( this )].forEach ( observer => observer.stale ( status ) ); //TODO: cloning is needed for sync calling, maybe we can do it differently
 
   }
 
@@ -79,7 +79,7 @@ class Observable<T = unknown> {
 
     const valueNext = fn ( this.value );
 
-    return this.write ( valueNext );
+    return this.set ( valueNext );
 
   }
 

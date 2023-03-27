@@ -10,8 +10,11 @@ import type {IObservable, UpdateFunction, Frozen, Readable, Writable} from '~/ty
 //TODO: streamline this, maybe use one symbol? maybe attach the instance to the symbol instead?
 
 function frozenFunction <T> ( this: T ): T {
-  if ( arguments.length ) throw new Error ( 'A readonly Observable can not be updated' );
-  return this;
+  if ( arguments.length ) {
+    throw new Error ( 'A readonly Observable can not be updated' );
+  } else {
+    return this;
+  }
 }
 
 function readableFunction <T> ( this: IObservable<T>, symbol: symbol ): IObservable<T>;
@@ -19,8 +22,9 @@ function readableFunction <T> ( this: IObservable<T>, symbol?: symbol ): T | IOb
   if ( arguments.length ) {
     if ( symbol === SYMBOL_OBSERVABLE ) return this;
     throw new Error ( 'A readonly Observable can not be updated' );
+  } else {
+    return this.get ();
   }
-  return this.read ();
 }
 
 function writableFunction <T> ( this: IObservable<T>, symbol: symbol ): IObservable<T>;
@@ -28,9 +32,10 @@ function writableFunction <T> ( this: IObservable<T>, fn?: UpdateFunction<T> | T
   if ( arguments.length ) {
     if ( fn === SYMBOL_OBSERVABLE ) return this;
     if ( isFunction ( fn ) ) return this.update ( fn as UpdateFunction<T> ); //TSC
-    return this.write ( fn as T ); //TSC
+    return this.set ( fn as T ); //TSC
+  } else {
+    return this.get ();
   }
-  return this.read ();
 }
 
 const frozen = (<T> ( value: T ) => {

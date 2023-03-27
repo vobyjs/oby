@@ -1,9 +1,10 @@
 
 /* IMPORT */
 
-import {OWNER, ROOT, setRoot} from '~/context';
+import {OWNER, ROOT, SUSPENSE_ENABLED, setRoot} from '~/context';
 import Owner from '~/objects/owner';
-import type {IOwner, ObservedDisposableFunction} from '~/types';
+import {PoolOwnerRoots} from '~/objects/pool';
+import type {IOwner, WrappedDisposableFunction} from '~/types';
 
 /* MAIN */
 
@@ -22,23 +23,27 @@ class Root extends Owner {
 
     super ();
 
-    this.parent.roots.push ( this ); //TODO: Only if suspense is used?
+    if ( SUSPENSE_ENABLED ) {
+      PoolOwnerRoots.register ( this.parent, this );
+    }
 
   }
 
   /* API */
 
-  dispose (): void {
+  dispose ( deep: boolean ): void {
 
-    //TODO: remove root from parent
+    if ( SUSPENSE_ENABLED ) {
+      PoolOwnerRoots.unregister ( this.parent, this );
+    }
 
-    super.dispose ();
+    super.dispose ( deep );
 
   }
 
-  wrap <T> ( fn: ObservedDisposableFunction<T> ): T | undefined {
+  wrap <T> ( fn: WrappedDisposableFunction<T> ): T {
 
-    const dispose = () => this.dispose ();
+    const dispose = () => this.dispose ( true );
     const fnWithDispose = () => fn ( dispose );
 
     const rootPrev = ROOT;
@@ -62,5 +67,3 @@ class Root extends Owner {
 /* EXPORT */
 
 export default Root;
-
-//TODO: REVIEW

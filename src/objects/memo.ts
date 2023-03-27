@@ -27,6 +27,40 @@ class Memo<T = unknown> extends Observer {
 
   }
 
+  // hydrate ( fn: MemoFunction<T>, options?: ObservableOptions<T> ): this {
+
+  //   super.hydrate ();
+
+  //   this.fn = fn;
+  //   this.observable = new Observable<T> ( SYMBOL_VALUE_INITIAL as any, options, this ); //TSC
+
+  //   return this;
+
+  // }
+
+  // dehydrate (): this {
+
+  //   super.dehydrate ();
+
+  //   this.fn = NOOP_FN;
+  //   this.observable = NOOP_OBSERVABLE;
+
+  //   return this;
+
+  // }
+
+  // dipose ( deep: boolean ) {
+
+  //   super.dispose ( deep );
+
+  //   if ( deep ) {
+
+  //     PoolMemo.free ( this );
+
+  //   }
+
+  // }
+
   /* API */
 
   stale ( status: 2 | 3 ): void {
@@ -41,11 +75,11 @@ class Memo<T = unknown> extends Observer {
 
   run (): void {
 
-    this.dispose ();
+    this.dispose ( false );
 
-    const value = this.wrap ( this.fn, this, this )!; //FIXME: this type assertion isn't quite right
+    const value = this.wrap ( this.fn, this, this );
 
-    this.observable.write ( value );
+    this.observable.set ( value );
 
   }
 
@@ -54,5 +88,3 @@ class Memo<T = unknown> extends Observer {
 /* EXPORT */
 
 export default Memo;
-
-//TODO: REVIEW

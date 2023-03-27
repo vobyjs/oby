@@ -66,7 +66,7 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 
         if ( mapped.bool === bool ) return;
 
-        mapped.dispose ();
+        mapped.dispose ( true );
 
         cache.delete ( value );
 
@@ -76,7 +76,7 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 
       this.cache.forEach ( mapped => {
 
-        mapped.dispose ();
+        mapped.dispose ( true );
 
       });
 
@@ -139,7 +139,7 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
         reuseCount += 1;
 
         cached.bool = bool;
-        cached.index?.write ( i );
+        cached.index?.set ( i );
 
         results[i] = cached.result!; //TSC
 
@@ -151,7 +151,7 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 
         if ( cached ) {
 
-          cleanup ( () => mapped.dispose () );
+          cleanup ( () => mapped.dispose ( true ) );
 
         }
 
@@ -209,7 +209,7 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 
   };
 
-};
+}
 
 /* EXPORT */
 

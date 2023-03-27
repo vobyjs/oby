@@ -837,6 +837,50 @@ describe ( 'oby', () => {
 
   describe ( 'cleanup', it => {
 
+    it.only ( 'calls callbacks in reverse order', async t => {
+
+      let sequence = '';
+
+      const dispose = $.root ( dispose => {
+
+        $.effect ( () => {
+
+          $.cleanup ( () => sequence += 'a' );
+
+          $.effect ( () => {
+
+            $.cleanup ( () => sequence += 'A' );
+
+            $.cleanup ( () => sequence += 'B' );
+
+          });
+
+          $.effect ( () => {
+
+            $.cleanup ( () => sequence += 'C' );
+
+            $.cleanup ( () => sequence += 'D' );
+
+          });
+
+          $.cleanup ( () => sequence += 'b' );
+
+        });
+
+        return dispose;
+
+      });
+
+      await tick ();
+
+      t.is ( sequence, '' );
+
+      dispose ();
+
+      t.is ( sequence , 'DCBAba' );
+
+    });
+
     it.only ( 'does not cause the parent memo to re-execute', t => {
 
       const disposed = $(false);

@@ -55,7 +55,7 @@ class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
 
     this.cache.forEach ( mapped => {
 
-      mapped.dispose ();
+      mapped.dispose ( true );
 
     });
 
@@ -93,7 +93,7 @@ class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
           cache.delete ( value );
           cacheNext.set ( value, cached );
 
-          cached.index?.write ( i );
+          cached.index?.set ( i );
 
           results[i] = cached.result!; //TSC
 
@@ -128,14 +128,14 @@ class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
           if ( fnWithIndex ) {
 
             batch ( () => {
-              mapped.index?.write ( index );
-              mapped.value?.write ( value );
+              mapped.index?.set ( index );
+              mapped.value?.set ( value );
             });
 
           } else {
 
-            mapped.index?.write ( index );
-            mapped.value?.write ( value );
+            mapped.index?.set ( index );
+            mapped.value?.set ( value );
 
           }
 
@@ -153,7 +153,7 @@ class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
 
       if ( isDuplicate ) {
 
-        cleanup ( () => mapped.dispose () );
+        cleanup ( () => mapped.dispose ( true ) );
 
       }
 
@@ -169,7 +169,7 @@ class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
         }
 
         const observable = mapped.value = new Observable ( value );
-        const $value = memo ( () => get ( observable.read () ) ) as Indexed<T>; //TSC
+        const $value = memo ( () => get ( observable.get () ) ) as Indexed<T>; //TSC
         const result = results[index] = resolve ( fn ( $value, $index ) );
 
         mapped.value = observable;
@@ -211,7 +211,7 @@ class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
 
   };
 
-};
+}
 
 /* EXPORT */
 

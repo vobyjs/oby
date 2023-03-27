@@ -16,6 +16,8 @@ import type {MapFunction, MapValueFunction, ObservableReadonly, FunctionMaybe, R
 
 /* MAIN */
 
+//TODO: Unify the 2 caches to make the bundle size smaller, though it may not be worth it, each is optimized for its specific behavior
+
 function _for <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapFunction<T, R>, fallback?: F | [], recycle?: false ): ObservableReadonly<Resolved<R>[] | Resolved<F>>;
 function _for <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapValueFunction<T, R>, fallback?: F | [], recycle?: true ): ObservableReadonly<Resolved<R>[] | Resolved<F>>;
 function _for <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapFunction<T, R> | MapValueFunction<T, R>, fallback: F | [] = [], recycle?: boolean ): ObservableReadonly<Resolved<R>[] | Resolved<F>> {

@@ -11,7 +11,7 @@ import type {DisposeFunction, EffectFunction, EffectOptions} from '~/types';
 const effect = ( fn: EffectFunction, options?: EffectOptions ): DisposeFunction => {
 
   const effect = new Effect ( fn, options );
-  const dispose = () => effect.dispose ();
+  const dispose = () => effect.dispose ( true );
 
   return dispose;
 

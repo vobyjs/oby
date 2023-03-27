@@ -4,20 +4,18 @@
 import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants';
 import {OWNER} from '~/context';
 import Owner from '~/objects/owner';
-import {is} from '~/utils';
+import {PoolObservableObservers, PoolObserverObservables, PoolOwnerObservers} from '~/objects/pool';
 import type {IObservable, IOwner} from '~/types';
 
 /* MAIN */
-
-//TODO: lazy
 
 class Observer extends Owner {
 
   /* VARIABLES */
 
   parent: IOwner = OWNER;
-  observables: Set<IObservable>;
-  status: 0 | 1 | 2 | 3;
+  status: 0 | 1 | 2 | 3 = DIRTY_YES;
+  // observables: PoolSet<IObservable>;
 
   /* CONSTRUCTOR */
 
@@ -25,30 +23,53 @@ class Observer extends Owner {
 
     super ();
 
-    this.observables = new Set ();
-    this.status = DIRTY_YES;
-
-    this.parent.observers.push ( this );
+    PoolOwnerObservers.register ( this.parent, this );
 
   }
 
+  // hydrate (): this {
+
+  //   this.parent = OWNER;
+  //   this.status = DIRTY_YES;
+
+  //   PoolOwnerObservers.register ( this.parent, this );
+
+  //   return this;
+
+  // }
+
+  // dehydrate (): this {
+
+  //   this.parent = NOOP_PARENT;
+
+  //   return this;
+
+  // }
+
+
+
   /* API */
 
-  dispose (): void {
+  dispose ( deep: boolean ): void {
 
-    this.observables.forEach ( observable => observable.observers.delete ( this ) );
+    if ( deep ) {
 
-    this.observables.clear ();
+      PoolObserverObservables.forEachAndDelete ( this, observable => PoolObservableObservers.unregister ( observable, this ) );
 
-    super.dispose ();
+    } else {
+
+      PoolObserverObservables.forEachAndReset ( this, observable => PoolObservableObservers.unregister ( observable, this ) );
+
+    }
+
+    super.dispose ( deep );
 
   }
 
   link ( observable: IObservable<any> ): void {
 
-    this.observables.add ( observable );
-
-    observable.observers.add ( this );
+    PoolObserverObservables.register ( this, observable );
+    PoolObservableObservers.register ( observable, this );
 
   }
 
@@ -66,15 +87,15 @@ class Observer extends Owner {
 
   update (): void {
 
-    if ( is ( this.status, DIRTY_MAYBE_YES ) ) { //TSC: We don't want the type narrowed here
+    if ( this.status === DIRTY_MAYBE_YES ) {
 
-      for ( const observable of this.observables ) {
+      PoolObserverObservables.forEach ( this, observable => {
 
         observable.parent?.update ();
 
-        if ( this.status === DIRTY_YES ) break;
+        if ( this.status === DIRTY_YES ) return false;
 
-      }
+      });
 
     }
 
@@ -107,5 +128,3 @@ class Observer extends Owner {
 /* EXPORT */
 
 export default Observer;
-
-//TODO: REVIEW

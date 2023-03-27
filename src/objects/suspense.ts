@@ -6,6 +6,7 @@ import {OWNER, setSuspenseEnabled} from '~/context';
 import {lazyArrayEach} from '~/lazy';
 import Effect from '~/objects/effect';
 import Owner from '~/objects/owner';
+import {PoolOwnerObservers, PoolOwnerRoots, PoolOwnerSuspenses} from '~/objects/pool';
 import {SYMBOL_SUSPENSE} from '~/symbols';
 import {isFunction} from '~/utils';
 import type {IObserver, IOwner, IRoot, ISuspense, SuspenseFunction} from '~/types';
@@ -27,10 +28,11 @@ class Suspense extends Owner {
 
     setSuspenseEnabled ( true );
 
-    this.parent.suspenses.push ( this );
-    this.suspended = ( OWNER.read<ISuspense> ( SYMBOL_SUSPENSE )?.suspended || 0 ); //TODO: This probably requires a +1, because .toggle is called immediately
+    PoolOwnerSuspenses.register ( this.parent, this );
 
-    this.write ( SYMBOL_SUSPENSE, this );
+    this.suspended = ( OWNER.get<ISuspense> ( SYMBOL_SUSPENSE )?.suspended || 0 ); //TODO: This probably requires a +1, because .toggle is called immediately
+
+    this.set ( SYMBOL_SUSPENSE, this );
 
   }
 
@@ -47,9 +49,9 @@ class Suspense extends Owner {
     /* NOTIFYING OBSERVERS, ROOTS AND SUSPENSES */
 
     const notifyOwner = ( owner: IOwner ): void => {
-      lazyArrayEach ( owner.observers, notifyObserver );
-      lazyArrayEach ( owner.suspenses, notifySuspense );
-      lazyArrayEach ( owner.roots, notifyRoot );
+      PoolOwnerObservers.forEach ( owner, notifyObserver );
+      PoolOwnerSuspenses.forEach ( owner, notifySuspense );
+      PoolOwnerRoots.forEach ( owner, notifyRoot );
     };
 
     const notifyObserver = ( observer: IObserver ): void => {

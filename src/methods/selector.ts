@@ -69,8 +69,8 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
     selectedValue = valueNext;
 
-    selecteds.get ( valuePrev )?.write ( false );
-    selecteds.get ( valueNext )?.write ( true );
+    selecteds.get ( valuePrev )?.set ( false );
+    selecteds.get ( valueNext )?.set ( true );
 
   }, { suspense: false, sync: true } );
 

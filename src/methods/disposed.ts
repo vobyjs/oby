@@ -14,7 +14,7 @@ const disposed = (): ObservableReadonly<boolean> => {
 
   cleanup ( () => {
 
-    observable.write ( true );
+    observable.set ( true );
 
   });
 
