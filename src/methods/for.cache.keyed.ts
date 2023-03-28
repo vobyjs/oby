@@ -2,8 +2,8 @@
 /* IMPORT */
 
 import {OWNER} from '~/context';
+import {lazySetAdd, lazySetDelete} from '~/lazy';
 import cleanup from '~/methods/cleanup';
-import CacheAbstract from '~/methods/for.cache.abstract';
 import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
@@ -23,10 +23,11 @@ class MappedRoot<T = unknown> extends Root { // This saves some memory compared 
 
 /* MAIN */
 
-class CacheKeyed<T, R> extends CacheAbstract<T, R> {
+class CacheKeyed<T, R> {
 
   /* VARIABLES */
 
+  private parent: IOwner = OWNER;
   private fn: MapFunction<T, R>;
   private fnWithIndex: boolean;
   private cache: Map<T, MappedRoot<Resolved<R>>> = new Map ();
@@ -34,17 +35,15 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
   private prevCount: number = 0; // Number of previous items
   private reuseCount: number = 0; // Number of previous items that got reused
   private nextCount: number = 0; // Number of next items
-  private parent: IOwner = OWNER;
 
   /* CONSTRUCTOR */
 
   constructor ( fn: MapFunction<T, R> ) {
 
-    super ( fn );
-
     this.fn = fn;
     this.fnWithIndex = ( fn.length > 1 );
-    // this.parent.registerRoot ( this.roots );
+
+    lazySetAdd ( this.parent, 'roots', this.roots );
 
   }
 
@@ -88,7 +87,7 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 
   dispose = (): void => {
 
-    // this.parent.unregisterRoot ( this.roots );
+    lazySetDelete ( this.parent, 'roots', this.roots );
 
     this.prevCount = this.cache.size;
     this.reuseCount = 0;
@@ -98,7 +97,7 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 
   };
 
-  before = ( values: readonly T[] ): void => {
+  before = (): void => {
 
     this.bool = !this.bool;
     this.reuseCount = 0;
@@ -119,7 +118,7 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 
   map = ( values: readonly T[] ): Resolved<R>[] => {
 
-    this.before ( values );
+    this.before ();
 
     const {cache, bool, fn, fnWithIndex} = this;
     const results: Resolved<R>[] = new Array ( values.length );
@@ -147,7 +146,7 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 
         resultsCached = false;
 
-        const mapped = new MappedRoot<R> ();
+        const mapped = new MappedRoot<R> ( false );
 
         if ( cached ) {
 
@@ -214,5 +213,3 @@ class CacheKeyed<T, R> extends CacheAbstract<T, R> {
 /* EXPORT */
 
 export default CacheKeyed;
-
-//TODO: REVIEW

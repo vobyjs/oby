@@ -66,6 +66,12 @@ type EffectOptions = {
   sync?: boolean
 };
 
+/* FOR */
+
+type ForOptions = {
+  recycle?: boolean
+};
+
 /* OBSERVABLE */
 
 type Observable<T = unknown> = {
@@ -142,6 +148,7 @@ type Signal = { disposed?: boolean };
 export type {IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
 export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
 export type {EffectOptions};
+export type {ForOptions};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Owner};
 export type {StoreOptions};

@@ -497,6 +497,8 @@ describe ( 'oby', () => {
 
   describe ( 'batch', it => {
 
+    //TODO: check that multiple batches running in parallel with different timeouts are supported
+
     it.only ( 'batches synchronous changes implicitly, for a memo', t => {
 
       const a = $(0);
@@ -2283,7 +2285,7 @@ describe ( 'oby', () => {
         argsRaw.push ( index );
         args.push ( index () );
         return value;
-      }, [], true );
+      }, [], { recycle: true } );
 
       t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
       t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
@@ -2314,7 +2316,7 @@ describe ( 'oby', () => {
         argsRaw.push ( value );
         args.push ( value () );
         return value;
-      }, [], true );
+      }, [], { recycle: true } );
 
       t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
       t.deepEqual ( argsRaw.map ( a => a () ), ['a', 'b', 'c'] );
@@ -2344,7 +2346,7 @@ describe ( 'oby', () => {
           args.push ( value () );
         });
         return value;
-      }, [], true );
+      }, [], { recycle: true } );
 
       t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
       t.deepEqual ( args, [] );
@@ -2373,7 +2375,7 @@ describe ( 'oby', () => {
               memo ();
             });
             return memo;
-          }, [], true );
+          }, [], { recycle: true } );
           memo ();
         });
         memo ();
@@ -2414,7 +2416,7 @@ describe ( 'oby', () => {
               memo ();
             });
             return memo;
-          }, [], true );
+          }, [], { recycle: true } );
           memo ();
         });
         return dispose;
@@ -2453,7 +2455,7 @@ describe ( 'oby', () => {
             memo ();
           });
           return memo;
-        }, [], true );
+        }, [], { recycle: true } );
         $.effect ( () => {
           memo ();
         });
@@ -2488,7 +2490,7 @@ describe ( 'oby', () => {
         const memo = $.memo ( () => {
           args.push ( value () );
           return value ();
-        }, [], true );
+        }, [], { recycle: true } );
         return memo;
       });
 
@@ -2532,7 +2534,7 @@ describe ( 'oby', () => {
         return $.memo ( () => {
           args.push ( value () );
           return value ();
-        }, [], true );
+        }, [], { recycle: true } );
       });
 
       t.deepEqual ( memo ().map ( call ), [1, 1] );
@@ -2568,7 +2570,7 @@ describe ( 'oby', () => {
       const memo = $.for ( array, value => {
         args.push ( value () );
         return value;
-      }, [], true );
+      }, [], { recycle: true } );
 
       t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
       t.deepEqual ( args, [1, 2, 3] );
@@ -2595,7 +2597,7 @@ describe ( 'oby', () => {
         argsRaw.push ( value );
         args.push ( value () );
         return value;
-      }, [], true );
+      }, [], { recycle: true } );
 
       t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
       t.deepEqual ( argsRaw.map ( a => a () ), [1, 2, 3] );
@@ -2611,7 +2613,7 @@ describe ( 'oby', () => {
 
     it.only ( 'resolves the fallback value before returning it', t => {
 
-      const result = $.for ( [], () => () => 123, () => () => 321, true );
+      const result = $.for ( [], () => () => 123, () => () => 321, { recycle: true } );
 
       isReadable ( t, result );
       isReadable ( t, result () );
@@ -2630,7 +2632,7 @@ describe ( 'oby', () => {
       const memo = $.for ( o, () => () => 123, () => () => {
         calls += 1;
         return 321;
-      }, true);
+      }, { recycle: true } );
 
       t.is ( calls, 0 );
       t.is ( memo ()()(), 321 );
@@ -2652,7 +2654,7 @@ describe ( 'oby', () => {
 
     it.only ( 'resolves the mapped value before returning it', t => {
 
-      const result = $.for ( [1], () => () => () => 123, [], true );
+      const result = $.for ( [1], () => () => () => 123, [], { recycle: true } );
 
       isReadable ( t, result );
       isReadable ( t, result ()[0] );
@@ -2664,13 +2666,13 @@ describe ( 'oby', () => {
 
     it.only ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
 
-      t.deepEqual ( $.for ( [], () => () => 123 )(), [], true );
+      t.deepEqual ( $.for ( [], () => () => 123 )(), [], { recycle: true } );
 
     });
 
     it.only ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
 
-      t.is ( $.for ( [], () => () => 123, 123 )(), 123, true );
+      t.is ( $.for ( [], () => () => 123, 123 )(), 123, { recycle: true } );
 
     });
 
@@ -2689,7 +2691,7 @@ describe ( 'oby', () => {
       const result = $.for ( valuesWithExternal, value => {
         calls += 1;
         return value ();
-      }, [], true );
+      }, [], { recycle: true } );
 
       t.is ( calls, 0 );
 
@@ -2742,7 +2744,7 @@ describe ( 'oby', () => {
           return value ();
         });
         return memo;
-      }, [], true );
+      }, [], { recycle: true } );
 
       t.deepEqual ( memo ().map ( call ), [1, 1, 2] );
       t.deepEqual ( args, [1, 1, 2] );
@@ -7663,7 +7665,7 @@ describe ( 'oby', () => {
             calls += 1;
             o ();
           });
-        }, [], true );
+        }, [], { recycle: true } );
         memo ();
       });
 
@@ -7701,7 +7703,7 @@ describe ( 'oby', () => {
             calls += 1;
             o ();
           });
-        }, [], true );
+        }, [], { recycle: true } );
         memo ();
       });
 

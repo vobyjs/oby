@@ -13,14 +13,21 @@ class Root extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
+  suspense?: boolean;
 
   /* CONSTRUCTOR */
 
-  constructor () {
+  constructor ( suspense: boolean ) {
 
     super ();
 
-    if ( SUSPENSE_ENABLED ) {
+    if ( suspense ) {
+
+      this.suspense = true;
+
+    }
+
+    if ( this.suspense && SUSPENSE_ENABLED ) {
 
       lazySetAdd ( this.parent, 'roots', this );
 
@@ -32,7 +39,7 @@ class Root extends Owner {
 
   dispose ( deep: boolean ): void {
 
-    if ( SUSPENSE_ENABLED ) {
+    if ( this.suspense && SUSPENSE_ENABLED ) {
 
       lazySetDelete ( this.parent, 'roots', this );
 

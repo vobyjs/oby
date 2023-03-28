@@ -1,24 +1,14 @@
 
-//TODO: retwite this
-
 /* IMPORT */
 
 import {BATCH, setBatch} from '~/context';
 import {noop} from '~/utils';
-import type {BatchFunction} from '~/types';
+import type {BatchFunction, CallbackFunction} from '~/types';
 
 /* HELPERS */
 
-let resolve: () => void = noop;
 let count: number = 0;
-
-const makeNakedPromise = (): [Promise<void>, () => void] => {
-  let resolve = noop;
-  const promise = new Promise<void> ( res => {
-    resolve = res;
-  });
-  return [promise, resolve];
-};
+let resolve: CallbackFunction = noop;
 
 /* MAIN */
 
@@ -26,10 +16,7 @@ const batch = async <T> ( fn: BatchFunction<T> ): Promise<Awaited<T>> => {
 
   if ( !BATCH ) {
 
-    const [p, r] = makeNakedPromise ();
-
-    setBatch ( p );
-    resolve = r;
+    setBatch ( new Promise ( r => resolve = r ) );
 
   }
 
@@ -57,5 +44,3 @@ const batch = async <T> ( fn: BatchFunction<T> ): Promise<Awaited<T>> => {
 /* MAIN */
 
 export default batch;
-
-//TODO: REVIEW

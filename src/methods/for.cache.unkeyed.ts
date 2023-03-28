@@ -2,9 +2,9 @@
 /* IMPORT */
 
 import {OWNER} from '~/context';
+import {lazySetAdd, lazySetDelete} from '~/lazy';
 import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
-import CacheAbstract from '~/methods/for.cache.abstract';
 import get from '~/methods/get';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
@@ -28,24 +28,23 @@ class MappedRoot<T = unknown, R = unknown> extends Root { // This saves some mem
 
 //TODO: Optimize this more
 
-class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
+class CacheUnkeyed<T, R> {
 
   /* VARIABLES */
 
+  private parent: IOwner = OWNER;
   private fn: MapValueFunction<T, R>;
   private fnWithIndex: boolean;
   private cache: Map<T, MappedRoot<T, Resolved<R>>> = new Map ();
-  private parent: IOwner = OWNER;
 
   /* CONSTRUCTOR */
 
   constructor ( fn: MapValueFunction<T, R> ) {
 
-    super ( fn );
-
     this.fn = fn;
     this.fnWithIndex = ( fn.length > 1 );
-    // this.parent.registerRoot ( this.roots );
+
+    lazySetAdd ( this.parent, 'roots', this.roots );
 
   }
 
@@ -63,7 +62,7 @@ class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
 
   dispose = (): void => {
 
-    // this.parent.unregisterRoot ( this.roots );
+    lazySetDelete ( this.parent, 'roots', this.roots );
 
     this.cleanup ();
 
@@ -149,7 +148,7 @@ class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
 
       resultsCached = false;
 
-      const mapped = new MappedRoot<T, R> ();
+      const mapped = new MappedRoot<T, R> ( false );
 
       if ( isDuplicate ) {
 
@@ -216,5 +215,3 @@ class CacheUnkeyed<T, R> extends CacheAbstract<T, R> {
 /* EXPORT */
 
 export default CacheUnkeyed;
-
-//TODO: REVIEW

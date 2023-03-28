@@ -8,7 +8,7 @@ import type {WrappedDisposableFunction} from '~/types';
 
 const root = <T> ( fn: WrappedDisposableFunction<T> ): T => {
 
-  return new Root ().wrap ( fn );
+  return new Root ( true ).wrap ( fn );
 
 };
 
