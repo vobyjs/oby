@@ -20,7 +20,7 @@ const suspense = <T> ( when: FunctionMaybe<unknown>, fn: SuspenseFunction<T> ): 
 
   }, { sync: true } );
 
-  return suspense.wrap ( fn )!; //TSC: Assuming it won't throw, for convenience, but slightly incorrect
+  return suspense.wrap ( fn );
 
 };
 

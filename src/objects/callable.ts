@@ -38,7 +38,7 @@ function writableFunction <T> ( this: IObservable<T>, fn?: UpdateFunction<T> | T
 const frozen = <T> ( value: T ): ObservableReadonly<T> => {
   const fn = frozenFunction.bind ( value ) as ObservableReadonly<T>; //TSC
   fn[SYMBOL_OBSERVABLE] = true;
-  fn[SYMBOL_OBSERVABLE_FROZEN] = value;
+  fn[SYMBOL_OBSERVABLE_FROZEN] = true;
   return fn;
 };
 
