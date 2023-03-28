@@ -16,5 +16,3 @@ const isObservableWritable = <T = unknown> ( value: unknown ): value is Observab
 /* EXPORT */
 
 export default isObservableWritable;
-
-//TODO: REVIEW

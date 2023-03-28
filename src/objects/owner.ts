@@ -31,7 +31,7 @@ class Owner {
 
     if ( errorHandler ) {
 
-      errorHandler.call ( errorHandler, error ); //UGLY: This assumes that the error handler won't throw, which we know, but Owner shouldn't assume
+      errorHandler.call ( errorHandler, error ); //TODO: This assumes that the error handler won't throw
 
       return true;
 

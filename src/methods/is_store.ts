@@ -15,5 +15,3 @@ const isStore = ( value: unknown ): boolean => {
 /* EXPORT */
 
 export default isStore;
-
-//TODO: REVIEW

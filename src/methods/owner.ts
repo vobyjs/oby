@@ -24,5 +24,3 @@ const owner = (): Owner => {
 /* EXPORT */
 
 export default owner;
-
-//TODO: REVIEW

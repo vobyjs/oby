@@ -8,8 +8,6 @@ import type {IObservable, Observable, ObservableReadonly} from '~/types';
 
 /* MAIN */
 
-//TOOD: Maybe this function can be deleted somehow
-
 const target = <T> ( observable: Observable<T> | ObservableReadonly<T> | IObservable<T> ): IObservable<T> => {
 
   if ( isFunction ( observable ) ) {
@@ -27,5 +25,3 @@ const target = <T> ( observable: Observable<T> | ObservableReadonly<T> | IObserv
 /* EXPORT */
 
 export default target;
-
-//TODO: REVIEW

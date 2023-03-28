@@ -24,7 +24,7 @@ class Memo<T = unknown> extends Observer {
     super ();
 
     this.fn = fn;
-    this.observable = new Observable<T> ( SYMBOL_VALUE_INITIAL as any, options, this ); //TSC: Maybe implement the initial value more cleanly
+    this.observable = new Observable<T> ( SYMBOL_VALUE_INITIAL as any, options, this ); //TSC: Maybe implement the initial value more cleanly, without an assertion
 
   }
 
@@ -40,7 +40,7 @@ class Memo<T = unknown> extends Observer {
 
   }
 
-  stale ( status: 2 | 3 ): void {
+  stale ( status: number ): void {
 
     if ( this.status === status ) return;
 

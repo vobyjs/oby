@@ -8,7 +8,7 @@ import Effect from '~/objects/effect';
 import Owner from '~/objects/owner';
 import {SYMBOL_SUSPENSE} from '~/symbols';
 import {isFunction} from '~/utils';
-import type {IObserver, IOwner, IRoot, ISuspense, SuspenseFunction} from '~/types';
+import type {IObserver, IOwner, IRoot, ISuspense, SuspenseFunction, Contexts} from '~/types';
 
 /* MAIN */
 
@@ -17,6 +17,7 @@ class Suspense extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
+  contexts: Contexts = { [SYMBOL_SUSPENSE]: this };
   suspended: number;
 
   /* CONSTRUCTOR */
@@ -29,9 +30,7 @@ class Suspense extends Owner {
 
     lazyArrayPush ( this.parent, 'suspenses', this );
 
-    this.suspended = ( OWNER.get<ISuspense> ( SYMBOL_SUSPENSE )?.suspended || 0 ); //TODO: This probably requires a +1, because .toggle is called immediately
-
-    this.set ( SYMBOL_SUSPENSE, this );
+    this.suspended = ( OWNER.get<ISuspense> ( SYMBOL_SUSPENSE )?.suspended || 0 );
 
   }
 
@@ -41,9 +40,12 @@ class Suspense extends Owner {
 
     if ( !this.suspended && !force ) return; // Already suspended, this can happen at instantion time
 
-    this.suspended += ( force ? 1 : -1 );
+    const suspendedPrev = this.suspended;
+    const suspendedNext = suspendedPrev + ( force ? 1 : -1 );
 
-    if ( this.suspended ) return; // Still suspended, nothing to resume
+    this.suspended = suspendedNext;
+
+    if ( !!suspendedPrev === !!suspendedNext ) return; // Same state, nothing to pause or resume
 
     /* NOTIFYING OBSERVERS, ROOTS AND SUSPENSES */
 
@@ -78,7 +80,7 @@ class Suspense extends Owner {
 
   }
 
-  wrap <T> ( fn: SuspenseFunction<T> ): T | undefined {
+  wrap <T> ( fn: SuspenseFunction<T> ): T {
 
     return super.wrap ( fn, this, undefined );
 
@@ -89,5 +91,3 @@ class Suspense extends Owner {
 /* EXPORT */
 
 export default Suspense;
-
-//TODO: REVIEW

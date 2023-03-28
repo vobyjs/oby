@@ -13,7 +13,7 @@ const _with = (): (<T> ( fn: WithFunction<T> ) => T) => {
 
   return <T> ( fn: WithFunction<T> ): T => {
 
-    return owner.wrap ( () => fn (), owner, observer )!; //TSC: Assuming it won't throw, for convenience, but slightly incorrect
+    return owner.wrap ( () => fn (), owner, observer );
 
   };
 
@@ -22,5 +22,3 @@ const _with = (): (<T> ( fn: WithFunction<T> ) => T) => {
 /* EXPORT */
 
 export default _with;
-
-//TODO: REVIEW

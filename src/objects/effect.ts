@@ -17,7 +17,7 @@ class Effect extends Observer {
 
   fn: EffectFunction;
   suspense?: ISuspense;
-  sync?: boolean;
+  sync?: true;
 
   /* CONSTRUCTOR */
 
@@ -87,7 +87,7 @@ class Effect extends Observer {
 
   }
 
-  stale ( status: 2 | 3 ): void {
+  stale ( status: number ): void {
 
     const statusPrev = this.status;
 

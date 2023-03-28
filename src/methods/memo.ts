@@ -7,8 +7,6 @@ import type {MemoFunction, ObservableReadonly, ObservableOptions} from '~/types'
 
 /* MAIN */
 
-//TODO: Maybe add a way to make frozen observables instead, somehow
-
 const memo = <T> ( fn: MemoFunction<T>, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T> => {
 
   const memo = new Memo ( fn, options );
@@ -21,5 +19,3 @@ const memo = <T> ( fn: MemoFunction<T>, options?: ObservableOptions<T | undefine
 /* EXPORT */
 
 export default memo;
-
-//TODO: REVIEW

@@ -25,20 +25,6 @@ const lazyArrayEachRight = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): 
   }
 };
 
-const lazyArrayPop = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T>>>, key: U, fn: ( value: T ) => void ): void => {
-  const arr: LazyArray<T> = obj[key];
-  if ( arr instanceof Array ) {
-    while ( true ) {
-      const value = arr.pop ();
-      if ( value === undefined ) break;
-      fn ( value );
-    }
-  } else if ( arr ) {
-    fn ( arr );
-    obj[key] = undefined;
-  }
-};
-
 const lazyArrayPush = <T, U extends string> ( obj: Partial<Record<U, LazyArray<T>>>, key: U, value: T ): void => {
   const arr: LazyArray<T> = obj[key];
   if ( arr instanceof Array ) {
@@ -95,7 +81,5 @@ const lazySetHas = <T> ( set: LazySet<T>, value: T ): boolean => {
 
 /* EXPORT */
 
-export {lazyArrayEach, lazyArrayEachRight, lazyArrayPop, lazyArrayPush};
+export {lazyArrayEach, lazyArrayEachRight, lazyArrayPush};
 export {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas};
-
-//TODO: REVIEW

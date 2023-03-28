@@ -32,27 +32,9 @@ import _with from '~/methods/with';
 import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_ON_CALLBACK, SYMBOL_ON_DEPENDENCIES, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED} from '~/symbols';
 import type {EffectOptions, Observable, ObservableReadonly, ObservableOptions, StoreOptions} from '~/types';
 
-//TODO: KeepAlive (+useContext returns signal?)
-//TODO: set observable inside memo throws
-//TODO: check places where memo(() => {}) is called
-//TODO: callable function for all observers
-//TODO: mangle
-//TODO: signal/disposed optimization
-//TODO: auto-disposing of effects and memos, for memory usage
-//TODO: debug function
-//TODO: unify for and forValue
-//TODO: delete old implementation
-//TODO: maybe rename tryCatch to try
-//TODO: maybe setting in memos should be forbidden or made explicit at least
-//TODO: "val" + "ue" delete
-//TODO: disposed/signal optimization
-//TODO: REview things again, add some comments when needed
-
 /* EXPORT */
 
 export default $;
-export {batch, boolean, cleanup, context, disposed, effect, _for as for, get, _if as if, isBatching, isObservable, isStore, memo, observable, on, owner, readonly, resolve, root, selector, suspense, _switch as switch, store, ternary, tryCatch, untrack, _with as with};
+export {batch, boolean, cleanup, context, disposed, effect, _for as for, get, _if as if, isBatching, isObservable, isStore, memo, observable, on, owner, readonly, resolve, root, selector, store, suspense, _switch as switch, ternary, tryCatch, untrack, _with as with};
 export {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE, SYMBOL_ON_CALLBACK, SYMBOL_ON_DEPENDENCIES, SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_VALUES, SYMBOL_UNCACHED, SYMBOL_UNTRACKED, SYMBOL_UNTRACKED_UNWRAPPED};
 export type {EffectOptions, Observable, ObservableReadonly, ObservableOptions, StoreOptions};
-
-//TODO: REVIEW

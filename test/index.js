@@ -3003,6 +3003,8 @@ describe ( 'oby', () => {
 
   describe ( 'isBatching', it => {
 
+    //TODO: check for scheduling also
+
     it.only ( 'checks if batching is active', async t => {
 
       t.false ( $.isBatching () );

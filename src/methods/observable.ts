@@ -19,5 +19,3 @@ function observable <T> ( value?: T, options?: ObservableOptions<T | undefined> 
 /* EXPORT */
 
 export default observable;
-
-//TODO: REVIEW

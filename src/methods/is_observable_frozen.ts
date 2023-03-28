@@ -16,5 +16,3 @@ const isObservableFrozen = <T = unknown> ( value: unknown ): value is Observable
 /* EXPORT */
 
 export default isObservableFrozen;
-
-//TODO: REVIEW

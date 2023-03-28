@@ -7,8 +7,6 @@ import type {IObservable, UpdateFunction, Observable, ObservableReadonly} from '
 
 /* MAIN */
 
-//TODO: streamline this, maybe use one symbol? maybe attach the instance to the symbol instead?
-
 function frozenFunction <T> ( this: T ): T {
   if ( arguments.length ) {
     throw new Error ( 'A readonly Observable can not be updated' );
@@ -44,23 +42,21 @@ const frozen = <T> ( value: T ): ObservableReadonly<T> => {
   return fn;
 };
 
-function readable <T> ( value: IObservable<T> ): ObservableReadonly<T> {
+const readable = <T> ( value: IObservable<T> ): ObservableReadonly<T> => {
   //TODO: Make a frozen one instead if disposed
   const fn = readableFunction.bind ( value as any ) as ObservableReadonly<T>; //TSC
   fn[SYMBOL_OBSERVABLE] = true;
   fn[SYMBOL_OBSERVABLE_READABLE] = value;
   return fn;
-}
+};
 
-function writable <T> ( value: IObservable<T> ): Observable<T> {
+const writable = <T> ( value: IObservable<T> ): Observable<T> => {
   const fn = writableFunction.bind ( value as any ) as ObservableReadonly<T>; //TSC
   fn[SYMBOL_OBSERVABLE] = true;
   fn[SYMBOL_OBSERVABLE_WRITABLE] = value;
   return fn;
-}
+};
 
 /* EXPORT */
 
 export {frozen, readable, writable};
-
-//TODO: REVIEW

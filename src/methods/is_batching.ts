@@ -2,19 +2,17 @@
 /* IMPORT */
 
 import {BATCH} from '~/context';
+import SchedulerAsync from '~/objects/scheduler.async';
+import SchedulerSync from '~/objects/scheduler.sync';
 
 /* MAIN */
 
-//TODO: Maybe check if Scheduling is active instead, basically
-
 const isBatching = (): boolean => {
 
-  return !!BATCH;
+  return !!BATCH || SchedulerAsync.queued || SchedulerSync.locked;
 
 };
 
 /* EXPORT */
 
 export default isBatching;
-
-//TODO: REVIEW

@@ -25,5 +25,3 @@ const readonly = <T> ( observable: Observable<T> | ObservableReadonly<T> ): Obse
 /* EXPORT */
 
 export default readonly;
-
-//TODO: REVIEW

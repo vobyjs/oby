@@ -28,5 +28,3 @@ function get <T> ( value: T, getFunction: boolean = true ) {
 /* EXPORT */
 
 export default get;
-
-//TODO: REVIEW

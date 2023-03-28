@@ -1,6 +1,7 @@
 {
   "extends": "tsex/tsconfig.json",
   "compilerOptions": {
+    "noImplicitAny": false,
     "noImplicitReturns": false,
     "noUnusedParameters": false,
     "target": "es2020"

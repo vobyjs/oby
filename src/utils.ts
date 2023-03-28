@@ -1,6 +1,4 @@
 
-//TODO: Review these
-
 /* MAIN */
 
 const castArray = <T> ( value: T[] | T ): T[] => {
@@ -46,21 +44,9 @@ const isFunction = ( value: unknown ): value is Function => {
 
 };
 
-const isNumber = ( value: unknown ): boolean => {
-
-  return typeof value === 'number';
-
-};
-
 const isObject = ( value: unknown ): value is Record<number | string | symbol, unknown> => {
 
   return ( value !== null ) && ( typeof value === 'object' );
-
-};
-
-const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
-
-  return ( a > b ) ? a : b;
 
 };
 
@@ -78,6 +64,4 @@ const nope = (): false => {
 
 /* EXPORT */
 
-export {castArray, castError, is, isArray, isEqual, isFunction, isNumber, isObject, max, noop, nope};
-
-//TODO: REVIEW
+export {castArray, castError, is, isArray, isEqual, isFunction, isObject, noop, nope};

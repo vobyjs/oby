@@ -18,5 +18,3 @@ const ternary = <T, F> ( when: FunctionMaybe<unknown>, valueTrue: T, valueFalse:
 /* EXPORT */
 
 export default ternary;
-
-//TODO: REVIEW

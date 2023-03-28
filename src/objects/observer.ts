@@ -9,12 +9,14 @@ import type {IObservable, IOwner} from '~/types';
 
 /* MAIN */
 
+//TODO: Optimize disposal, sometimes it's unnecessary to empty out the array of observables
+
 class Observer extends Owner {
 
   /* VARIABLES */
 
   parent: IOwner = OWNER;
-  status: 0 | 1 | 2 | 3 = DIRTY_YES;
+  status: number = DIRTY_YES;
   observables: IObservable[] = [];
   sync?: boolean;
 
@@ -32,9 +34,11 @@ class Observer extends Owner {
 
   dispose ( deep: boolean ): void {
 
-    for ( let i = 0, l = this.observables.length; i < l; i++ ) {
+    const observables = this.observables;
 
-      this.observables[i].observers.delete ( this );
+    for ( let i = 0, l = observables.length; i < l; i++ ) {
+
+      observables[i].observers.delete ( this );
 
     }
 
@@ -46,11 +50,12 @@ class Observer extends Owner {
 
   link ( observable: IObservable<any> ): void {
 
-    const sizePrev = observable.observers.size;
+    const observers = observable.observers;
+    const sizePrev = observers.size;
 
-    observable.observers.add ( this );
+    observers.add ( this );
 
-    const sizeNext = observable.observers.size;
+    const sizeNext = observers.size;
 
     if ( sizeNext === sizePrev ) return;
 
@@ -64,9 +69,9 @@ class Observer extends Owner {
 
   }
 
-  stale ( status: 2 | 3 ): void {
+  stale ( status: number ): void {
 
-    this.status = status;
+    throw new Error ( 'Abstract method' );
 
   }
 
@@ -74,9 +79,11 @@ class Observer extends Owner {
 
     if ( this.status === DIRTY_MAYBE_YES ) {
 
-      for ( let i = 0, l = this.observables.length; i < l; i++ ) {
+      const observables = this.observables;
 
-        const observable = this.observables[i];
+      for ( let i = 0, l = observables.length; i < l; i++ ) {
+
+        const observable = observables[i];
 
         observable.parent?.update ();
 

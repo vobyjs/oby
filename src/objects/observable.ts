@@ -72,13 +72,13 @@ class Observable<T = unknown> {
 
   }
 
-  stale ( status: 2 | 3 ): void {
+  stale ( status: number ): void {
 
     for ( const observer of this.observers ) {
 
       if ( observer.sync ) {
 
-        Scheduler.push ( observer );
+        Scheduler.schedule ( observer );
 
       } else {
 

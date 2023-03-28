@@ -74,5 +74,3 @@ $.with = _with;
 /* EXPORT */
 
 export default $;
-
-//TODO: REVIEW

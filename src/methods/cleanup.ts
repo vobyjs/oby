@@ -16,5 +16,3 @@ const cleanup = ( fn: Callable<CleanupFunction> ): void => {
 /* EXPORT */
 
 export default cleanup;
-
-//TODO: REVIEW

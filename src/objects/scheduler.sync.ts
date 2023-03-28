@@ -18,7 +18,7 @@ class Scheduler {
   counter: number = 0;
   locked: boolean = false;
 
-  /* API */
+  /* QUEING API */
 
   flush = (): void => {
 
@@ -41,7 +41,7 @@ class Scheduler {
 
         for ( const observer of current ) {
 
-          current?.delete ( observer );
+          current.delete ( observer );
 
           observer.stale ( DIRTY_YES );
 
@@ -59,14 +59,6 @@ class Scheduler {
 
   }
 
-  push = ( observer: IObserver ): void => {
-
-    if ( this.running?.has ( observer ) ) return;
-
-    this.waiting.add ( observer );
-
-  }
-
   wrap = ( fn: () => void ): void => {
 
     this.counter += 1;
@@ -76,6 +68,16 @@ class Scheduler {
     this.counter -= 1;
 
     this.flush ();
+
+  }
+
+  /* SCHEDULING API */
+
+  schedule = ( observer: IObserver ): void => {
+
+    if ( this.running?.has ( observer ) ) return;
+
+    this.waiting.add ( observer );
 
   }
 

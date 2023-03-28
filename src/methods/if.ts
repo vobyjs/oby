@@ -17,5 +17,3 @@ function _if <T, F> ( when: FunctionMaybe<unknown>, valueTrue: T, valueFalse?: F
 /* EXPORT */
 
 export default _if;
-
-//TODO: REVIEW

@@ -8,12 +8,10 @@ import type {WrappedDisposableFunction} from '~/types';
 
 const root = <T> ( fn: WrappedDisposableFunction<T> ): T => {
 
-  return new Root ().wrap ( fn )!; //TSC: Assuming it won't throw, for convenience, but slightly incorrect
+  return new Root ().wrap ( fn );
 
 };
 
 /* EXPORT */
 
 export default root;
-
-//TODO: REVIEW

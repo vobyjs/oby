@@ -25,5 +25,3 @@ const disposed = (): ObservableReadonly<boolean> => {
 /* EXPORT */
 
 export default disposed;
-
-//TODO: REVIEW

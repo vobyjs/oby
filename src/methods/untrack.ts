@@ -38,5 +38,3 @@ function untrack <T> ( fn: UntrackFunction<T> | T ) {
 /* EXPORT */
 
 export default untrack;
-
-//TODO: REVIEW
