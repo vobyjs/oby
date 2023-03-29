@@ -12,7 +12,7 @@ import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
 import {SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED} from '~/symbols';
 import {castArray, is, isArray, isFunction, isObject, noop, nope} from '~/utils';
-import type {IObservable, CallbackFunction, DisposeFunction, EqualsFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet, Signal} from '~/types';
+import type {IObservable, CallbackFunction, DisposeFunction, EqualsFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet} from '~/types';
 
 /* TYPES */
 
@@ -33,7 +33,6 @@ type StoreListenerRoots<T = unknown> = ( roots: T[] ) => void;
 type StoreNode = {
   parents: LazySet<StoreNode>,
   store: StoreTarget,
-  signal: Signal,
   listenersRegular?: LazySet<StoreListenerRegular>,
   listenersRoots?: LazySet<StoreListenerRoots>,
   getters?: StoreMap<StoreKey, Function>,
@@ -571,7 +570,6 @@ const STORE_UNTRACK_TRAPS = {
 const getNode = <T extends StoreTarget> ( value: T, parent?: StoreNode, equals?: EqualsFunction<unknown> | false ): StoreNode => {
 
   const store = new Proxy ( value, STORE_TRAPS );
-  // const signal = parent?.signal || ROOT; //TODO
   const gettersAndSetters = getGettersAndSetters ( value );
   const node: StoreNode = { parents: parent, store };
 

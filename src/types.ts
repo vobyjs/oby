@@ -141,8 +141,6 @@ type Resolvable = ResolvablePrimitive | ResolvableObject | ResolvableArray | Res
 
 type Resolved<T = unknown> = T;
 
-type Signal = { disposed?: boolean };
-
 /* EXPORT */
 
 export type {IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
@@ -152,4 +150,4 @@ export type {ForOptions};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Owner};
 export type {StoreOptions};
-export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, PromiseMaybe, Resolvable, Resolved, Signal};
+export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, PromiseMaybe, Resolvable, Resolved};
