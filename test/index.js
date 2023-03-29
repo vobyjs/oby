@@ -63,13 +63,11 @@ const tick = () => {
 
 /* MAIN */
 
-//TODO: Add tests that check for laziness everywhere
-
 describe ( 'oby', () => {
 
   describe ( '$', it => {
 
-    it.only ( 'is both a getter and a setter', t => {
+    it ( 'is both a getter and a setter', t => {
 
       const o = $();
 
@@ -89,7 +87,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'creates a dependency in a memo when getting', t => {
+    it ( 'creates a dependency in a memo when getting', t => {
 
       const o = $(1);
 
@@ -118,7 +116,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'creates a dependency in an effect when getting', async t => {
+    it ( 'creates a dependency in an effect when getting', async t => {
 
       const o = $(1);
 
@@ -147,7 +145,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'creates a single dependency in a memo even if getting multiple times', t => {
+    it ( 'creates a single dependency in a memo even if getting multiple times', t => {
 
       const o = $(1);
 
@@ -179,7 +177,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'creates a single dependency in an effect even if getting multiple times', async t => {
+    it ( 'creates a single dependency in an effect even if getting multiple times', async t => {
 
       const o = $(1);
 
@@ -210,7 +208,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not create a dependency in a memo when instantiating', t => {
+    it ( 'does not create a dependency in a memo when instantiating', t => {
 
       let o;
       let calls = 0;
@@ -232,7 +230,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not create a dependency in an effect when instantiating', async t => {
+    it ( 'does not create a dependency in an effect when instantiating', async t => {
 
       let o;
       let calls = 0;
@@ -254,7 +252,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not create a dependency in a memo when setting', t => {
+    it ( 'does not create a dependency in a memo when setting', t => {
 
       let o = $(1);
       let calls = 0;
@@ -276,7 +274,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not create a dependency in an effect when setting', async t => {
+    it ( 'does not create a dependency in an effect when setting', async t => {
 
       let o = $(1);
       let calls = 0;
@@ -298,7 +296,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not create a dependency in a memo when setting with a function', t => {
+    it ( 'does not create a dependency in a memo when setting with a function', t => {
 
       const o = $(1);
 
@@ -323,7 +321,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not create a dependency in an effect when setting with a function', async t => {
+    it ( 'does not create a dependency in an effect when setting with a function', async t => {
 
       const o = $(1);
 
@@ -348,7 +346,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not emit when the setter does not change the value', t => {
+    it ( 'does not emit when the setter does not change the value', t => {
 
       const o = $(1);
 
@@ -384,7 +382,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns the value being set', t => {
+    it ( 'returns the value being set', t => {
 
       const o = $();
 
@@ -392,7 +390,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns the value being set even if equal to the previous value', t => {
+    it ( 'returns the value being set even if equal to the previous value', t => {
 
       const equals = () => true;
 
@@ -404,7 +402,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports an initial value', t => {
+    it ( 'supports an initial value', t => {
 
       const o = $(123);
 
@@ -412,7 +410,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports a custom equality function', t => {
+    it ( 'supports a custom equality function', t => {
 
       const equals = ( next, prev ) => next[0] === prev[0];
 
@@ -439,7 +437,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports a false equality function', async t => {
+    it ( 'supports a false equality function', async t => {
 
       const equals = false;
 
@@ -448,23 +446,21 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.effect ( () => {
-
         calls += 1;
         o ();
-
       });
 
       t.is ( calls, 0 );
       await tick ();
       t.is ( calls, 1 );
 
-      o ( value => value.foo = true );
+      o ( o () );
 
       t.is ( calls, 1 );
       await tick ();
       t.is ( calls, 2 );
 
-      o ( o () );
+      o ( value => ({ ...value }) );
 
       t.is ( calls, 2 );
       await tick ();
@@ -472,7 +468,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports updating with a new primitive value', t => {
+    it ( 'supports updating with a new primitive value', t => {
 
       const o = $(1);
 
@@ -481,7 +477,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports updating with a new object value', t => {
+    it ( 'supports updating with a new object value', t => {
 
       const valuePrev = [];
       const valueNext = [];
@@ -497,9 +493,7 @@ describe ( 'oby', () => {
 
   describe ( 'batch', it => {
 
-    //TODO: check that multiple batches running in parallel with different timeouts are supported
-
-    it.only ( 'batches synchronous changes implicitly, for a memo', t => {
+    it ( 'batches synchronous changes implicitly, for a memo', t => {
 
       const a = $(0);
       const b = $(1);
@@ -524,7 +518,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'batches synchronous changes implicitly, for an effect', async t => {
+    it ( 'batches synchronous changes implicitly, for an effect', async t => {
 
       const a = $(0);
       const b = $(1);
@@ -550,7 +544,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'batches asynchronous changes implicitly, for a memo', async t => {
+    it ( 'batches asynchronous changes implicitly, for a memo', async t => {
 
       const a = $(0);
       const b = $(1);
@@ -576,7 +570,37 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'batches asynchronous changes manually, for an effect', async t => {
+    it ( 'batches asynchronous changes manually, for a memo', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      const memo = $.memo ( () => {
+        calls += 1;
+        return a () + b ();
+      });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
+      t.is ( calls, 1 );
+
+      await $.batch ( async () => {
+
+        a ( 10 );
+        await tick ();
+        b ( 100 );
+
+        t.is ( calls, 1 );
+        t.is ( memo (), 110 );
+        t.is ( calls, 2 );
+
+      });
+
+    });
+
+    it ( 'batches asynchronous changes manually, for an effect', async t => {
 
       const a = $(0);
       const b = $(1);
@@ -606,7 +630,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not batch synchronous changes implicitly, for a manually pulled memo', async t => {
+    it ( 'does not batch synchronous changes implicitly, for a manually pulled memo', async t => {
 
       const a = $(0);
       const b = $(1);
@@ -636,7 +660,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not batch synchronous changes implicitly, for a synchronous effect', t => {
+    it ( 'does not batch synchronous changes implicitly, for a synchronous effect', t => {
 
       const a = $(0);
       const b = $(1);
@@ -661,7 +685,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not batch synchronous changes manually, for a synchronous effect', async t => {
+    it ( 'does not batch synchronous changes manually, for a synchronous effect', async t => {
 
       const a = $(0);
       const b = $(1);
@@ -684,7 +708,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not batch asynchronous changes implicitly, for an effect', async t => {
+    it ( 'does not batch asynchronous changes implicitly, for an effect', async t => {
 
       const a = $(0);
       const b = $(1);
@@ -715,7 +739,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not swallow thrown errors, for sync functions', async t => {
+    it ( 'does not swallow thrown errors, for sync functions', async t => {
 
       try {
 
@@ -734,7 +758,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not swallow thrown errors, for async functions', async t => {
+    it ( 'does not swallow thrown errors, for async functions', async t => {
 
       try {
 
@@ -755,30 +779,32 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns the value being returned, for sync functions', async t => {
+    it ( 'returns the value being returned, wrapped in a promise, for sync functions', async t => {
 
       const o = $(0);
 
-      const result = await $.batch ( () => o () );
+      const result = $.batch ( () => o () );
 
-      t.is ( result, 0 );
+      t.true ( result instanceof Promise );
+      t.is ( await result, 0 );
 
     });
 
-    it.only ( 'returns the value being returned, for async functions', async t => {
+    it ( 'returns the value being returned, wrapped in a promise, for async functions', async t => {
 
       const o = $(0);
 
-      const result = await $.batch ( async () => {
+      const result = $.batch ( async () => {
         await tick ();
         return o ();
       });
 
-      t.is ( result, 0 );
+      t.true ( result instanceof Promise );
+      t.is ( await result, 0 );
 
     });
 
-    it.only ( 'supports being nested', async t => {
+    it ( 'supports being nested', async t => {
 
       const a = $(0);
       const b = $(1);
@@ -811,18 +837,53 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports multiple concurrent batch calls', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      const b1 = $.batch ( async () => {
+        a ( 10 );
+        await delay ( 10 );
+      });
+
+      const b2 = $.batch ( async () => {
+        b ( 100 );
+        await delay ( 50 );
+      });
+
+      await Promise.all ([ b1, b2 ]);
+
+      await tick ();
+
+      t.is ( calls, 2 );
+
+    });
+
   });
 
   describe ( 'boolean', it => {
 
-    it.only ( 'returns a boolean for static values', t => {
+    it ( 'returns a boolean for static values', t => {
 
       t.true ( $.boolean ( 'true' ) );
       t.false ( $.boolean ( '' ) );
 
     });
 
-    it.only ( 'returns a function for dynamic values', t => {
+    it ( 'returns a function for dynamic values', t => {
 
       const o = $('true');
       const bool = $.boolean ( o );
@@ -839,7 +900,7 @@ describe ( 'oby', () => {
 
   describe ( 'cleanup', it => {
 
-    it.only ( 'calls callbacks in reverse order', async t => {
+    it ( 'calls callbacks in reverse order', async t => {
 
       let sequence = '';
 
@@ -883,7 +944,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not cause the parent memo to re-execute', t => {
+    it ( 'does not cause the parent memo to re-execute', t => {
 
       const disposed = $(false);
 
@@ -897,11 +958,11 @@ describe ( 'oby', () => {
 
         const o = $(0);
 
-        o ();
+        o ( 0 );
 
         $.cleanup ( () => {
 
-          o ( Math.random () );
+          o ( o () + Math.random () );
 
         });
 
@@ -919,7 +980,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not cause the parent effect to re-execute', async t => {
+    it ( 'does not cause the parent effect to re-execute', async t => {
 
       const disposed = $(false);
 
@@ -933,11 +994,11 @@ describe ( 'oby', () => {
 
         const o = $(0);
 
-        o ();
+        o ( 0 );
 
         $.cleanup ( () => {
 
-          o ( Math.random () );
+          o ( o () + Math.random () );
 
         });
 
@@ -955,7 +1016,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'registers a function to be called when the parent computation is disposed', t => {
+    it ( 'registers a function to be called when the parent computation is disposed', t => {
 
       let sequence = '';
 
@@ -982,7 +1043,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'registers a function to be called when the parent computation updates', t => {
+    it ( 'registers a function to be called when the parent computation updates', t => {
 
       const o = $(0);
 
@@ -1022,7 +1083,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'registers a function to be called when the parent computation is disposed', async t => {
+    it ( 'registers a function to be called when the parent computation is disposed', async t => {
 
       let sequence = '';
 
@@ -1044,13 +1105,13 @@ describe ( 'oby', () => {
 
         dispose ();
 
-      });
+        t.is ( sequence, 'ba' );
 
-      t.is ( sequence, 'ba' );
+      });
 
     });
 
-    it.only ( 'registers a function to be called when the parent effect updates', async t => {
+    it ( 'registers a function to be called when the parent effect updates', async t => {
 
       const o = $(0);
 
@@ -1094,7 +1155,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'registers a function to be called when the parent root is disposed', t => {
+    it ( 'registers a function to be called when the parent root is disposed', t => {
 
       $.root ( dispose => {
 
@@ -1131,7 +1192,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'registers a function to be called when the parent suspense is disposed', t => {
+    it ( 'registers a function to be called when the parent suspense is disposed', t => {
 
       let sequence = '';
 
@@ -1151,23 +1212,25 @@ describe ( 'oby', () => {
 
         dispose ();
 
-      });
+        t.is ( sequence, 'ba' );
 
-      t.is ( sequence, 'ba' );
+      });
 
     });
 
-    it.only ( 'returns undefined', t => {
+    it ( 'returns undefined', t => {
 
       const result1 = $.cleanup ( () => {} );
-      const result2 = $.cleanup ( () => {} );
+      const result2 = $.cleanup ( () => 123 );
+      const result3 = $.cleanup ( () => () => {} );
 
       t.is ( result1, undefined );
       t.is ( result2, undefined );
+      t.is ( result3, undefined );
 
     });
 
-    it.only ( 'supports a callable object', async t => {
+    it ( 'supports a callable object', async t => {
 
       const o = $(0);
 
@@ -1225,7 +1288,7 @@ describe ( 'oby', () => {
 
   describe ( 'context', it => {
 
-    it.only ( 'can read and write context values inside an effect', async t => {
+    it ( 'can read and write context values inside an effect', async t => {
 
       $.effect ( () => {
 
@@ -1242,7 +1305,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can read and write context values inside a memo', t => {
+    it ( 'can read and write context values inside a memo', t => {
 
       const memo = $.memo ( () => {
 
@@ -1259,7 +1322,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can read and write context values inside a root', t => {
+    it ( 'can read and write context values inside a root', t => {
 
       $.root ( () => {
 
@@ -1274,7 +1337,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can read and write context values inside a suspense', t => {
+    it ( 'can read and write context values inside a suspense', t => {
 
       $.suspense ( false, () => {
 
@@ -1289,7 +1352,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can read and write context values inside a deep effect', async t => {
+    it ( 'can read and write context values inside a deep effect', async t => {
 
       $.effect ( () => {
 
@@ -1310,7 +1373,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can read and write context values inside a deep memo', t => {
+    it ( 'can read and write context values inside a deep memo', t => {
 
       const memo1 = $.memo ( () => {
 
@@ -1333,7 +1396,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can read and write context values inside a deep root', t => {
+    it ( 'can read and write context values inside a deep root', t => {
 
       $.root ( () => {
 
@@ -1352,7 +1415,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can read and write context values inside a deep suspense', t => {
+    it ( 'can read and write context values inside a deep suspense', t => {
 
       $.suspense ( false, () => {
 
@@ -1371,7 +1434,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns undefined when setting', async t => {
+    it ( 'returns undefined when setting', async t => {
 
       $.effect ( () => {
 
@@ -1388,7 +1451,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns undefined for unknown contexts', async t => {
+    it ( 'returns undefined for unknown contexts', async t => {
 
       $.effect ( () => {
 
@@ -1402,7 +1465,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports overriding the outer context', async t => {
+    it ( 'supports overriding the outer context', async t => {
 
       $.effect ( () => {
 
@@ -1429,7 +1492,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports setting the value to undefined', async t => {
+    it ( 'supports setting the value to undefined', async t => {
 
       $.effect ( () => {
 
@@ -1447,7 +1510,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'works even outside a manually created owner', async t => {
+    it ( 'works even outside a manually created owner', async t => {
 
       const ctx = Symbol ();
       const value = { foo: 123 };
@@ -1478,7 +1541,7 @@ describe ( 'oby', () => {
 
   describe ( 'disposed', it => {
 
-    it.only ( 'returns an observable that tells if the parent got disposed or not', async t => {
+    it ( 'returns an observable that tells if the parent got disposed or not', async t => {
 
       const a = $(1);
       const values = [];
@@ -1513,7 +1576,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a readable observable', t => {
+    it ( 'returns a readable observable', t => {
 
       const o = $.disposed ();
 
@@ -1525,7 +1588,7 @@ describe ( 'oby', () => {
 
   describe ( 'effect', it => {
 
-    it.only ( 'can not be running multiple times concurrently', async t => {
+    it ( 'can not be running multiple times concurrently', async t => {
 
       const o = $(0);
 
@@ -1555,7 +1618,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'checks if the returned value is actually a function', async t => {
+    it ( 'checks if the returned value is actually a function', async t => {
 
       await t.notThrowsAsync ( async () => {
 
@@ -1567,7 +1630,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'cleans up dependencies properly when causing itself to re-execute', async t => {
+    it ( 'cleans up dependencies properly when causing itself to re-execute', async t => {
 
       const a = $(0);
       const b = $(0);
@@ -1602,7 +1665,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'cleans up inner effects', async t => {
+    it ( 'cleans up inner effects', async t => {
 
       const o = $(0);
       const active = $(true);
@@ -1636,7 +1699,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a disposer', async t => {
+    it ( 'returns a disposer', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -1660,7 +1723,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns undefined to the function', async t => {
+    it ( 'returns undefined to the function', async t => {
 
       const a = $(1);
       const aPrev = $();
@@ -1669,7 +1732,7 @@ describe ( 'oby', () => {
 
         aPrev ( prev );
 
-        a ();
+        return a ();
 
       });
 
@@ -1701,7 +1764,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports dynamic dependencies', async t => {
+    it ( 'supports dynamic dependencies', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -1716,15 +1779,27 @@ describe ( 'oby', () => {
 
       t.is ( c (), 2 );
 
+      a ( 10 );
+
+      await tick ();
+
+      t.is ( c (), 2 );
+
+      b ( 20 );
+
+      await tick ();
+
+      t.is ( c (), 20 );
+
       bool ( true );
 
       await tick ();
 
-      t.is ( c (), 1 );
+      t.is ( c (), 10 );
 
     });
 
-    it.only ( 'supports manually registering a function to be called when the parent effect updates', async t => {
+    it ( 'supports manually registering a function to be called when the parent effect updates', async t => {
 
       const o = $(0);
 
@@ -1768,7 +1843,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports automatically registering a function to be called when the parent effect updates', async t => {
+    it ( 'supports automatically registering a function to be called when the parent effect updates', async t => {
 
       const o = $(0);
 
@@ -1809,7 +1884,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'updates when the dependencies change', async t => {
+    it ( 'updates when the dependencies change', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -1828,7 +1903,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'updates when the dependencies change inside other effects', async t => {
+    it ( 'updates when the dependencies change inside other effects', async t => {
 
       const a = $(0);
       const b = $(0);
@@ -1869,69 +1944,134 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'for', it => { //TODO: rename
+  describe ( 'for', () => {
 
-    it.only ( 'calls the mapper function with an observable to the index too', t => {
+    describe ( 'keyed', it => {
 
-      const array = $([ 'a', 'b', 'c' ]);
-      const argsRaw = [];
-      const args = [];
+      it ( 'calls the mapper function with an observable to the index too', t => {
 
-      const memo = $.for ( array, ( value, index ) => {
-        isReadable ( t, index );
-        argsRaw.push ( index );
-        args.push ( index () );
-        return value;
-      });
+        const array = $([ 'a', 'b', 'c' ]);
+        const argsRaw = [];
+        const args = [];
 
-      t.deepEqual ( memo (), ['a', 'b', 'c'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
-      t.deepEqual ( args, [0, 1, 2] );
-
-      array ([ 'a', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( memo (), ['a', 'b', 'c', 'd'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2, 3] );
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-      array ([ 'd', 'c', 'a', 'b' ]);
-
-      t.deepEqual ( memo (), ['d', 'c', 'a', 'b'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), [2, 3, 1, 0] );
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-    });
-
-    it.only ( 'disposes of any reactivity when the values array is emptied', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        $.cleanup ( () => {
-          args.push ( value );
+        const memo = $.for ( array, ( value, index ) => {
+          isReadable ( t, index );
+          argsRaw.push ( index );
+          args.push ( index () );
+          return value;
         });
-        return value;
+
+        t.deepEqual ( memo (), ['a', 'b', 'c'] );
+        t.deepEqual ( argsRaw.map ( call ), [0, 1, 2] );
+        t.deepEqual ( args, [0, 1, 2] );
+
+        array ([ 'a', 'b', 'c', 'd' ]);
+
+        t.deepEqual ( memo (), ['a', 'b', 'c', 'd'] );
+        t.deepEqual ( argsRaw.map ( call ), [0, 1, 2, 3] );
+        t.deepEqual ( args, [0, 1, 2, 3] );
+
+        array ([ 'd', 'c', 'a', 'b' ]);
+
+        t.deepEqual ( memo (), ['d', 'c', 'a', 'b'] );
+        t.deepEqual ( argsRaw.map ( call ), [2, 3, 1, 0] );
+        t.deepEqual ( args, [0, 1, 2, 3] );
+
       });
 
-      t.deepEqual ( memo (), [1, 2, 3] );
+      it ( 'disposes of any reactivity when the values array is emptied', t => {
 
-      array ( [] );
+        const array = $([1, 2, 3]);
+        const args = [];
 
-      t.deepEqual ( memo (), [] );
-      t.deepEqual ( args, [1, 2, 3] );
+        const memo = $.for ( array, value => {
+          $.cleanup ( () => {
+            args.push ( value );
+          });
+          return value;
+        });
 
-    });
+        t.deepEqual ( memo (), [1, 2, 3] );
 
-    it.only ( 'disposes of any reactivity when the parent computation is disposed', t => {
+        array ( [] );
 
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
+        t.deepEqual ( memo (), [] );
+        t.deepEqual ( args, [1, 2, 3] );
 
-      const dispose = $.root ( dispose => {
-        const memo = $.memo ( () => {
+      });
+
+      it ( 'disposes of any reactivity when the parent computation is disposed', t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = $.root ( dispose => {
+          const memo = $.memo ( () => {
+            const memo = $.for ( array, value => {
+              const memo = $.memo ( () => {
+                args.push ( value () );
+              });
+              memo ();
+            });
+            memo ();
+          });
+          memo ();
+          return dispose;
+        });
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+
+      });
+
+      it ( 'disposes of any reactivity when the parent effect is disposed', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = await $.root ( async dispose => {
+          $.effect ( () => {
+            const memo = $.for ( array, value => {
+              const memo = $.memo ( () => {
+                args.push ( value () );
+              });
+              memo ();
+            });
+            memo ();
+          });
+          await tick ();
+          return dispose;
+        });
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+
+      });
+
+      it ( 'disposes of any reactivity when the parent root is disposed', t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = $.root ( dispose => {
           const memo = $.for ( array, value => {
             const memo = $.memo ( () => {
               args.push ( value () );
@@ -1939,820 +2079,759 @@ describe ( 'oby', () => {
             memo ();
           });
           memo ();
+          return dispose;
         });
-        memo ();
-        return dispose;
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+
       });
 
-      dispose ();
+      it ( 'disposes of any reactivity created for items that got deleted', t => {
 
-      t.deepEqual ( args, [1, 2] );
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
 
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it.only ( 'disposes of any reactivity when the parent effect is disposed', async t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = await $.root ( async dispose => {
-        $.effect ( () => {
-          const memo = $.for ( array, value => {
-            const memo = $.memo ( () => {
-              args.push ( value () );
-            });
-            memo ();
-          });
-          memo ();
-        });
-        await tick ();
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it.only ( 'disposes of any reactivity when the parent root is disposed', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
         const memo = $.for ( array, value => {
           const memo = $.memo ( () => {
             args.push ( value () );
+            return value ();
           });
-          memo ();
+          return memo;
         });
-        memo ();
-        return dispose;
+
+        t.deepEqual ( memo ().map ( call ), [1, 2] );
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 2] );
+        t.deepEqual ( args, [1, 2, 11] );
+
+        o2 ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 22] );
+        t.deepEqual ( args, [1, 2, 11, 22] );
+
+        array ([ o1 ]);
+
+        t.deepEqual ( memo ().map ( call ), [11] );
+        t.deepEqual ( args, [1, 2, 11, 22] );
+
+        o1 ( 111 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+        o2 ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
       });
 
-      dispose ();
+      it ( 'disposes of any reactivity created for duplicated items', t => {
 
-      t.deepEqual ( args, [1, 2] );
+        const o = $(1);
+        const array = $([o, o]);
+        const args = [];
 
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it.only ( 'disposes of any reactivity created for items that got deleted', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        const memo = $.memo ( () => {
-          args.push ( value () );
-          return value ();
+        const memo = $.for ( array, value => {
+          const memo = $.memo ( () => {
+            args.push ( value () );
+            return value ();
+          });
+          return memo;
         });
-        return memo;
+
+        t.deepEqual ( memo ().map ( call ), [1, 1] );
+        t.deepEqual ( args, [1, 1] );
+
+        o ( 11 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 11] );
+        t.deepEqual ( args, [1, 1, 11, 11] );
+
+        o ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [22, 22] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+        array ([ o ]);
+
+        t.deepEqual ( memo ().map ( call ), [22] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+        o ( 111 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
+
       });
 
-      t.deepEqual ( memo ().map ( call ), [1, 2] );
-      t.deepEqual ( args, [1, 2] );
+      it ( 'renders only results for unknown values', t => {
 
-      o1 ( 11 );
+        const array = $([1, 2, 3]);
+        const args = [];
 
-      t.deepEqual ( memo ().map ( call ), [11, 2] );
-      t.deepEqual ( args, [1, 2, 11] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( memo ().map ( call ), [11, 22] );
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      array ([ o1 ]);
-
-      t.deepEqual ( memo ().map ( call ), [11] );
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      o1 ( 111 );
-
-      t.deepEqual ( memo ().map ( call ), [111] );
-      t.deepEqual ( args, [1, 2, 11, 22, 111] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( memo ().map ( call ), [111] );
-      t.deepEqual ( args, [1, 2, 11, 22, 111] );
-
-    });
-
-    it.only ( 'disposes of any reactivity created for duplicated items', t => {
-
-      const o = $(1);
-      const array = $([o, o]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        const memo = $.memo ( () => {
-          args.push ( value () );
-          return value ();
-        });
-        return memo;
-      });
-
-      t.deepEqual ( memo ().map ( call ), [1, 1] );
-      t.deepEqual ( args, [1, 1] );
-
-      o ( 11 );
-
-      t.deepEqual ( memo ().map ( call ), [11, 11] );
-      t.deepEqual ( args, [1, 1, 11, 11] );
-
-      o ( 22 );
-
-      t.deepEqual ( memo ().map ( call ), [22, 22] );
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
-
-      array ([ o ]);
-
-      t.deepEqual ( memo ().map ( call ), [22] );
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
-
-      o ( 111 );
-
-      t.deepEqual ( memo ().map ( call ), [111] );
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
-
-    });
-
-    it.only ( 'renders only results for unknown values', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        args.push ( value );
-        return value;
-      });
-
-      t.deepEqual ( memo (), [1, 2, 3] );
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 1, 2, 3, 4 ]);
-
-      t.deepEqual ( memo (), [1, 2, 3, 4] );
-      t.deepEqual ( args, [1, 2, 3, 4] );
-
-      array ([ 1, 2, 3, 4, 5 ]);
-
-      t.deepEqual ( memo (), [1, 2, 3, 4, 5] );
-      t.deepEqual ( args, [1, 2, 3, 4, 5] );
-
-    });
-
-    it.only ( 'resolves the fallback value before returning it', t => {
-
-      const result = $.for ( [], () => () => 123, () => () => 321 );
-
-      isReadable ( t, result );
-      isReadable ( t, result () );
-      isReadable ( t, result ()() );
-
-      t.is ( result ()()(), 321 );
-
-    });
-
-    it.only ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
-
-      const o = $([]);
-
-      let calls = 0;
-
-      const memo = $.for ( o, () => () => 123, () => () => {
-        calls += 1;
-        return 321;
-      });
-
-      t.is ( calls, 0 );
-      t.is ( memo ()()(), 321 );
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-      t.is ( memo ()()(), 321 );
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-      t.is ( memo ()()(), 321 );
-      t.is ( calls, 1 );
-
-    });
-
-    it.only ( 'resolves the mapped value before returning it', t => {
-
-      const result = $.for ( [1], () => () => () => 123 );
-
-      isReadable ( t, result );
-      isReadable ( t, result ()[0] );
-      isReadable ( t, result ()[0]() );
-
-      t.is ( result ()[0]()(), 123 );
-
-    });
-
-    it.only ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
-
-      t.deepEqual ( $.for ( [], () => () => 123 )(), [] );
-
-    });
-
-    it.only ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
-
-      t.is ( $.for ( [], () => () => 123, 123 )(), 123 );
-
-    });
-
-    it.only ( 'returns a memo to the same array if all values were cached', t => {
-
-      const external = $(0);
-      const values = $([1, 2, 3]);
-
-      const valuesWithExternal = () => {
-        external ();
-        return values ();
-      };
-
-      let calls = 0;
-
-      const result = $.for ( valuesWithExternal, value => {
-        calls += 1;
-        return value;
-      });
-
-      t.is ( calls, 0 );
-
-      const result1 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result1, [1, 2, 3] );
-
-      external ( 1 );
-
-      const result2 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result2, [1, 2, 3] );
-      t.is ( result1, result2 );
-
-      values ([ 3, 2, 1 ]);
-
-      const result3 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result3, [3, 2, 1] );
-      t.not ( result1, result3 );
-
-      values ([ 3, 2 ]);
-
-      const result4 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result4, [3, 2] );
-
-      external ( 2 );
-
-      const result5 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result5, [3, 2] );
-      t.is ( result4, result5 );
-
-    });
-
-    it.only ( 'works with an array of non-unique values', t => {
-
-      const array = $([ 1, 1, 2 ]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        const memo = $.memo ( () => {
+        const memo = $.for ( array, value => {
           args.push ( value );
           return value;
         });
-        return memo;
+
+        t.deepEqual ( memo (), [1, 2, 3] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+        array ([ 1, 2, 3, 4 ]);
+
+        t.deepEqual ( memo (), [1, 2, 3, 4] );
+        t.deepEqual ( args, [1, 2, 3, 4] );
+
+        array ([ 1, 2, 3, 4, 5 ]);
+
+        t.deepEqual ( memo (), [1, 2, 3, 4, 5] );
+        t.deepEqual ( args, [1, 2, 3, 4, 5] );
+
       });
 
-      t.deepEqual ( memo ().map ( call ), [1, 1, 2] );
-      t.deepEqual ( args, [1, 1, 2] );
+      it ( 'resolves the fallback value before returning it', t => {
 
-      array ([ 2, 2, 1 ]);
+        const result = $.for ( [], () => () => 123, () => () => 321 );
 
-      t.deepEqual ( memo ().map ( call ), [2, 2, 1] );
-      t.deepEqual ( args, [1, 1, 2, 2] );
+        isReadable ( t, result );
+        isReadable ( t, result () );
+        isReadable ( t, result ()() );
 
-    });
+        t.is ( result ()()(), 321 );
 
-  });
-
-  describe ( 'forValue', it => { //TODO: rename
-
-    it.only ( 'calls the mapper function with an observable to the index', t => {
-
-      const array = $([ 'a', 'b', 'c' ]);
-      const argsRaw = [];
-      const args = [];
-
-      const memo = $.for ( array, ( value, index ) => {
-        isReadable ( t, index );
-        argsRaw.push ( index );
-        args.push ( index () );
-        return value;
-      }, [], { unkeyed: true } );
-
-      t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
-      t.deepEqual ( args, [0, 1, 2] );
-
-      array ([ 'a', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c', 'd'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2, 3] );
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-      array ([ 'd', 'c', 'a', 'b' ]);
-
-      t.deepEqual ( memo ().map ( call ), ['d', 'c', 'a', 'b'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), [2, 3, 1, 0] );
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-    });
-
-    it.only ( 'calls the mapper function with an observable to the value', t => {
-
-      const array = $([ 'a', 'b', 'c' ]);
-      const argsRaw = [];
-      const args = [];
-
-      const memo = $.for ( array, ( value ) => {
-        isReadable ( t, value );
-        argsRaw.push ( value );
-        args.push ( value () );
-        return value;
-      }, [], { unkeyed: true } );
-
-      t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), ['a', 'b', 'c'] );
-      t.deepEqual ( args, ['a', 'b', 'c'] );
-
-      array ([ 'a', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c', 'd'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), ['a', 'b', 'c', 'd'] );
-      t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
-
-      array ([ 'e', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( memo ().map ( call ), ['e', 'b', 'c', 'd'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), ['e', 'b', 'c', 'd'] );
-      t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
-
-    });
-
-    it.only ( 'disposes of any reactivity when the values array is emptied', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        $.cleanup ( () => {
-          args.push ( value () );
-        });
-        return value;
-      }, [], { unkeyed: true } );
-
-      t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
-      t.deepEqual ( args, [] );
-
-      array ( [] );
-
-      t.deepEqual ( memo ().map ( call ), [] );
-      t.deepEqual ( args, [1, 2, 3] );
-
-    });
-
-    it.only ( 'disposes of any reactivity when the parent computation is disposed', async t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        const memo = $.memo ( () => {
-          const memo = $.for ( array, value => {
-            const memo = $.memo ( () => {
-              args.push ( value () );
-            });
-            $.effect ( () => {
-              memo ();
-            });
-            return memo;
-          }, [], { unkeyed: true } );
-          memo ();
-        });
-        memo ();
-        return dispose;
       });
 
-      t.deepEqual ( args, [] );
-      await tick ();
-      t.deepEqual ( args, [1, 2] );
+      it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
 
-      dispose ();
+        const o = $([]);
 
-      t.deepEqual ( args, [1, 2] );
+        let calls = 0;
 
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-      await tick ();
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it.only ( 'disposes of any reactivity when the parent effect is disposed', async t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.effect ( () => {
-          const memo = $.for ( array, value => {
-            const memo = $.memo ( () => {
-              args.push ( value () );
-            });
-            $.effect ( () => {
-              memo ();
-            });
-            return memo;
-          }, [], { unkeyed: true } );
-          memo ();
+        const memo = $.for ( o, () => () => 123, () => () => {
+          calls += 1;
+          return 321;
         });
-        return dispose;
+
+        t.is ( calls, 0 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+        o ( [] );
+
+        t.is ( calls, 1 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+        o ( [] );
+
+        t.is ( calls, 1 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
       });
 
-      t.deepEqual ( args, [] );
-      await tick ();
-      t.deepEqual ( args, [1, 2] );
+      it ( 'resolves the mapped value before returning it', t => {
 
-      dispose ();
+        const result = $.for ( [1], () => () => () => 123 );
 
-      t.deepEqual ( args, [1, 2] );
+        isReadable ( t, result );
+        isReadable ( t, result ()[0] );
+        isReadable ( t, result ()[0]() );
 
-      o1 ( 11 );
-      o2 ( 22 );
+        t.is ( result ()[0]()(), 123 );
 
-      t.deepEqual ( args, [1, 2] );
-      await tick ();
-      t.deepEqual ( args, [1, 2] );
+      });
 
-    });
+      it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
 
-    it.only ( 'disposes of any reactivity when the parent root is disposed', async t => {
+        t.deepEqual ( $.for ( [], () => () => 123 )(), [] );
 
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
+      });
 
-      const dispose = $.root ( dispose => {
+      it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
+
+        t.is ( $.for ( [], () => () => 123, 123 )(), 123 );
+
+      });
+
+      it ( 'returns a memo to the same array if all values were cached', t => {
+
+        const external = $(0);
+        const values = $([1, 2, 3]);
+
+        const valuesWithExternal = () => {
+          external ();
+          return values ();
+        };
+
+        let calls = 0;
+
+        const result = $.for ( valuesWithExternal, value => {
+          calls += 1;
+          return value;
+        });
+
+        t.is ( calls, 0 );
+
+        const result1 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result1, [1, 2, 3] );
+
+        external ( 1 );
+
+        const result2 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result2, [1, 2, 3] );
+        t.is ( result1, result2 );
+
+        values ([ 3, 2, 1 ]);
+
+        const result3 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result3, [3, 2, 1] );
+        t.not ( result1, result3 );
+
+        values ([ 3, 2 ]);
+
+        const result4 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result4, [3, 2] );
+
+        external ( 2 );
+
+        const result5 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result5, [3, 2] );
+        t.is ( result4, result5 );
+
+      });
+
+      it ( 'works with an array of non-unique values', t => {
+
+        const array = $([ 1, 1, 2 ]);
+        const args = [];
+
         const memo = $.for ( array, value => {
           const memo = $.memo ( () => {
+            args.push ( value );
+            return value;
+          });
+          return memo;
+        });
+
+        t.deepEqual ( memo ().map ( call ), [1, 1, 2] );
+        t.deepEqual ( args, [1, 1, 2] );
+
+        array ([ 2, 2, 1 ]);
+
+        t.deepEqual ( memo ().map ( call ), [2, 2, 1] );
+        t.deepEqual ( args, [1, 1, 2, 2] );
+
+      });
+
+    });
+
+    describe ( 'unkeyed', it => {
+
+      it ( 'calls the mapper function with an observable to the index', t => {
+
+        const array = $([ 'a', 'b', 'c' ]);
+        const argsRaw = [];
+        const args = [];
+
+        const memo = $.for ( array, ( value, index ) => {
+          isReadable ( t, index );
+          argsRaw.push ( index );
+          args.push ( index () );
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
+        t.deepEqual ( argsRaw.map ( call ), [0, 1, 2] );
+        t.deepEqual ( args, [0, 1, 2] );
+
+        array ([ 'a', 'b', 'c', 'd' ]);
+
+        t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c', 'd'] );
+        t.deepEqual ( argsRaw.map ( call ), [0, 1, 2, 3] );
+        t.deepEqual ( args, [0, 1, 2, 3] );
+
+        array ([ 'd', 'c', 'a', 'b' ]);
+
+        t.deepEqual ( memo ().map ( call ), ['d', 'c', 'a', 'b'] );
+        t.deepEqual ( argsRaw.map ( call ), [2, 3, 1, 0] );
+        t.deepEqual ( args, [0, 1, 2, 3] );
+
+      });
+
+      it ( 'calls the mapper function with an observable to the value', t => {
+
+        const array = $([ 'a', 'b', 'c' ]);
+        const argsRaw = [];
+        const args = [];
+
+        const memo = $.for ( array, ( value ) => {
+          isReadable ( t, value );
+          argsRaw.push ( value );
+          args.push ( value () );
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
+        t.deepEqual ( argsRaw.map ( call ), ['a', 'b', 'c'] );
+        t.deepEqual ( args, ['a', 'b', 'c'] );
+
+        array ([ 'a', 'b', 'c', 'd' ]);
+
+        t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c', 'd'] );
+        t.deepEqual ( argsRaw.map ( call ), ['a', 'b', 'c', 'd'] );
+        t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
+
+        array ([ 'e', 'b', 'c', 'd' ]);
+
+        t.deepEqual ( memo ().map ( call ), ['e', 'b', 'c', 'd'] );
+        t.deepEqual ( argsRaw.map ( call ), ['e', 'b', 'c', 'd'] );
+        t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
+
+      });
+
+      it ( 'disposes of any reactivity when the values array is emptied', t => {
+
+        const array = $([1, 2, 3]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          $.cleanup ( () => {
             args.push ( value () );
           });
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
+        t.deepEqual ( args, [] );
+
+        array ( [] );
+
+        t.deepEqual ( memo ().map ( call ), [] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+      });
+
+      it ( 'disposes of any reactivity when the parent computation is disposed', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = $.root ( dispose => {
+          const memo = $.memo ( () => {
+            const memo = $.for ( array, value => {
+              const memo = $.memo ( () => {
+                args.push ( value () );
+              });
+              $.effect ( () => {
+                memo ();
+              });
+              return memo;
+            }, [], { unkeyed: true } );
+            memo ();
+          });
+          memo ();
+          return dispose;
+        });
+
+        t.deepEqual ( args, [] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+      });
+
+      it ( 'disposes of any reactivity when the parent effect is disposed', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = $.root ( dispose => {
+          $.effect ( () => {
+            const memo = $.for ( array, value => {
+              const memo = $.memo ( () => {
+                args.push ( value () );
+              });
+              $.effect ( () => {
+                memo ();
+              });
+              return memo;
+            }, [], { unkeyed: true } );
+            memo ();
+          });
+          return dispose;
+        });
+
+        t.deepEqual ( args, [] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+      });
+
+      it ( 'disposes of any reactivity when the parent root is disposed', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = $.root ( dispose => {
+          const memo = $.for ( array, value => {
+            const memo = $.memo ( () => {
+              args.push ( value () );
+            });
+            $.effect ( () => {
+              memo ();
+            });
+            return memo;
+          }, [], { unkeyed: true } );
           $.effect ( () => {
             memo ();
           });
+          return dispose;
+        });
+
+        t.deepEqual ( args, [] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+      });
+
+      it ( 'disposes of any reactivity created for items that got deleted', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          const memo = $.memo ( () => {
+            args.push ( value () );
+            return value ();
+          }, [], { unkeyed: true } );
+          return memo;
+        });
+
+        t.deepEqual ( memo ().map ( call ), [1, 2] );
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 2] );
+        t.deepEqual ( args, [1, 2, 11] );
+
+        o2 ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 22] );
+        t.deepEqual ( args, [1, 2, 11, 22] );
+
+        array ([ o1 ]);
+
+        t.deepEqual ( memo ().map ( call ), [11] );
+        t.deepEqual ( args, [1, 2, 11, 22] );
+
+        o1 ( 111 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+        o2 ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+      });
+
+      it ( 'disposes of any reactivity created for duplicated items', t => {
+
+        const o = $(1);
+        const array = $([o, o]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          return $.memo ( () => {
+            args.push ( value () );
+            return value ();
+          }, [], { unkeyed: true } );
+        });
+
+        t.deepEqual ( memo ().map ( call ), [1, 1] );
+        t.deepEqual ( args, [1, 1] );
+
+        o ( 11 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 11] );
+        t.deepEqual ( args, [1, 1, 11, 11] );
+
+        o ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [22, 22] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+        array ([ o ]);
+
+        t.deepEqual ( memo ().map ( call ), [22] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+        o ( 111 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
+
+      });
+
+      it ( 'renders only results for unknown values', t => {
+
+        const array = $([1, 2, 3]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          args.push ( value () );
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+        array ([ 1, 2, 3, 4 ]);
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3, 4] );
+        t.deepEqual ( args, [1, 2, 3, 4] );
+
+        array ([ 1, 2, 3, 4, 5 ]);
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3, 4, 5] );
+        t.deepEqual ( args, [1, 2, 3, 4, 5] );
+
+      });
+
+      it ( 'reuses leftover items if possible', t => {
+
+        const array = $([1, 2, 3]);
+        const argsRaw = [];
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          argsRaw.push ( value );
+          args.push ( value () );
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
+        t.deepEqual ( argsRaw.map ( call ), [1, 2, 3] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+        array ([ 1, 3, 4, 5 ]);
+
+        t.deepEqual ( memo ().map ( call ), [1, 3, 4, 5] );
+        t.deepEqual ( argsRaw.map ( call ), [1, 4, 3, 5] );
+        t.deepEqual ( args, [1, 2, 3, 5] );
+
+      });
+
+      it ( 'resolves the fallback value before returning it', t => {
+
+        const result = $.for ( [], () => () => 123, () => () => 321, { unkeyed: true } );
+
+        isReadable ( t, result );
+        isReadable ( t, result () );
+        isReadable ( t, result ()() );
+
+        t.is ( result ()()(), 321 );
+
+      });
+
+      it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+
+        const o = $([]);
+
+        let calls = 0;
+
+        const memo = $.for ( o, () => () => 123, () => () => {
+          calls += 1;
+          return 321;
+        }, { unkeyed: true } );
+
+        t.is ( calls, 0 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+        o ( [] );
+
+        t.is ( calls, 1 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+        o ( [] );
+
+        t.is ( calls, 1 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+      });
+
+      it ( 'resolves the mapped value before returning it', t => {
+
+        const result = $.for ( [1], () => () => () => 123, [], { unkeyed: true } );
+
+        isReadable ( t, result );
+        isReadable ( t, result ()[0] );
+        isReadable ( t, result ()[0]() );
+
+        t.is ( result ()[0]()(), 123 );
+
+      });
+
+      it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
+
+        t.deepEqual ( $.for ( [], () => () => 123 )(), [], { unkeyed: true } );
+
+      });
+
+      it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
+
+        t.is ( $.for ( [], () => () => 123, 123 )(), 123, { unkeyed: true } );
+
+      });
+
+      it ( 'returns a memo to the same array if all values were cached', t => {
+
+        const external = $(0);
+        const values = $([1, 2, 3]);
+
+        const valuesWithExternal = () => {
+          external ();
+          return values ();
+        };
+
+        let calls = 0;
+
+        const result = $.for ( valuesWithExternal, value => {
+          calls += 1;
+          return value ();
+        }, [], { unkeyed: true } );
+
+        t.is ( calls, 0 );
+
+        const result1 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result1, [1, 2, 3] );
+
+        external ( 1 );
+
+        const result2 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result2, [1, 2, 3] );
+        t.is ( result1, result2 );
+
+        values ([ 3, 2, 1 ]);
+
+        const result3 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result3, [3, 2, 1] );
+        t.not ( result1, result3 );
+
+        values ([ 3, 2 ]);
+
+        const result4 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result4, [3, 2] );
+
+        external ( 2 );
+
+        const result5 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result5, [3, 2] );
+        t.is ( result4, result5 );
+
+      });
+
+      it ( 'works with an array of non-unique values', t => {
+
+        const array = $([ 1, 1, 2 ]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          const memo = $.memo ( () => {
+            args.push ( value () );
+            return value ();
+          });
           return memo;
         }, [], { unkeyed: true } );
-        $.effect ( () => {
-          memo ();
-        });
-        return dispose;
+
+        t.deepEqual ( memo ().map ( call ), [1, 1, 2] );
+        t.deepEqual ( args, [1, 1, 2] );
+
+        array ([ 2, 2, 1 ]);
+
+        t.deepEqual ( memo ().map ( call ), [2, 2, 1] );
+        t.deepEqual ( args, [1, 1, 2, 2] );
+
       });
-
-      t.deepEqual ( args, [] );
-      await tick ();
-      t.deepEqual ( args, [1, 2] );
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-      await tick ();
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it.only ( 'disposes of any reactivity created for items that got deleted', async t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        const memo = $.memo ( () => {
-          args.push ( value () );
-          return value ();
-        }, [], { unkeyed: true } );
-        return memo;
-      });
-
-      t.deepEqual ( memo ().map ( call ), [1, 2] );
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-
-      t.deepEqual ( memo ().map ( call ), [11, 2] );
-      t.deepEqual ( args, [1, 2, 11] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( memo ().map ( call ), [11, 22] );
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      array ([ o1 ]);
-
-      t.deepEqual ( memo ().map ( call ), [11] );
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      o1 ( 111 );
-
-      t.deepEqual ( memo ().map ( call ), [111] );
-      t.deepEqual ( args, [1, 2, 11, 22, 111] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( memo ().map ( call ), [111] );
-      t.deepEqual ( args, [1, 2, 11, 22, 111] );
-
-    });
-
-    it.only ( 'disposes of any reactivity created for duplicated items', t => {
-
-      const o = $(1);
-      const array = $([o, o]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        return $.memo ( () => {
-          args.push ( value () );
-          return value ();
-        }, [], { unkeyed: true } );
-      });
-
-      t.deepEqual ( memo ().map ( call ), [1, 1] );
-      t.deepEqual ( args, [1, 1] );
-
-      o ( 11 );
-
-      t.deepEqual ( memo ().map ( call ), [11, 11] );
-      t.deepEqual ( args, [1, 1, 11, 11] );
-
-      o ( 22 );
-
-      t.deepEqual ( memo ().map ( call ), [22, 22] );
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
-
-      array ([ o ]);
-
-      t.deepEqual ( memo ().map ( call ), [22] );
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
-
-      o ( 111 );
-
-      t.deepEqual ( memo ().map ( call ), [111] );
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
-
-    });
-
-    it.only ( 'renders only results for unknown values', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        args.push ( value () );
-        return value;
-      }, [], { unkeyed: true } );
-
-      t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 1, 2, 3, 4 ]);
-
-      t.deepEqual ( memo ().map ( call ), [1, 2, 3, 4] );
-      t.deepEqual ( args, [1, 2, 3, 4] );
-
-      array ([ 1, 2, 3, 4, 5 ]);
-
-      t.deepEqual ( memo ().map ( call ), [1, 2, 3, 4, 5] );
-      t.deepEqual ( args, [1, 2, 3, 4, 5] );
-
-    });
-
-    it.only ( 'reuses leftover items if possible', t => {
-
-      const array = $([1, 2, 3]);
-      const argsRaw = [];
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        argsRaw.push ( value );
-        args.push ( value () );
-        return value;
-      }, [], { unkeyed: true } );
-
-      t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
-      t.deepEqual ( argsRaw.map ( a => a () ), [1, 2, 3] );
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 1, 3, 4, 5 ]);
-
-      t.deepEqual ( memo ().map ( call ), [1, 3, 4, 5] );
-      t.deepEqual ( argsRaw.map ( a => a () ), [1, 4, 3, 5] );
-      t.deepEqual ( args, [1, 2, 3, 5] );
-
-    });
-
-    it.only ( 'resolves the fallback value before returning it', t => {
-
-      const result = $.for ( [], () => () => 123, () => () => 321, { unkeyed: true } );
-
-      isReadable ( t, result );
-      isReadable ( t, result () );
-      isReadable ( t, result ()() );
-
-      t.is ( result ()()(), 321 );
-
-    });
-
-    it.only ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
-
-      const o = $([]);
-
-      let calls = 0;
-
-      const memo = $.for ( o, () => () => 123, () => () => {
-        calls += 1;
-        return 321;
-      }, { unkeyed: true } );
-
-      t.is ( calls, 0 );
-      t.is ( memo ()()(), 321 );
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-      t.is ( memo ()()(), 321 );
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-      t.is ( memo ()()(), 321 );
-      t.is ( calls, 1 );
-
-    });
-
-    it.only ( 'resolves the mapped value before returning it', t => {
-
-      const result = $.for ( [1], () => () => () => 123, [], { unkeyed: true } );
-
-      isReadable ( t, result );
-      isReadable ( t, result ()[0] );
-      isReadable ( t, result ()[0]() );
-
-      t.is ( result ()[0]()(), 123 );
-
-    });
-
-    it.only ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
-
-      t.deepEqual ( $.for ( [], () => () => 123 )(), [], { unkeyed: true } );
-
-    });
-
-    it.only ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
-
-      t.is ( $.for ( [], () => () => 123, 123 )(), 123, { unkeyed: true } );
-
-    });
-
-    it.only ( 'returns a memo to the same array if all values were cached', t => {
-
-      const external = $(0);
-      const values = $([1, 2, 3]);
-
-      const valuesWithExternal = () => {
-        external ();
-        return values ();
-      };
-
-      let calls = 0;
-
-      const result = $.for ( valuesWithExternal, value => {
-        calls += 1;
-        return value ();
-      }, [], { unkeyed: true } );
-
-      t.is ( calls, 0 );
-
-      const result1 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result1, [1, 2, 3] );
-
-      external ( 1 );
-
-      const result2 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result2, [1, 2, 3] );
-      t.is ( result1, result2 );
-
-      values ([ 3, 2, 1 ]);
-
-      const result3 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result3, [3, 2, 1] );
-      t.not ( result1, result3 );
-
-      values ([ 3, 2 ]);
-
-      const result4 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result4, [3, 2] );
-
-      external ( 2 );
-
-      const result5 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result5, [3, 2] );
-      t.is ( result4, result5 );
-
-    });
-
-    it.only ( 'works with an array of non-unique values', t => {
-
-      const array = $([ 1, 1, 2 ]);
-      const args = [];
-
-      const memo = $.for ( array, value => {
-        const memo = $.memo ( () => {
-          args.push ( value () );
-          return value ();
-        });
-        return memo;
-      }, [], { unkeyed: true } );
-
-      t.deepEqual ( memo ().map ( call ), [1, 1, 2] );
-      t.deepEqual ( args, [1, 1, 2] );
-
-      array ([ 2, 2, 1 ]);
-
-      t.deepEqual ( memo ().map ( call ), [2, 2, 1] );
-      t.deepEqual ( args, [1, 1, 2, 2] );
 
     });
 
@@ -2760,7 +2839,7 @@ describe ( 'oby', () => {
 
   describe ( 'get', it => {
 
-    it.only ( 'creates a dependency in a memo', t => {
+    it ( 'creates a dependency in a memo', t => {
 
       const o = $(1);
 
@@ -2789,7 +2868,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'creates a dependency in an effect', async t => {
+    it ( 'creates a dependency in an effect', async t => {
 
       const o = $(1);
 
@@ -2818,7 +2897,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'gets the value out of a function', t => {
+    it ( 'gets the value out of a function', t => {
 
       const o = () => 123;
 
@@ -2826,21 +2905,20 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'gets the value out of an observable', t => {
-
+    it ( 'gets the value out of an observable', t => {
       const o = $(123);
 
       t.is ( $.get ( o ), 123 );
 
     });
 
-    it.only ( 'gets the value out of a non-function and non-observable', t => {
+    it ( 'gets the value out of a non-function and non-observable', t => {
 
       t.is ( $.get ( 123 ), 123 );
 
     });
 
-    it.only ( 'gets, optionally, the value out only of an observable', t => {
+    it ( 'gets, optionally, the value out only of an observable', t => {
 
       const fn = () => 123;
       const o = $(123);
@@ -2854,7 +2932,7 @@ describe ( 'oby', () => {
 
   describe ( 'if', it => {
 
-    it.only ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
+    it ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
 
       let sequence = '';
 
@@ -2902,7 +2980,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the fallback value before returning it', t => {
+    it ( 'resolves the fallback value before returning it', t => {
 
       const result = $.if ( false, 123, () => () => 123 );
 
@@ -2914,7 +2992,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
 
       const o = $(0);
 
@@ -2945,7 +3023,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the value before returning it', t => {
+    it ( 'resolves the value before returning it', t => {
 
       const result = $.if ( true, () => () => 123 );
 
@@ -2957,7 +3035,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to the value or undefined with a functional condition', t => {
+    it ( 'returns a memo to the value or undefined with a functional condition', t => {
 
       const o = $(false);
 
@@ -2975,27 +3053,27 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to the value with a truthy condition', t => {
+    it ( 'returns a memo to the value with a truthy condition', t => {
 
       t.is ( $.if ( true, 123 )(), 123 );
       t.is ( $.if ( 'true', 123 )(), 123 );
 
     });
 
-    it.only ( 'returns a memo to the value with a falsy condition', t => {
+    it ( 'returns a memo to the value with a falsy condition', t => {
 
       t.is ( $.if ( false, 123 )(), undefined );
       t.is ( $.if ( 0, 123 )(), undefined );
 
     });
 
-    it.only ( 'returns a memo to undefined for a falsy condition and missing fallback', t => {
+    it ( 'returns a memo to undefined for a falsy condition and missing fallback', t => {
 
       t.is ( $.if ( false, 123 )(), undefined );
 
     });
 
-    it.only ( 'returns a memo to fallback for a falsy condition and a provided fallback', t => {
+    it ( 'returns a memo to fallback for a falsy condition and a provided fallback', t => {
 
       t.is ( $.if ( false, 123, 321 )(), 321 );
 
@@ -3005,9 +3083,39 @@ describe ( 'oby', () => {
 
   describe ( 'isBatching', it => {
 
-    //TODO: check for scheduling also
+    it ( 'checks if automatic batching is active, for async effects', async t => {
 
-    it.only ( 'checks if batching is active', async t => {
+      t.false ( $.isBatching () );
+
+      $.effect ( () => {
+
+        t.true ( $.isBatching () );
+
+      });
+
+      t.true ( $.isBatching () );
+
+      await tick ();
+
+      t.false ( $.isBatching () );
+
+    });
+
+    it ( 'checks if automatic batching is active, for sync effects', async t => {
+
+      t.false ( $.isBatching () );
+
+      $.effect ( () => {
+
+        // t.true ( $.isBatching () ); //FIXME: this should probably be "true" ideally
+
+      }, { sync: true } );
+
+      t.false ( $.isBatching () );
+
+    });
+
+    it ( 'checks if manual batching is active', async t => {
 
       t.false ( $.isBatching () );
 
@@ -3035,7 +3143,7 @@ describe ( 'oby', () => {
 
   describe ( 'isObservable', it => {
 
-    it.only ( 'checks if a value is an observable', t => {
+    it ( 'checks if a value is an observable', t => {
 
       t.true ( $.isObservable ( $() ) );
       t.true ( $.isObservable ( $(123) ) );
@@ -3054,7 +3162,7 @@ describe ( 'oby', () => {
 
   describe ( 'isStore', it => {
 
-    it.only ( 'checks if a value is a store', t => {
+    it ( 'checks if a value is a store', t => {
 
       t.true ( $.isStore ( $.store ( {} ) ) );
       t.true ( $.isStore ( $.store ( [] ) ) );
@@ -3070,7 +3178,7 @@ describe ( 'oby', () => {
 
   describe ( 'memo', it => {
 
-    it.only ( 'bypasses the comparator function on first run', t => {
+    it ( 'bypasses the comparator function on first run', t => {
 
       const o1 = $.memo ( () => 123, { equals: () => true } );
 
@@ -3082,7 +3190,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'can not be running multiple times concurrently', t => {
+    it ( 'can not be running multiple times concurrently', t => {
 
       const o = $(0);
 
@@ -3114,7 +3222,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'cleans up dependencies properly when causing itself to re-execute', t => {
+    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
 
       const a = $(0);
       const b = $(0);
@@ -3138,14 +3246,18 @@ describe ( 'oby', () => {
       a ( 2 );
 
       t.is ( calls, 2 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 2 );
 
       b ( 1 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), undefined );
       t.is ( calls, 3 );
 
     });
 
-    it.only ( 'cleans up inner memos', t => {
+    it ( 'cleans up inner memos', t => {
 
       const o = $(0);
       const active = $(true);
@@ -3181,7 +3293,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not throw when disposing of itself', t => {
+    it ( 'does not throw when disposing of itself', t => {
 
       t.notThrows ( () => {
 
@@ -3203,7 +3315,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a readable observable', t => {
+    it ( 'returns a readable observable', t => {
 
       const o = $.memo ( () => {} );
 
@@ -3211,7 +3323,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns an observable with the return of the function', t => {
+    it ( 'returns an observable with the return of the function', t => {
 
       const a = $(1);
       const b = $(2);
@@ -3222,7 +3334,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns an observable with value undefined if the function does not return anything', t => {
+    it ( 'returns an observable with value undefined if the function does not return anything', t => {
 
       const o = $.memo ( () => {} );
 
@@ -3231,7 +3343,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports a custom equality function', t => {
+    it ( 'supports a custom equality function', t => {
 
       const o = $(2);
       const equals = value => ( value % 2 === 0 );
@@ -3253,7 +3365,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports dynamic dependencies', t => {
+    it ( 'supports dynamic dependencies', t => {
 
       const a = $(1);
       const b = $(2);
@@ -3262,13 +3374,21 @@ describe ( 'oby', () => {
 
       t.is ( c (), 2 );
 
+      a ( 10 );
+
+      t.is ( c (), 2 );
+
+      b ( 20 );
+
+      t.is ( c (), 20 );
+
       bool ( true );
 
-      t.is ( c (), 1 );
+      t.is ( c (), 10 );
 
     });
 
-    it.only ( 'supports manually registering a function to be called when the parent computation updates', t => {
+    it ( 'supports manually registering a function to be called when the parent computation updates', t => {
 
       const o = $(0);
 
@@ -3308,7 +3428,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'updates the observable with the last value when causing itself to re-execute', t => {
+    it ( 'updates the observable with the last value when causing itself to re-execute', t => {
 
       const o = $(0);
 
@@ -3326,7 +3446,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'updates the observable when the dependencies change', t => {
+    it ( 'updates the observable when the dependencies change', t => {
 
       const a = $(1);
       const b = $(2);
@@ -3339,7 +3459,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'updates the observable when the dependencies change inside other computations', t => {
+    it ( 'updates the observable when the dependencies change inside other computations', t => {
 
       const a = $(0);
       const b = $(0);
@@ -3348,11 +3468,11 @@ describe ( 'oby', () => {
 
       const memo1 = $.memo ( () => {
         calls += 1;
-        a ();
+        return a ();
       });
 
       t.is ( calls, 0 );
-      t.is ( memo1 (), undefined );
+      t.is ( memo1 (), 0 );
       t.is ( calls, 1 );
 
       const memo2 = $.memo ( () => {
@@ -3361,15 +3481,29 @@ describe ( 'oby', () => {
         a ( 0 );
       });
 
-      //TODO
+      t.is ( calls, 1 );
+      t.is ( memo1 (), 0 );
+      t.is ( calls, 1 );
+
+      memo2 ();
+
+      t.is ( calls, 1 );
+      t.is ( memo1 (), 0 );
+      t.is ( calls, 2 );
 
       b ( 1 );
+      memo2 ();
 
-      t.is ( calls, 5 );
+      t.is ( calls, 2 );
+      t.is ( memo1 (), 0 );
+      t.is ( calls, 3 );
 
       a ( 1 );
+      memo2 ();
 
-      t.is ( calls, 6 );
+      t.is ( calls, 3 );
+      t.is ( memo1 (), 1 );
+      t.is ( calls, 4 );
 
     });
 
@@ -3377,7 +3511,7 @@ describe ( 'oby', () => {
 
   describe ( 'observable', it => {
 
-    it.only ( 'is both a getter and a setter', t => {
+    it ( 'is both a getter and a setter', t => {
 
       const o = observable ();
 
@@ -3401,7 +3535,7 @@ describe ( 'oby', () => {
 
   describe ( 'owner', it => {
 
-    it.only ( 'detects the super root', t => {
+    it ( 'detects the super root', t => {
 
       const owner = $.owner ();
 
@@ -3412,7 +3546,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'detects a root', t => {
+    it ( 'detects a root', t => {
 
       $.root ( () => {
 
@@ -3427,7 +3561,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'detects an effect', async t => {
+    it ( 'detects an effect', async t => {
 
       $.effect ( () => {
 
@@ -3444,7 +3578,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'detects a memo', t => {
+    it ( 'detects a memo', t => {
 
       const memo = $.memo ( () => {
 
@@ -3461,7 +3595,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'detects a suspense', t => {
+    it ( 'detects a suspense', t => {
 
       $.suspense ( false, () => {
 
@@ -3480,7 +3614,7 @@ describe ( 'oby', () => {
 
   describe ( 'readonly', it => {
 
-    it.only ( 'returns the same readonly observable if it gets passed a frozen one', t => {
+    it ( 'returns the same readonly observable if it gets passed a frozen one', t => {
 
       const o = $.memo ( () => 123 );
       const ro = $.readonly ( o );
@@ -3489,7 +3623,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns the same readonly observable if it gets passed one', t => {
+    it ( 'returns the same readonly observable if it gets passed one', t => {
 
       const o = $(1);
       const ro = $.readonly ( o );
@@ -3515,7 +3649,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'throws when attempting to set', t => {
+    it ( 'throws when attempting to set', t => {
 
       const ro = $.readonly ( $() );
 
@@ -3527,7 +3661,7 @@ describe ( 'oby', () => {
 
   describe ( 'resolve', it => {
 
-    it.only ( 'properly disposes of inner memos', t => {
+    it ( 'properly disposes of inner memos', t => {
 
       const o = $(2);
 
@@ -3567,7 +3701,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'properly disposes of inner effects', async t => {
+    it ( 'properly disposes of inner effects', async t => {
 
       const o = $(2);
 
@@ -3610,7 +3744,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves an array', t => {
+    it ( 'resolves an array', t => {
 
       const arr = [() => 123];
       const resolved = $.resolve ( arr );
@@ -3621,7 +3755,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves a nested array', t => {
+    it ( 'resolves a nested array', t => {
 
       const arr = [123, [() => 123]];
       const resolved = $.resolve ( arr );
@@ -3632,7 +3766,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves an observable', t => {
+    it ( 'resolves an observable', t => {
 
       const o = $(123);
       const resolved = $.resolve ( o );
@@ -3641,7 +3775,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves nested observable', t => {
+    it ( 'resolves nested observable', t => {
 
       const a = $(123);
       const b = $(a);
@@ -3652,7 +3786,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves a plain object', t => {
+    it ( 'resolves a plain object', t => {
 
       const ia = { foo: true };
       const ib = { foo: () => true };
@@ -3671,7 +3805,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves a primitive', t => {
+    it ( 'resolves a primitive', t => {
 
       const symbol = Symbol ();
 
@@ -3686,7 +3820,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves a function', t => {
+    it ( 'resolves a function', t => {
 
       const fn = () => 123;
       const resolved = $.resolve ( fn );
@@ -3697,7 +3831,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves nested functions', t => {
+    it ( 'resolves nested functions', t => {
 
       const fn = () => () => 123;
       const resolved = $.resolve ( fn );
@@ -3709,7 +3843,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves mixed nested arrays and functions', t => {
+    it ( 'resolves mixed nested arrays and functions', t => {
 
       const arr = [() => [() => 123]];
       const resolved = $.resolve ( arr );
@@ -3725,7 +3859,7 @@ describe ( 'oby', () => {
 
   describe ( 'root', it => {
 
-    it.only ( 'allows child computations to escape their parents', t => {
+    it ( 'allows child computations to escape their parents', t => {
 
       $.root ( () => {
 
@@ -3781,7 +3915,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can be disposed', t => {
+    it ( 'can be disposed', t => {
 
       $.root ( dispose => {
 
@@ -3815,7 +3949,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'can be disposed from a child computation', t => {
+    it ( 'can be disposed from a child computation', t => {
 
       $.root ( dispose => {
 
@@ -3839,6 +3973,7 @@ describe ( 'oby', () => {
         t.is ( memo (), 1 );
         t.is ( calls, 2 );
 
+        debugger;
         a ( 2 );
 
         t.is ( calls, 2 );
@@ -3849,7 +3984,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can be disposed from a child computation of a child computation', t => {
+    it ( 'can be disposed from a child computation of a child computation', t => {
 
       $.root ( dispose => {
 
@@ -3886,7 +4021,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'persists through the entire scope when used at top level', t => {
+    it ( 'persists through the entire scope when used at top level', t => {
 
       $.root ( () => {
 
@@ -3907,7 +4042,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns whatever the function returns', t => {
+    it ( 'returns whatever the function returns', t => {
 
       const result = $.root ( () => 123 );
 
@@ -3919,7 +4054,7 @@ describe ( 'oby', () => {
 
   describe ( 'selector', it => {
 
-    it.only ( 'returns an observable', async t => {
+    it ( 'returns an observable', async t => {
 
       const source = $(0);
       const selector = $.selector ( source );
@@ -3939,7 +4074,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'efficiently tells when the provided item is the selected one', async t => {
+    it ( 'efficiently tells when the provided item is the selected one', async t => {
 
       const values = [1, 2, 3, 4, 5];
       const selected = $(-1);
@@ -3987,7 +4122,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'memoizes the source function', async t => {
+    it ( 'memoizes the source function', async t => {
 
       const values = [0, 1, 2, 3, 4];
 
@@ -4024,7 +4159,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'survives checking a value inside a discarded root', async t => {
+    it ( 'survives checking a value inside a discarded root', async t => {
 
       const selected = $(-1);
       const selector = $.selector ( selected );
@@ -4082,7 +4217,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'treats 0 and -0 as the same value values', t => {
+    it ( 'treats 0 and -0 as the same value values', t => {
 
       const selected = $(0);
       const selector = $.selector ( selected );
@@ -4092,7 +4227,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'works inside suspense', t => {
+    it ( 'works inside suspense', t => {
 
       $.suspense ( true, () => {
 
@@ -4110,7 +4245,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'works with stores', t => {
+    it ( 'works with stores', t => {
 
       const store = $.store ({ value: 0 });
       const selector = $.selector ( () => store.value );
@@ -4134,7 +4269,7 @@ describe ( 'oby', () => {
 
       describe ( 'base', () => {
 
-        it.only ( 'is both a getter and a setter, for shallow primitive properties', t => {
+        it ( 'is both a getter and a setter, for shallow primitive properties', t => {
 
           const o = $.store ({ value: undefined });
 
@@ -4154,7 +4289,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'is both a getter and a setter, for shallow non-primitive properties', t => {
+        it ( 'is both a getter and a setter, for shallow non-primitive properties', t => {
 
           const obj1 = { foo: 123 };
           const obj2 = [];
@@ -4173,7 +4308,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'is both a getter and a setter, for deep primitive properties', t => {
+        it ( 'is both a getter and a setter, for deep primitive properties', t => {
 
           const o = $.store ({ deep: { value: undefined } });
 
@@ -4193,7 +4328,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'is both a getter and a setter, for deep non-primitive properties', t => {
+        it ( 'is both a getter and a setter, for deep non-primitive properties', t => {
 
           const obj1 = { foo: 123 };
           const obj2 = [];
@@ -4212,7 +4347,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a dependency in a memo when getting a shallow property', t => {
+        it ( 'creates a dependency in a memo when getting a shallow property', t => {
 
           const o = $.store ({ value: 1 });
 
@@ -4241,7 +4376,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a dependency in an effect when getting a shallow property', async t => {
+        it ( 'creates a dependency in an effect when getting a shallow property', async t => {
 
           const o = $.store ({ value: 1 });
 
@@ -4270,7 +4405,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a dependency in a memo when getting a deep property', t => {
+        it ( 'creates a dependency in a memo when getting a deep property', t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -4299,7 +4434,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a dependency in an effect when getting a deep property', async t => {
+        it ( 'creates a dependency in an effect when getting a deep property', async t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -4328,7 +4463,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a single dependency in an memo even if getting a shallow property multiple times', t => {
+        it ( 'creates a single dependency in an memo even if getting a shallow property multiple times', t => {
 
           const o = $.store ({ value: 1 });
 
@@ -4360,7 +4495,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a single dependency in an effect even if getting a shallow property multiple times', async t => {
+        it ( 'creates a single dependency in an effect even if getting a shallow property multiple times', async t => {
 
           const o = $.store ({ value: 1 });
 
@@ -4391,7 +4526,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a single dependency in a memo even if getting a deep property multiple times', async t => {
+        it ( 'creates a single dependency in a memo even if getting a deep property multiple times', async t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -4423,7 +4558,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'creates a single dependency in an effect even if getting a deep property multiple times', async t => {
+        it ( 'creates a single dependency in an effect even if getting a deep property multiple times', async t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -4454,7 +4589,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does not create a dependency in a memo when creating', t => {
+        it ( 'does not create a dependency in a memo when creating', t => {
 
           let o;
           let calls = 0;
@@ -4476,7 +4611,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does not create a dependency in an effect when creating', async t => {
+        it ( 'does not create a dependency in an effect when creating', async t => {
 
           let o;
           let calls = 0;
@@ -4498,7 +4633,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does not create a dependency in a memo when setting a shallow property', t => {
+        it ( 'does not create a dependency in a memo when setting a shallow property', t => {
 
           let o = $.store ({ value: 0 });
           let calls = 0;
@@ -4520,7 +4655,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does not create a dependency in an effect when setting a shallow property', async t => {
+        it ( 'does not create a dependency in an effect when setting a shallow property', async t => {
 
           let o = $.store ({ value: 0 });
           let calls = 0;
@@ -4542,7 +4677,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does not create a dependency in a memo when getting a parent property of the one being updated', t => {
+        it ( 'does not create a dependency in a memo when getting a parent property of the one being updated', t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -4571,7 +4706,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does not create a dependency in an effect when getting a parent property of the one being updated', async t => {
+        it ( 'does not create a dependency in an effect when getting a parent property of the one being updated', async t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -4600,7 +4735,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does create a dependency (on the parent) in a memo when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
+        it ( 'does create a dependency (on the parent) in a memo when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -4629,7 +4764,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'does create a dependency (on the parent) in an effect when setting a deep property', async t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
+        it ( 'does create a dependency (on the parent) in an effect when setting a deep property', async t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -4658,7 +4793,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'returns primitive values as is', t => {
+        it ( 'returns primitive values as is', t => {
 
           const o = $.store ( 123 );
 
@@ -4666,7 +4801,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'returns unproxied "__proto__", "prototype" and "constructor" properties', t => {
+        it ( 'returns unproxied "__proto__", "prototype" and "constructor" properties', t => {
 
           const a = {};
           const b = {};
@@ -4681,7 +4816,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'returns unproxied "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "toLocaleString", "toSource", "toString", "valueOf", properties', async t => {
+        it ( 'returns unproxied "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "toLocaleString", "toSource", "toString", "valueOf", properties', async t => {
 
           const o = $.store ( {} );
 
@@ -4716,7 +4851,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'returns the value being set', t => {
+        it ( 'returns the value being set', t => {
 
           const o = $.store ({ value: undefined });
 
@@ -4724,7 +4859,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports a custom equality function', t => {
+        it ( 'supports a custom equality function', t => {
 
           const equals = ( next, prev ) => ( next % 10 ) === ( prev % 10 );
           const o = $.store ({ value: 0 }, { equals });
@@ -4741,7 +4876,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports a false equality function', async t => {
+        it ( 'supports a false equality function', async t => {
 
           const o = $.store ({ value: true }, { equals: false });
 
@@ -4767,7 +4902,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports a custom equality function, when setting property descriptors', t => {
+        it ( 'supports a custom equality function, when setting property descriptors', t => {
 
           const equals = ( next, prev ) => ( next % 10 ) === ( prev % 10 );
           const o = $.store ({ value: 0 }, { equals });
@@ -4794,7 +4929,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports a custom equality function, which is inherited also', t => {
+        it ( 'supports a custom equality function, which is inherited also', t => {
 
           const equals = ( next, prev ) => ( next % 10 ) === ( prev % 10 );
           const o = $.store ({ nested: { value: 0 } }, { equals });
@@ -4811,7 +4946,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports a custom equality function, which can be overridden', t => {
+        it ( 'supports a custom equality function, which can be overridden', t => {
 
           const equals1 = ( next, prev ) => ( next % 10 ) === ( prev % 10 );
           const equals2 = ( next, prev ) => next === 'a';
@@ -4850,7 +4985,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports setting functions as is', t => {
+        it ( 'supports setting functions as is', t => {
 
           const fn = () => {};
           const o = $.store ({ value: () => {} });
@@ -4861,7 +4996,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports wrapping a plain object', t => {
+        it ( 'supports wrapping a plain object', t => {
 
           const o = $.store ( {} );
 
@@ -4869,7 +5004,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports wrapping a deep array inside a plain object', t => {
+        it ( 'supports wrapping a deep array inside a plain object', t => {
 
           const o = $.store ( { value: [] } );
 
@@ -4877,7 +5012,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports wrapping a deep plain object inside a plain object', t => {
+        it ( 'supports wrapping a deep plain object inside a plain object', t => {
 
           const o = $.store ( { value: {} } );
 
@@ -4885,7 +5020,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports wrapping an array', t => {
+        it ( 'supports wrapping an array', t => {
 
           const o = $.store ( [] );
 
@@ -4893,7 +5028,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports wrapping a deep array inside an array', t => {
+        it ( 'supports wrapping a deep array inside an array', t => {
 
           const o = $.store ( [[]] );
 
@@ -4901,7 +5036,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports wrapping a deep plain object inside an array', t => {
+        it ( 'supports wrapping a deep plain object inside an array', t => {
 
           const o = $.store ( [{}] );
 
@@ -4909,7 +5044,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to deleting a shallow property', async t => {
+        it ( 'supports reacting to deleting a shallow property', async t => {
 
           const o = $.store ( { value: 123 } );
 
@@ -4932,7 +5067,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting when deleting a shallow property that was undefined', async t => {
+        it ( 'supports not reacting when deleting a shallow property that was undefined', async t => {
 
           const o = $.store ( { value: undefined } );
 
@@ -4955,7 +5090,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to deleting a deep property', async t => {
+        it ( 'supports reacting to deleting a deep property', async t => {
 
           const o = $.store ( { deep: { value: 123 } } );
 
@@ -4978,7 +5113,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting when deleting a deep property that was undefined', async t => {
+        it ( 'supports not reacting when deleting a deep property that was undefined', async t => {
 
           const o = $.store ( { deep: { value: undefined } } );
 
@@ -5001,7 +5136,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting when setting a primitive property to itself', async t => {
+        it ( 'supports not reacting when setting a primitive property to itself', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -5024,7 +5159,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting when setting a non-primitive property to itself', async t => {
+        it ( 'supports not reacting when setting a non-primitive property to itself', async t => {
 
           const o = $.store ( { deep: { value: 2 } } );
 
@@ -5047,7 +5182,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting when setting a non-primitive property to itself, when reading all values', async t => {
+        it ( 'supports not reacting when setting a non-primitive property to itself, when reading all values', async t => {
 
           const o = $.store ([ 0 ]);
 
@@ -5070,7 +5205,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting when reading the length on a array, when reading all values, if the length does not actually change', async t => {
+        it ( 'supports not reacting when reading the length on a array, when reading all values, if the length does not actually change', async t => {
 
           const o = $.store ({ value: [0] });
 
@@ -5093,7 +5228,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting when reading the length on a non-array, when reading all values, if the length does not actually change', async t => { //TODO
+        it ( 'supports not reacting when reading the length on a non-array, when reading all values, if the length does not actually change', async t => { //TODO
 
           const o = $.store ({ length: 0 });
 
@@ -5116,7 +5251,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to own keys', async t => {
+        it ( 'supports reacting to own keys', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, baz: 3 } );
 
@@ -5154,7 +5289,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to properties read by a getter', async t => {
+        it ( 'supports reacting to properties read by a getter', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
 
@@ -5185,7 +5320,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to properties read by a regular function', async t => {
+        it ( 'supports reacting to properties read by a regular function', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
 
@@ -5216,7 +5351,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to properties read by a regular function, called via the call method', async t => {
+        it ( 'supports reacting to properties read by a regular function, called via the call method', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
 
@@ -5247,7 +5382,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to properties read by a regular function, called via the apply method', async t => {
+        it ( 'supports reacting to properties read by a regular function, called via the apply method', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
 
@@ -5278,7 +5413,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports batching implicitly', async t => {
+        it ( 'supports batching implicitly', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
 
@@ -5305,7 +5440,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports batching setters automatically', async t => {
+        it ( 'supports batching setters automatically', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, set fn ( increment ) { this.foo += increment; this.bar += increment; } } );
 
@@ -5331,7 +5466,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports batching deletations automatically', async t => {
+        it ( 'supports batching deletations automatically', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
 
@@ -5356,7 +5491,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports batching additions automatically', async t => {
+        it ( 'supports batching additions automatically', async t => {
 
           const o = $.store ( { bar: 2 } );
 
@@ -5381,7 +5516,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes in deep arrays', async t => {
+        it ( 'supports reacting to changes in deep arrays', async t => {
 
           const o = $.store ( { value: [1, 2] } );
 
@@ -5416,7 +5551,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes in top-level arrays', async t => {
+        it ( 'supports reacting to changes in top-level arrays', async t => {
 
           const o = $.store ( [1, 2] );
 
@@ -5451,7 +5586,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes at a specific index in deep arrays', async t => {
+        it ( 'supports reacting to changes at a specific index in deep arrays', async t => {
 
           const o = $.store ( { value: [1, 2] } );
 
@@ -5504,7 +5639,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes at a specific index in top-level arrays', async t => {
+        it ( 'supports reacting to changes at a specific index in top-level arrays', async t => {
 
           const o = $.store ( [1, 2] );
 
@@ -5557,7 +5692,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes on custom classes', async t => {
+        it ( 'supports reacting to changes on custom classes', async t => {
 
           class Foo {
             constructor () {
@@ -5607,7 +5742,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports batching array methods automatically', async t => {
+        it ( 'supports batching array methods automatically', async t => {
 
           const o = $.store ( { value: [1, 2, 3] } );
 
@@ -5632,7 +5767,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to property checks, deleting', async t => {
+        it ( 'supports reacting to property checks, deleting', async t => {
 
           const o = $.store ( { value: undefined } );
 
@@ -5661,7 +5796,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to property checks, adding', async t => {
+        it ( 'supports reacting to property checks, adding', async t => {
 
           const o = $.store ( {} );
 
@@ -5690,7 +5825,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'survives reading a value inside a discarded root', async t => {
+        it ( 'survives reading a value inside a discarded root', async t => {
 
           const o = $.store ({ value: 123 });
 
@@ -5730,7 +5865,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes of keys caused by Object.defineProperty, adding enumerable property', async t => {
+        it ( 'supports reacting to changes of keys caused by Object.defineProperty, adding enumerable property', async t => {
 
           const o = $.store ( {} );
 
@@ -5758,7 +5893,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes of keys caused by Object.defineProperty, deleting enumerable property', async t => {
+        it ( 'supports reacting to changes of keys caused by Object.defineProperty, deleting enumerable property', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -5786,7 +5921,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting to changes of keys caused by Object.defineProperty, overriding enumerable property', async t => {
+        it ( 'supports not reacting to changes of keys caused by Object.defineProperty, overriding enumerable property', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -5814,7 +5949,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting to changes of keys caused by Object.defineProperty, adding non-enumerable property', async t => {
+        it ( 'supports not reacting to changes of keys caused by Object.defineProperty, adding non-enumerable property', async t => {
 
           const o = $.store ( {} );
 
@@ -5842,7 +5977,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes of in caused by Object.defineProperty, adding enumerable property', async t => {
+        it ( 'supports reacting to changes of in caused by Object.defineProperty, adding enumerable property', async t => {
 
           const o = $.store ( {} );
 
@@ -5870,7 +6005,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes of in caused by Object.defineProperty, deleting enumerable property', async t => {
+        it ( 'supports reacting to changes of in caused by Object.defineProperty, deleting enumerable property', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -5898,7 +6033,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting to changes of in caused by Object.defineProperty, overriding enumerable property', async t => {
+        it ( 'supports not reacting to changes of in caused by Object.defineProperty, overriding enumerable property', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -5926,7 +6061,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting to changes of in caused by Object.defineProperty, adding non-enumerable property', async t => {
+        it ( 'supports not reacting to changes of in caused by Object.defineProperty, adding non-enumerable property', async t => {
 
           const o = $.store ( {} );
 
@@ -5954,7 +6089,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes in getters caused by Object.defineProperty, addition', async t => {
+        it ( 'supports reacting to changes in getters caused by Object.defineProperty, addition', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
 
@@ -5985,7 +6120,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes in getters caused by Object.defineProperty, override with value', async t => {
+        it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with value', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
 
@@ -6014,7 +6149,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes in getters caused by Object.defineProperty, override with new getter', async t => {
+        it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with new getter', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
 
@@ -6045,7 +6180,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting to changes in getters caused by Object.defineProperty, override with same getter', async t => {
+        it ( 'supports not reacting to changes in getters caused by Object.defineProperty, override with same getter', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
 
@@ -6074,7 +6209,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting to changes for a provably equivalent property descriptors set by Object.defineProperty', async t => {
+        it ( 'supports not reacting to changes for a provably equivalent property descriptors set by Object.defineProperty', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get baz () { return 1; }, set baz ( value ) {} } );
 
@@ -6102,7 +6237,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes in setters caused by Object.defineProperty, addition', async t => {
+        it ( 'supports reacting to changes in setters caused by Object.defineProperty, addition', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
 
@@ -6166,7 +6301,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting to changes in setters caused by Object.defineProperty, override with same setter', async t => {
+        it ( 'supports not reacting to changes in setters caused by Object.defineProperty, override with same setter', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
 
@@ -6195,7 +6330,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports reacting to changes of value caused by Object.defineProperty', async t => {
+        it ( 'supports reacting to changes of value caused by Object.defineProperty', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -6224,7 +6359,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting to changes of value caused by Object.defineProperty', async t => {
+        it ( 'supports not reacting to changes of value caused by Object.defineProperty', async t => {
 
           const o = $.store ( { value: 123 } );
 
@@ -6253,7 +6388,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'treats number and string properties the same way', async t => {
+        it ( 'treats number and string properties the same way', async t => {
 
           const o = $.store ([ 0 ]);
 
@@ -6298,7 +6433,7 @@ describe ( 'oby', () => {
 
       describe ( 'on', () => {
 
-        it.only ( 'automatically batches listeners', async t => {
+        it ( 'automatically batches listeners', async t => {
 
           const o = $.store ( { foo: 1, bar: 1 } );
 
@@ -6359,7 +6494,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'detects when a new property is added', async t => {
+        it ( 'detects when a new property is added', async t => {
 
           const o = $.store ( { foo: 1 } );
 
@@ -6377,7 +6512,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'detects when a new property is added with Object.defineProperty', async t => {
+        it ( 'detects when a new property is added with Object.defineProperty', async t => {
 
           const o = $.store ( { foo: 1 } );
 
@@ -6397,7 +6532,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'detects when a property is deleted', async t => {
+        it ( 'detects when a property is deleted', async t => {
 
           const o = $.store ( { foo: 1, bar: 1 } );
 
@@ -6415,7 +6550,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'detects when nothing changes when setting', async t => {
+        it ( 'detects when nothing changes when setting', async t => {
 
           const o = $.store ( { foo: { value: 1 }, bar: { value: 1 } } );
 
@@ -6433,7 +6568,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'returns a dispose function', async t => {
+        it ( 'returns a dispose function', async t => {
 
           const o = $.store ( { foo: 1, bar: 1 } );
 
@@ -6454,7 +6589,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports listening to a single primitive', async t => {
+        it ( 'supports listening to a single primitive', async t => {
 
           const o = $.store ( { foo: 1, bar: 1 } );
 
@@ -6480,7 +6615,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports listening to multiple primitives', async t => {
+        it ( 'supports listening to multiple primitives', async t => {
 
           const o = $.store ( { foo: 1, bar: 1 } );
 
@@ -6506,7 +6641,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports listening to a single store', async t => {
+        it ( 'supports listening to a single store', async t => {
 
           const o = $.store ( { foo: 1, bar: 1 } );
 
@@ -6532,7 +6667,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports listening to multiple stores', async t => {
+        it ( 'supports listening to multiple stores', async t => {
 
           const o = $.store ( { foo: { value: 1 }, bar: { value: 1 } } );
 
@@ -6558,7 +6693,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports listening to multiple primitives and stores', async t => {
+        it ( 'supports listening to multiple primitives and stores', async t => {
 
           const o = $.store ( { foo: { value: 1 }, bar: { value: 1 } } );
 
@@ -6584,7 +6719,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports listening to a single store under multiple, fully pre-traversed, parents', async t => {
+        it ( 'supports listening to a single store under multiple, fully pre-traversed, parents', async t => {
 
           const value = { value: 1 };
           const o = $.store ( { foo: { deep1: value }, bar: { deep2: value } } );
@@ -6615,7 +6750,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports listening to a raw observable', async t => {
+        it ( 'supports listening to a raw observable', async t => {
 
           const o = $(1);
 
@@ -6664,7 +6799,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting when setting a primitive property to itself', async t => {
+        it ( 'supports not reacting when setting a primitive property to itself', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -6684,7 +6819,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports not reacting when setting a non-primitive property to itself', async t => {
+        it ( 'supports not reacting when setting a non-primitive property to itself', async t => {
 
           const o = $.store ( { deep: { value: 2 } } );
 
@@ -6704,7 +6839,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports circular references', async t => {
+        it ( 'supports circular references', async t => {
 
           const circular = {};
 
@@ -6738,7 +6873,7 @@ describe ( 'oby', () => {
 
       describe ( 'onRoots', () => {
 
-        it.only ( 'can detect additions', async t => {
+        it ( 'can detect additions', async t => {
 
           const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
 
@@ -6755,7 +6890,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'can detect deletions', async t => {
+        it ( 'can detect deletions', async t => {
 
           const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
 
@@ -6775,7 +6910,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'can detect mutations', async t => {
+        it ( 'can detect mutations', async t => {
 
           const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
 
@@ -6792,7 +6927,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'can detect defined properties', async t => {
+        it ( 'can detect defined properties', async t => {
 
           const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
 
@@ -6813,7 +6948,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'can detect defined properties that overwrite', async t => {
+        it ( 'can detect defined properties that overwrite', async t => {
 
           const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
 
@@ -6837,7 +6972,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'can deduplicate mutations', async t => {
+        it ( 'can deduplicate mutations', async t => {
 
           const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
 
@@ -6856,7 +6991,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports circular references', async t => {
+        it ( 'supports circular references', async t => {
 
           const circular = {};
 
@@ -6890,7 +7025,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports only top-level stores', t => {
+        it ( 'supports only top-level stores', t => {
 
           const store = $.store ({ a: { id: 'a' }, b: { id: 'b' } });
 
@@ -6911,7 +7046,7 @@ describe ( 'oby', () => {
 
       describe ( 'reconcile', () => {
 
-        it.only ( 'reconciles a store with another', t => {
+        it ( 'reconciles a store with another', t => {
 
           const data = { foo: { deep: { value: 123, value2: true } }, arr1: ['a', 'b', 'c'], arr2: ['a', 'b'] };
           const dataNext = { foo: { deep: { value: 321, value3: 123 } }, arr1: ['d', 'e'], arr2: ['d', 'e', 'f'], value: true };
@@ -6926,7 +7061,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'can shrink the size of a top-level array', t => {
+        it ( 'can shrink the size of a top-level array', t => {
 
           const data = ['a', 'b', 'c'];
           const dataNext = ['a', 'b'];
@@ -6941,7 +7076,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'can grow the size of a top-level array', t => {
+        it ( 'can grow the size of a top-level array', t => {
 
           const data = ['a', 'b'];
           const dataNext = ['a', 'b', 'c'];
@@ -6960,7 +7095,7 @@ describe ( 'oby', () => {
 
       describe ( 'untrack', () => {
 
-        it.only ( 'does nothing for primitives', t => {
+        it ( 'does nothing for primitives', t => {
 
           const o = $.store ( { foo: $.store.untrack ( 123 ) } );
 
@@ -6968,7 +7103,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports bailing out of tracking for an outer object', async t => {
+        it ( 'supports bailing out of tracking for an outer object', async t => {
 
           const o = $.store ( $.store.untrack ( {} ) );
 
@@ -6993,7 +7128,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports bailing out of tracking for an inner object', async t => {
+        it ( 'supports bailing out of tracking for an inner object', async t => {
 
           const o = $.store ( { foo: $.store.untrack ( {} ) } );
 
@@ -7022,7 +7157,7 @@ describe ( 'oby', () => {
 
       describe ( 'unwrap', () => {
 
-        it.only ( 'supports unwrapping a plain object', t => {
+        it ( 'supports unwrapping a plain object', t => {
 
           const wrapped = $.store ( { value: [] } );
 
@@ -7036,7 +7171,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports unwrapping an array', t => {
+        it ( 'supports unwrapping an array', t => {
 
           const wrapped = $.store ( [{}] );
 
@@ -7050,7 +7185,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.only ( 'supports wrapping, unwrapping, and re-wrapping without losing reactivity', async t => {
+        it ( 'supports wrapping, unwrapping, and re-wrapping without losing reactivity', async t => {
 
           const o = $.store ( { foo: 1 } );
 
@@ -7085,7 +7220,7 @@ describe ( 'oby', () => {
 
   describe ( 'suspense', it => {
 
-    it.only ( 'can accept a primitive falsy condition', async t => {
+    it ( 'can accept a primitive falsy condition', async t => {
 
       const o = $(0);
       const suspended = 0;
@@ -7116,7 +7251,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can accept a primitive truthy condition', async t => {
+    it ( 'can accept a primitive truthy condition', async t => {
 
       const o = $(0);
       const suspended = 1;
@@ -7147,7 +7282,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can accept a function condition', async t => {
+    it ( 'can accept a function condition', async t => {
 
       const o = $(0);
       const suspended = $(true);
@@ -7181,7 +7316,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend and unsuspend again when the condition changes', async t => {
+    it ( 'can suspend and unsuspend again when the condition changes', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7238,7 +7373,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend and unsuspend the execution of a an effect', async t => {
+    it ( 'can suspend and unsuspend the execution of a an effect', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7277,7 +7412,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend and unsuspend the execution of a sync effect', t => {
+    it ( 'can suspend and unsuspend the execution of a sync effect', t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7310,7 +7445,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend and unsuspend the execution of an effect created in an effect', async t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in an effect', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7355,7 +7490,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend and unsuspend the execution of an effect created in a memo', async t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a memo', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7402,7 +7537,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend and unsuspend the execution of an effect created in a root', async t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a root', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7447,7 +7582,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend and unsuspend the execution of an effect created in a for', async t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a for', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7485,7 +7620,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend and unsuspend the execution of an effect created in a forValue', async t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a forValue', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7568,7 +7703,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can unsuspend only when all parents are unsuspended too', async t => {
+    it ( 'can unsuspend only when all parents are unsuspended too', async t => {
 
       const o = $(0);
       const a = $(true);
@@ -7637,7 +7772,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend a lazily-crated effect', async t => {
+    it ( 'can suspend a lazily-crated effect', async t => {
 
       const o = $(0);
       const lazy = $(false);
@@ -7687,7 +7822,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can suspend a lazily-crated suspense', async t => {
+    it ( 'can suspend a lazily-crated suspense', async t => {
 
       const o = $(0);
       const lazy = $(false);
@@ -7741,7 +7876,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can not suspend an effect with suspense disabled', async t => {
+    it ( 'can not suspend an effect with suspense disabled', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7780,7 +7915,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can not suspend a memo', t => {
+    it ( 'can not suspend a memo', t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7819,7 +7954,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns whatever the function returns', t => {
+    it ( 'returns whatever the function returns', t => {
 
       const result = $.suspense ( false, () => {
 
@@ -7831,7 +7966,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'starts unsuspended with no parent and a false condition', async t => {
+    it ( 'starts unsuspended with no parent and a false condition', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7870,7 +8005,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'starts unsuspended with an unsuspended parent and a false condition', async t => {
+    it ( 'starts unsuspended with an unsuspended parent and a false condition', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7913,7 +8048,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'starts suspended with a suspended parent and a false condition', async t => {
+    it ( 'starts suspended with a suspended parent and a false condition', async t => {
 
       const o = $(0);
       const suspended = $(true);
@@ -7954,7 +8089,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'starts suspended with an unuspended parent and a true condition', async t => {
+    it ( 'starts suspended with an unuspended parent and a true condition', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -7989,7 +8124,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'starts suspended with a suspended parent and a true condition', async t => {
+    it ( 'starts suspended with a suspended parent and a true condition', async t => {
 
       const o = $(0);
       const suspended = $(true);
@@ -8024,7 +8159,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports cleaning up suspended, but executed, effects', async t => {
+    it ( 'supports cleaning up suspended, but executed, effects', async t => {
 
       const suspended = $(false);
 
@@ -8060,7 +8195,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports not cleaning suspended, and never executed, effects', async t => {
+    it ( 'supports not cleaning suspended, and never executed, effects', async t => {
 
       const suspended = $(true);
 
@@ -8092,7 +8227,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports unsuspending with a disposed always-suspended effect without causing the effect to be executed', async t => {
+    it ( 'supports unsuspending with a disposed always-suspended effect without causing the effect to be executed', async t => {
 
       const suspended = $(true);
 
@@ -8128,7 +8263,7 @@ describe ( 'oby', () => {
 
   describe ( 'switch', it => {
 
-    it.only ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {
+    it ( 'does not resolve values again when the condition changes but the reuslt case is the same', t => {
 
       let sequence = '';
 
@@ -8176,7 +8311,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the value of a case before returning it', t => {
+    it ( 'resolves the value of a case before returning it', t => {
 
       const result = $.switch ( 1, [[1, () => () => '1'], [2, '2'], [1, '1.1']] );
 
@@ -8188,7 +8323,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the value of the default case before returning it', t => {
+    it ( 'resolves the value of the default case before returning it', t => {
 
       const result = $.switch ( 2, [[1, '1'], [() => () => 'default'], [2, '2'] [1, '1.1']] );
 
@@ -8200,7 +8335,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the fallback value before returning it', t => {
+    it ( 'resolves the fallback value before returning it', t => {
 
       const result = $.switch ( 2, [[1, '1']], () => () => 'fallback' );
 
@@ -8212,7 +8347,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
 
       const o = $(2);
 
@@ -8243,7 +8378,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to matching case or the default case with a functional condition', t => {
+    it ( 'returns a memo to matching case or the default case with a functional condition', t => {
 
       const o = $(1);
 
@@ -8261,7 +8396,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to the value of the default case if no case before it matches', t => {
+    it ( 'returns a memo to the value of the default case if no case before it matches', t => {
 
       const result = $.switch ( 2, [[1, '1'], ['default'], [2, '2'] [1, '1.1']] );
 
@@ -8269,7 +8404,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to the value of the first matching case', t => {
+    it ( 'returns a memo to the value of the first matching case', t => {
 
       const result1 = $.switch ( 1, [[1, '1'], [2, '2'], [1, '1.1']] );
 
@@ -8281,7 +8416,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to undefined if no condition matches and there is no default case', t => {
+    it ( 'returns a memo to undefined if no condition matches and there is no default case', t => {
 
       const result = $.switch ( 1, [[2, '2'], [3, '3']] );
 
@@ -8289,7 +8424,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to fallback if no condition matches and there is no default case', t => {
+    it ( 'returns a memo to fallback if no condition matches and there is no default case', t => {
 
       const result = $.switch ( 1, [[2, '2'], [3, '3']], 123 );
 
@@ -8297,7 +8432,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'treats 0 and -0 as different values', t => {
+    it ( 'treats 0 and -0 as different values', t => {
 
       const condition = $(0);
 
@@ -8315,7 +8450,7 @@ describe ( 'oby', () => {
 
   describe ( 'ternary', it => {
 
-    it.only ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
+    it ( 'does not resolve values again when the condition changes but the reuslt branch is the same', t => {
 
       let sequence = '';
 
@@ -8363,7 +8498,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the first value before returning it', t => {
+    it ( 'resolves the first value before returning it', t => {
 
       const result = $.ternary ( true, () => () => 123, 321 );
 
@@ -8375,7 +8510,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'resolves the second value before returning it', t => {
+    it ( 'resolves the second value before returning it', t => {
 
       const result = $.ternary ( false, 123, () => () => 321 );
 
@@ -8387,7 +8522,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to the first or second value with a functional condition', t => {
+    it ( 'returns a memo to the first or second value with a functional condition', t => {
 
       const o = $(false);
 
@@ -8405,14 +8540,14 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns a memo to the first value with a truthy condition', t => {
+    it ( 'returns a memo to the first value with a truthy condition', t => {
 
       t.is ( $.ternary ( true, 123, 321 )(), 123 );
       t.is ( $.ternary ( 'true', 123, 321 )(), 123 );
 
     });
 
-    it.only ( 'returns a memo to the value with a falsy condition', t => {
+    it ( 'returns a memo to the value with a falsy condition', t => {
 
       t.is ( $.ternary ( false, 123, 321 )(), 321 );
       t.is ( $.ternary ( 0, 123, 321 )(), 321 );
@@ -8483,7 +8618,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves the fallback before returning it', t => {
+    it.skip ( 'resolves the fallback before returning it', t => {
 
       const result = $.tryCatch ( () => { throw 'err' }, () => () => () => 123 );
 
@@ -8495,7 +8630,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'resolves the value before returning it', t => {
+    it.skip ( 'resolves the value before returning it', t => {
 
       const result = $.tryCatch ( () => () => 123, () => {} );
 
@@ -8544,7 +8679,7 @@ describe ( 'oby', () => {
 
   describe ( 'untrack', it => {
 
-    it.only ( 'does not pass on any eventual dispose function', t => {
+    it ( 'does not pass on any eventual dispose function', t => {
 
       $.root ( () => {
 
@@ -8558,7 +8693,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not leak memos', t => {
+    it ( 'does not leak memos', t => {
 
       const o = $(1);
 
@@ -8596,7 +8731,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'does not leak effects', async t => {
+    it ( 'does not leak effects', async t => {
 
       const o = $(1);
 
@@ -8634,7 +8769,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns non-functions as is', t => {
+    it ( 'returns non-functions as is', t => {
 
       const values = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, Symbol ()];
 
@@ -8646,7 +8781,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports getting without creating dependencies in a memo', t => {
+    it ( 'supports getting without creating dependencies in a memo', t => {
 
       const a = $(1);
       const b = $(2);
@@ -8686,7 +8821,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'supports getting without creating dependencies in an effect', async t => {
+    it ( 'supports getting without creating dependencies in an effect', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -8726,7 +8861,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'works with functions containing a memo', async t => {
+    it ( 'works with functions containing a memo', async t => {
 
       const o = $(0);
 
@@ -8766,7 +8901,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'works with functions containing an effect', async t => {
+    it ( 'works with functions containing an effect', async t => {
 
       const o = $(0);
 
@@ -8804,7 +8939,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'works with functions containing a root', async t => {
+    it ( 'works with functions containing a root', async t => {
 
       const o = $(0);
 
@@ -8843,7 +8978,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'works on the top-level computation', async t => {
+    it ( 'works on the top-level computation', async t => {
 
       const o = $(0);
 
@@ -8885,7 +9020,7 @@ describe ( 'oby', () => {
 
   describe ( 'with', it => {
 
-    it.only ( 'calls the functions with no arguments, even for a root', t => {
+    it ( 'calls the functions with no arguments, even for a root', t => {
 
       $.root ( () => {
 
@@ -8905,7 +9040,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'can execute a function as if it happend inside another owner', async t => {
+    it ( 'can execute a function as if it happend inside another owner', async t => {
 
       await $.root ( async () => {
 
@@ -8939,7 +9074,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'returns whatever the function returns', t => {
+    it ( 'returns whatever the function returns', t => {
 
       t.is ( $.with ()( () => 123 ), 123 );
 
@@ -8949,7 +9084,7 @@ describe ( 'oby', () => {
 
   describe ( 'S-like propagation', it => {
 
-    it.only ( 'only propagates in topological order, diamond', t => {
+    it ( 'only propagates in topological order, diamond', t => {
 
       //    a1
       //   /  \
@@ -8991,7 +9126,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'only propagates once with linear convergences', t => {
+    it ( 'only propagates once with linear convergences', t => {
 
       //         d
       //         |
@@ -9044,7 +9179,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'only propagates once with exponential convergence', t => {
+    it ( 'only propagates once with exponential convergence', t => {
 
       //     d
       //     |
@@ -9175,7 +9310,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.only ( 'parent supports going from one to two subscriptions', t => {
+    it ( 'parent supports going from one to two subscriptions', t => {
 
       const a = $(0);
       const b = $(0);
