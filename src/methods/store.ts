@@ -484,7 +484,7 @@ const STORE_TRAPS = {
         property.observable?.set ( descriptor.get );
         property.node = undefined;
       } else {
-        const value = descriptor['val' + 'ue']; //UGLY: Bailing out of mangling
+        const value = descriptor.value;
         property.observable?.set ( value );
         property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
       }
@@ -721,7 +721,7 @@ const getUntracked = <T> ( value: T ): T => {
 
 const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor, equals: EqualsFunction<unknown> ): boolean => {
 
-  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a['writ' + 'able'] === !!b['writ' + 'able'] && equals ( a['val' + 'ue'], b['val' + 'ue'] ) && a.get === b.get && a.set === b.set ); //UGLY: Bailing out of mangling
+  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a.writable === !!b.writable && equals ( a.value, b.value ) && a.get === b.get && a.set === b.set );
 
 };
 
