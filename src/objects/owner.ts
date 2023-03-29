@@ -7,6 +7,11 @@ import {lazyArrayEachRight} from '~/lazy';
 import {castError} from '~/utils';
 import type {IObserver, IOwner, IRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue} from '~/types';
 
+/* HELPERS */
+
+const onCleanup = ( cleanup: Callable<CleanupFunction> ): void => cleanup.call ( cleanup );
+const onDispose = ( owner: IOwner ): void => owner.dispose ();
+
 /* MAIN */
 
 //TODO: Throw when registering stuff after disposing, maybe
@@ -31,7 +36,7 @@ class Owner {
 
     if ( errorHandler ) {
 
-      errorHandler.call ( errorHandler, error ); //TODO: This assumes that the error handler won't throw
+      errorHandler.call ( errorHandler, error ); //TODO: This assumes that the error handler won't throw, but it might
 
       return true;
 
@@ -49,11 +54,11 @@ class Owner {
 
   }
 
-  dispose ( deep: boolean ): void {
+  dispose (): void {
 
-    lazyArrayEachRight ( this.observers, observer => observer.dispose ( true ) );
-    lazyArrayEachRight ( this.suspenses, suspense => suspense.dispose ( true ) );
-    lazyArrayEachRight ( this.cleanups, cleanup => cleanup.call ( cleanup ) );
+    lazyArrayEachRight ( this.observers, onDispose );
+    lazyArrayEachRight ( this.suspenses, onDispose );
+    lazyArrayEachRight ( this.cleanups, onCleanup );
 
     this.cleanups = undefined;
     this.contexts = undefined;
@@ -79,7 +84,7 @@ class Owner {
 
   }
 
-  wrap <T> ( fn: WrappedFunction<T>, owner: IOwner, observer: IObserver | undefined ): T { //TODO: Maybe make this monomorphic
+  wrap <T> ( fn: WrappedFunction<T>, owner: IOwner, observer: IObserver | undefined ): T {
 
     const ownerPrev = OWNER;
     const observerPrev = OBSERVER;
@@ -93,7 +98,7 @@ class Owner {
 
     } catch ( error: unknown ) {
 
-      this.catch ( castError ( error ), false );
+      this.catch ( castError ( error ), false ); // Bubbling the error up
 
       return UNAVAILABLE; // Returning a value that is the least likely to cause bugs
 

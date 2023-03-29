@@ -5,7 +5,7 @@ import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE,
 import {isFunction} from '~/utils';
 import type {IObservable, UpdateFunction, Observable, ObservableReadonly} from '~/types';
 
-/* MAIN */
+/* MAIN - FUNCTIONS */
 
 function frozenFunction <T> ( this: T ): T {
   if ( arguments.length ) {
@@ -34,6 +34,8 @@ function writableFunction <T> ( this: IObservable<T>, fn?: UpdateFunction<T> | T
     return this.get ();
   }
 }
+
+/* MAIN - GENERATORS */
 
 const frozen = <T> ( value: T ): ObservableReadonly<T> => {
   const fn = frozenFunction.bind ( value ) as ObservableReadonly<T>; //TSC

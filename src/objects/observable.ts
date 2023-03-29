@@ -92,9 +92,9 @@ class Observable<T = unknown> {
 
   update ( fn: UpdateFunction<T> ): T {
 
-    const valueNext = fn ( this.value );
+    const value = fn ( this.value );
 
-    return this.set ( valueNext );
+    return this.set ( value );
 
   }
 

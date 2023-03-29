@@ -51,17 +51,17 @@ class Effect extends Observer {
 
   /* API */
 
-  dispose ( deep: boolean ): void {
+  dispose (): void {
 
     this.unschedule ();
 
-    super.dispose ( deep );
+    super.dispose ();
 
   }
 
   run (): void {
 
-    this.dispose ( false );
+    this.dispose ();
 
     const cleanup = this.wrap ( this.fn, this, this );
 

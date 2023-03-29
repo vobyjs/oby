@@ -13,7 +13,7 @@ class Root extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
-  suspense?: boolean;
+  suspense?: true;
 
   /* CONSTRUCTOR */
 
@@ -37,7 +37,7 @@ class Root extends Owner {
 
   /* API */
 
-  dispose ( deep: boolean ): void {
+  dispose (): void {
 
     if ( this.suspense && SUSPENSE_ENABLED ) {
 
@@ -45,13 +45,13 @@ class Root extends Owner {
 
     }
 
-    super.dispose ( deep );
+    super.dispose ();
 
   }
 
   wrap <T> ( fn: WrappedDisposableFunction<T> ): T {
 
-    const dispose = () => this.dispose ( true );
+    const dispose = () => this.dispose ();
     const fnWithDispose = () => fn ( dispose );
 
     const rootPrev = ROOT;

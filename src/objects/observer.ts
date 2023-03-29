@@ -9,8 +9,6 @@ import type {IObservable, IOwner} from '~/types';
 
 /* MAIN */
 
-//TODO: Optimize disposal, sometimes it's unnecessary to empty out the array of observables
-
 class Observer extends Owner {
 
   /* VARIABLES */
@@ -32,19 +30,24 @@ class Observer extends Owner {
 
   /* API */
 
-  dispose ( deep: boolean ): void {
+  dispose (): void {
 
     const observables = this.observables;
+    const observablesLength = observables.length;
 
-    for ( let i = 0, l = observables.length; i < l; i++ ) {
+    if ( observablesLength ) {
 
-      observables[i].observers.delete ( this );
+      for ( let i = 0, l = observables.length; i < l; i++ ) {
+
+        observables[i].observers.delete ( this );
+
+      }
+
+      this.observables = [];
 
     }
 
-    this.observables = [];
-
-    super.dispose ( deep );
+    super.dispose ();
 
   }
 
@@ -57,7 +60,7 @@ class Observer extends Owner {
 
     const sizeNext = observers.size;
 
-    if ( sizeNext === sizePrev ) return;
+    if ( sizePrev === sizeNext ) return; // Quicker alternative to "Set.has" + "Set.add"
 
     this.observables.push ( observable );
 
@@ -77,39 +80,37 @@ class Observer extends Owner {
 
   update (): void {
 
-    if ( this.status === DIRTY_MAYBE_YES ) {
+    if ( this.status === DIRTY_MAYBE_YES ) { // Maybe we are dirty, let's check with our observables, to be sure
 
       const observables = this.observables;
 
       for ( let i = 0, l = observables.length; i < l; i++ ) {
 
-        const observable = observables[i];
+        observables[i].parent?.update ();
 
-        observable.parent?.update ();
-
-        if ( this.status === DIRTY_YES ) break;
+        if ( this.status === DIRTY_YES ) break; // We are dirty, no need to check the rest
 
       }
 
     }
 
-    if ( this.status === DIRTY_YES ) {
+    if ( this.status === DIRTY_YES ) { // We are dirty, let's refresh
 
-      this.status = DIRTY_MAYBE_NO;
+      this.status = DIRTY_MAYBE_NO; // Trip flag, to be able to tell if we caused ourselves to be dirty again
 
       this.run ();
 
-      if ( this.status === DIRTY_MAYBE_NO ) {
+      if ( this.status === DIRTY_MAYBE_NO ) { // Not dirty anymore
 
         this.status = DIRTY_NO;
 
-      } else {
+      } else { // Maybe we are still dirty, let's check again
 
-        this.run ();
+        this.update ();
 
       }
 
-    } else {
+    } else { // Not dirty
 
       this.status = DIRTY_NO;
 
