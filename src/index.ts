@@ -1,4 +1,12 @@
 
+//TODO: Explore making setting observables inside effects and memos more explicit/strict
+//TODO: Explore using Solid's double-array optimization to delete the Set
+//TODO: Support a "KeepAlive"
+//TODO: Support auto-disposing of effects and memos (free up some memory)
+//TODO: Support returning a frozen observable from some memos, maybe
+//TODO: Support faster cleanups based on root disposal
+//TODO: Support pooling in $.for
+
 /* IMPORT */
 
 import $ from '~/methods/$';
