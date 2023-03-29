@@ -9,7 +9,7 @@ import SchedulerSync from '~/objects/scheduler.sync';
 
 const isBatching = (): boolean => {
 
-  return !!BATCH || SchedulerAsync.queued || SchedulerSync.locked;
+  return !!BATCH || SchedulerAsync.queued || SchedulerAsync.locked || SchedulerSync.locked;
 
 };
 

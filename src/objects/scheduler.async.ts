@@ -14,6 +14,8 @@ class Scheduler {
 
   running?: Set<IEffect> = new Set ();
   waiting: Set<IEffect> = new Set ();
+
+  locked: boolean = false;
   queued: boolean = false;
 
   /* QUEUING API */
@@ -22,16 +24,26 @@ class Scheduler {
 
     if ( !this.waiting.size ) return;
 
-    this.running = this.waiting;
-    this.waiting = new Set ();
+    try {
 
-    for ( const effect of this.running ) {
+      this.locked = true;
 
-      effect.update ();
+      this.running = this.waiting;
+      this.waiting = new Set ();
+
+      for ( const effect of this.running ) {
+
+        effect.update ();
+
+      }
+
+      this.running = undefined;
+
+    } finally {
+
+      this.locked = false;
 
     }
-
-    this.running = undefined;
 
   }
 
