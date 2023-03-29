@@ -39,5 +39,3 @@ const tryCatch = <T, F> ( value: T, fn: TryCatchFunction<F> ): ObservableReadonl
 /* EXPORT */
 
 export default tryCatch;
-
-//TODO: REVIEW

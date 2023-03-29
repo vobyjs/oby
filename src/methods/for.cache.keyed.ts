@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/context';
+import {OWNER, SUSPENSE_ENABLED} from '~/context';
 import {lazySetAdd, lazySetDelete} from '~/lazy';
 import cleanup from '~/methods/cleanup';
 import resolve from '~/methods/resolve';
@@ -43,7 +43,11 @@ class CacheKeyed<T, R> {
     this.fn = fn;
     this.fnWithIndex = ( fn.length > 1 );
 
-    lazySetAdd ( this.parent, 'roots', this.roots );
+    if ( SUSPENSE_ENABLED ) {
+
+      lazySetAdd ( this.parent, 'roots', this.roots );
+
+    }
 
   }
 
@@ -65,7 +69,7 @@ class CacheKeyed<T, R> {
 
         if ( mapped.bool === bool ) return;
 
-        mapped.dispose ( true );
+        mapped.dispose ();
 
         cache.delete ( value );
 
@@ -75,7 +79,7 @@ class CacheKeyed<T, R> {
 
       this.cache.forEach ( mapped => {
 
-        mapped.dispose ( true );
+        mapped.dispose ();
 
       });
 
@@ -87,7 +91,11 @@ class CacheKeyed<T, R> {
 
   dispose = (): void => {
 
-    lazySetDelete ( this.parent, 'roots', this.roots );
+    if ( SUSPENSE_ENABLED ) {
+
+      lazySetDelete ( this.parent, 'roots', this.roots );
+
+    }
 
     this.prevCount = this.cache.size;
     this.reuseCount = 0;
@@ -150,7 +158,7 @@ class CacheKeyed<T, R> {
 
         if ( cached ) {
 
-          cleanup ( () => mapped.dispose ( true ) );
+          cleanup ( () => mapped.dispose () );
 
         }
 

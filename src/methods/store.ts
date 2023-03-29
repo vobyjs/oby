@@ -1,6 +1,4 @@
 
-//TODO: Review this
-
 /* IMPORT */
 
 import {OBSERVER} from '~/context';
@@ -973,5 +971,3 @@ store.unwrap = <T> ( value: T ): T => {
 /* EXPORT */
 
 export default store;
-
-//TODO: REVIEW

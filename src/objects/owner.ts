@@ -62,6 +62,7 @@ class Owner {
 
     this.cleanups = undefined;
     this.contexts = undefined;
+    this.errorHandler = undefined;
     this.observers = undefined;
     this.suspenses = undefined;
 

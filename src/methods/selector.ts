@@ -1,6 +1,4 @@
 
-//TODO: Review this
-
 /* IMPORT */
 
 import {OBSERVABLE_FALSE, OBSERVABLE_TRUE} from '~/constants';
@@ -58,7 +56,7 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
   /* SELECTEDS */
 
   let selecteds = new DisposableMap<unknown, SelectedObservable> ();
-  let selectedValue: T | undefined = untrack ( source );
+  let selectedValue: T = untrack ( source );
 
   effect ( () => {
 
@@ -121,5 +119,3 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 /* EXPORT */
 
 export default selector;
-
-//TODO: REVIEW

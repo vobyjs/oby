@@ -1,9 +1,8 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/context';
+import {OWNER, SUSPENSE_ENABLED} from '~/context';
 import {lazySetAdd, lazySetDelete} from '~/lazy';
-import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
 import get from '~/methods/get';
 import memo from '~/methods/memo';
@@ -44,7 +43,11 @@ class CacheUnkeyed<T, R> {
     this.fn = fn;
     this.fnWithIndex = ( fn.length > 1 );
 
-    lazySetAdd ( this.parent, 'roots', this.roots );
+    if ( SUSPENSE_ENABLED ) {
+
+      lazySetAdd ( this.parent, 'roots', this.roots );
+
+    }
 
   }
 
@@ -54,7 +57,7 @@ class CacheUnkeyed<T, R> {
 
     this.cache.forEach ( mapped => {
 
-      mapped.dispose ( true );
+      mapped.dispose ();
 
     });
 
@@ -62,7 +65,11 @@ class CacheUnkeyed<T, R> {
 
   dispose = (): void => {
 
-    lazySetDelete ( this.parent, 'roots', this.roots );
+    if ( SUSPENSE_ENABLED ) {
+
+      lazySetDelete ( this.parent, 'roots', this.roots );
+
+    }
 
     this.cleanup ();
 
@@ -124,19 +131,8 @@ class CacheUnkeyed<T, R> {
           cache.delete ( key );
           cacheNext.set ( value, mapped );
 
-          if ( fnWithIndex ) {
-
-            batch ( () => {
-              mapped.index?.set ( index );
-              mapped.value?.set ( value );
-            });
-
-          } else {
-
-            mapped.index?.set ( index );
-            mapped.value?.set ( value );
-
-          }
+          mapped.index?.set ( index );
+          mapped.value?.set ( value );
 
           results[index] = mapped.result!; //TSC
 
@@ -152,7 +148,7 @@ class CacheUnkeyed<T, R> {
 
       if ( isDuplicate ) {
 
-        cleanup ( () => mapped.dispose ( true ) );
+        cleanup ( () => mapped.dispose () );
 
       }
 
