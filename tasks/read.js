@@ -64,7 +64,7 @@ benchmark.group ( 'untrack', () => {
         for ( let i = 0, l = 2_000_000; i < l; i++ ) {
           $.untrack ( o );
         }
-      });
+      }, { sync: true } );
     }
   });
 
@@ -75,7 +75,7 @@ benchmark.group ( 'untrack', () => {
         for ( let i = 0, l = 2_000_000; i < l; i++ ) {
           $.untrack ( ro );
         }
-      });
+      }, { sync: true } );
     }
   });
 
@@ -86,7 +86,7 @@ benchmark.group ( 'untrack', () => {
         for ( let i = 0, l = 2_000_000; i < l; i++ ) {
           $.untrack ( fo );
         }
-      });
+      }, { sync: true } );
     }
   });
 
@@ -97,7 +97,7 @@ benchmark.group ( 'untrack', () => {
         for ( let i = 0, l = 2_000_000; i < l; i++ ) {
           $.untrack ( fn );
         }
-      });
+      }, { sync: true } );
     }
   });
 

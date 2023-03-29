@@ -26,10 +26,10 @@ const OBJ = () => ({
 });
 
 const OBJ_HUGE = () => ({
-  arr: new Array ( 100000 ).fill ( 0 ).map ( ( _, idx ) => idx ),
+  arr: new Array ( 100_000 ).fill ( 0 ).map ( ( _, idx ) => idx ),
   date: new Date (),
-  map: new Map ( new Array ( 100000 ).fill ( 0 ).map ( ( _, idx ) => idx ).map ( nr => [`${nr}`, nr] ) ),
-  set: new Set ( new Array ( 100000 ).fill ( 0 ).map ( ( _, idx ) => idx ) )
+  map: new Map ( new Array ( 100_000 ).fill ( 0 ).map ( ( _, idx ) => idx ).map ( nr => [`${nr}`, nr] ) ),
+  set: new Set ( new Array ( 100_000 ).fill ( 0 ).map ( ( _, idx ) => idx ) )
 });
 
 /* EXPORT */

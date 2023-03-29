@@ -11,8 +11,8 @@ import {NOOP, OBJ, OBJ_HUGE} from './store.fixtures.js';
 
 const memo = new Memo ( () => {} );
 
-setObserver ( memo );
 setOwner ( memo );
+setObserver ( memo );
 
 /* MAIN */
 
@@ -248,7 +248,7 @@ benchmark.group ( 'set', () => {
 
   });
 
-  benchmark.group.skip ( 'huge', () => {
+  benchmark.group ( 'huge', () => {
 
     benchmark ({
       name: 'array:copyWithin',
@@ -260,7 +260,7 @@ benchmark.group ( 'set', () => {
       }
     });
 
-    benchmark ({
+    benchmark.skip ({
       name: 'array:fill',
       before: ctx => {
         ctx.store = $.store ( OBJ_HUGE () );
