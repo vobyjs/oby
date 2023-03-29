@@ -1,7 +1,7 @@
 {
   "name": "oby",
   "repository": "github:vobyjs/oby",
-  "description": "A tiny Observable implementation, the brilliant primitive you need to build a powerful reactive system.",
+  "description": "A rich Observable/Signal implementation, the brilliant primitive you need to build a powerful reactive system.",
   "version": "12.7.0",
   "type": "module",
   "sideEffects": false,
@@ -32,7 +32,7 @@
     "signal",
     "reactive",
     "reactivity",
-    "tiny",
+    "powerful",
     "small",
     "fast"
   ],

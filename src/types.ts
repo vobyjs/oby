@@ -69,7 +69,7 @@ type EffectOptions = {
 /* FOR */
 
 type ForOptions = {
-  recycle?: boolean
+  unkeyed?: boolean
 };
 
 /* OBSERVABLE */
