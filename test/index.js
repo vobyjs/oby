@@ -1770,6 +1770,37 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports any number of dependencies', async t => {
+
+      for ( const nr of [1, 2, 3, 4, 5] ) {
+
+        const oo = new Array ( nr ).fill ( 0 ).map ( () => $(0) );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          oo.map ( call );
+        });
+
+        t.is ( calls, 0 );
+        await tick ();
+        t.is ( calls, 1 );
+
+        for ( const [i, o] of Array.from ( oo.entries () ) ) {
+
+          o ( prev => prev + 1 );
+
+          t.is ( calls, i + 1 );
+          await tick ();
+          t.is ( calls, i + 2 );
+
+        }
+
+      }
+
+    });
+
     it ( 'supports dynamic dependencies', async t => {
 
       const a = $(1);
@@ -3346,6 +3377,37 @@ describe ( 'oby', () => {
 
       t.true ( $.isObservable ( o ) );
       t.is ( o (), undefined );
+
+    });
+
+    it ( 'supports any number of dependencies', t => {
+
+      for ( const nr of [1, 2, 3, 4, 5] ) {
+
+        const oo = new Array ( nr ).fill ( 0 ).map ( () => $(0) );
+
+        let calls = 0;
+
+        const memo = $.memo ( () => {
+          calls += 1;
+          oo.map ( call );
+        });
+
+        t.is ( calls, 0 );
+        t.is ( memo (), undefined );
+        t.is ( calls, 1 );
+
+        for ( const [i, o] of Array.from ( oo.entries () ) ) {
+
+          o ( prev => prev + 1 );
+
+          t.is ( calls, i + 1 );
+          t.is ( memo (), undefined );
+          t.is ( calls, i + 2 );
+
+        }
+
+      }
 
     });
 
@@ -9247,76 +9309,6 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'parent cleans up inner subscriptions', t => {
-
-      const o = $(null);
-      const cache = $(false);
-
-      let calls = 0;
-      let childValue;
-      let childValue2;
-
-      const child = o => {
-        $.memo ( () => {
-          childValue = o ();
-          calls += 1;
-        });
-      };
-
-      const child2 = o => {
-        $.memo ( () => {
-          childValue2 = o ();
-        });
-      };
-
-      $.memo ( () => {
-        const value = !!o ();
-        cache ( value );
-        return value;
-      });
-
-      // 1st
-
-      $.memo ( () => {
-        cache ();
-        child2 ( o );
-        child ( o );
-      });
-
-      t.is ( childValue, null );
-      t.is ( childValue2, null );
-
-      t.is ( calls, 1 );
-
-      // 2nd
-
-      o ( 'name' );
-
-      t.is ( childValue, 'name' );
-      t.is ( childValue2, 'name' );
-
-      t.is ( calls, 2 );
-
-      // 3rd
-
-      o ( null );
-
-      t.is ( childValue, null );
-      t.is ( childValue2, null );
-
-      t.is ( calls, 3 );
-
-      // 4th
-
-      o ( 'name2' );
-
-      t.is ( childValue, 'name2' );
-      t.is ( childValue2, 'name2' );
-
-      t.is ( calls, 4 );
-
-    });
-
     it ( 'parent supports going from one to two subscriptions', t => {
 
       const a = $(0);
@@ -9357,69 +9349,6 @@ describe ( 'oby', () => {
       t.is ( calls, 3 );
       t.is ( memo (), 2 );
       t.is ( calls, 4 );
-
-    });
-
-    it.skip ( 'parent cleans up inner conditional subscriptions', t => {
-
-      const o = $(null);
-      const cache = $(false);
-
-      let calls = 0;
-      let childValue;
-
-      const child = o => {
-        $.memo ( () => {
-          childValue = o ();
-          calls += 1;
-        });
-        return 'Hi';
-      };
-
-      $.memo ( () => {
-        const value = !!o ();
-        cache ( value );
-        return value;
-      });
-
-      const memo = $.memo ( () => {
-        const cached = cache ();
-        return cached ? child ( o ) : undefined;
-      });
-
-      let view;
-
-      $.memo ( () => {
-        view = memo ();
-        return view;
-      });
-
-      t.is ( view, undefined );
-
-      // 1st
-
-      o ( 'name' );
-
-      t.is ( childValue, 'name' );
-
-      t.is ( view, 'Hi' );
-
-      // 2nd
-
-      o ( 'name2' );
-
-      t.is ( childValue, 'name2' );
-
-      // 3rd
-      // data is null -> cache is false -> child is not run here
-
-      o ( null );
-
-      t.is ( childValue, 'name2' );
-
-      t.is ( view, undefined );
-
-      t.is ( calls, 2 );
 
     });
 
