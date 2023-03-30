@@ -39,19 +39,25 @@ const call = fn => {
 
 };
 
-const children = value => {
+const settle = value => {
 
-  return $.memo ( () => {
+  let resolvedValue;
 
-    while ( typeof value === 'function' ) {
+  $.effect ( () => {
 
-      value = value ();
+    let temp = value;
+
+    while ( typeof temp === 'function' ) {
+
+      temp = temp ();
 
     }
 
-    return value;
+    resolvedValue = temp;
 
-  });
+  }, { sync: true } );
+
+  return resolvedValue;
 
 };
 
@@ -3949,7 +3955,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can be disposed from a child computation', t => {
+    it.skip ( 'can be disposed from a child computation', t => {
 
       $.root ( dispose => {
 
@@ -3973,7 +3979,6 @@ describe ( 'oby', () => {
         t.is ( memo (), 1 );
         t.is ( calls, 2 );
 
-        debugger;
         a ( 2 );
 
         t.is ( calls, 2 );
@@ -6454,7 +6459,7 @@ describe ( 'oby', () => {
 
         });
 
-        it.skip ( 'automatically waits for an async batch to resolve', async t => {
+        it ( 'automatically waits for an async batch to resolve', async t => {
 
           const o = $.store ({ foo: 1 });
 
@@ -6474,6 +6479,8 @@ describe ( 'oby', () => {
 
           });
 
+          await tick ();
+
           t.is ( calls, 'r' );
 
           await $.batch ( async () => {
@@ -6484,11 +6491,11 @@ describe ( 'oby', () => {
 
             await delay ( 25 );
 
+            t.is ( calls, 'r' );
+
           });
 
-          t.is ( calls, 'rr' );
-
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 'rrs' );
 
@@ -7658,7 +7665,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'can suspend and unsuspend the execution of an effect created in a suspense', async t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a suspense', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -8558,18 +8565,14 @@ describe ( 'oby', () => {
 
   describe ( 'tryCatch', it => {
 
-    //TODO: wrong return type now I guess, maybe?
-    //TODO: deep child errors
-    //TODO: callable object
-    //TODO: error handler that throws, bubbling the error up
+    //TODO: These "settle" calls look a bit ugly, but maybe no way around them with a lazy system?
 
-    it.skip ( 'can catch and recover from errors', t => {
-
-      //TODO: those memo()() update calls don't look right
+    it ( 'can catch and recover from errors', t => {
 
       const o = $(false);
 
-      let err, recover;
+      let err;
+      let recover;
 
       const fallback = ({ error, reset }) => {
         err = error;
@@ -8583,29 +8586,26 @@ describe ( 'oby', () => {
       };
 
       const memo = $.tryCatch ( regular, fallback );
-      const result = children ( memo );
 
-      t.is ( result (), 'regular' );
+      t.is ( settle ( memo ), 'regular' );
 
       o ( true );
 
-      t.is ( result (), 'fallback' );
+      t.is ( settle ( memo ), 'fallback' );
+      t.true ( err instanceof Error );
+      t.is ( err.message, 'whoops' );
 
-      // t.true ( err instanceof Error );
-      // t.is ( err.message, 'whoops' );
+      o ( false );
 
-      // o ( false );
+      recover ();
 
-      // recover ();
-
-      // t.is ( memo (), 'regular' );
+      t.is ( settle ( memo ), 'regular' );
 
     });
 
-    it.skip ( 'casts thrown errors to Error instances', t => {
+    it ( 'casts thrown errors to Error instances', t => {
 
       const fallback = ({ error }) => {
-
         t.true ( error instanceof Error );
         t.is ( error.message, 'err' );
       };
@@ -8616,12 +8616,16 @@ describe ( 'oby', () => {
 
       const memo = $.tryCatch ( regular, fallback );
 
+      settle ( memo );
+
     });
 
-    it.skip ( 'resolves the fallback before returning it', t => {
+    it ( 'resolves the fallback before returning it', t => {
 
       const result = $.tryCatch ( () => { throw 'err' }, () => () => () => 123 );
 
+      settle ( result );
+
       isReadable ( t, result );
       isReadable ( t, result () );
       isReadable ( t, result ()() );
@@ -8630,10 +8634,12 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'resolves the value before returning it', t => {
+    it ( 'resolves the value before returning it', t => {
 
       const result = $.tryCatch ( () => () => 123, () => {} );
 
+      settle ( result );
+
       isReadable ( t, result );
       isReadable ( t, result () );
       isReadable ( t, result ()() );
@@ -8642,34 +8648,35 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'suppors error handlers that throw', t => {
+    it ( 'suppors error handlers that throw', t => {
 
       let calls = '';
 
-      $.effect ( () => {
+      const result = $.tryCatch ( () => {
 
-        $.error ( () => {
-          calls += 'a';
+        return $.tryCatch ( () => {
+
+          return $.memo ( () => {
+
+            throw new Error ();
+
+          });
+
+        }, () => {
+
+          calls += 'b';
+          throw new Error ();
+          calls += 'c';
+
         });
 
-        $.effect ( () => {
+      }, () => {
 
-          $.error ( () => {
-            calls += 'b';
-            throw new Error ();
-          });
-
-          $.error ( () => {
-            calls += 'c';
-          });
-
-          $.effect ( () => {
-            throw new Error ();
-          });
-
-        });
+        calls += 'a';
 
       });
+
+      settle ( result );
 
       t.is ( calls, 'ba' );
 

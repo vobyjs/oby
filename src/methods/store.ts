@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OBSERVER} from '~/context';
+import {BATCH, OBSERVER} from '~/context';
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
 import cleanup from '~/methods/cleanup';
 import effect from '~/methods/effect';
@@ -196,7 +196,11 @@ const StoreScheduler = {
   },
   flushIfNotBatching: (): void => {
     if ( isBatching () ) {
-      setTimeout ( StoreScheduler.flushIfNotBatching, 0 );
+      if ( BATCH ) {
+        BATCH.finally ( StoreScheduler.flushIfNotBatching );
+      } else {
+        setTimeout ( StoreScheduler.flushIfNotBatching, 0 );
+      }
     } else {
       StoreScheduler.flush ();
     }

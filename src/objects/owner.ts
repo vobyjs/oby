@@ -23,7 +23,7 @@ class Owner {
   parent?: IOwner;
   cleanups: LazyArray<Callable<CleanupFunction>> = undefined;
   contexts: LazyValue<Contexts> = undefined;
-  errorHandler?: Callable<ErrorFunction>;
+  errorHandler: LazyValue<ErrorFunction> = undefined;
   observers: LazyArray<IObserver> = undefined;
   roots: LazySet<IRoot | (() => IRoot[])> = undefined;
   suspenses: LazyArray<ISuspense> = undefined;
@@ -36,7 +36,7 @@ class Owner {
 
     if ( errorHandler ) {
 
-      errorHandler.call ( errorHandler, error ); //TODO: This assumes that the error handler won't throw, but it might
+      errorHandler ( error ); //TODO: This assumes that the error handler won't throw immediately, which we know, but Owner shouldn't know
 
       return true;
 
