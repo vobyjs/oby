@@ -3,6 +3,7 @@
 //TODO: Explore using Solid's double-array optimization to delete the Set
 //TODO: Support a "KeepAlive"
 //TODO: Support auto-disposing of effects and memos (free up some memory)
+//TODO: Support frozen observables more deeply again
 //TODO: Support returning a frozen observable from some memos, maybe
 //TODO: Support faster cleanups based on root disposal
 //TODO: Support pooling in $.for

@@ -1,9 +1,7 @@
 
 /* IMPORT */
 
-import {OBSERVABLE_FALSE, OBSERVABLE_TRUE} from '~/constants';
 import cleanup from '~/methods/cleanup';
-import isObservableFrozen from '~/methods/is_observable_frozen';
 import effect from '~/methods/effect';
 import memo from '~/methods/memo';
 import untrack from '~/methods/untrack';
@@ -38,20 +36,6 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
   /* NORMALIZING SOURCE */
 
   source = memo ( source );
-
-  /* FROZEN SOURCE */
-
-  if ( isObservableFrozen ( source ) ) {
-
-    const sourceValue = source ();
-
-    return ( value: T ): ObservableReadonly<boolean> => {
-
-      return ( value === sourceValue ) ? OBSERVABLE_TRUE : OBSERVABLE_FALSE;
-
-    };
-
-  }
 
   /* SELECTEDS */
 
