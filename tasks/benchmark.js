@@ -42,13 +42,6 @@ const cellx = layers => {
             })
           };
 
-          // const s = {
-          //   prop1: $.memo ( $.on ( [m.prop2], prop2 => prop2, () => m.prop2 () ) ),
-          //   prop2: $.memo ( $.on ( [m.prop1, m.prop3], ( prop1, prop3 ) => prop1 - prop3, () => m.prop1 () - m.prop3 () ) ),
-          //   prop3: $.memo ( $.on ( [m.prop2, m.prop4], ( prop2, prop4 ) => prop2 + prop4, () => m.prop2 () + m.prop4 () ) ),
-          //   prop4: $.memo ( $.on ( [m.prop3], prop3 => prop3, () => m.prop3 () ) )
-          // };
-
           // $.effect ( s.prop1, { sync: true } );
           // $.effect ( s.prop2, { sync: true } );
           // $.effect ( s.prop3, { sync: true } );
