@@ -5,7 +5,7 @@ import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants'
 import {OWNER} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import Owner from '~/objects/owner';
-import type {IObservable, IOwner} from '~/types';
+import type {IObservable, IOwner, Signal} from '~/types';
 
 /* MAIN */
 
@@ -14,6 +14,7 @@ class Observer extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
+  signal: Signal = OWNER.signal;
   status: number = DIRTY_YES;
   observables: IObservable[] = [];
   sync?: boolean;
@@ -79,6 +80,8 @@ class Observer extends Owner {
   }
 
   update (): void {
+
+    if ( this.signal.disposed ) return; // Disposed, it shouldn't be updated again
 
     if ( this.status === DIRTY_MAYBE_YES ) { // Maybe we are dirty, let's check with our observables, to be sure
 

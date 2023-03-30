@@ -4,7 +4,7 @@
 import {OWNER, ROOT, SUSPENSE_ENABLED, setRoot} from '~/context';
 import {lazySetAdd, lazySetDelete} from '~/lazy';
 import Owner from '~/objects/owner';
-import type {IOwner, WrappedDisposableFunction} from '~/types';
+import type {IOwner, WrappedDisposableFunction, Signal} from '~/types';
 
 /* MAIN */
 
@@ -13,6 +13,7 @@ class Root extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
+  signal: Signal = { disposed: false };
   suspense?: true;
 
   /* CONSTRUCTOR */
@@ -44,6 +45,8 @@ class Root extends Owner {
       lazySetDelete ( this.parent, 'roots', this );
 
     }
+
+    this.signal.disposed = true;
 
     super.dispose ();
 

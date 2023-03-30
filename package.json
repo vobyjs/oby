@@ -15,7 +15,7 @@
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
     "compile": "tsex compile",
-    "compile:mangle": "mangler --folder dist --ext js --props 'active,before,cleanups,contexts,counter,dispose,errorHandler,flushIfNotBatching,fnWithIndex,getters,insert,listeners,listenersRegular,listenersRoots,locked,nextCount,observables,observers,onRoots,parent,parents,prevCount,prepare,queued,register,registerWith,result,reuseCount,running,schedule,selecteds,setters,source,status,suspended,suspenses,unschedule,update,waiting'",
+    "compile:mangle": "mangler --folder dist --ext js --props 'active,before,cleanups,contexts,counter,dispose,errorHandler,flushIfNotBatching,fnWithIndex,getters,insert,listeners,listenersRegular,listenersRoots,locked,nextCount,observables,observers,onRoots,parent,parents,prevCount,prepare,queued,register,registerWith,result,reuseCount,running,schedule,selecteds,setters,signal,source,status,suspended,suspenses,unschedule,update,waiting'",
     "compile:watch": "tsex compile --watch",
     "creation": "node tasks/creation.js",
     "memory": "node tasks/memory.js",

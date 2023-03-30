@@ -5,7 +5,7 @@ import {UNAVAILABLE} from '~/constants';
 import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
 import {lazyArrayEachRight} from '~/lazy';
 import {castError} from '~/utils';
-import type {IObserver, IOwner, IRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue} from '~/types';
+import type {IObserver, IOwner, IRoot, ISuperRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue, Signal} from '~/types';
 
 /* HELPERS */
 
@@ -21,6 +21,7 @@ class Owner {
   /* VARIABLES */
 
   parent?: IOwner;
+  signal?: Signal;
   cleanups: LazyArray<Callable<CleanupFunction>> = undefined;
   contexts: LazyValue<Contexts> = undefined;
   errorHandler: LazyValue<ErrorFunction> = undefined;
@@ -85,7 +86,7 @@ class Owner {
 
   }
 
-  wrap <T> ( fn: WrappedFunction<T>, owner: IOwner, observer: IObserver | undefined ): T {
+  wrap <T> ( fn: WrappedFunction<T>, owner: IObserver | IRoot | ISuperRoot | ISuspense, observer: IObserver | undefined ): T {
 
     const ownerPrev = OWNER;
     const observerPrev = OBSERVER;

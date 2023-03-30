@@ -8,7 +8,7 @@ import Effect from '~/objects/effect';
 import Owner from '~/objects/owner';
 import {SYMBOL_SUSPENSE} from '~/symbols';
 import {isFunction} from '~/utils';
-import type {IObserver, IOwner, IRoot, ISuspense, SuspenseFunction, Contexts} from '~/types';
+import type {IObserver, IOwner, IRoot, ISuspense, SuspenseFunction, Contexts, Signal} from '~/types';
 
 /* MAIN */
 
@@ -17,6 +17,7 @@ class Suspense extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
+  signal: Signal = OWNER.signal;
   contexts: Contexts = { [SYMBOL_SUSPENSE]: this };
   suspended: number;
 

@@ -4017,7 +4017,7 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'can be disposed from a child computation', t => {
+    it ( 'can be disposed from a child computation', t => {
 
       $.root ( dispose => {
 

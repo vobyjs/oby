@@ -14,7 +14,7 @@ const OBSERVABLE_FALSE = frozen ( false );
 const OBSERVABLE_TRUE = frozen ( true );
 
 // const UNAVAILABLE: any = new Proxy ( function () {}, new Proxy ( {}, { get () { throw new Error ( 'Unavailable value' ) } } ) );
-const UNAVAILABLE: any = undefined; //FIXME: We should really return the expliding proxy, but it probably messes with error boundaries...
+const UNAVAILABLE: any = undefined; //FIXME: We should really return the exploding proxy, but it probably messes with error boundaries...
 
 /* EXPORT */
 
