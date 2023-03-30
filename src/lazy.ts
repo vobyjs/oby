@@ -71,15 +71,7 @@ const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => void ): void => {
   }
 };
 
-const lazySetHas = <T> ( set: LazySet<T>, value: T ): boolean => {
-  if ( set instanceof Set ) {
-    return set.has ( value );
-  } else {
-    return set === value;
-  }
-};
-
 /* EXPORT */
 
 export {lazyArrayEach, lazyArrayEachRight, lazyArrayPush};
-export {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas};
+export {lazySetAdd, lazySetDelete, lazySetEach};
