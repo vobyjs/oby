@@ -1,228 +1,123 @@
 
 /* IMPORT */
 
-import {OWNER, TRACKING, setOwner, setTracking} from '~/context';
-import {lazyArrayEach, lazyArrayEachRight, lazyArrayPush, lazySetAdd, lazySetDelete} from '~/lazy';
-import {castError} from '~/utils';
-import type {IObservable, IObserver, IRoot, CleanupFunction, ErrorFunction, ObservedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue, Signal} from '~/types';
+import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants';
+import {OWNER} from '~/context';
+import {lazyArrayPush} from '~/lazy';
+import Owner from '~/objects/owner';
+import type {IObservable, IOwner, Signal} from '~/types';
 
 /* MAIN */
 
-//TODO: Throw when registering stuff after disposing, mainly relevant when roots are used
-
-class Observer {
+class Observer extends Owner {
 
   /* VARIABLES */
 
-  parent?: IObserver;
-  signal?: Signal;
-  cleanups?: LazyArray<Callable<CleanupFunction>>;
-  contexts?: LazyValue<Contexts>;
-  errors?: LazyArray<Callable<ErrorFunction>>;
-  observables?: LazyArray<IObservable>;
-  observablesLeftover?: LazyArray<IObservable>;
-  observers?: LazyArray<IObserver>;
-  roots?: LazySet<IRoot | (() => IRoot[])>;
-  inactive?: boolean; // Inactive observers should not be re-executed, if they can be
+  parent: IOwner = OWNER;
+  signal: Signal = OWNER.signal;
+  status: number = DIRTY_YES;
+  observables: IObservable[] = [];
+  sync?: boolean;
 
-  /* REGISTRATION API */
+  /* CONSTRUCTOR */
 
-  registerCleanup ( cleanup: Callable<CleanupFunction> ): void {
+  constructor () {
 
-    lazyArrayPush ( this, 'cleanups', cleanup );
+    super ();
 
-  }
-
-  registerError ( error: Callable<ErrorFunction> ): void {
-
-    lazyArrayPush ( this, 'errors', error );
-
-  }
-
-  registerObservable ( observable: IObservable ): void {
-
-    lazyArrayPush ( this, 'observables', observable );
-
-  }
-
-  registerObserver ( observer: IObserver ): void {
-
-    lazyArrayPush ( this, 'observers', observer );
-
-  }
-
-  registerRoot ( root: IRoot | (() => IRoot[]) ): void {
-
-    lazySetAdd ( this, 'roots', root );
-
-  }
-
-  unregisterRoot ( root: IRoot | (() => IRoot[]) ): void {
-
-    lazySetDelete ( this, 'roots', root );
+    lazyArrayPush ( this.parent, 'observers', this );
 
   }
 
   /* API */
 
-  catch ( error: Error, silent: boolean ): boolean {
+  dispose (): void {
 
-    const {errors, parent} = this;
+    const observables = this.observables;
+    const observablesLength = observables.length;
 
-    if ( errors ) {
+    if ( observablesLength ) {
 
-      try {
+      for ( let i = 0, l = observables.length; i < l; i++ ) {
 
-        lazyArrayEach ( errors, fn => fn.call ( fn, error ) );
-
-      } catch ( error: unknown ) {
-
-        if ( parent ) {
-
-          parent.catch ( castError ( error ), false );
-
-        } else {
-
-          throw error;
-
-        }
+        observables[i].observers.delete ( this );
 
       }
 
-      return true;
+      this.observables = [];
 
-    } else {
+    }
 
-      if ( parent?.catch ( error, true ) ) return true;
+    super.dispose ();
 
-      if ( silent ) {
+  }
 
-        return false;
+  link ( observable: IObservable<any> ): void {
 
-      } else {
+    const observers = observable.observers;
+    const sizePrev = observers.size;
 
-        // console.error ( error.stack ); // <-- Log "error.stack" to understand where the error happened
+    observers.add ( this );
 
-        throw error;
+    const sizeNext = observers.size;
+
+    if ( sizePrev === sizeNext ) return; // Quicker alternative to "Set.has" + "Set.add"
+
+    this.observables.push ( observable );
+
+  }
+
+  run (): void {
+
+    throw new Error ( 'Abstract method' );
+
+  }
+
+  stale ( status: number ): void {
+
+    throw new Error ( 'Abstract method' );
+
+  }
+
+  update (): void {
+
+    if ( this.signal.disposed ) return; // Disposed, it shouldn't be updated again
+
+    if ( this.status === DIRTY_MAYBE_YES ) { // Maybe we are dirty, let's check with our observables, to be sure
+
+      const observables = this.observables;
+
+      for ( let i = 0, l = observables.length; i < l; i++ ) {
+
+        observables[i].parent?.update ();
+
+        if ( this.status === DIRTY_YES ) break; // We are dirty, no need to check the rest
 
       }
 
     }
 
-  }
+    if ( this.status === DIRTY_YES ) { // We are dirty, let's refresh
 
-  dispose ( deep?: boolean, immediate?: boolean ): void {
+      this.status = DIRTY_MAYBE_NO; // Trip flag, to be able to tell if we caused ourselves to be dirty again
 
-    const {observers, observables, cleanups, errors, contexts} = this;
+      this.run ();
 
-    if ( observers ) {
-      this.observers = undefined;
-      lazyArrayEachRight ( observers, observer => {
-        observer.dispose ( true, true );
-      });
-    }
+      if ( this.status === DIRTY_MAYBE_NO ) { // Not dirty anymore
 
-    if ( observables ) {
-      this.observables = undefined;
-      if ( immediate ) {
-        lazyArrayEach ( observables, observable => {
-          if ( !observable.signal.disposed ) {
-            observable.unregisterObserver ( this );
-          }
-        });
-      } else {
-        this.observablesLeftover = observables;
+        this.status = DIRTY_NO;
+
+      } else { // Maybe we are still dirty, let's check again
+
+        this.update ();
+
       }
-    }
 
-    if ( cleanups ) {
-      this.cleanups = undefined;
-      this.inactive = true;
-      lazyArrayEachRight ( cleanups, cleanup => cleanup.call ( cleanup ) );
-      this.inactive = false;
-    }
+    } else { // Not dirty
 
-    if ( errors ) {
-      this.errors = undefined;
-    }
-
-    if ( contexts ) {
-      this.contexts = undefined;
-    }
-
-  }
-
-  postdispose (): void {
-
-    const prev = this.observablesLeftover;
-
-    if ( !prev ) return;
-
-    this.observablesLeftover = undefined;
-
-    const next = this.observables;
-
-    if ( prev === next ) return;
-
-    const a = ( prev instanceof Array ) ? prev : [prev];
-    const b = ( next instanceof Array ) ? next : ( next ? [next] : [] );
-
-    let bSet: Set<IObservable> | undefined;
-
-    for ( let ai = 0, al = a.length; ai < al; ai++ ) { // Unlinking from previous Observables which are not next Observables too
-      const av = a[ai];
-      if ( av.signal.disposed ) continue;
-      if ( av === b[ai] ) continue;
-      bSet ||= new Set ( b );
-      if ( bSet.has ( av ) ) continue;
-      av.unregisterObserver ( this );
-    }
-
-  }
-
-  read <T> ( symbol: symbol ): T | undefined {
-
-    const {contexts, parent} = this;
-
-    if ( contexts && symbol in contexts ) return contexts[symbol];
-
-    return parent?.read<T> ( symbol );
-
-  }
-
-  write <T> ( symbol: symbol, value: T ): void {
-
-    this.contexts ||= {};
-    this.contexts[symbol] = value;
-
-  }
-
-  wrap <T> ( fn: ObservedFunction<T>, tracking: boolean = false ): T {
-
-    const ownerPrev = OWNER;
-    const trackingPrev = TRACKING;
-
-    setOwner ( this );
-    setTracking ( tracking );
-
-    let result!: T; //TSC
-
-    try {
-
-      result = fn ();
-
-    } catch ( error: unknown ) {
-
-      this.catch ( castError ( error ), false );
-
-    } finally {
-
-      setOwner ( ownerPrev );
-      setTracking ( trackingPrev );
+      this.status = DIRTY_NO;
 
     }
-
-    return result;
 
   }
 

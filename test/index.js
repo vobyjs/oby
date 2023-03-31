@@ -3,9 +3,9 @@
 
 import {describe} from 'fava';
 import {setTimeout as delay} from 'node:timers/promises';
-import $ from '../../dist/index.js';
-import {SYMBOL_STORE_VALUES} from '../../dist/symbols.js';
-import {observable} from '../../dist/index.js';
+import $ from '../dist/index.js';
+import {SYMBOL_STORE_VALUES} from '../dist/symbols.js';
+import {observable} from '../dist/index.js';
 
 /* HELPERS */
 
@@ -30,6 +30,40 @@ const isWritable = ( t, value ) => {
   t.true ( typeof value.value === 'undefined' );
   t.true ( typeof value.bind === 'function' );
   t.true ( typeof value.apply === 'function' );
+
+};
+
+const call = fn => {
+
+  return fn ();
+
+};
+
+const settle = value => {
+
+  let resolvedValue;
+
+  $.effect ( () => {
+
+    let temp = value;
+
+    while ( typeof temp === 'function' ) {
+
+      temp = temp ();
+
+    }
+
+    resolvedValue = temp;
+
+  }, { sync: true } );
+
+  return resolvedValue;
+
+};
+
+const tick = () => {
+
+  return delay ( 1 );
 
 };
 
@@ -65,24 +99,30 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        o ();
+        return o ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), 2 );
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), 3 );
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a dependency in an effect when getting', t => {
+    it ( 'creates a dependency in an effect when getting', async t => {
 
       const o = $(1);
 
@@ -93,37 +133,20 @@ describe ( 'oby', () => {
         o ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
-      t.is ( calls, 2 );
-
-      o ( 3 );
-
-      t.is ( calls, 3 );
-
-    });
-
-    it ( 'creates a dependency in a reaction when getting', t => {
-
-      const o = $(1);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        o ();
-      });
-
       t.is ( calls, 1 );
-
-      o ( 2 );
-
+      await tick ();
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
@@ -134,26 +157,33 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
         o ();
         o ();
         o ();
+        return o ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), 2 );
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), 3 );
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a single dependency in an effect even if getting multiple times', t => {
+    it ( 'creates a single dependency in an effect even if getting multiple times', async t => {
 
       const o = $(1);
 
@@ -166,93 +196,108 @@ describe ( 'oby', () => {
         o ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a single dependency in a reaction even if getting multiple times', t => {
+    it ( 'does not create a dependency in a memo when instantiating', t => {
 
-      const o = $(1);
-
+      let o;
       let calls = 0;
 
-      $.reaction ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        o ();
-        o ();
-        o ();
+        o = $(1);
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 1 );
 
       o ( 2 );
 
-      t.is ( calls, 2 );
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
 
-      o ( 3 );
+    });
 
-      t.is ( calls, 3 );
+    it ( 'does not create a dependency in an effect when instantiating', async t => {
+
+      let o;
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        o = $(1);
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      o ( 2 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
     it ( 'does not create a dependency in a memo when setting', t => {
 
-      let o;
+      let o = $(1);
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        o = $(1);
+        o ( 2 );
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 1 );
 
-      o ( 2 );
+      o ( 5 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
       t.is ( calls, 1 );
 
     });
 
-    it ( 'does not create a dependency in an effect when setting', t => {
+    it ( 'does not create a dependency in an effect when setting', async t => {
 
-      let o;
+      let o = $(1);
       let calls = 0;
 
       $.effect ( () => {
         calls += 1;
-        o = $(1);
+        o ( 2 );
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
-      o ( 2 );
+      o ( 5 );
 
       t.is ( calls, 1 );
-
-    });
-
-    it ( 'does not create a dependency in a reaction when setting', t => {
-
-      let o;
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        o = $(1);
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 2 );
-
+      await tick ();
       t.is ( calls, 1 );
 
     });
@@ -263,22 +308,26 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
         o ( prev => prev + 1 );
         o ( prev => prev + 1 );
         o ( prev => prev + 1 );
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 1 );
 
       o ( 5 );
 
       t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'does not create a dependency in an effect when setting with a function', t => {
+    it ( 'does not create a dependency in an effect when setting with a function', async t => {
 
       const o = $(1);
 
@@ -291,31 +340,14 @@ describe ( 'oby', () => {
         o ( prev => prev + 1 );
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 5 );
 
       t.is ( calls, 1 );
-
-    });
-
-    it ( 'does not create a dependency in a reaction when setting with a function', t => {
-
-      const o = $(1);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        o ( prev => prev + 1 );
-        o ( prev => prev + 1 );
-        o ( prev => prev + 1 );
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 5 );
-
+      await tick ();
       t.is ( calls, 1 );
 
     });
@@ -326,24 +358,31 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        o ();
+        return o ();
       });
 
       const filteredValues = [0, -0, Infinity, NaN, 'foo', true, false, {}, [], Promise.resolve (), new Map (), new Set (), null, undefined, () => {}, Symbol ()];
 
       for ( const [index, value] of filteredValues.entries () ) {
 
-        const callsExpected = index + 2;
+        const callsExpectedBefore = index;
+        const callsExpectedAfter = index + 1;
+
+        t.is ( calls, callsExpectedBefore );
 
         o ( () => value );
 
-        t.is ( calls, callsExpected );
+        t.is ( calls, callsExpectedBefore );
+        t.is ( memo (), value );
+        t.is ( calls, callsExpectedAfter );
 
         o ( () => value );
 
-        t.is ( calls, callsExpected );
+        t.is ( calls, callsExpectedAfter );
+        t.is ( memo (), value );
+        t.is ( calls, callsExpectedAfter );
 
       }
 
@@ -404,7 +443,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports a false equality function', t => {
+    it ( 'supports a false equality function', async t => {
 
       const equals = false;
 
@@ -413,20 +452,24 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.effect ( () => {
-
         calls += 1;
         o ();
-
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
-
-      o ( value => value.foo = true );
-
-      t.is ( calls, 2 );
 
       o ( o () );
 
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+      o ( value => ({ ...value }) );
+
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
@@ -456,184 +499,257 @@ describe ( 'oby', () => {
 
   describe ( 'batch', it => {
 
-    it ( 'batches changes within itself', t => {
+    it ( 'batches synchronous changes implicitly, for a memo', t => {
 
-      const a = $(9);
-      const b = $(99);
-
-      $.batch ( () => {
-        a ( 10 );
-        b ( 100 );
-        t.is ( a (), 9 );
-        t.is ( b (), 99 );
-      });
-
-      t.is ( a (), 10 );
-      t.is ( b (), 100 );
-
-    });
-
-    it ( 'batches changes within itself, even for async functions', async t => {
-
-      const a = $(9);
-      const b = $(99);
-
-      await $.batch ( async () => {
-        a ( 10 );
-        b ( 100 );
-        await delay ( 50 );
-        t.is ( a (), 9 );
-        t.is ( b (), 99 );
-      });
-
-      t.is ( a (), 10 );
-      t.is ( b (), 100 );
-
-    });
-
-    it ( 'batches changes propagating outside of its scope', t => {
-
-      $.root ( () => {
-
-        const a = $(9);
-        const b = $(99);
-
-        const c = $.memo ( () => {
-          return a () + b ();
-        });
-
-        $.batch ( () => {
-          a ( 10 );
-          b ( 100 );
-          t.is ( c (), 9 + 99 );
-        });
-
-        t.is ( c (), 10 + 100 );
-
-      });
-
-    });
-
-    it ( 'coalesces multiple events for the same observable together', t => {
-
-      const o = $(1);
+      const a = $(0);
+      const b = $(1);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        o ();
+        return a () + b ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
-      $.batch ( () => {
+      a ( 10 );
+      b ( 100 );
 
-        o ( 2 );
-        o ( 3 );
-        o ( 4 );
-        o ( 5 );
-
-        t.is ( calls, 1 );
-
-      });
-
+      t.is ( calls, 1 );
+      t.is ( memo (), 110 );
       t.is ( calls, 2 );
 
     });
 
-    it ( 'coalesces multiple updates for a memo together', t => {
+    it ( 'batches synchronous changes implicitly, for an effect', async t => {
 
       const a = $(0);
-      const b = $(0);
-
-      let calls = 0;
-
-      $.memo ( () => {
-
-        calls += 1;
-
-        a ();
-        b ();
-
-      });
-
-      t.is ( calls, 1 );
-
-      $.batch ( () => {
-        a ( 1 );
-        a ( 2 );
-        b ( 1 );
-        b ( 2 );
-      });
-
-      t.is ( calls, 2 );
-
-    });
-
-    it ( 'coalesces multiple updates for an effect together', t => {
-
-      const a = $(0);
-      const b = $(0);
+      const b = $(1);
 
       let calls = 0;
 
       $.effect ( () => {
-
         calls += 1;
-
         a ();
         b ();
-
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
-      $.batch ( () => {
-        a ( 1 );
-        a ( 2 );
-        b ( 1 );
-        b ( 2 );
-      });
+      a ( 10 );
+      b ( 100 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'coalesces multiple updates for a reaction together', t => {
+    it ( 'batches asynchronous changes implicitly, for a memo', async t => {
 
       const a = $(0);
-      const b = $(0);
+      const b = $(1);
 
       let calls = 0;
 
-      $.reaction ( () => {
-
+      const memo = $.memo ( () => {
         calls += 1;
-
-        a ();
-        b ();
-
+        return a () + b ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
-      $.batch ( () => {
-        a ( 1 );
-        a ( 2 );
-        b ( 1 );
-        b ( 2 );
+      a ( 10 );
+      await tick ();
+      b ( 100 );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), 110 );
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'batches asynchronous changes manually, for a memo', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      const memo = $.memo ( () => {
+        calls += 1;
+        return a () + b ();
       });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
+      t.is ( calls, 1 );
+
+      await $.batch ( async () => {
+
+        a ( 10 );
+        await tick ();
+        b ( 100 );
+
+        t.is ( calls, 1 );
+        t.is ( memo (), 110 );
+        t.is ( calls, 2 );
+
+      });
+
+    });
+
+    it ( 'batches asynchronous changes manually, for an effect', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      await $.batch ( async () => {
+        a ( 10 );
+        await tick ();
+        b ( 100 );
+        t.is ( calls, 1 );
+      });
+
+      await tick ();
 
       t.is ( calls, 2 );
 
     });
 
-    it ( 'does not swallow thrown errors', t => {
+    it ( 'does not batch synchronous changes implicitly, for a manually pulled memo', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      const memo = $.memo ( () => {
+        calls += 1;
+        return a () + b ();
+      });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
+      t.is ( calls, 1 );
+
+      a ( 10 );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), 11 );
+      t.is ( calls, 2 );
+
+      b ( 100 );
+
+      t.is ( calls, 2 );
+      t.is ( memo (), 110 );
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'does not batch synchronous changes implicitly, for a synchronous effect', t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      a ( 10 );
+
+      t.is ( calls, 2 );
+
+      b ( 100 );
+
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'does not batch synchronous changes manually, for a synchronous effect', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      await $.batch ( () => {
+        a ( 10 );
+        b ( 100 );
+        t.is ( calls, 3 );
+      });
+
+    });
+
+    it ( 'does not batch asynchronous changes implicitly, for an effect', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      a ( 10 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+      b ( 100 );
+
+      t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 3 );
+
+    });
+
+    it ( 'does not swallow thrown errors, for sync functions', async t => {
 
       try {
 
-        $.batch ( () => {
+        await $.batch ( () => {
 
           throw new Error ( 'Something' );
 
@@ -648,13 +764,13 @@ describe ( 'oby', () => {
 
     });
 
-    it.skip ( 'does not swallow thrown errors, even for async functions', async t => { //FIXME: There's some bug in fava that prevents this from working
+    it ( 'does not swallow thrown errors, for async functions', async t => {
 
       try {
 
         await $.batch ( async () => {
 
-          await delay ( 50 );
+          await tick ();
 
           throw new Error ( 'Something' );
 
@@ -669,85 +785,96 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns the value being returned', t => {
+    it ( 'returns the value being returned, wrapped in a promise, for sync functions', async t => {
 
       const o = $(0);
 
       const result = $.batch ( () => o () );
 
-      t.is ( result, 0 );
+      t.true ( result instanceof Promise );
+      t.is ( await result, 0 );
 
     });
 
-    it ( 'supports being nested', t => {
+    it ( 'returns the value being returned, wrapped in a promise, for async functions', async t => {
 
-      const o = $(1);
+      const o = $(0);
 
-      $.batch ( () => {
-        o ( 2 );
-        t.is ( o (), 1 );
-        $.batch ( () => {
-          o ( 3 );
-          t.is ( o (), 1 );
-          $.batch ( () => {
-            o ( 4 );
-          });
-          t.is ( o (), 1 );
-        });
-        t.is ( o (), 1 );
+      const result = $.batch ( async () => {
+        await tick ();
+        return o ();
       });
 
-      t.is ( o (), 4 );
+      t.true ( result instanceof Promise );
+      t.is ( await result, 0 );
 
     });
 
-    it ( 'supports being nested, even for async functions', async t => {
+    it ( 'supports being nested', async t => {
 
-      const o = $(1);
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
 
       await $.batch ( async () => {
-        o ( 2 );
-        await delay ( 50 );
-        t.is ( o (), 1 );
+        a ( 10 );
+        await tick ();
         await $.batch ( async () => {
-          o ( 3 );
-          await delay ( 50 );
-          t.is ( o (), 1 );
-          await $.batch ( async () => {
-            o ( 4 );
-          });
-          await delay ( 50 );
-          t.is ( o (), 1 );
+          b ( 100 );
         });
-        await delay ( 50 );
-        t.is ( o (), 1 );
+        await tick ();
+        t.is ( calls, 1 );
       });
 
-      t.is ( o (), 4 );
+      await tick ();
+
+      t.is ( calls, 2 );
 
     });
 
-    it ( 'supports being nested, even when mixing sync and async functions', async t => {
+    it ( 'supports multiple concurrent batch calls', async t => {
 
-      const o = $(1);
+      const a = $(0);
+      const b = $(1);
 
-      await $.batch ( async () => {
-        o ( 2 );
-        await delay ( 50 );
-        t.is ( o (), 1 );
-        $.batch ( () => {
-          o ( 3 );
-          t.is ( o (), 1 );
-          $.batch ( () => {
-            o ( 4 );
-          });
-          t.is ( o (), 1 );
-        });
-        await delay ( 50 );
-        t.is ( o (), 1 );
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
       });
 
-      t.is ( o (), 4 );
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      const b1 = $.batch ( async () => {
+        a ( 10 );
+        await delay ( 10 );
+      });
+
+      const b2 = $.batch ( async () => {
+        b ( 100 );
+        await delay ( 50 );
+      });
+
+      await Promise.all ([ b1, b2 ]);
+
+      await tick ();
+
+      t.is ( calls, 2 );
 
     });
 
@@ -779,13 +906,57 @@ describe ( 'oby', () => {
 
   describe ( 'cleanup', it => {
 
+    it ( 'calls callbacks in reverse order', async t => {
+
+      let sequence = '';
+
+      const dispose = $.root ( dispose => {
+
+        $.effect ( () => {
+
+          $.cleanup ( () => sequence += 'a' );
+
+          $.effect ( () => {
+
+            $.cleanup ( () => sequence += 'A' );
+
+            $.cleanup ( () => sequence += 'B' );
+
+          });
+
+          $.effect ( () => {
+
+            $.cleanup ( () => sequence += 'C' );
+
+            $.cleanup ( () => sequence += 'D' );
+
+          });
+
+          $.cleanup ( () => sequence += 'b' );
+
+        });
+
+        return dispose;
+
+      });
+
+      await tick ();
+
+      t.is ( sequence, '' );
+
+      dispose ();
+
+      t.is ( sequence , 'DCBAba' );
+
+    });
+
     it ( 'does not cause the parent memo to re-execute', t => {
 
       const disposed = $(false);
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         calls += 1;
 
@@ -793,23 +964,29 @@ describe ( 'oby', () => {
 
         const o = $(0);
 
-        o ();
+        o ( 0 );
 
         $.cleanup ( () => {
 
-          o ( Math.random () );
+          o ( o () + Math.random () );
 
         });
 
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
+
       disposed ( true );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
       t.is ( calls, 2 );
 
     });
 
-    it ( 'does not cause the parent effect to re-execute', t => {
+    it ( 'does not cause the parent effect to re-execute', async t => {
 
       const disposed = $(false);
 
@@ -823,48 +1000,24 @@ describe ( 'oby', () => {
 
         const o = $(0);
 
-        o ();
+        o ( 0 );
 
         $.cleanup ( () => {
 
-          o ( Math.random () );
+          o ( o () + Math.random () );
 
         });
 
       });
 
-      disposed ( true );
-
-      t.is ( calls, 2 );
-
-    });
-
-    it ( 'does not cause the parent reaction to re-execute', t => {
-
-      const disposed = $(false);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-
-        calls += 1;
-
-        if ( disposed () ) return;
-
-        const o = $(0);
-
-        o ();
-
-        $.cleanup ( () => {
-
-          o ( Math.random () );
-
-        });
-
-      });
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
 
       disposed ( true );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
@@ -875,7 +1028,7 @@ describe ( 'oby', () => {
 
       $.root ( dispose => {
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
 
           $.cleanup ( () => {
             sequence += 'a';
@@ -887,6 +1040,7 @@ describe ( 'oby', () => {
 
         });
 
+        memo ();
         dispose ();
 
       });
@@ -901,7 +1055,7 @@ describe ( 'oby', () => {
 
       let sequence = '';
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         o ();
 
@@ -915,27 +1069,31 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( memo (), undefined );
       t.is ( sequence, '' );
 
       o ( 1 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'baba' );
 
       o ( 3 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'bababa' );
 
     });
 
-    it ( 'registers a function to be called when the parent computation is disposed', t => {
+    it ( 'registers a function to be called when the parent computation is disposed', async t => {
 
       let sequence = '';
 
-      $.root ( dispose => {
+      await $.root ( async dispose => {
 
         $.effect ( () => {
 
@@ -949,15 +1107,17 @@ describe ( 'oby', () => {
 
         });
 
+        await tick ();
+
         dispose ();
+
+        t.is ( sequence, 'ba' );
 
       });
 
-      t.is ( sequence, 'ba' );
-
     });
 
-    it ( 'registers a function to be called when the parent effect updates', t => {
+    it ( 'registers a function to be called when the parent effect updates', async t => {
 
       const o = $(0);
 
@@ -977,53 +1137,25 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ba' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'baba' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'bababa' );
-
-    });
-
-    it ( 'registers a function to be called when the parent reaction updates', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.reaction ( () => {
-
-        o ();
-
-        $.cleanup ( () => {
-          sequence += 'a';
-        });
-
-        $.cleanup ( () => {
-          sequence += 'b';
-        });
-
-      });
+      await tick ();
 
       t.is ( sequence, '' );
 
       o ( 1 );
 
+      await tick ();
+
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      await tick ();
+
       t.is ( sequence, 'baba' );
 
       o ( 3 );
+
+      await tick ();
 
       t.is ( sequence, 'bababa' );
 
@@ -1086,23 +1218,25 @@ describe ( 'oby', () => {
 
         dispose ();
 
-      });
+        t.is ( sequence, 'ba' );
 
-      t.is ( sequence, 'ba' );
+      });
 
     });
 
     it ( 'returns undefined', t => {
 
       const result1 = $.cleanup ( () => {} );
-      const result2 = $.cleanup ( () => {} );
+      const result2 = $.cleanup ( () => 123 );
+      const result3 = $.cleanup ( () => () => {} );
 
       t.is ( result1, undefined );
       t.is ( result2, undefined );
+      t.is ( result3, undefined );
 
     });
 
-    it ( 'supports a callable object', t => {
+    it ( 'supports a callable object', async t => {
 
       const o = $(0);
 
@@ -1132,17 +1266,25 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '' );
 
       o ( 1 );
+
+      await tick ();
 
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      await tick ();
+
       t.is ( sequence, 'baba' );
 
       o ( 3 );
+
+      await tick ();
 
       t.is ( sequence, 'bababa' );
 
@@ -1152,7 +1294,7 @@ describe ( 'oby', () => {
 
   describe ( 'context', it => {
 
-    it ( 'can read and write context values inside an effect', t => {
+    it ( 'can read and write context values inside an effect', async t => {
 
       $.effect ( () => {
 
@@ -1165,11 +1307,13 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
     it ( 'can read and write context values inside a memo', t => {
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         const ctx = Symbol ();
         const value = { foo: 123 };
@@ -1180,20 +1324,7 @@ describe ( 'oby', () => {
 
       });
 
-    });
-
-    it ( 'can read and write context values inside a reaction', t => {
-
-      $.reaction ( () => {
-
-        const ctx = Symbol ();
-        const value = { foo: 123 };
-
-        $.context ( ctx, value );
-
-        t.is ( $.context ( ctx ), value );
-
-      });
+      memo ();
 
     });
 
@@ -1227,7 +1358,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can read and write context values inside a deep effect', t => {
+    it ( 'can read and write context values inside a deep effect', async t => {
 
       $.effect ( () => {
 
@@ -1244,43 +1375,30 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
     it ( 'can read and write context values inside a deep memo', t => {
 
-      $.memo ( () => {
+      const memo1 = $.memo ( () => {
 
         const ctx = Symbol ();
         const value = { foo: 123 };
 
         $.context ( ctx, value );
 
-        $.memo ( () => {
+        const memo2 = $.memo ( () => {
 
           t.is ( $.context ( ctx ), value );
 
         });
 
-      });
-
-    });
-
-    it ( 'can read and write context values inside a deep reaction', t => {
-
-      $.reaction ( () => {
-
-        const ctx = Symbol ();
-        const value = { foo: 123 };
-
-        $.context ( ctx, value );
-
-        $.reaction ( () => {
-
-          t.is ( $.context ( ctx ), value );
-
-        });
+        memo2 ();
 
       });
+
+      memo1 ();
 
     });
 
@@ -1322,7 +1440,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns undefined when setting', t => {
+    it ( 'returns undefined when setting', async t => {
 
       $.effect ( () => {
 
@@ -1335,9 +1453,11 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'returns undefined for unknown contexts', t => {
+    it ( 'returns undefined for unknown contexts', async t => {
 
       $.effect ( () => {
 
@@ -1347,9 +1467,11 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'supports overriding the outer context', t => {
+    it ( 'supports overriding the outer context', async t => {
 
       $.effect ( () => {
 
@@ -1372,9 +1494,11 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'supports setting the value to undefined', t => {
+    it ( 'supports setting the value to undefined', async t => {
 
       $.effect ( () => {
 
@@ -1388,9 +1512,11 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'works even outside a manually created owner', t => {
+    it ( 'works even outside a manually created owner', async t => {
 
       const ctx = Symbol ();
       const value = { foo: 123 };
@@ -1410,6 +1536,8 @@ describe ( 'oby', () => {
         t.is ( $.context ( ctx ), value2 );
 
       });
+
+      await tick ();
 
       t.is ( $.context ( ctx ), value );
 
@@ -1440,7 +1568,12 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       a ( 2 );
+
+      await tick ();
+
       a ( 3 );
 
       await delay ( 50 );
@@ -1461,7 +1594,7 @@ describe ( 'oby', () => {
 
   describe ( 'effect', it => {
 
-    it ( 'can not be running multiple times concurrently', t => {
+    it ( 'can not be running multiple times concurrently', async t => {
 
       const o = $(0);
 
@@ -1487,19 +1620,23 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
     });
 
-    it ( 'checks if the returned value is actually a function', t => {
+    it ( 'checks if the returned value is actually a function', async t => {
 
-      t.notThrows ( () => {
+      await t.notThrowsAsync ( async () => {
 
         $.effect ( () => 123 );
+
+        await tick ();
 
       });
 
     });
 
-    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
+    it ( 'cleans up dependencies properly when causing itself to re-execute', async t => {
 
       const a = $(0);
       const b = $(0);
@@ -1516,19 +1653,25 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 2 );
 
       a ( 2 );
 
       t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 2 );
 
       b ( 1 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'cleans up inner effects', t => {
+    it ( 'cleans up inner effects', async t => {
 
       const o = $(0);
       const active = $(true);
@@ -1549,16 +1692,20 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       active ( false );
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'returns a disposer', t => {
+    it ( 'returns a disposer', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -1568,17 +1715,21 @@ describe ( 'oby', () => {
         c ( a () + b () );
       });
 
+      await tick ();
+
       t.is ( c (), 3 );
 
       dispose ();
 
       a ( 2 );
 
+      await tick ();
+
       t.is ( c (), 3 );
 
     });
 
-    it ( 'returns undefined to the function', t => {
+    it ( 'returns undefined to the function', async t => {
 
       const a = $(1);
       const aPrev = $();
@@ -1587,31 +1738,70 @@ describe ( 'oby', () => {
 
         aPrev ( prev );
 
-        a ();
+        return a ();
 
       });
+
+      await tick ();
 
       t.is ( a (), 1 );
       t.is ( aPrev (), undefined );
 
       a ( 2 );
 
+      await tick ();
+
       t.is ( a (), 2 );
       t.is ( aPrev (), undefined );
 
       a ( 3 );
+
+      await tick ();
 
       t.is ( a (), 3 );
       t.is ( aPrev (), undefined );
 
       a ( 4 );
 
+      await tick ();
+
       t.is ( a (), 4 );
       t.is ( aPrev (), undefined );
 
     });
 
-    it ( 'supports dynamic dependencies', t => {
+    it ( 'supports any number of dependencies', async t => {
+
+      for ( const nr of [1, 2, 3, 4, 5] ) {
+
+        const oo = new Array ( nr ).fill ( 0 ).map ( () => $(0) );
+
+        let calls = 0;
+
+        $.effect ( () => {
+          calls += 1;
+          oo.map ( call );
+        });
+
+        t.is ( calls, 0 );
+        await tick ();
+        t.is ( calls, 1 );
+
+        for ( const [i, o] of Array.from ( oo.entries () ) ) {
+
+          o ( prev => prev + 1 );
+
+          t.is ( calls, i + 1 );
+          await tick ();
+          t.is ( calls, i + 2 );
+
+        }
+
+      }
+
+    });
+
+    it ( 'supports dynamic dependencies', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -1622,15 +1812,31 @@ describe ( 'oby', () => {
         c ( bool () ? a () : b () );
       });
 
+      await tick ();
+
       t.is ( c (), 2 );
+
+      a ( 10 );
+
+      await tick ();
+
+      t.is ( c (), 2 );
+
+      b ( 20 );
+
+      await tick ();
+
+      t.is ( c (), 20 );
 
       bool ( true );
 
-      t.is ( c (), 1 );
+      await tick ();
+
+      t.is ( c (), 10 );
 
     });
 
-    it ( 'supports manually registering a function to be called when the parent effect updates', t => {
+    it ( 'supports manually registering a function to be called when the parent effect updates', async t => {
 
       const o = $(0);
 
@@ -1650,59 +1856,31 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '' );
 
       o ( 1 );
+
+      await tick ();
 
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      await tick ();
+
       t.is ( sequence, 'baba' );
 
       o ( 3 );
+
+      await tick ();
 
       t.is ( sequence, 'bababa' );
 
     });
 
-    it ( 'supports manually registering a function to be called when the parent effect throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.effect ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        if ( o () ) throw 'err';
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'supports automatically registering a function to be called when the parent effect updates', t => {
+    it ( 'supports automatically registering a function to be called when the parent effect updates', async t => {
 
       const o = $(0);
 
@@ -1719,23 +1897,31 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '' );
 
       o ( 1 );
+
+      await tick ();
 
       t.is ( sequence, 'ab' );
 
       o ( 2 );
 
+      await tick ();
+
       t.is ( sequence, 'abab' );
 
       o ( 3 );
+
+      await tick ();
 
       t.is ( sequence, 'ababab' );
 
     });
 
-    it ( 'updates when the dependencies change', t => {
+    it ( 'updates when the dependencies change', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -1748,11 +1934,13 @@ describe ( 'oby', () => {
       a ( 3 );
       b ( 7 );
 
+      await tick ();
+
       t.is ( c (), 10 );
 
     });
 
-    it ( 'updates when the dependencies change inside other effects', t => {
+    it ( 'updates when the dependencies change inside other effects', async t => {
 
       const a = $(0);
       const b = $(0);
@@ -1763,6 +1951,8 @@ describe ( 'oby', () => {
         a ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       $.effect ( () => {
@@ -1771,1788 +1961,914 @@ describe ( 'oby', () => {
         a ( 0 );
       });
 
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
       b ( 1 );
 
-      t.is ( calls, 5 );
+      t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 3 );
 
       a ( 1 );
 
-      t.is ( calls, 6 );
+      t.is ( calls, 3 );
+      await tick ();
+      t.is ( calls, 4 );
 
     });
 
   });
 
-  describe ( 'error', it => {
+  describe ( 'for', () => {
 
-    it ( 'casts an error thrown inside a parent computation to an Error instance', t => {
+    describe ( 'keyed', it => {
 
-      $.memo ( () => {
+      it ( 'calls the mapper function with an observable to the index too', t => {
 
-        $.error ( error => {
+        const array = $([ 'a', 'b', 'c' ]);
+        const argsRaw = [];
+        const args = [];
 
-          t.true ( error instanceof Error );
-          t.is ( error.message, 'err' );
-
+        const memo = $.for ( array, ( value, index ) => {
+          isReadable ( t, index );
+          argsRaw.push ( index );
+          args.push ( index () );
+          return value;
         });
 
-        throw 'err';
+        t.deepEqual ( memo (), ['a', 'b', 'c'] );
+        t.deepEqual ( argsRaw.map ( call ), [0, 1, 2] );
+        t.deepEqual ( args, [0, 1, 2] );
+
+        array ([ 'a', 'b', 'c', 'd' ]);
+
+        t.deepEqual ( memo (), ['a', 'b', 'c', 'd'] );
+        t.deepEqual ( argsRaw.map ( call ), [0, 1, 2, 3] );
+        t.deepEqual ( args, [0, 1, 2, 3] );
+
+        array ([ 'd', 'c', 'a', 'b' ]);
+
+        t.deepEqual ( memo (), ['d', 'c', 'a', 'b'] );
+        t.deepEqual ( argsRaw.map ( call ), [2, 3, 1, 0] );
+        t.deepEqual ( args, [0, 1, 2, 3] );
 
       });
 
-    });
+      it ( 'disposes of any reactivity when the values array is emptied', t => {
 
-    it ( 'casts an error thrown inside a parent effect to an Error instance', t => {
+        const array = $([1, 2, 3]);
+        const args = [];
 
-      $.effect ( () => {
-
-        $.error ( error => {
-
-          t.true ( error instanceof Error );
-          t.is ( error.message, 'err' );
-
-        });
-
-        throw 'err';
-
-      });
-
-    });
-
-    it ( 'casts an error thrown inside a parent reaction to an Error instance', t => {
-
-      $.reaction ( () => {
-
-        $.error ( error => {
-
-          t.true ( error instanceof Error );
-          t.is ( error.message, 'err' );
-
-        });
-
-        throw 'err';
-
-      });
-
-    });
-
-    it ( 'casts an error thrown inside a parent root to an Error instance', t => {
-
-      $.root ( () => {
-
-        $.error ( error => {
-
-          t.true ( error instanceof Error );
-          t.is ( error.message, 'err' );
-
-        });
-
-        throw 'err';
-
-      });
-
-    });
-
-    it ( 'casts an error thrown inside a parent suspense to an Error instance', t => {
-
-      $.suspense ( false, () => {
-
-        $.error ( error => {
-
-          t.true ( error instanceof Error );
-          t.is ( error.message, 'err' );
-
-        });
-
-        throw 'err';
-
-      });
-
-    });
-
-    it ( 'registers a function to be called when the parent computation throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.memo ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        if ( o () ) throw 'err';
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'registers a function to be called when the parent effect throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.effect ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        if ( o () ) throw 'err';
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'registers a function to be called when the parent reaction throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.reaction ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        if ( o () ) throw 'err';
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'registers a function to be called when the parent root throws', t => {
-
-      let sequence = '';
-
-      $.root ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        throw 'err';
-
-      });
-
-      t.is ( sequence, 'ab' );
-
-    });
-
-    it ( 'registers a function to be called when the parent suspense throws', t => {
-
-      let sequence = '';
-
-      $.suspense ( false, () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        throw 'err';
-
-      });
-
-      t.is ( sequence, 'ab' );
-
-    });
-
-    it ( 'registers a function to be called when a child computation throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.memo ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        $.memo ( () => {
-
-          $.memo ( () => {
-
-            if ( o () ) throw 'err';
-
+        const memo = $.for ( array, value => {
+          $.cleanup ( () => {
+            args.push ( value );
           });
-
+          return value;
         });
+
+        t.deepEqual ( memo (), [1, 2, 3] );
+
+        array ( [] );
+
+        t.deepEqual ( memo (), [] );
+        t.deepEqual ( args, [1, 2, 3] );
 
       });
 
-      t.is ( sequence, '' );
+      it ( 'disposes of any reactivity when the parent computation is disposed', t => {
 
-      o ( 1 );
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
 
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'registers a function to be called when a child effect throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.effect ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
+        const dispose = $.root ( dispose => {
+          const memo = $.memo ( () => {
+            const memo = $.for ( array, value => {
+              const memo = $.memo ( () => {
+                args.push ( value () );
+              });
+              memo ();
+            });
+            memo ();
+          });
+          memo ();
+          return dispose;
         });
 
-        $.error ( () => {
-          sequence += 'b';
-        });
+        dispose ();
 
-        $.effect ( () => {
+        t.deepEqual ( args, [1, 2] );
 
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+
+      });
+
+      it ( 'disposes of any reactivity when the parent effect is disposed', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = await $.root ( async dispose => {
           $.effect ( () => {
-
-            if ( o () ) throw 'err';
-
+            const memo = $.for ( array, value => {
+              const memo = $.memo ( () => {
+                args.push ( value () );
+              });
+              memo ();
+            });
+            memo ();
           });
-
+          await tick ();
+          return dispose;
         });
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
 
       });
 
-      t.is ( sequence, '' );
+      it ( 'disposes of any reactivity when the parent root is disposed', t => {
 
-      o ( 1 );
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
 
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'registers a function to be called when a child reaction throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.reaction ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        $.reaction ( () => {
-
-          $.reaction ( () => {
-
-            if ( o () ) throw 'err';
-
+        const dispose = $.root ( dispose => {
+          const memo = $.for ( array, value => {
+            const memo = $.memo ( () => {
+              args.push ( value () );
+            });
+            memo ();
           });
-
+          memo ();
+          return dispose;
         });
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
 
       });
 
-      t.is ( sequence, '' );
+      it ( 'disposes of any reactivity created for items that got deleted', t => {
 
-      o ( 1 );
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
 
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'registers a function to be called when a child root throws', t => {
-
-      let sequence = '';
-
-      $.root ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
+        const memo = $.for ( array, value => {
+          const memo = $.memo ( () => {
+            args.push ( value () );
+            return value ();
+          });
+          return memo;
         });
 
-        $.error ( () => {
-          sequence += 'b';
-        });
+        t.deepEqual ( memo ().map ( call ), [1, 2] );
+        t.deepEqual ( args, [1, 2] );
 
-        $.root ( () => {
+        o1 ( 11 );
 
-          throw 'err';
+        t.deepEqual ( memo ().map ( call ), [11, 2] );
+        t.deepEqual ( args, [1, 2, 11] );
 
-        });
+        o2 ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 22] );
+        t.deepEqual ( args, [1, 2, 11, 22] );
+
+        array ([ o1 ]);
+
+        t.deepEqual ( memo ().map ( call ), [11] );
+        t.deepEqual ( args, [1, 2, 11, 22] );
+
+        o1 ( 111 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+        o2 ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 2, 11, 22, 111] );
 
       });
 
-      t.is ( sequence, 'ab' );
+      it ( 'disposes of any reactivity created for duplicated items', t => {
 
-    });
+        const o = $(1);
+        const array = $([o, o]);
+        const args = [];
 
-    it ( 'registers a function to be called when a child suspense throws', t => {
-
-      let sequence = '';
-
-      $.suspense ( false, () => {
-
-        $.error ( () => {
-          sequence += 'a';
+        const memo = $.for ( array, value => {
+          const memo = $.memo ( () => {
+            args.push ( value () );
+            return value ();
+          });
+          return memo;
         });
 
-        $.error ( () => {
-          sequence += 'b';
-        });
+        t.deepEqual ( memo ().map ( call ), [1, 1] );
+        t.deepEqual ( args, [1, 1] );
 
-        $.suspense ( false, () => {
+        o ( 11 );
 
-          throw 'err';
+        t.deepEqual ( memo ().map ( call ), [11, 11] );
+        t.deepEqual ( args, [1, 1, 11, 11] );
 
-        });
+        o ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [22, 22] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+        array ([ o ]);
+
+        t.deepEqual ( memo ().map ( call ), [22] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+        o ( 111 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
 
       });
 
-      t.is ( sequence, 'ab' );
+      it ( 'renders only results for unknown values', t => {
 
-    });
+        const array = $([1, 2, 3]);
+        const args = [];
 
-    it ( 'returns undefined', t => {
+        const memo = $.for ( array, value => {
+          args.push ( value );
+          return value;
+        });
 
-      const result1 = $.error ( error => { throw error; } );
-      const result2 = $.error ( error => { throw error; } );
+        t.deepEqual ( memo (), [1, 2, 3] );
+        t.deepEqual ( args, [1, 2, 3] );
 
-      t.is ( result1, undefined );
-      t.is ( result2, undefined );
+        array ([ 1, 2, 3, 4 ]);
 
-    });
+        t.deepEqual ( memo (), [1, 2, 3, 4] );
+        t.deepEqual ( args, [1, 2, 3, 4] );
 
-    it ( 'supports a callable object', t => {
+        array ([ 1, 2, 3, 4, 5 ]);
 
-      const o = $(0);
+        t.deepEqual ( memo (), [1, 2, 3, 4, 5] );
+        t.deepEqual ( args, [1, 2, 3, 4, 5] );
 
-      let sequence = '';
+      });
 
-      $.effect ( () => {
+      it ( 'resolves the fallback value before returning it', t => {
 
-        const onErrorA = {
-          call: thiz => {
-            sequence += 'a';
-            t.is ( thiz, onErrorA );
-          }
+        const result = $.for ( [], () => () => 123, () => () => 321 );
+
+        isReadable ( t, result );
+        isReadable ( t, result () );
+        isReadable ( t, result ()() );
+
+        t.is ( result ()()(), 321 );
+
+      });
+
+      it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+
+        const o = $([]);
+
+        let calls = 0;
+
+        const memo = $.for ( o, () => () => 123, () => () => {
+          calls += 1;
+          return 321;
+        });
+
+        t.is ( calls, 0 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+        o ( [] );
+
+        t.is ( calls, 1 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+        o ( [] );
+
+        t.is ( calls, 1 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+      });
+
+      it ( 'resolves the mapped value before returning it', t => {
+
+        const result = $.for ( [1], () => () => () => 123 );
+
+        isReadable ( t, result );
+        isReadable ( t, result ()[0] );
+        isReadable ( t, result ()[0]() );
+
+        t.is ( result ()[0]()(), 123 );
+
+      });
+
+      it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
+
+        t.deepEqual ( $.for ( [], () => () => 123 )(), [] );
+
+      });
+
+      it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
+
+        t.is ( $.for ( [], () => () => 123, 123 )(), 123 );
+
+      });
+
+      it ( 'returns a memo to the same array if all values were cached', t => {
+
+        const external = $(0);
+        const values = $([1, 2, 3]);
+
+        const valuesWithExternal = () => {
+          external ();
+          return values ();
         };
 
-        const onErrorB = {
-          call: thiz => {
-            sequence += 'b';
-            t.is ( thiz, onErrorB );
-          }
+        let calls = 0;
+
+        const result = $.for ( valuesWithExternal, value => {
+          calls += 1;
+          return value;
+        });
+
+        t.is ( calls, 0 );
+
+        const result1 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result1, [1, 2, 3] );
+
+        external ( 1 );
+
+        const result2 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result2, [1, 2, 3] );
+        t.is ( result1, result2 );
+
+        values ([ 3, 2, 1 ]);
+
+        const result3 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result3, [3, 2, 1] );
+        t.not ( result1, result3 );
+
+        values ([ 3, 2 ]);
+
+        const result4 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result4, [3, 2] );
+
+        external ( 2 );
+
+        const result5 = result ();
+
+        t.is ( calls, 3 );
+        t.deepEqual ( result5, [3, 2] );
+        t.is ( result4, result5 );
+
+      });
+
+      it ( 'works with an array of non-unique values', t => {
+
+        const array = $([ 1, 1, 2 ]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          const memo = $.memo ( () => {
+            args.push ( value );
+            return value;
+          });
+          return memo;
+        });
+
+        t.deepEqual ( memo ().map ( call ), [1, 1, 2] );
+        t.deepEqual ( args, [1, 1, 2] );
+
+        array ([ 2, 2, 1 ]);
+
+        t.deepEqual ( memo ().map ( call ), [2, 2, 1] );
+        t.deepEqual ( args, [1, 1, 2, 2] );
+
+      });
+
+    });
+
+    describe ( 'unkeyed', it => {
+
+      it ( 'calls the mapper function with an observable to the index', t => {
+
+        const array = $([ 'a', 'b', 'c' ]);
+        const argsRaw = [];
+        const args = [];
+
+        const memo = $.for ( array, ( value, index ) => {
+          isReadable ( t, index );
+          argsRaw.push ( index );
+          args.push ( index () );
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
+        t.deepEqual ( argsRaw.map ( call ), [0, 1, 2] );
+        t.deepEqual ( args, [0, 1, 2] );
+
+        array ([ 'a', 'b', 'c', 'd' ]);
+
+        t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c', 'd'] );
+        t.deepEqual ( argsRaw.map ( call ), [0, 1, 2, 3] );
+        t.deepEqual ( args, [0, 1, 2, 3] );
+
+        array ([ 'd', 'c', 'a', 'b' ]);
+
+        t.deepEqual ( memo ().map ( call ), ['d', 'c', 'a', 'b'] );
+        t.deepEqual ( argsRaw.map ( call ), [2, 3, 1, 0] );
+        t.deepEqual ( args, [0, 1, 2, 3] );
+
+      });
+
+      it ( 'calls the mapper function with an observable to the value', t => {
+
+        const array = $([ 'a', 'b', 'c' ]);
+        const argsRaw = [];
+        const args = [];
+
+        const memo = $.for ( array, ( value ) => {
+          isReadable ( t, value );
+          argsRaw.push ( value );
+          args.push ( value () );
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c'] );
+        t.deepEqual ( argsRaw.map ( call ), ['a', 'b', 'c'] );
+        t.deepEqual ( args, ['a', 'b', 'c'] );
+
+        array ([ 'a', 'b', 'c', 'd' ]);
+
+        t.deepEqual ( memo ().map ( call ), ['a', 'b', 'c', 'd'] );
+        t.deepEqual ( argsRaw.map ( call ), ['a', 'b', 'c', 'd'] );
+        t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
+
+        array ([ 'e', 'b', 'c', 'd' ]);
+
+        t.deepEqual ( memo ().map ( call ), ['e', 'b', 'c', 'd'] );
+        t.deepEqual ( argsRaw.map ( call ), ['e', 'b', 'c', 'd'] );
+        t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
+
+      });
+
+      it ( 'disposes of any reactivity when the values array is emptied', t => {
+
+        const array = $([1, 2, 3]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          $.cleanup ( () => {
+            args.push ( value () );
+          });
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
+        t.deepEqual ( args, [] );
+
+        array ( [] );
+
+        t.deepEqual ( memo ().map ( call ), [] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+      });
+
+      it ( 'disposes of any reactivity when the parent computation is disposed', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = $.root ( dispose => {
+          const memo = $.memo ( () => {
+            const memo = $.for ( array, value => {
+              const memo = $.memo ( () => {
+                args.push ( value () );
+              });
+              $.effect ( () => {
+                memo ();
+              });
+              return memo;
+            }, [], { unkeyed: true } );
+            memo ();
+          });
+          memo ();
+          return dispose;
+        });
+
+        t.deepEqual ( args, [] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+      });
+
+      it ( 'disposes of any reactivity when the parent effect is disposed', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = $.root ( dispose => {
+          $.effect ( () => {
+            const memo = $.for ( array, value => {
+              const memo = $.memo ( () => {
+                args.push ( value () );
+              });
+              $.effect ( () => {
+                memo ();
+              });
+              return memo;
+            }, [], { unkeyed: true } );
+            memo ();
+          });
+          return dispose;
+        });
+
+        t.deepEqual ( args, [] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+      });
+
+      it ( 'disposes of any reactivity when the parent root is disposed', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const dispose = $.root ( dispose => {
+          const memo = $.for ( array, value => {
+            const memo = $.memo ( () => {
+              args.push ( value () );
+            });
+            $.effect ( () => {
+              memo ();
+            });
+            return memo;
+          }, [], { unkeyed: true } );
+          $.effect ( () => {
+            memo ();
+          });
+          return dispose;
+        });
+
+        t.deepEqual ( args, [] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+        dispose ();
+
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+        o2 ( 22 );
+
+        t.deepEqual ( args, [1, 2] );
+        await tick ();
+        t.deepEqual ( args, [1, 2] );
+
+      });
+
+      it ( 'disposes of any reactivity created for items that got deleted', async t => {
+
+        const o1 = $(1);
+        const o2 = $(2);
+        const array = $([o1, o2]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          const memo = $.memo ( () => {
+            args.push ( value () );
+            return value ();
+          }, [], { unkeyed: true } );
+          return memo;
+        });
+
+        t.deepEqual ( memo ().map ( call ), [1, 2] );
+        t.deepEqual ( args, [1, 2] );
+
+        o1 ( 11 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 2] );
+        t.deepEqual ( args, [1, 2, 11] );
+
+        o2 ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 22] );
+        t.deepEqual ( args, [1, 2, 11, 22] );
+
+        array ([ o1 ]);
+
+        t.deepEqual ( memo ().map ( call ), [11] );
+        t.deepEqual ( args, [1, 2, 11, 22] );
+
+        o1 ( 111 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+        o2 ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 2, 11, 22, 111] );
+
+      });
+
+      it ( 'disposes of any reactivity created for duplicated items', t => {
+
+        const o = $(1);
+        const array = $([o, o]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          return $.memo ( () => {
+            args.push ( value () );
+            return value ();
+          }, [], { unkeyed: true } );
+        });
+
+        t.deepEqual ( memo ().map ( call ), [1, 1] );
+        t.deepEqual ( args, [1, 1] );
+
+        o ( 11 );
+
+        t.deepEqual ( memo ().map ( call ), [11, 11] );
+        t.deepEqual ( args, [1, 1, 11, 11] );
+
+        o ( 22 );
+
+        t.deepEqual ( memo ().map ( call ), [22, 22] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+        array ([ o ]);
+
+        t.deepEqual ( memo ().map ( call ), [22] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
+
+        o ( 111 );
+
+        t.deepEqual ( memo ().map ( call ), [111] );
+        t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
+
+      });
+
+      it ( 'renders only results for unknown values', t => {
+
+        const array = $([1, 2, 3]);
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          args.push ( value () );
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+        array ([ 1, 2, 3, 4 ]);
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3, 4] );
+        t.deepEqual ( args, [1, 2, 3, 4] );
+
+        array ([ 1, 2, 3, 4, 5 ]);
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3, 4, 5] );
+        t.deepEqual ( args, [1, 2, 3, 4, 5] );
+
+      });
+
+      it ( 'reuses leftover items if possible', t => {
+
+        const array = $([1, 2, 3]);
+        const argsRaw = [];
+        const args = [];
+
+        const memo = $.for ( array, value => {
+          argsRaw.push ( value );
+          args.push ( value () );
+          return value;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
+        t.deepEqual ( argsRaw.map ( call ), [1, 2, 3] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+        array ([ 1, 3, 4, 5 ]);
+
+        t.deepEqual ( memo ().map ( call ), [1, 3, 4, 5] );
+        t.deepEqual ( argsRaw.map ( call ), [1, 4, 3, 5] );
+        t.deepEqual ( args, [1, 2, 3, 5] );
+
+      });
+
+      it ( 'resolves the fallback value before returning it', t => {
+
+        const result = $.for ( [], () => () => 123, () => () => 321, { unkeyed: true } );
+
+        isReadable ( t, result );
+        isReadable ( t, result () );
+        isReadable ( t, result ()() );
+
+        t.is ( result ()()(), 321 );
+
+      });
+
+      it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
+
+        const o = $([]);
+
+        let calls = 0;
+
+        const memo = $.for ( o, () => () => 123, () => () => {
+          calls += 1;
+          return 321;
+        }, { unkeyed: true } );
+
+        t.is ( calls, 0 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+        o ( [] );
+
+        t.is ( calls, 1 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+        o ( [] );
+
+        t.is ( calls, 1 );
+        t.is ( memo ()()(), 321 );
+        t.is ( calls, 1 );
+
+      });
+
+      it ( 'resolves the mapped value before returning it', t => {
+
+        const result = $.for ( [1], () => () => () => 123, [], { unkeyed: true } );
+
+        isReadable ( t, result );
+        isReadable ( t, result ()[0] );
+        isReadable ( t, result ()[0]() );
+
+        t.is ( result ()[0]()(), 123 );
+
+      });
+
+      it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
+
+        t.deepEqual ( $.for ( [], () => () => 123 )(), [], { unkeyed: true } );
+
+      });
+
+      it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
+
+        t.is ( $.for ( [], () => () => 123, 123 )(), 123, { unkeyed: true } );
+
+      });
+
+      it ( 'returns a memo to the same array if all values were cached', t => {
+
+        const external = $(0);
+        const values = $([1, 2, 3]);
+
+        const valuesWithExternal = () => {
+          external ();
+          return values ();
         };
 
-        $.error ( onErrorA );
+        let calls = 0;
 
-        $.error ( onErrorB );
+        const result = $.for ( valuesWithExternal, value => {
+          calls += 1;
+          return value ();
+        }, [], { unkeyed: true } );
 
-        if ( o () ) throw 'err';
+        t.is ( calls, 0 );
 
-      });
+        const result1 = result ();
 
-      t.is ( sequence, '' );
+        t.is ( calls, 3 );
+        t.deepEqual ( result1, [1, 2, 3] );
 
-      o ( 1 );
+        external ( 1 );
 
-      t.is ( sequence, 'ab' );
+        const result2 = result ();
 
-      o ( 2 );
+        t.is ( calls, 3 );
+        t.deepEqual ( result2, [1, 2, 3] );
+        t.is ( result1, result2 );
 
-      t.is ( sequence, 'abab' );
+        values ([ 3, 2, 1 ]);
 
-      o ( 3 );
+        const result3 = result ();
 
-      t.is ( sequence, 'ababab' );
+        t.is ( calls, 3 );
+        t.deepEqual ( result3, [3, 2, 1] );
+        t.not ( result1, result3 );
 
-    });
+        values ([ 3, 2 ]);
 
-    it ( 'suppors error handlers that throw', t => {
+        const result4 = result ();
 
-      let calls = '';
+        t.is ( calls, 3 );
+        t.deepEqual ( result4, [3, 2] );
 
-      $.effect ( () => {
+        external ( 2 );
 
-        $.error ( () => {
-          calls += 'a';
-        });
+        const result5 = result ();
 
-        $.effect ( () => {
-
-          $.error ( () => {
-            calls += 'b';
-            throw new Error ();
-          });
-
-          $.error ( () => {
-            calls += 'c';
-          });
-
-          $.effect ( () => {
-            throw new Error ();
-          });
-
-        });
+        t.is ( calls, 3 );
+        t.deepEqual ( result5, [3, 2] );
+        t.is ( result4, result5 );
 
       });
 
-      t.is ( calls, 'ba' );
+      it ( 'works with an array of non-unique values', t => {
 
-    });
+        const array = $([ 1, 1, 2 ]);
+        const args = [];
 
-    it ( 'throws if the error handler in a computation throws', t => {
-
-      t.throws ( () => {
-
-        $.memo ( () => {
-
-          $.error ( () => {
-            throw new Error ( 'Inner error' );
-          });
-
-          throw 'err';
-
-        });
-
-      }, { message: 'Inner error' } );
-
-    });
-
-    it ( 'throws if the error handler in an effect throws', t => {
-
-      t.throws ( () => {
-
-        $.effect ( () => {
-
-          $.error ( () => {
-            throw new Error ( 'Inner error' );
-          });
-
-          throw 'err';
-
-        });
-
-      }, { message: 'Inner error' } );
-
-    });
-
-    it ( 'throws if the error handler in an reaction throws', t => {
-
-      t.throws ( () => {
-
-        $.reaction ( () => {
-
-          $.error ( () => {
-            throw new Error ( 'Inner error' );
-          });
-
-          throw 'err';
-
-        });
-
-      }, { message: 'Inner error' } );
-
-    });
-
-    it ( 'throws if the error handler in a root throws', t => {
-
-      t.throws ( () => {
-
-        $.root ( () => {
-
-          $.error ( () => {
-            throw new Error ( 'Inner error' );
-          });
-
-          throw 'err';
-
-        });
-
-      }, { message: 'Inner error' } );
-
-    });
-
-    it ( 'throws if the error handler in a suspense throws', t => {
-
-      t.throws ( () => {
-
-        $.suspense ( false, () => {
-
-          $.error ( () => {
-            throw new Error ( 'Inner error' );
-          });
-
-          throw 'err';
-
-        });
-
-      }, { message: 'Inner error' } );
-
-    });
-
-  });
-
-  describe ( 'for', it => {
-
-    it ( 'calls the mapper function with an observable to the index too', t => {
-
-      const array = $([ 'a', 'b', 'c' ]);
-      const argsRaw = [];
-      const args = [];
-
-      const memo = $.for ( array, ( value, index ) => {
-        isReadable ( t, index );
-        argsRaw.push ( index );
-        args.push ( index () );
-        return value;
-      });
-
-      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
-      t.deepEqual ( args, [0, 1, 2] );
-
-      array ([ 'a', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2, 3] );
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-      array ([ 'd', 'c', 'a', 'b' ]);
-
-      t.deepEqual ( memo (), ['d', 'c', 'a', 'b'] );
-      t.deepEqual ( argsRaw.map ( a => a () ), [2, 3, 1, 0] );
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-    });
-
-    it ( 'disposes of any reactivity when the values array is emptied', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      $.for ( array, value => {
-        $.cleanup ( () => {
-          args.push ( value );
-        });
-      });
-
-      array ( [] );
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent computation is disposed', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.memo ( () => {
-          $.for ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent effect is disposed', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.effect ( () => {
-          $.for ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent reaction is disposed', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.reaction ( () => {
-          $.for ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent root is disposed', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.for ( array, value => {
-          $.memo ( () => {
+        const memo = $.for ( array, value => {
+          const memo = $.memo ( () => {
             args.push ( value () );
+            return value ();
           });
-        });
-        return dispose;
+          return memo;
+        }, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), [1, 1, 2] );
+        t.deepEqual ( args, [1, 1, 2] );
+
+        array ([ 2, 2, 1 ]);
+
+        t.deepEqual ( memo ().map ( call ), [2, 2, 1] );
+        t.deepEqual ( args, [1, 1, 2, 2] );
+
       });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity created for items that got deleted', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      $.for ( array, value => {
-        $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-
-      t.deepEqual ( args, [1, 2, 11] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      array ([ o1 ]);
-
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      o1 ( 111 );
-
-      t.deepEqual ( args, [1, 2, 11, 22, 111] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2, 11, 22, 111] );
-
-    });
-
-    it ( 'disposes of any reactivity created for duplicated items', t => {
-
-      const o = $(1);
-      const array = $([o, o]);
-      const args = [];
-
-      $.for ( array, value => {
-        $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 1] );
-
-      o ( 11 );
-
-      t.deepEqual ( args, [1, 1, 11, 11] );
-
-      o ( 22 );
-
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
-
-      array ([ o ]);
-
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
-
-      o ( 111 );
-
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
-
-    });
-
-    it ( 'renders only results for unknown values', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      $.for ( array, value => {
-        args.push ( value );
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 1, 2, 3, 4 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 4] );
-
-      array ([ 1, 2, 3, 4, 5 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 4, 5] );
-
-    });
-
-    it ( 'resolves the fallback value before returning it', t => {
-
-      const result = $.for ( [], () => () => 123, () => () => 321 );
-
-      isReadable ( t, result );
-      isReadable ( t, result () );
-      isReadable ( t, result ()() );
-
-      t.is ( result ()()(), 321 );
-
-    });
-
-    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
-
-      const o = $([]);
-
-      let calls = 0;
-
-      $.for ( o, () => () => 123, () => () => {
-        calls += 1;
-        return 321;
-      });
-
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'resolves the mapped value before returning it', t => {
-
-      const result = $.for ( [1], () => () => () => 123 );
-
-      isReadable ( t, result );
-      isReadable ( t, result ()[0] );
-      isReadable ( t, result ()[0]() );
-
-      t.is ( result ()[0]()(), 123 );
-
-    });
-
-    it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
-
-      t.deepEqual ( $.for ( [], () => () => 123 )(), [] );
-
-    });
-
-    it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
-
-      t.is ( $.for ( [], () => () => 123, 123 )(), 123 );
-
-    });
-
-    it ( 'returns a memo to the same array if all values were cached', t => {
-
-      const external = $(0);
-      const values = $([1, 2, 3]);
-
-      const valuesWithExternal = () => {
-        external ();
-        return values ();
-      };
-
-      let calls = 0;
-
-      const result = $.for ( valuesWithExternal, value => {
-        calls += 1;
-        return value;
-      });
-
-      const result1 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result1, [1, 2, 3] );
-
-      external ( 1 );
-
-      const result2 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result2, [1, 2, 3] );
-      t.is ( result1, result2 );
-
-      values ([ 1, 2 ]);
-
-      const result3 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result3, [1, 2] );
-
-      external ( 2 );
-
-      const result4 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result4, [1, 2] );
-      t.is ( result3, result4 );
-
-    });
-
-    it ( 'works with an array of non-unique values', t => {
-
-      const array = $([ 1, 1, 2 ]);
-      const args = [];
-
-      $.for ( array, value => {
-        $.memo ( () => {
-          args.push ( value );
-        });
-      });
-
-      t.deepEqual ( args, [1, 1, 2] );
-
-      array ([ 2, 2, 1 ]);
-
-      t.deepEqual ( args, [1, 1, 2, 2] );
-
-    });
-
-  });
-
-  describe ( 'forIndex', it => {
-
-    it ( 'calls the mapper function with the index too', t => {
-
-      const array = $([ 'a', 'b', 'c' ]);
-      const args = [];
-
-      $.forIndex ( array, ( value, index ) => {
-        args.push ( index );
-      });
-
-      t.deepEqual ( args, [0, 1, 2] );
-
-      array ([ 'a', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-    });
-
-    it ( 'disposes of any reactivity when the values array is emptied', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        $.cleanup ( () => {
-          args.push ( value () );
-        });
-      });
-
-      array ( [] );
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent computation is disposed', t => {
-
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.memo ( () => {
-          $.forIndex ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent effect is disposed', t => {
-
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.effect ( () => {
-          $.forIndex ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent reaction is disposed', t => {
-
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.reaction ( () => {
-          $.forIndex ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent root is disposed', t => {
-
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.forIndex ( array, value => {
-          $.memo ( () => {
-            args.push ( value () );
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity created for indexes that got deleted', t => {
-
-      const o = $(0);
-      const array = $([ 1, 2 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        $.memo ( () => {
-          o ();
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 2] );
-
-      array ([ 11, 2 ]);
-
-      t.deepEqual ( args, [1, 2, 11] );
-
-      array ([ 11, 22 ]);
-
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      array ([ 11 ]);
-
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      o ( 1 );
-
-      t.deepEqual ( args, [1, 2, 11, 22, 11] );
-
-    });
-
-    it ( 'renders results for unknown indexes', t => {
-
-      const array = $([ 1, 2, 3 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        args.push ( value () );
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 1, 2, 3, 4 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 4] );
-
-      array ([ 1, 2, 3, 4, 5 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 4, 5] );
-
-    });
-
-    it ( 'renders results for updated values', t => {
-
-      const array = $([ 1, 2, 3 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        return $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 3, 2, 1 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 3, 1] );
-
-    });
-
-    it ( 'resolves the fallback value before returning it', t => {
-
-      const result = $.forIndex ( [], () => () => 123, () => () => 321 );
-
-      isReadable ( t, result );
-      isReadable ( t, result () );
-      isReadable ( t, result ()() );
-
-      t.is ( result ()()(), 321 );
-
-    });
-
-    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
-
-      const o = $([]);
-
-      let calls = 0;
-
-      $.forIndex ( o, () => () => 123, () => () => {
-        calls += 1;
-        return 321;
-      });
-
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'resolves the mapped value before returning it', t => {
-
-      const result = $.forIndex ( [1], () => () => () => 123 );
-
-      isReadable ( t, result );
-      isReadable ( t, result ()[0] );
-      isReadable ( t, result ()[0]() );
-
-      t.is ( result ()[0]()(), 123 );
-
-    });
-
-    it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
-
-      t.deepEqual ( $.forIndex ( [], () => () => 123 )(), [] );
-
-    });
-
-    it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
-
-      t.is ( $.forIndex ( [], () => () => 123, 123 )(), 123 );
-
-    });
-
-    it ( 'returns a memo to the same array if all values were cached', t => {
-
-      const external = $(0);
-      const values = $([1, 2, 3]);
-
-      const valuesWithExternal = () => {
-        external ();
-        return values ();
-      };
-
-      let calls = 0;
-
-      const result = $.forIndex ( valuesWithExternal, value => {
-        calls += 1;
-        return value ();
-      });
-
-      const result1 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result1, [1, 2, 3] );
-
-      external ( 1 );
-
-      const result2 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result2, [1, 2, 3] );
-      t.is ( result1, result2 );
-
-      values ([ 1, 2 ]);
-
-      const result3 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result3, [1, 2] );
-
-      external ( 2 );
-
-      const result4 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result4, [1, 2] );
-      t.is ( result3, result4 );
-
-    });
-
-    it ( 'unwraps observables in the input', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([ o1, o2, 3 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-      o1 ( 11 );
-
-      t.deepEqual ( args, [1, 2, 3, 11] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2, 3, 11, 22] );
-
-      array ([ 11, 22, 3 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 11, 22] );
-
-    });
-
-    it ( 'works with an array of non-unique values', t => {
-
-      const array = $([ 1, 1, 2 ]);
-      const args = [];
-
-      $.forIndex ( array, value => {
-        $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 1, 2] );
-
-      array ([ 2, 2, 1 ]);
-
-      t.deepEqual ( args, [1, 1, 2, 2, 2, 1] );
-
-    });
-
-  });
-
-  describe ( 'forValue', it => {
-
-    it ( 'calls the mapper function with an observable to the index', t => {
-
-      const array = $([ 'a', 'b', 'c' ]);
-      const argsRaw = [];
-      const args = [];
-
-      $.forValue ( array, ( value, index ) => {
-        isReadable ( t, index );
-        argsRaw.push ( index );
-        args.push ( index () );
-      });
-
-      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2] );
-      t.deepEqual ( args, [0, 1, 2] );
-
-      array ([ 'a', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( argsRaw.map ( a => a () ), [0, 1, 2, 3] );
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-      array ([ 'd', 'c', 'a', 'b' ]);
-
-      t.deepEqual ( argsRaw.map ( a => a () ), [2, 3, 1, 0] );
-      t.deepEqual ( args, [0, 1, 2, 3] );
-
-    });
-
-    it ( 'calls the mapper function with an observable to the value', t => {
-
-      const array = $([ 'a', 'b', 'c' ]);
-      const argsRaw = [];
-      const args = [];
-
-      $.forValue ( array, ( value ) => {
-        isReadable ( t, value );
-        argsRaw.push ( value );
-        args.push ( value () );
-      });
-
-      t.deepEqual ( argsRaw.map ( a => a () ), ['a', 'b', 'c'] );
-      t.deepEqual ( args, ['a', 'b', 'c'] );
-
-      array ([ 'a', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( argsRaw.map ( a => a () ), ['a', 'b', 'c', 'd'] );
-      t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
-
-      array ([ 'e', 'b', 'c', 'd' ]);
-
-      t.deepEqual ( argsRaw.map ( a => a () ), ['e', 'b', 'c', 'd'] );
-      t.deepEqual ( args, ['a', 'b', 'c', 'd'] );
-
-    });
-
-    it ( 'disposes of any reactivity when the values array is emptied', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      $.forValue ( array, value => {
-        $.cleanup ( () => {
-          args.push ( value () );
-        });
-      });
-
-      array ( [] );
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent computation is disposed', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.memo ( () => {
-          $.forValue ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent effect is disposed', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.effect ( () => {
-          $.forValue ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent reaction is disposed', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.reaction ( () => {
-          $.forValue ( array, value => {
-            $.memo ( () => {
-              args.push ( value () );
-            });
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity when the parent root is disposed', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      const dispose = $.root ( dispose => {
-        $.forValue ( array, value => {
-          $.memo ( () => {
-            args.push ( value () );
-          });
-        });
-        return dispose;
-      });
-
-      dispose ();
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2] );
-
-    });
-
-    it ( 'disposes of any reactivity created for items that got deleted', t => {
-
-      const o1 = $(1);
-      const o2 = $(2);
-      const array = $([o1, o2]);
-      const args = [];
-
-      $.forValue ( array, value => {
-        $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 2] );
-
-      o1 ( 11 );
-
-      t.deepEqual ( args, [1, 2, 11] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      array ([ o1 ]);
-
-      t.deepEqual ( args, [1, 2, 11, 22] );
-
-      o1 ( 111 );
-
-      t.deepEqual ( args, [1, 2, 11, 22, 111] );
-
-      o2 ( 22 );
-
-      t.deepEqual ( args, [1, 2, 11, 22, 111] );
-
-    });
-
-    it ( 'disposes of any reactivity created for duplicated items', t => {
-
-      const o = $(1);
-      const array = $([o, o]);
-      const args = [];
-
-      $.forValue ( array, value => {
-        $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 1] );
-
-      o ( 11 );
-
-      t.deepEqual ( args, [1, 1, 11, 11] );
-
-      o ( 22 );
-
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
-
-      array ([ o ]);
-
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22] );
-
-      o ( 111 );
-
-      t.deepEqual ( args, [1, 1, 11, 11, 22, 22, 111] );
-
-    });
-
-    it ( 'renders only results for unknown values', t => {
-
-      const array = $([1, 2, 3]);
-      const args = [];
-
-      $.forValue ( array, value => {
-        args.push ( value () );
-      });
-
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 1, 2, 3, 4 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 4] );
-
-      array ([ 1, 2, 3, 4, 5 ]);
-
-      t.deepEqual ( args, [1, 2, 3, 4, 5] );
-
-    });
-
-    it ( 'reuses leftover items if possible', t => {
-
-      const array = $([1, 2, 3]);
-      const argsRaw = [];
-      const args = [];
-
-      $.forValue ( array, value => {
-        argsRaw.push ( value );
-        args.push ( value () );
-      });
-
-      t.deepEqual ( argsRaw.map ( a => a () ), [1, 2, 3] );
-      t.deepEqual ( args, [1, 2, 3] );
-
-      array ([ 1, 3, 4, 5 ]);
-
-      t.deepEqual ( argsRaw.map ( a => a () ), [1, 4, 3, 5] );
-      t.deepEqual ( args, [1, 2, 3, 5] );
-
-    });
-
-    it ( 'resolves the fallback value before returning it', t => {
-
-      const result = $.forValue ( [], () => () => 123, () => () => 321 );
-
-      isReadable ( t, result );
-      isReadable ( t, result () );
-      isReadable ( t, result ()() );
-
-      t.is ( result ()()(), 321 );
-
-    });
-
-    it ( 'resolves the fallback once value before returning it, even if needed multiple times in a sequence', t => {
-
-      const o = $([]);
-
-      let calls = 0;
-
-      $.forValue ( o, () => () => 123, () => () => {
-        calls += 1;
-        return 321;
-      });
-
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-
-      o ( [] );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'resolves the mapped value before returning it', t => {
-
-      const result = $.forValue ( [1], () => () => () => 123 );
-
-      isReadable ( t, result );
-      isReadable ( t, result ()[0] );
-      isReadable ( t, result ()[0]() );
-
-      t.is ( result ()[0]()(), 123 );
-
-    });
-
-    it ( 'returns a memo to an empty array for an empty array and missing fallback', t => {
-
-      t.deepEqual ( $.forValue ( [], () => () => 123 )(), [] );
-
-    });
-
-    it ( 'returns a memo to fallback for an empty array and a provided fallback', t => {
-
-      t.is ( $.forValue ( [], () => () => 123, 123 )(), 123 );
-
-    });
-
-    it ( 'returns a memo to the same array if all values were cached', t => {
-
-      const external = $(0);
-      const values = $([1, 2, 3]);
-
-      const valuesWithExternal = () => {
-        external ();
-        return values ();
-      };
-
-      let calls = 0;
-
-      const result = $.forValue ( valuesWithExternal, value => {
-        calls += 1;
-        return value ();
-      });
-
-      const result1 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result1, [1, 2, 3] );
-
-      external ( 1 );
-
-      const result2 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result2, [1, 2, 3] );
-      t.is ( result1, result2 );
-
-      values ([ 1, 2 ]);
-
-      const result3 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result3, [1, 2] );
-
-      external ( 2 );
-
-      const result4 = result ();
-
-      t.is ( calls, 3 );
-      t.deepEqual ( result4, [1, 2] );
-      t.is ( result3, result4 );
-
-    });
-
-    it ( 'works with an array of non-unique values', t => {
-
-      const array = $([ 1, 1, 2 ]);
-      const args = [];
-
-      $.forValue ( array, value => {
-        $.memo ( () => {
-          args.push ( value () );
-        });
-      });
-
-      t.deepEqual ( args, [1, 1, 2] );
-
-      array ([ 2, 2, 1 ]);
-
-      t.deepEqual ( args, [1, 1, 2, 2] );
 
     });
 
@@ -3566,24 +2882,30 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
-        $.get ( o );
+        return $.get ( o );
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
       o ( 2 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), 2 );
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), 3 );
       t.is ( calls, 3 );
 
     });
 
-    it ( 'creates a dependency in an effect', t => {
+    it ( 'creates a dependency in an effect', async t => {
 
       const o = $(1);
 
@@ -3594,37 +2916,20 @@ describe ( 'oby', () => {
         $.get ( o );
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 2 );
 
-      t.is ( calls, 2 );
-
-      o ( 3 );
-
-      t.is ( calls, 3 );
-
-    });
-
-    it ( 'creates a dependency in an reaction', t => {
-
-      const o = $(1);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        $.get ( o );
-      });
-
       t.is ( calls, 1 );
-
-      o ( 2 );
-
+      await tick ();
       t.is ( calls, 2 );
 
       o ( 3 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
@@ -3638,7 +2943,6 @@ describe ( 'oby', () => {
     });
 
     it ( 'gets the value out of an observable', t => {
-
       const o = $(123);
 
       t.is ( $.get ( o ), 123 );
@@ -3679,20 +2983,35 @@ describe ( 'oby', () => {
         sequence += 'f';
       };
 
-      $.if ( condition, valueTrue, valueFalse );
+      const memo = $.if ( condition, valueTrue, valueFalse );
 
       condition ( 2 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 3 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 't' );
 
       condition ( 0 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( false );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 'tf' );
 
       condition ( 4 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 5 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 'tft' );
 
@@ -3716,18 +3035,26 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.if ( o, () => () => 123, () => () => {
+      const memo = $.if ( o, () => () => 123, () => () => {
         calls += 1;
         return 321;
       });
+
+      t.is ( calls, 0 );
+
+      t.is ( memo ()()(), 321 );
 
       t.is ( calls, 1 );
 
       o ( false );
 
+      t.is ( memo ()()(), 321 );
+
       t.is ( calls, 1 );
 
       o ( NaN );
+
+      t.is ( memo ()()(), 321 );
 
       t.is ( calls, 1 );
 
@@ -3793,7 +3120,39 @@ describe ( 'oby', () => {
 
   describe ( 'isBatching', it => {
 
-    it ( 'checks if batching is active', async t => {
+    it ( 'checks if automatic batching is active, for async effects', async t => {
+
+      t.false ( $.isBatching () );
+
+      $.effect ( () => {
+
+        t.true ( $.isBatching () );
+
+      });
+
+      t.true ( $.isBatching () );
+
+      await tick ();
+
+      t.false ( $.isBatching () );
+
+    });
+
+    it ( 'checks if automatic batching is active, for sync effects', async t => {
+
+      t.false ( $.isBatching () );
+
+      $.effect ( () => {
+
+        // t.true ( $.isBatching () ); //FIXME: this should probably be "true" ideally
+
+      }, { sync: true } );
+
+      t.false ( $.isBatching () );
+
+    });
+
+    it ( 'checks if manual batching is active', async t => {
 
       t.false ( $.isBatching () );
 
@@ -3801,9 +3160,9 @@ describe ( 'oby', () => {
         t.true ( $.isBatching () );
         await delay ( 50 );
         t.true ( $.isBatching () );
-        $.batch ( () => {
+        await $.batch ( async () => {
           t.true ( $.isBatching () );
-          $.batch ( () => {
+          await $.batch ( () => {
             t.true ( $.isBatching () );
           });
           t.true ( $.isBatching () );
@@ -3858,9 +3217,13 @@ describe ( 'oby', () => {
 
     it ( 'bypasses the comparator function on first run', t => {
 
-      const o = $.memo ( () => 123, { equals: () => true } );
+      const o1 = $.memo ( () => 123, { equals: () => true } );
 
-      t.is ( o (), 123 );
+      t.is ( o1 (), 123 );
+
+      const o2 = $.memo ( () => undefined, { equals: () => true } );
+
+      t.is ( o2 (), undefined );
 
     });
 
@@ -3903,7 +3266,7 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         calls += 1;
 
@@ -3913,14 +3276,20 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 2 );
 
       a ( 2 );
 
       t.is ( calls, 2 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 2 );
 
       b ( 1 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), undefined );
       t.is ( calls, 3 );
 
     });
@@ -3932,11 +3301,11 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo1 = $.memo ( () => {
 
         if ( !active () ) return;
 
-        $.memo ( () => {
+        const memo2 = $.memo ( () => {
 
           calls += 1;
 
@@ -3944,13 +3313,19 @@ describe ( 'oby', () => {
 
         });
 
+        $.untrack ( memo2 );
+
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo1 (), undefined );
       t.is ( calls, 1 );
 
       active ( false );
       o ( 1 );
 
+      t.is ( calls, 1 );
+      t.is ( memo1 (), undefined );
       t.is ( calls, 1 );
 
     });
@@ -3961,13 +3336,15 @@ describe ( 'oby', () => {
 
         $.root ( dispose => {
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
 
             dispose ();
 
             return 1;
 
           });
+
+          memo ();
 
         });
 
@@ -4003,6 +3380,37 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports any number of dependencies', t => {
+
+      for ( const nr of [1, 2, 3, 4, 5] ) {
+
+        const oo = new Array ( nr ).fill ( 0 ).map ( () => $(0) );
+
+        let calls = 0;
+
+        const memo = $.memo ( () => {
+          calls += 1;
+          oo.map ( call );
+        });
+
+        t.is ( calls, 0 );
+        t.is ( memo (), undefined );
+        t.is ( calls, 1 );
+
+        for ( const [i, o] of Array.from ( oo.entries () ) ) {
+
+          o ( prev => prev + 1 );
+
+          t.is ( calls, i + 1 );
+          t.is ( memo (), undefined );
+          t.is ( calls, i + 2 );
+
+        }
+
+      }
+
+    });
+
     it ( 'supports a custom equality function', t => {
 
       const o = $(2);
@@ -4034,9 +3442,17 @@ describe ( 'oby', () => {
 
       t.is ( c (), 2 );
 
+      a ( 10 );
+
+      t.is ( c (), 2 );
+
+      b ( 20 );
+
+      t.is ( c (), 20 );
+
       bool ( true );
 
-      t.is ( c (), 1 );
+      t.is ( c (), 10 );
 
     });
 
@@ -4046,7 +3462,7 @@ describe ( 'oby', () => {
 
       let sequence = '';
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         o ();
 
@@ -4060,55 +3476,23 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( memo (), undefined );
       t.is ( sequence, '' );
 
       o ( 1 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'ba' );
 
       o ( 2 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'baba' );
 
       o ( 3 );
 
+      t.is ( memo (), undefined );
       t.is ( sequence, 'bababa' );
-
-    });
-
-    it ( 'supports manually registering a function to be called when the parent computation throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.memo ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        if ( o () ) throw 'err';
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
 
     });
 
@@ -4147,28 +3531,47 @@ describe ( 'oby', () => {
 
       const a = $(0);
       const b = $(0);
+
       let calls = 0;
 
-      $.memo ( () => {
+      const memo1 = $.memo ( () => {
         calls += 1;
-        a ();
+        return a ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo1 (), 0 );
       t.is ( calls, 1 );
 
-      $.memo ( () => {
+      const memo2 = $.memo ( () => {
         a ( 1 );
         b ();
         a ( 0 );
       });
 
-      b ( 1 );
+      t.is ( calls, 1 );
+      t.is ( memo1 (), 0 );
+      t.is ( calls, 1 );
 
-      t.is ( calls, 5 );
+      memo2 ();
+
+      t.is ( calls, 1 );
+      t.is ( memo1 (), 0 );
+      t.is ( calls, 2 );
+
+      b ( 1 );
+      memo2 ();
+
+      t.is ( calls, 2 );
+      t.is ( memo1 (), 0 );
+      t.is ( calls, 3 );
 
       a ( 1 );
+      memo2 ();
 
-      t.is ( calls, 6 );
+      t.is ( calls, 3 );
+      t.is ( memo1 (), 1 );
+      t.is ( calls, 4 );
 
     });
 
@@ -4193,337 +3596,6 @@ describe ( 'oby', () => {
       o ( undefined );
 
       t.is ( o (), undefined );
-
-    });
-
-  });
-
-  describe ( 'off', it => {
-
-    it ( 'can unregister a previously registered function', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      const onChange = () => calls++;
-
-      $.on ( o, onChange );
-
-      t.is ( calls, 0 );
-
-      $.off ( o, onChange );
-
-      o ( 1 );
-      o ( 2 );
-      o ( 3 );
-
-      t.is ( calls, 0 );
-
-      $.on ( o, onChange );
-
-      t.is ( calls, 0 );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'returns undefined', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      const onChange = () => calls++;
-
-      $.on ( o, onChange );
-
-      t.is ( calls, 0 );
-
-      const result = $.off ( o, onChange );
-
-      t.is ( result, undefined );
-
-    });
-
-    it ( 'returns undefined for already urnegistered functions too', t => {
-
-      const o = $(0);
-
-      const result = $.off ( o, () => {} );
-
-      t.is ( result, undefined );
-
-    });
-
-    it ( 'supports a callable object', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      const onChange = {
-        call: thiz => {
-          calls++;
-          t.is ( thiz, onChange );
-        }
-      };
-
-      $.on ( o, onChange );
-
-      t.is ( calls, 0 );
-
-      $.off ( o, onChange );
-
-      o ( 1 );
-      o ( 2 );
-      o ( 3 );
-
-      t.is ( calls, 0 );
-
-      $.on ( o, onChange );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-  });
-
-  describe ( 'on', it => {
-
-    it ( 'does not call the registered function when registering', t => {
-
-      const o = $(0);
-
-      $.on ( o, t.fail );
-
-      t.pass ();
-
-    });
-
-    it ( 'does not can call the registered function when registering, for frozen observables too', t => {
-
-      const o = $.memo ( () => 0 );
-
-      $.on ( o, t.fail );
-
-      t.pass ();
-
-    });
-
-    it ( 'can call the registered function with the current value and the previous value', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      $.on ( o, ( value, valuePrev ) => {
-
-        t.is ( value, 1 );
-        t.is ( valuePrev, 0 );
-
-        calls += 1;
-
-      });
-
-      t.is ( calls, 0 );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'can call the registered function before memos', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.memo ( () => {
-
-        sequence += 'b';
-
-        o ();
-
-      });
-
-      $.on ( o, () => {
-
-        sequence += 'a';
-
-      });
-
-      t.is ( sequence, 'b' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'bab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'babab' );
-
-    });
-
-    it ( 'can call the registered function before effects', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.effect ( () => {
-
-        sequence += 'b';
-
-        o ();
-
-      });
-
-      $.on ( o, () => {
-
-        sequence += 'a';
-
-      });
-
-      t.is ( sequence, 'b' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'bab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'babab' );
-
-    });
-
-    it ( 'can call the registered function before reactions', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.reaction ( () => {
-
-        sequence += 'b';
-
-        o ();
-
-      });
-
-      $.on ( o, () => {
-
-        sequence += 'a';
-
-      });
-
-      t.is ( sequence, 'b' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'bab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'babab' );
-
-    });
-
-    it ( 'can call the registered function even if inside a suspended suspense', t => {
-
-      const o = $(0);
-
-      $.suspense ( true, () => {
-
-        $.on ( o, ( value, valuePrev ) => {
-
-          t.is ( value, 1 );
-          t.is ( valuePrev, 0 );
-
-        });
-
-        o ( 1 );
-
-      });
-
-    });
-
-    it ( 'can register a function deduplicating registrations', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      const onChange = () => calls++;
-
-      $.on ( o, onChange );
-
-      t.is ( calls, 0 );
-
-      $.on ( o, onChange );
-      $.on ( o, onChange );
-      $.on ( o, onChange );
-
-      t.is ( calls, 0 );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-      o ( 1 );
-      o ( 1 );
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'returns a disposer function', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      const dispose = $.on ( o, () => {
-
-        calls += 1;
-
-      });
-
-      t.is ( calls, 0 );
-
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-      dispose ();
-
-      o ( 2 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'supports a callable object', t => {
-
-      const o = $(0);
-
-      const on = {
-        call: ( thiz, value, valuePrev ) => {
-          t.is ( thiz, on );
-          t.is ( value, 1 );
-          t.is ( valuePrev, 0 );
-        }
-      };
-
-      $.on ( o, on );
-
-      o ( 1 );
 
     });
 
@@ -4557,7 +3629,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'detects an effect', t => {
+    it ( 'detects an effect', async t => {
 
       $.effect ( () => {
 
@@ -4570,26 +3642,13 @@ describe ( 'oby', () => {
 
       });
 
-    });
-
-    it ( 'detects a reaction', t => {
-
-      $.reaction ( () => {
-
-        const owner = $.owner ();
-
-        t.false ( owner.isSuperRoot );
-        t.false ( owner.isRoot );
-        t.false ( owner.isSuspense );
-        t.true ( owner.isComputation );
-
-      });
+      await tick ();
 
     });
 
     it ( 'detects a memo', t => {
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         const owner = $.owner ();
 
@@ -4599,6 +3658,8 @@ describe ( 'oby', () => {
         t.true ( owner.isComputation );
 
       });
+
+      memo ();
 
     });
 
@@ -4677,13 +3738,18 @@ describe ( 'oby', () => {
       const dispose = $.root ( dispose => {
 
         const fn = () => {
-          $.memo ( () => {
+          const memo = $.memo ( () => {
             calls += 1;
             return o () ** 2;
           });
+          $.effect ( () => {
+            memo ();
+          }, { sync: true } );
         };
 
-        $.resolve ( fn );
+        const memo = $.resolve ( fn );
+
+        memo ();
 
         return dispose;
 
@@ -4703,7 +3769,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'properly disposes of inner effects', t => {
+    it ( 'properly disposes of inner effects', async t => {
 
       const o = $(2);
 
@@ -4718,16 +3784,22 @@ describe ( 'oby', () => {
           });
         };
 
-        $.resolve ( fn );
+        const memo = $.resolve ( fn );
+
+        memo ();
 
         return dispose;
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 3 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       dispose ();
@@ -4735,40 +3807,7 @@ describe ( 'oby', () => {
       o ( 4 );
 
       t.is ( calls, 2 );
-
-    });
-
-    it ( 'properly disposes of inner reactions', t => {
-
-      const o = $(2);
-
-      let calls = 0;
-
-      const dispose = $.root ( dispose => {
-
-        const fn = () => {
-          $.reaction ( () => {
-            calls += 1;
-            o () ** 2;
-          });
-        };
-
-        $.resolve ( fn );
-
-        return dispose;
-
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 3 );
-
-      t.is ( calls, 2 );
-
-      dispose ();
-
-      o ( 4 );
-
+      await tick ();
       t.is ( calls, 2 );
 
     });
@@ -4886,330 +3925,6 @@ describe ( 'oby', () => {
 
   });
 
-  describe ( 'reaction', it => {
-
-    it ( 'can not be running multiple times concurrently', t => {
-
-      const o = $(0);
-
-      let executions = 0;
-
-      $.reaction ( () => {
-
-        executions += 1;
-
-        const value = o ();
-
-        t.is ( executions, 1 );
-
-        if ( value === 0 ) o ( 1 );
-        if ( value === 1 ) o ( 2 );
-        if ( value === 2 ) o ( 3 );
-
-        t.is ( executions, 1 );
-
-        executions -= 1;
-
-        t.is ( executions, 0 );
-
-      });
-
-    });
-
-    it ( 'checks if the returned value is actually a function', t => {
-
-      t.notThrows ( () => {
-
-        $.reaction ( () => 123 );
-
-      });
-
-    });
-
-    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
-
-      const a = $(0);
-      const b = $(0);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-
-        calls += 1;
-
-        if ( !$.untrack ( a ) ) a ( a () + 1 );
-
-        b ();
-
-      });
-
-      t.is ( calls, 2 );
-
-      a ( 2 );
-
-      t.is ( calls, 2 );
-
-      b ( 1 );
-
-      t.is ( calls, 3 );
-
-    });
-
-    it ( 'cleans up inner reactions', t => {
-
-      const o = $(0);
-      const active = $(true);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-
-        if ( !active () ) return;
-
-        $.reaction ( () => {
-
-          calls += 1;
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 1 );
-
-      active ( false );
-      o ( 1 );
-
-      t.is ( calls, 1 );
-
-    });
-
-    it ( 'returns a disposer', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $();
-
-      const dispose = $.reaction ( () => {
-        c ( a () + b () );
-      });
-
-      t.is ( c (), 3 );
-
-      dispose ();
-
-      a ( 2 );
-
-      t.is ( c (), 3 );
-
-    });
-
-    it ( 'returns undefined to the function', t => {
-
-      const a = $(1);
-      const aPrev = $();
-
-      $.reaction ( prev => {
-
-        aPrev ( prev );
-
-        a ();
-
-      });
-
-      t.is ( a (), 1 );
-      t.is ( aPrev (), undefined );
-
-      a ( 2 );
-
-      t.is ( a (), 2 );
-      t.is ( aPrev (), undefined );
-
-      a ( 3 );
-
-      t.is ( a (), 3 );
-      t.is ( aPrev (), undefined );
-
-      a ( 4 );
-
-      t.is ( a (), 4 );
-      t.is ( aPrev (), undefined );
-
-    });
-
-    it ( 'supports dynamic dependencies', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $();
-      const bool = $(false);
-
-      $.reaction ( () => {
-        c ( bool () ? a () : b () );
-      });
-
-      t.is ( c (), 2 );
-
-      bool ( true );
-
-      t.is ( c (), 1 );
-
-    });
-
-    it ( 'supports manually registering a function to be called when the parent reaction updates', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.reaction ( () => {
-
-        o ();
-
-        $.cleanup ( () => {
-          sequence += 'a';
-        });
-
-        $.cleanup ( () => {
-          sequence += 'b';
-        });
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ba' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'baba' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'bababa' );
-
-    });
-
-    it ( 'supports manually registering a function to be called when the parent reaction throws', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.reaction ( () => {
-
-        $.error ( () => {
-          sequence += 'a';
-        });
-
-        $.error ( () => {
-          sequence += 'b';
-        });
-
-        if ( o () ) throw 'err';
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'supports automatically registering a function to be called when the parent reaction updates', t => {
-
-      const o = $(0);
-
-      let sequence = '';
-
-      $.reaction ( () => {
-
-        o ();
-
-        return () => {
-          sequence += 'a';
-          sequence += 'b';
-        };
-
-      });
-
-      t.is ( sequence, '' );
-
-      o ( 1 );
-
-      t.is ( sequence, 'ab' );
-
-      o ( 2 );
-
-      t.is ( sequence, 'abab' );
-
-      o ( 3 );
-
-      t.is ( sequence, 'ababab' );
-
-    });
-
-    it ( 'updates when the dependencies change', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $();
-
-      $.reaction ( () => {
-        c ( a () + b () );
-      });
-
-      a ( 3 );
-      b ( 7 );
-
-      t.is ( c (), 10 );
-
-    });
-
-    it ( 'updates when the dependencies change inside other reactions', t => {
-
-      const a = $(0);
-      const b = $(0);
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        a ();
-      });
-
-      t.is ( calls, 1 );
-
-      $.reaction ( () => {
-        a ( 1 );
-        b ();
-        a ( 0 );
-      });
-
-      b ( 1 );
-
-      t.is ( calls, 5 );
-
-      a ( 1 );
-
-      t.is ( calls, 6 );
-
-    });
-
-  });
-
   describe ( 'root', it => {
 
     it ( 'allows child computations to escape their parents', t => {
@@ -5218,28 +3933,51 @@ describe ( 'oby', () => {
 
         const outer = $(0);
         const inner = $(0);
+
+        let memo1;
+        let memo2 = [];
+
+        const pull = () => {
+          memo1 ();
+          memo2.forEach ( memo => memo () );
+        };
+
+        let outerCalls = 0;
         let innerCalls = 0;
 
-        $.memo ( () => {
+        memo1 = $.memo ( () => {
           outer ();
+          outerCalls += 1;
           $.root ( () => {
-            $.memo ( () => {
+            memo2.push ( $.memo ( () => {
               inner ();
               innerCalls += 1;
-            });
+            }));
           });
         });
 
+        t.is ( outerCalls, 0 );
+        t.is ( innerCalls, 0 );
+        pull ();
+        t.is ( outerCalls, 1 );
         t.is ( innerCalls, 1 );
 
         outer ( 1 );
         outer ( 2 );
 
-        t.is ( innerCalls, 3 );
+        t.is ( outerCalls, 1 );
+        t.is ( innerCalls, 1 );
+        pull ();
+        t.is ( outerCalls, 2 );
+        t.is ( innerCalls, 2 );
 
         inner ( 1 );
 
-        t.is ( innerCalls, 6 );
+        t.is ( outerCalls, 2 );
+        t.is ( innerCalls, 2 );
+        pull ();
+        t.is ( outerCalls, 2 );
+        t.is ( innerCalls, 4 );
 
       });
 
@@ -5257,13 +3995,15 @@ describe ( 'oby', () => {
           return a ();
         });
 
-        t.is ( calls, 1 );
+        t.is ( calls, 0 );
         t.is ( b (), 0 );
+        t.is ( calls, 1 );
 
         a ( 1 );
 
-        t.is ( calls, 2 );
+        t.is ( calls, 1 );
         t.is ( b (), 1 );
+        t.is ( calls, 2 );
 
         dispose ();
 
@@ -5271,6 +4011,7 @@ describe ( 'oby', () => {
 
         t.is ( calls, 2 );
         t.is ( b (), 1 );
+        t.is ( calls, 2 );
 
       });
 
@@ -5284,20 +4025,26 @@ describe ( 'oby', () => {
 
         const a = $(0);
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
           calls += 1;
           if ( a () ) dispose ();
-          a ();
+          return a ();
         });
 
+        t.is ( calls, 0 );
+        t.is ( memo (), 0 );
         t.is ( calls, 1 );
 
         a ( 1 );
 
+        t.is ( calls, 1 );
+        t.is ( memo (), 1 );
         t.is ( calls, 2 );
 
         a ( 2 );
 
+        t.is ( calls, 2 );
+        t.is ( memo (), 1 );
         t.is ( calls, 2 );
 
       });
@@ -5312,44 +4059,30 @@ describe ( 'oby', () => {
 
         const a = $(0);
 
-        $.memo ( () => {
+        const memo1 = $.memo ( () => {
           calls += 1;
           a ();
-          $.memo ( () => {
+          const memo2 = $.memo ( () => {
             if ( a () ) dispose ();
           });
+          $.untrack ( memo2 );
         });
 
+        t.is ( calls, 0 );
+        t.is ( memo1 (), undefined );
         t.is ( calls, 1 );
 
         a ( 1 );
 
+        t.is ( calls, 1 );
+        t.is ( memo1 (), undefined );
         t.is ( calls, 2 );
 
         a ( 2 );
 
         t.is ( calls, 2 );
-
-      });
-
-    });
-
-    it ( 'does not batch updates', t => {
-
-      $.root ( () => {
-
-        const a = $(1);
-        const b = $.memo ( () => a () );
-
-        t.is ( b (), 1 );
-
-        a ( 2 );
-
-        t.is ( b (), 2 );
-
-        a ( 3 );
-
-        t.is ( b (), 3 );
+        t.is ( memo1 (), undefined );
+        t.is ( calls, 2 );
 
       });
 
@@ -5388,7 +4121,7 @@ describe ( 'oby', () => {
 
   describe ( 'selector', it => {
 
-    it ( 'returns an observable', t => {
+    it ( 'returns an observable', async t => {
 
       const source = $(0);
       const selector = $.selector ( source );
@@ -5396,15 +4129,19 @@ describe ( 'oby', () => {
 
       isReadable ( t, selected );
 
+      await tick ();
+
       t.false ( selected () );
 
       source ( 1 );
+
+      await tick ();
 
       t.true ( selected () );
 
     });
 
-    it ( 'efficiently tells when the provided item is the selected one', t => {
+    it ( 'efficiently tells when the provided item is the selected one', async t => {
 
       const values = [1, 2, 3, 4, 5];
       const selected = $(-1);
@@ -5428,31 +4165,37 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '12345' );
 
       select ( 1 );
+
+      await tick ();
 
       t.is ( sequence, '1234511' );
 
       select ( 2 );
 
+      await tick ();
+
       t.is ( sequence, '1234511122' );
 
       select ( -1 );
+
+      await tick ();
 
       t.is ( sequence, '12345111222' );
 
     });
 
-    it ( 'memoizes the source function', t => {
+    it ( 'memoizes the source function', async t => {
 
       const values = [0, 1, 2, 3, 4];
 
       const selectedFactor1 = $(0);
       const selectedFactor2 = $(1);
       const selected = () => selectedFactor1 () * selectedFactor2 ();
-
-      const select = value => selected ( value );
       const selector = $.selector ( selected );
 
       let sequence = '';
@@ -5471,15 +4214,19 @@ describe ( 'oby', () => {
 
       });
 
+      await tick ();
+
       t.is ( sequence, '001234' );
 
       selectedFactor2 ( 2 );
+
+      await tick ();
 
       t.is ( sequence, '001234' );
 
     });
 
-    it ( 'survives checking a value inside a discarded root', t => {
+    it ( 'survives checking a value inside a discarded root', async t => {
 
       const selected = $(-1);
       const selector = $.selector ( selected );
@@ -5508,28 +4255,15 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       selected ( 1 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
-
-    });
-
-    it ( 'throws when attempting to use it after disposing of the parent root', t => {
-
-      $.root ( dispose => {
-
-        const source = $(0);
-        const selector = $.selector ( source );
-
-        selector ( 1 );
-
-        dispose ();
-
-        t.throws ( () => selector ( 2 ), { message: 'A disposed Selector can not be used anymore' } );
-
-      });
 
     });
 
@@ -5669,24 +4403,30 @@ describe ( 'oby', () => {
 
           let calls = 0;
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
             calls += 1;
-            o.value;
+            return o.value;
           });
 
+          t.is ( calls, 0 );
+          t.is ( memo (), 1 );
           t.is ( calls, 1 );
 
           o.value = 2;
 
+          t.is ( calls, 1 );
+          t.is ( memo (), 2 );
           t.is ( calls, 2 );
 
           o.value = 3;
 
+          t.is ( calls, 2 );
+          t.is ( memo (), 3 );
           t.is ( calls, 3 );
 
         });
 
-        it ( 'creates a dependency in an effect when getting a shallow property', t => {
+        it ( 'creates a dependency in an effect when getting a shallow property', async t => {
 
           const o = $.store ({ value: 1 });
 
@@ -5697,37 +4437,20 @@ describe ( 'oby', () => {
             o.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value = 2;
 
-          t.is ( calls, 2 );
-
-          o.value = 3;
-
-          t.is ( calls, 3 );
-
-        });
-
-        it ( 'creates a dependency in a reaction when getting a shallow property', t => {
-
-          const o = $.store ({ value: 1 });
-
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.value;
-          });
-
           t.is ( calls, 1 );
-
-          o.value = 2;
-
+          await tick ();
           t.is ( calls, 2 );
 
           o.value = 3;
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
 
         });
@@ -5738,24 +4461,30 @@ describe ( 'oby', () => {
 
           let calls = 0;
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
             calls += 1;
-            o.deep.value;
+            return o.deep.value;
           });
 
+          t.is ( calls, 0 );
+          t.is ( memo (), 1 );
           t.is ( calls, 1 );
 
           o.deep.value = 2;
 
+          t.is ( calls, 1 );
+          t.is ( memo (), 2 );
           t.is ( calls, 2 );
 
           o.deep.value = 3;
 
+          t.is ( calls, 2 );
+          t.is ( memo (), 3 );
           t.is ( calls, 3 );
 
         });
 
-        it ( 'creates a dependency in an effect when getting a deep property', t => {
+        it ( 'creates a dependency in an effect when getting a deep property', async t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -5766,37 +4495,20 @@ describe ( 'oby', () => {
             o.deep.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.deep.value = 2;
 
-          t.is ( calls, 2 );
-
-          o.deep.value = 3;
-
-          t.is ( calls, 3 );
-
-        });
-
-        it ( 'creates a dependency in a reaction when getting a deep property', t => {
-
-          const o = $.store ({ deep: { value: 1 } });
-
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.deep.value;
-          });
-
           t.is ( calls, 1 );
-
-          o.deep.value = 2;
-
+          await tick ();
           t.is ( calls, 2 );
 
           o.deep.value = 3;
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
 
         });
@@ -5807,26 +4519,33 @@ describe ( 'oby', () => {
 
           let calls = 0;
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
             calls += 1;
             o.value;
             o.value;
             o.value;
+            return o.value;
           });
 
+          t.is ( calls, 0 );
+          t.is ( memo (), 1 );
           t.is ( calls, 1 );
 
           o.value = 2;
 
+          t.is ( calls, 1 );
+          t.is ( memo (), 2 );
           t.is ( calls, 2 );
 
           o.value = 3;
 
+          t.is ( calls, 2 );
+          t.is ( memo (), 3 );
           t.is ( calls, 3 );
 
         });
 
-        it ( 'creates a single dependency in an effect even if getting a shallow property multiple times', t => {
+        it ( 'creates a single dependency in an effect even if getting a shallow property multiple times', async t => {
 
           const o = $.store ({ value: 1 });
 
@@ -5839,69 +4558,57 @@ describe ( 'oby', () => {
             o.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value = 2;
 
-          t.is ( calls, 2 );
-
-          o.value = 3;
-
-          t.is ( calls, 3 );
-
-        });
-
-        it ( 'creates a single dependency in a reaction even if getting a shallow property multiple times', t => {
-
-          const o = $.store ({ value: 1 });
-
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.value;
-            o.value;
-            o.value;
-          });
-
           t.is ( calls, 1 );
-
-          o.value = 2;
-
+          await tick ();
           t.is ( calls, 2 );
 
           o.value = 3;
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
 
         });
 
-        it ( 'creates a single dependency in a memo even if getting a deep property multiple times', t => {
+        it ( 'creates a single dependency in a memo even if getting a deep property multiple times', async t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
           let calls = 0;
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
             calls += 1;
             o.deep.value;
             o.deep.value;
             o.deep.value;
+            return o.deep.value;
           });
 
+          t.is ( calls, 0 );
+          t.is ( memo (), 1 );
           t.is ( calls, 1 );
 
           o.deep.value = 2;
 
+          t.is ( calls, 1 );
+          t.is ( memo (), 2 );
           t.is ( calls, 2 );
 
           o.deep.value = 3;
 
+          t.is ( calls, 2 );
+          t.is ( memo (), 3 );
           t.is ( calls, 3 );
 
         });
 
-        it ( 'creates a single dependency in an effect even if getting a deep property multiple times', t => {
+        it ( 'creates a single dependency in an effect even if getting a deep property multiple times', async t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -5914,39 +4621,20 @@ describe ( 'oby', () => {
             o.deep.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.deep.value = 2;
 
-          t.is ( calls, 2 );
-
-          o.deep.value = 3;
-
-          t.is ( calls, 3 );
-
-        });
-
-        it ( 'creates a single dependency in a reaction even if getting a deep property multiple times', t => {
-
-          const o = $.store ({ deep: { value: 1 } });
-
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.deep.value;
-            o.deep.value;
-            o.deep.value;
-          });
-
           t.is ( calls, 1 );
-
-          o.deep.value = 2;
-
+          await tick ();
           t.is ( calls, 2 );
 
           o.deep.value = 3;
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
 
         });
@@ -5956,20 +4644,24 @@ describe ( 'oby', () => {
           let o;
           let calls = 0;
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
             calls += 1;
             o = $.store ({ value: 1 });
           });
 
+          t.is ( calls, 0 );
+          t.is ( memo (), undefined );
           t.is ( calls, 1 );
 
           o.value = 2;
 
           t.is ( calls, 1 );
+          t.is ( memo (), undefined );
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'does not create a dependency in an effect when creating', t => {
+        it ( 'does not create a dependency in an effect when creating', async t => {
 
           let o;
           let calls = 0;
@@ -5979,28 +4671,14 @@ describe ( 'oby', () => {
             o = $.store ({ value: 1 });
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value = 2;
 
           t.is ( calls, 1 );
-
-        });
-
-        it ( 'does not create a dependency in a reaction when creating', t => {
-
-          let o;
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o = $.store ({ value: 1 });
-          });
-
-          t.is ( calls, 1 );
-
-          o.value = 2;
-
+          await tick ();
           t.is ( calls, 1 );
 
         });
@@ -6010,20 +4688,24 @@ describe ( 'oby', () => {
           let o = $.store ({ value: 0 });
           let calls = 0;
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
             calls += 1;
             o.value = 1;
           });
 
+          t.is ( calls, 0 );
+          t.is ( memo (), undefined );
           t.is ( calls, 1 );
 
           o.value = 2;
 
           t.is ( calls, 1 );
+          t.is ( memo (), undefined );
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'does not create a dependency in an effect when setting a shallow property', t => {
+        it ( 'does not create a dependency in an effect when setting a shallow property', async t => {
 
           let o = $.store ({ value: 0 });
           let calls = 0;
@@ -6033,28 +4715,14 @@ describe ( 'oby', () => {
             o.value = 1;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value = 2;
 
           t.is ( calls, 1 );
-
-        });
-
-        it ( 'does not create a dependency in a reaction when setting a shallow property', t => {
-
-          let o = $.store ({ value: 0 });
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.value = 1;
-          });
-
-          t.is ( calls, 1 );
-
-          o.value = 2;
-
+          await tick ();
           t.is ( calls, 1 );
 
         });
@@ -6065,24 +4733,30 @@ describe ( 'oby', () => {
 
           let calls = 0;
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
             calls += 1;
             o.deep;
           });
 
+          t.is ( calls, 0 );
+          t.is ( memo (), undefined );
           t.is ( calls, 1 );
 
           o.deep.value = 2;
 
           t.is ( calls, 1 );
+          t.is ( memo (), undefined );
+          t.is ( calls, 1 );
 
           o.deep.value = 3;
 
           t.is ( calls, 1 );
+          t.is ( memo (), undefined );
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'does not create a dependency in an effect when getting a parent property of the one being updated', t => {
+        it ( 'does not create a dependency in an effect when getting a parent property of the one being updated', async t => {
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -6093,37 +4767,20 @@ describe ( 'oby', () => {
             o.deep;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.deep.value = 2;
 
           t.is ( calls, 1 );
-
-          o.deep.value = 3;
-
-          t.is ( calls, 1 );
-
-        });
-
-        it ( 'does not create a dependency in a reaction when getting a parent property of the one being updated', t => {
-
-          const o = $.store ({ deep: { value: 1 } });
-
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.deep;
-          });
-
-          t.is ( calls, 1 );
-
-          o.deep.value = 2;
-
+          await tick ();
           t.is ( calls, 1 );
 
           o.deep.value = 3;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 1 );
 
         });
@@ -6134,24 +4791,30 @@ describe ( 'oby', () => {
 
           let calls = 0;
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
             calls += 1;
             o.deep.value = 2;
           });
 
+          t.is ( calls, 0 );
+          t.is ( memo (), undefined );
           t.is ( calls, 1 );
 
           o.deep.value = 3;
 
           t.is ( calls, 1 );
+          t.is ( memo (), undefined );
+          t.is ( calls, 1 );
 
           o.deep = {};
 
+          t.is ( calls, 1 );
+          t.is ( memo (), undefined );
           t.is ( calls, 2 );
 
         });
 
-        it ( 'does create a dependency (on the parent) in an effect when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
+        it ( 'does create a dependency (on the parent) in an effect when setting a deep property', async t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
 
           const o = $.store ({ deep: { value: 1 } });
 
@@ -6162,37 +4825,20 @@ describe ( 'oby', () => {
             o.deep.value = 2;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.deep.value = 3;
 
           t.is ( calls, 1 );
-
-          o.deep = {};
-
-          t.is ( calls, 2 );
-
-        });
-
-        it ( 'does create a dependency (on the parent) in a reaction when setting a deep property', t => { //FIXME: This can't quite be fixed, it's a quirk of how mutable stores work
-
-          const o = $.store ({ deep: { value: 1 } });
-
-          let calls = 0;
-
-          $.reaction ( () => {
-            calls += 1;
-            o.deep.value = 2;
-          });
-
-          t.is ( calls, 1 );
-
-          o.deep.value = 3;
-
+          await tick ();
           t.is ( calls, 1 );
 
           o.deep = {};
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
         });
@@ -6220,7 +4866,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'returns unproxied "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "toLocaleString", "toSource", "toString", "valueOf", properties', t => {
+        it ( 'returns unproxied "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "toLocaleString", "toSource", "toString", "valueOf", properties', async t => {
 
           const o = $.store ( {} );
 
@@ -6237,6 +4883,8 @@ describe ( 'oby', () => {
             o.valueOf;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.hasOwnProperty = 1;
@@ -6247,6 +4895,8 @@ describe ( 'oby', () => {
           o.toString = 1;
           o.valueOf = 1;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 1 );
 
         });
@@ -6276,7 +4926,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports a false equality function', t => {
+        it ( 'supports a false equality function', async t => {
 
           const o = $.store ({ value: true }, { equals: false });
 
@@ -6290,10 +4940,14 @@ describe ( 'oby', () => {
 
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value = true;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
         });
@@ -6440,7 +5094,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to deleting a shallow property', t => {
+        it ( 'supports reacting to deleting a shallow property', async t => {
 
           const o = $.store ( { value: 123 } );
 
@@ -6451,15 +5105,19 @@ describe ( 'oby', () => {
             o.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           delete o.value;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
         });
 
-        it ( 'supports not reacting when deleting a shallow property that was undefined', t => {
+        it ( 'supports not reacting when deleting a shallow property that was undefined', async t => {
 
           const o = $.store ( { value: undefined } );
 
@@ -6470,15 +5128,19 @@ describe ( 'oby', () => {
             o.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           delete o.value;
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'supports reacting to deleting a deep property', t => {
+        it ( 'supports reacting to deleting a deep property', async t => {
 
           const o = $.store ( { deep: { value: 123 } } );
 
@@ -6489,15 +5151,19 @@ describe ( 'oby', () => {
             o.deep.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           delete o.deep.value;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
         });
 
-        it ( 'supports not reacting when deleting a deep property that was undefined', t => {
+        it ( 'supports not reacting when deleting a deep property that was undefined', async t => {
 
           const o = $.store ( { deep: { value: undefined } } );
 
@@ -6508,15 +5174,19 @@ describe ( 'oby', () => {
             o.deep.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           delete o.deep.value;
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'supports not reacting when setting a primitive property to itself', t => {
+        it ( 'supports not reacting when setting a primitive property to itself', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -6527,15 +5197,19 @@ describe ( 'oby', () => {
             o.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value = 1;
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'supports not reacting when setting a non-primitive property to itself', t => {
+        it ( 'supports not reacting when setting a non-primitive property to itself', async t => {
 
           const o = $.store ( { deep: { value: 2 } } );
 
@@ -6546,15 +5220,19 @@ describe ( 'oby', () => {
             o.deep.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.deep = o.deep;
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'supports not reacting when setting a non-primitive property to itself, when reading all values', t => {
+        it ( 'supports not reacting when setting a non-primitive property to itself, when reading all values', async t => {
 
           const o = $.store ([ 0 ]);
 
@@ -6565,15 +5243,19 @@ describe ( 'oby', () => {
             o[SYMBOL_STORE_VALUES];
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o[0] = o[0];
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'supports not reacting when reading the length on a array, when reading all values, if the length does not actually change', t => {
+        it ( 'supports not reacting when reading the length on a array, when reading all values, if the length does not actually change', async t => {
 
           const o = $.store ({ value: [0] });
 
@@ -6584,15 +5266,19 @@ describe ( 'oby', () => {
             o.value.length;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value.splice ( 0, 1, 1 );
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'supports not reacting when reading the length on a non-array, when reading all values, if the length does not actually change', t => { //TODO
+        it ( 'supports not reacting when reading the length on a non-array, when reading all values, if the length does not actually change', async t => { //TODO
 
           const o = $.store ({ length: 0 });
 
@@ -6603,15 +5289,19 @@ describe ( 'oby', () => {
             o[SYMBOL_STORE_VALUES];
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.length = o.length;
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
         });
 
-        it ( 'supports reacting to own keys', t => {
+        it ( 'supports reacting to own keys', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, baz: 3 } );
 
@@ -6622,10 +5312,14 @@ describe ( 'oby', () => {
             Object.keys ( o );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.qux = 4;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
           o.foo = 2;
@@ -6634,14 +5328,18 @@ describe ( 'oby', () => {
           o.qux = 5;
 
           t.is ( calls, 2 );
+          await tick ();
+          t.is ( calls, 2 );
 
           delete o.foo;
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
 
         });
 
-        it ( 'supports reacting to properties read by a getter', t => {
+        it ( 'supports reacting to properties read by a getter', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
 
@@ -6652,21 +5350,27 @@ describe ( 'oby', () => {
             o.fn;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.foo = 10;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.fn, 12 );
 
           o.bar = 20;
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
           t.is ( o.fn, 30 );
 
         });
 
-        it ( 'supports reacting to properties read by a regular function', t => {
+        it ( 'supports reacting to properties read by a regular function', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
 
@@ -6677,21 +5381,27 @@ describe ( 'oby', () => {
             o.fn ();
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.foo = 10;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.fn (), 12 );
 
           o.bar = 20;
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
           t.is ( o.fn (), 30 );
 
         });
 
-        it ( 'supports reacting to properties read by a regular function, called via the call method', t => {
+        it ( 'supports reacting to properties read by a regular function, called via the call method', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
 
@@ -6702,21 +5412,27 @@ describe ( 'oby', () => {
             o.fn.call ( o );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.foo = 10;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.fn.call ( o ), 12 );
 
           o.bar = 20;
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
           t.is ( o.fn.call ( o ), 30 );
 
         });
 
-        it ( 'supports reacting to properties read by a regular function, called via the apply method', t => {
+        it ( 'supports reacting to properties read by a regular function, called via the apply method', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, fn () { return this.foo + this.bar; } } );
 
@@ -6727,21 +5443,27 @@ describe ( 'oby', () => {
             o.fn.apply ( o );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.foo = 10;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.fn.apply ( o ), 12 );
 
           o.bar = 20;
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
           t.is ( o.fn.apply ( o ), 30 );
 
         });
 
-        it ( 'supports batching manually', t => {
+        it ( 'supports batching implicitly', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
 
@@ -6753,26 +5475,22 @@ describe ( 'oby', () => {
             o.bar;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
-          $.batch ( () => {
+          o.foo = 10;
+          o.bar = 20;
 
-            o.foo = 10;
-            o.bar = 20;
-
-            t.is ( calls, 1 );
-            t.is ( o.foo, 10 );
-            t.is ( o.bar, 20 );
-
-          });
-
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.foo, 10 );
           t.is ( o.bar, 20 );
 
         });
 
-        it ( 'supports batching setters automatically', t => {
+        it ( 'supports batching setters automatically', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, set fn ( increment ) { this.foo += increment; this.bar += increment; } } );
 
@@ -6784,17 +5502,21 @@ describe ( 'oby', () => {
             o.bar;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.fn = 1;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.foo, 2 );
           t.is ( o.bar, 3 );
 
         });
 
-        it ( 'supports batching deletations automatically', t => {
+        it ( 'supports batching deletations automatically', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
 
@@ -6807,15 +5529,19 @@ describe ( 'oby', () => {
             Object.keys ( o );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           delete o.foo;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
         });
 
-        it ( 'supports batching additions automatically', t => {
+        it ( 'supports batching additions automatically', async t => {
 
           const o = $.store ( { bar: 2 } );
 
@@ -6828,15 +5554,19 @@ describe ( 'oby', () => {
             Object.keys ( o );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.foo = 1;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
         });
 
-        it ( 'supports reacting to changes in deep arrays', t => {
+        it ( 'supports reacting to changes in deep arrays', async t => {
 
           const o = $.store ( { value: [1, 2] } );
 
@@ -6847,23 +5577,31 @@ describe ( 'oby', () => {
             o.value.length;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value.pop ();
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
           o.value.pop ();
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
 
           o.value.push ( 1 );
 
+          t.is ( calls, 3 );
+          await tick ();
           t.is ( calls, 4 );
 
         });
 
-        it ( 'supports reacting to changes in top-level arrays', t => {
+        it ( 'supports reacting to changes in top-level arrays', async t => {
 
           const o = $.store ( [1, 2] );
 
@@ -6874,23 +5612,31 @@ describe ( 'oby', () => {
             o.length;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.pop ();
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
           o.pop ();
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
 
           o.push ( 1 );
 
+          t.is ( calls, 3 );
+          await tick ();
           t.is ( calls, 4 );
 
         });
 
-        it ( 'supports reacting to changes at a specific index in deep arrays', t => {
+        it ( 'supports reacting to changes at a specific index in deep arrays', async t => {
 
           const o = $.store ( { value: [1, 2] } );
 
@@ -6901,35 +5647,49 @@ describe ( 'oby', () => {
             o.value[0];
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value.pop ();
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
           o.value.push ( 10 );
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
           o.value[0] = 123;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
           o.value.unshift ( 1 );
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
 
           o.value.unshift ( 1 );
 
           t.is ( calls, 3 );
+          await tick ();
+          t.is ( calls, 3 );
 
           o.value.unshift ( 2 );
 
+          t.is ( calls, 3 );
+          await tick ();
           t.is ( calls, 4 );
 
         });
 
-        it ( 'supports reacting to changes at a specific index in top-level arrays', t => {
+        it ( 'supports reacting to changes at a specific index in top-level arrays', async t => {
 
           const o = $.store ( [1, 2] );
 
@@ -6940,35 +5700,49 @@ describe ( 'oby', () => {
             o[0];
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.pop ();
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
           o.push ( 10 );
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
 
           o[0] = 123;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
           o.unshift ( 1 );
 
+          t.is ( calls, 2 );
+          await tick ();
           t.is ( calls, 3 );
 
           o.unshift ( 1 );
 
           t.is ( calls, 3 );
+          await tick ();
+          t.is ( calls, 3 );
 
           o.unshift ( 2 );
 
+          t.is ( calls, 3 );
+          await tick ();
           t.is ( calls, 4 );
 
         });
 
-        it ( 'supports reacting to changes on custom classes', t => {
+        it ( 'supports reacting to changes on custom classes', async t => {
 
           class Foo {
             constructor () {
@@ -7000,19 +5774,25 @@ describe ( 'oby', () => {
             calls += 'b';
           });
 
+          t.is ( calls, '' );
+          await tick ();
           t.is ( calls, 'fb' );
 
           foo.foo += 1;
 
+          t.is ( calls, 'fb' );
+          await tick ();
           t.is ( calls, 'fbf' );
 
           bar.bar += 1;
 
+          t.is ( calls, 'fbf' );
+          await tick ();
           t.is ( calls, 'fbfb' );
 
         });
 
-        it ( 'supports batching array methods automatically', t => {
+        it ( 'supports batching array methods automatically', async t => {
 
           const o = $.store ( { value: [1, 2, 3] } );
 
@@ -7023,17 +5803,21 @@ describe ( 'oby', () => {
             o.value.forEach ( () => {} );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value.forEach ( ( value, index ) => {
             o.value[index] = value * 2;
           });
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
         });
 
-        it ( 'supports reacting to property checks, deleting', t => {
+        it ( 'supports reacting to property checks, deleting', async t => {
 
           const o = $.store ( { value: undefined } );
 
@@ -7044,19 +5828,25 @@ describe ( 'oby', () => {
             if ( 'value' in o ) {}
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           delete o.value;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
           delete o.value;
 
           t.is ( calls, 2 );
+          await tick ();
+          t.is ( calls, 2 );
 
         });
 
-        it ( 'supports reacting to property checks, adding', t => {
+        it ( 'supports reacting to property checks, adding', async t => {
 
           const o = $.store ( {} );
 
@@ -7067,19 +5857,25 @@ describe ( 'oby', () => {
             if ( 'value' in o ) {}
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value = undefined;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
           o.value = undefined;
 
           t.is ( calls, 2 );
+          await tick ();
+          t.is ( calls, 2 );
 
         });
 
-        it ( 'survives reading a value inside a discarded root', t => {
+        it ( 'survives reading a value inside a discarded root', async t => {
 
           const o = $.store ({ value: 123 });
 
@@ -7107,15 +5903,19 @@ describe ( 'oby', () => {
 
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           o.value = 321;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
 
         });
 
-        it ( 'supports reacting to changes of keys caused by Object.defineProperty, adding enumerable property', t => {
+        it ( 'supports reacting to changes of keys caused by Object.defineProperty, adding enumerable property', async t => {
 
           const o = $.store ( {} );
 
@@ -7126,6 +5926,8 @@ describe ( 'oby', () => {
             Object.keys ( o );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o.value, undefined );
 
@@ -7134,12 +5936,14 @@ describe ( 'oby', () => {
             value: 123
           });
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.value, 123 );
 
         });
 
-        it ( 'supports reacting to changes of keys caused by Object.defineProperty, deleting enumerable property', t => {
+        it ( 'supports reacting to changes of keys caused by Object.defineProperty, deleting enumerable property', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -7150,6 +5954,8 @@ describe ( 'oby', () => {
             Object.keys ( o );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o.value, 1 );
 
@@ -7158,12 +5964,14 @@ describe ( 'oby', () => {
             value: 123
           });
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.value, 123 );
 
         });
 
-        it ( 'supports not reacting to changes of keys caused by Object.defineProperty, overriding enumerable property', t => {
+        it ( 'supports not reacting to changes of keys caused by Object.defineProperty, overriding enumerable property', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -7174,6 +5982,8 @@ describe ( 'oby', () => {
             Object.keys ( o );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o.value, 1 );
 
@@ -7183,11 +5993,13 @@ describe ( 'oby', () => {
           });
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
           t.is ( o.value, 123 );
 
         });
 
-        it ( 'supports not reacting to changes of keys caused by Object.defineProperty, adding non-enumerable property', t => {
+        it ( 'supports not reacting to changes of keys caused by Object.defineProperty, adding non-enumerable property', async t => {
 
           const o = $.store ( {} );
 
@@ -7198,6 +6010,8 @@ describe ( 'oby', () => {
             Object.keys ( o );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o.value, undefined );
 
@@ -7207,11 +6021,13 @@ describe ( 'oby', () => {
           });
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
           t.is ( o.value, 123 );
 
         });
 
-        it ( 'supports reacting to changes of in caused by Object.defineProperty, adding enumerable property', t => {
+        it ( 'supports reacting to changes of in caused by Object.defineProperty, adding enumerable property', async t => {
 
           const o = $.store ( {} );
 
@@ -7222,6 +6038,8 @@ describe ( 'oby', () => {
             if ( 'value' in o ) {}
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o.value, undefined );
 
@@ -7230,12 +6048,14 @@ describe ( 'oby', () => {
             value: 123
           });
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.value, 123 );
 
         });
 
-        it ( 'supports reacting to changes of in caused by Object.defineProperty, deleting enumerable property',t => {
+        it ( 'supports reacting to changes of in caused by Object.defineProperty, deleting enumerable property', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -7246,6 +6066,8 @@ describe ( 'oby', () => {
             if ( 'value' in o ) {}
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o.value, 1 );
 
@@ -7254,12 +6076,14 @@ describe ( 'oby', () => {
             value: 123
           });
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.value, 123 );
 
         });
 
-        it ( 'supports not reacting to changes of in caused by Object.defineProperty, overriding enumerable property', t => {
+        it ( 'supports not reacting to changes of in caused by Object.defineProperty, overriding enumerable property', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -7270,6 +6094,8 @@ describe ( 'oby', () => {
             if ( 'value' in o ) {}
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o.value, 1 );
 
@@ -7279,11 +6105,13 @@ describe ( 'oby', () => {
           });
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
           t.is ( o.value, 123 );
 
         });
 
-        it ( 'supports not reacting to changes of in caused by Object.defineProperty, adding non-enumerable property', t => {
+        it ( 'supports not reacting to changes of in caused by Object.defineProperty, adding non-enumerable property', async t => {
 
           const o = $.store ( {} );
 
@@ -7294,6 +6122,8 @@ describe ( 'oby', () => {
             if ( 'value' in o ) {}
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o.value, undefined );
 
@@ -7303,11 +6133,13 @@ describe ( 'oby', () => {
           });
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
           t.is ( o.value, 123 );
 
         });
 
-        it ( 'supports reacting to changes in getters caused by Object.defineProperty, addition', t => {
+        it ( 'supports reacting to changes in getters caused by Object.defineProperty, addition', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
 
@@ -7319,6 +6151,8 @@ describe ( 'oby', () => {
             args.push ( o.fn );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.deepEqual ( args, [undefined] );
 
@@ -7329,12 +6163,14 @@ describe ( 'oby', () => {
             }
           );
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.deepEqual ( args, [undefined, 3] );
 
         });
 
-        it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with value', t => {
+        it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with value', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
 
@@ -7346,6 +6182,8 @@ describe ( 'oby', () => {
             args.push ( o.fn );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.deepEqual ( args, [3] );
 
@@ -7354,12 +6192,14 @@ describe ( 'oby', () => {
             }
           );
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.deepEqual ( args, [3, 123] );
 
         });
 
-        it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with new getter', t => {
+        it ( 'supports reacting to changes in getters caused by Object.defineProperty, override with new getter', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
 
@@ -7371,6 +6211,8 @@ describe ( 'oby', () => {
             args.push ( o.fn );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.deepEqual ( args, [3] );
 
@@ -7381,12 +6223,14 @@ describe ( 'oby', () => {
             }
           );
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.deepEqual ( args, [3, 30] );
 
         });
 
-        it ( 'supports not reacting to changes in getters caused by Object.defineProperty, override with same getter', t => {
+        it ( 'supports not reacting to changes in getters caused by Object.defineProperty, override with same getter', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
 
@@ -7398,6 +6242,8 @@ describe ( 'oby', () => {
             args.push ( o.fn );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.deepEqual ( args, [3] );
 
@@ -7407,11 +6253,13 @@ describe ( 'oby', () => {
           );
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
           t.deepEqual ( args, [3] );
 
         });
 
-        it ( 'supports not reacting to changes for a provably equivalent property descriptors set by Object.defineProperty', t => {
+        it ( 'supports not reacting to changes for a provably equivalent property descriptors set by Object.defineProperty', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get baz () { return 1; }, set baz ( value ) {} } );
 
@@ -7423,6 +6271,8 @@ describe ( 'oby', () => {
             args.push ( o.foo );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.deepEqual ( args, [1] );
 
@@ -7431,11 +6281,13 @@ describe ( 'oby', () => {
           Object.defineProperty ( o, 'baz', Object.getOwnPropertyDescriptor ( o, 'baz' ) );
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
           t.deepEqual ( args, [1] );
 
         });
 
-        it ( 'supports reacting to changes in setters caused by Object.defineProperty, addition', t => {
+        it ( 'supports reacting to changes in setters caused by Object.defineProperty, addition', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
 
@@ -7447,6 +6299,8 @@ describe ( 'oby', () => {
             o.fn;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o.fn, 3 );
           t.is ( o._fn, undefined );
@@ -7458,13 +6312,15 @@ describe ( 'oby', () => {
             }
           );
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.fn, undefined );
           t.is ( o._fn, 30 );
 
         });
 
-        it.skip ( 'supports reacting to changes in setters caused by Object.defineProperty, override with new setter', t => {
+        it.skip ( 'supports reacting to changes in setters caused by Object.defineProperty, override with new setter', async t => { //TODO: Maybe too expensive to support
 
           const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
 
@@ -7476,6 +6332,8 @@ describe ( 'oby', () => {
             o.fn;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o._fn, 3 );
 
@@ -7486,12 +6344,14 @@ describe ( 'oby', () => {
             }
           );
 
-          t.is ( calls, 2 );
-          t.is ( o._fn, 30 );
+          t.is ( calls, 1 );
+          await tick ();
+          // t.is ( calls, 2 );
+          // t.is ( o._fn, 30 );
 
         });
 
-        it.skip ( 'supports not reacting to changes in setters caused by Object.defineProperty, override with same setter', t => {
+        it ( 'supports not reacting to changes in setters caused by Object.defineProperty, override with same setter', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, set fn ( value ) { this._fn = value; } } );
 
@@ -7503,6 +6363,8 @@ describe ( 'oby', () => {
             o.fn;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( o._fn, 3 );
 
@@ -7512,11 +6374,13 @@ describe ( 'oby', () => {
           );
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
           t.is ( o._fn, 3 );
 
         });
 
-        it ( 'supports reacting to changes of value caused by Object.defineProperty', t => {
+        it ( 'supports reacting to changes of value caused by Object.defineProperty', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -7528,6 +6392,8 @@ describe ( 'oby', () => {
             args.push ( o.value );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.deepEqual ( args, [1] );
 
@@ -7536,12 +6402,14 @@ describe ( 'oby', () => {
             }
           );
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.deepEqual ( args, [1, 123] );
 
         });
 
-        it ( 'supports not reacting to changes of value caused by Object.defineProperty', t => {
+        it ( 'supports not reacting to changes of value caused by Object.defineProperty', async t => {
 
           const o = $.store ( { value: 123 } );
 
@@ -7553,6 +6421,8 @@ describe ( 'oby', () => {
             args.push ( o.value );
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.deepEqual ( args, [123] );
 
@@ -7562,11 +6432,13 @@ describe ( 'oby', () => {
           );
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
           t.deepEqual ( args, [123] );
 
         });
 
-        it ( 'treats number and string properties the same way', t => {
+        it ( 'treats number and string properties the same way', async t => {
 
           const o = $.store ([ 0 ]);
 
@@ -7583,16 +6455,25 @@ describe ( 'oby', () => {
             o['0'];
           });
 
+          t.is ( callsNumber, 0 );
+          t.is ( callsString, 0 );
+          await tick ();
           t.is ( callsNumber, 1 );
           t.is ( callsString, 1 );
 
           o[0] = 1;
 
+          t.is ( callsNumber, 1 );
+          t.is ( callsString, 1 );
+          await tick ();
           t.is ( callsNumber, 2 );
           t.is ( callsString, 2 );
 
           o['0'] = 2;
 
+          t.is ( callsNumber, 2 );
+          t.is ( callsString, 2 );
+          await tick ();
           t.is ( callsNumber, 3 );
           t.is ( callsString, 3 );
 
@@ -7617,45 +6498,9 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
-
-        });
-
-        it ( 'automatically waits for a sync batch to resolve', async t => {
-
-          const o = $.store ({ foo: 1 });
-
-          let calls = '';
-
-          $.reaction ( () => {
-
-            o.foo;
-
-            calls += 'r';
-
-          });
-
-          $.store.on ( o, () => {
-
-            calls += 's';
-
-          });
-
-          t.is ( calls, 'r' );
-
-          $.batch ( () => {
-
-            o.foo = 2;
-
-          });
-
-          t.is ( calls, 'rr' );
-
-          await delay ( 50 );
-
-          t.is ( calls, 'rrs' );
 
         });
 
@@ -7665,7 +6510,7 @@ describe ( 'oby', () => {
 
           let calls = '';
 
-          $.reaction ( () => {
+          $.effect ( () => {
 
             o.foo;
 
@@ -7678,6 +6523,8 @@ describe ( 'oby', () => {
             calls += 's';
 
           });
+
+          await tick ();
 
           t.is ( calls, 'r' );
 
@@ -7689,11 +6536,11 @@ describe ( 'oby', () => {
 
             await delay ( 25 );
 
+            t.is ( calls, 'r' );
+
           });
 
-          t.is ( calls, 'rr' );
-
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 'rrs' );
 
@@ -7711,7 +6558,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -7731,7 +6578,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -7749,7 +6596,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -7767,7 +6614,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 0 );
 
@@ -7788,7 +6635,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 0 );
 
@@ -7806,7 +6653,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -7814,7 +6661,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -7832,7 +6679,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -7840,7 +6687,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 2 );
 
@@ -7858,7 +6705,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -7866,7 +6713,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 2 );
 
@@ -7884,7 +6731,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -7892,7 +6739,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 2 );
 
@@ -7910,7 +6757,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -7918,7 +6765,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 2 );
 
@@ -7941,7 +6788,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, '' );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, '12' );
 
@@ -7949,7 +6796,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, '12' );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, '1212' );
 
@@ -7970,7 +6817,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, '' );
 
-          await delay ( 50 );
+          await tick ()
 
           t.is ( calls, 'ab' );
 
@@ -8018,7 +6865,7 @@ describe ( 'oby', () => {
 
           o.value = 1;
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 0 );
 
@@ -8038,7 +6885,7 @@ describe ( 'oby', () => {
 
           o.deep = o.deep;
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 0 );
 
@@ -8060,7 +6907,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -8068,7 +6915,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 2 );
 
@@ -8091,7 +6938,7 @@ describe ( 'oby', () => {
           store.c = { id: 'c' };
           store.d = { id: 'd' };
 
-          await delay ( 50 );
+          await tick ();
 
         });
 
@@ -8111,7 +6958,7 @@ describe ( 'oby', () => {
           delete store.a;
           delete store.b;
 
-          await delay ( 50 );
+          await tick ();
 
         });
 
@@ -8128,7 +6975,7 @@ describe ( 'oby', () => {
           store.a.value = 1;
           store.b.value = 1;
 
-          await delay ( 50 );
+          await tick ();
 
         });
 
@@ -8149,7 +6996,7 @@ describe ( 'oby', () => {
             }
           });
 
-          await delay ( 50 );
+          await tick ();
 
         });
 
@@ -8173,7 +7020,7 @@ describe ( 'oby', () => {
             }
           });
 
-          await delay ( 50 );
+          await tick ();
 
         });
 
@@ -8192,7 +7039,7 @@ describe ( 'oby', () => {
           store.a.bar = 1;
           store.b.bar = 1;
 
-          await delay ( 50 );
+          await tick ();
 
         });
 
@@ -8216,7 +7063,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 0 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 1 );
 
@@ -8224,7 +7071,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
 
-          await delay ( 50 );
+          await tick ();
 
           t.is ( calls, 2 );
 
@@ -8308,7 +7155,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports bailing out of tracking for an outer object', t => {
+        it ( 'supports bailing out of tracking for an outer object', async t => {
 
           const o = $.store ( $.store.untrack ( {} ) );
 
@@ -8319,17 +7166,21 @@ describe ( 'oby', () => {
             o.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( $.isStore ( o ), false );
 
           o.value = 123;
 
           t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
           t.is ( $.isStore ( o ), false );
 
         });
 
-        it ( 'supports bailing out of tracking for an inner object', t => {
+        it ( 'supports bailing out of tracking for an inner object', async t => {
 
           const o = $.store ( { foo: $.store.untrack ( {} ) } );
 
@@ -8340,11 +7191,15 @@ describe ( 'oby', () => {
             o.foo.value;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( $.isStore ( o.foo ), false );
 
           o.foo.value = 123;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 1 );
           t.is ( $.isStore ( o.foo ), false );
 
@@ -8382,7 +7237,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports wrapping, unwrapping, and re-wrapping without losing reactivity', t => {
+        it ( 'supports wrapping, unwrapping, and re-wrapping without losing reactivity', async t => {
 
           const o = $.store ( { foo: 1 } );
 
@@ -8393,12 +7248,16 @@ describe ( 'oby', () => {
             o.foo;
           });
 
+          t.is ( calls, 0 );
+          await tick ();
           t.is ( calls, 1 );
 
           const rewrapped = $.store ( $.store.unwrap ( o ) );
 
           rewrapped.foo = 10;
 
+          t.is ( calls, 1 );
+          await tick ();
           t.is ( calls, 2 );
           t.is ( o.foo, 10 );
           t.is ( rewrapped.foo, 10 );
@@ -8413,7 +7272,7 @@ describe ( 'oby', () => {
 
   describe ( 'suspense', it => {
 
-    it ( 'can accept a primitive falsy condition', t => {
+    it ( 'can accept a primitive falsy condition', async t => {
 
       const o = $(0);
       const suspended = 0;
@@ -8432,15 +7291,19 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'can accept a primitive truthy condition', t => {
+    it ( 'can accept a primitive truthy condition', async t => {
 
       const o = $(0);
       const suspended = 1;
@@ -8460,14 +7323,18 @@ describe ( 'oby', () => {
       });
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       o ( 1 );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
     });
 
-    it ( 'can accept a function condition', t => {
+    it ( 'can accept a function condition', async t => {
 
       const o = $(0);
       const suspended = $(true);
@@ -8487,6 +7354,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( false );
@@ -8494,10 +7363,12 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'can suspend and unsuspend again when the condition changes', t => {
+    it ( 'can suspend and unsuspend again when the condition changes', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -8516,6 +7387,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( true );
@@ -8524,10 +7397,14 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
       suspended ( false );
       suspended ( false );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
       suspended ( 1 );
@@ -8536,15 +7413,19 @@ describe ( 'oby', () => {
       o ( 2 );
 
       t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 2 );
 
       suspended ( 0 );
       suspended ( 0 );
 
+      t.is ( calls, 2 );
+      await tick ();
       t.is ( calls, 3 );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of a an effect', t => {
+    it ( 'can suspend and unsuspend the execution of a an effect', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -8563,6 +7444,45 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      suspended ( false );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'can suspend and unsuspend the execution of a sync effect', t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.effect ( () => {
+
+          calls += 1;
+
+          o ();
+
+        }, { sync: true } );
+
+      });
+
       t.is ( calls, 1 );
 
       suspended ( true );
@@ -8577,7 +7497,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in an effect', t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in an effect', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -8602,6 +7522,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( sequence, '' );
+      await tick ();
       t.is ( sequence, 'ab' );
 
       suspended ( true );
@@ -8609,14 +7531,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'ab' );
 
       suspended ( false );
 
+      t.is ( sequence, 'ab' );
+      await tick ();
       t.is ( sequence, 'abb' );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a memo', t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a memo', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -8625,7 +7551,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
 
           sequence += 'a';
 
@@ -8639,8 +7565,12 @@ describe ( 'oby', () => {
 
         });
 
+        memo ();
+
       });
 
+      t.is ( sequence, 'a' );
+      await tick ();
       t.is ( sequence, 'ab' );
 
       suspended ( true );
@@ -8648,14 +7578,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'ab' );
 
       suspended ( false );
 
+      t.is ( sequence, 'ab' );
+      await tick ();
       t.is ( sequence, 'abb' );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a root', t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a root', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -8680,6 +7614,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( sequence, 'a' );
+      await tick ();
       t.is ( sequence, 'ab' );
 
       suspended ( true );
@@ -8687,14 +7623,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'ab' );
 
       suspended ( false );
 
+      t.is ( sequence, 'ab' );
+      await tick ();
       t.is ( sequence, 'abb' );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a for', t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a for', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -8703,14 +7643,17 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.suspense ( suspended, () => {
-        $.for ( array, () => {
+        const memo = $.for ( array, () => {
           $.effect ( () => {
             calls += 1;
             o ();
           });
-        });
+        }, [], { unkeyed: true } );
+        memo ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 3 );
 
       suspended ( true );
@@ -8718,14 +7661,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 3 );
+      await tick ();
+      t.is ( calls, 3 );
 
       suspended ( false );
 
+      t.is ( calls, 3 );
+      await tick ();
       t.is ( calls, 6 );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a forIndex', t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a forValue', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -8734,14 +7681,17 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.suspense ( suspended, () => {
-        $.forIndex ( array, () => {
+        const memo = $.for ( array, () => {
           $.effect ( () => {
             calls += 1;
             o ();
           });
-        });
+        }, [], { unkeyed: true } );
+        memo ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 3 );
 
       suspended ( true );
@@ -8749,14 +7699,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 3 );
+      await tick ();
+      t.is ( calls, 3 );
 
       suspended ( false );
 
+      t.is ( calls, 3 );
+      await tick ();
       t.is ( calls, 6 );
 
     });
 
-    it ( 'can suspend and unsuspend the execution of an effect created in a suspense', t => {
+    it ( 'can suspend and unsuspend the execution of an effect created in a suspense', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -8781,6 +7735,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( sequence, 'a' );
+      await tick ();
       t.is ( sequence, 'ab' );
 
       suspended ( true );
@@ -8788,14 +7744,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'ab' );
 
       suspended ( false );
 
+      t.is ( sequence, 'ab' );
+      await tick ();
       t.is ( sequence, 'abb' );
 
     });
 
-    it ( 'can unsuspend only when all parents are unsuspended too', t => {
+    it ( 'can unsuspend only when all parents are unsuspended too', async t => {
 
       const o = $(0);
       const a = $(true);
@@ -8841,22 +7801,30 @@ describe ( 'oby', () => {
       });
 
       t.is ( sequence, '' );
+      await tick ();
+      t.is ( sequence, '' );
 
       c ( false );
 
+      t.is ( sequence, '' );
+      await tick ();
       t.is ( sequence, '' );
 
       b ( false );
 
       t.is ( sequence, '' );
+      await tick ();
+      t.is ( sequence, '' );
 
       a ( false );
 
+      t.is ( sequence, '' );
+      await tick ();
       t.is ( sequence, 'abc' );
 
     });
 
-    it ( 'can suspend a lazily-crated effect', t => {
+    it ( 'can suspend a lazily-crated effect', async t => {
 
       const o = $(0);
       const lazy = $(false);
@@ -8866,7 +7834,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
 
           if ( !lazy () ) return;
 
@@ -8880,21 +7848,33 @@ describe ( 'oby', () => {
 
         });
 
+        $.effect ( () => {
+
+          memo ();
+
+        }, { suspense: false } );
+
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 0 );
 
       lazy ( true );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
     });
 
-    it ( 'can suspend a lazily-crated suspense', t => {
+    it ( 'can suspend a lazily-crated suspense', async t => {
 
       const o = $(0);
       const lazy = $(false);
@@ -8904,7 +7884,7 @@ describe ( 'oby', () => {
 
       $.suspense ( suspended, () => {
 
-        $.memo ( () => {
+        const memo = $.memo ( () => {
 
           if ( !lazy () ) return;
 
@@ -8922,17 +7902,68 @@ describe ( 'oby', () => {
 
         });
 
+        $.effect ( () => {
+
+          memo ();
+
+        }, { suspense: false } );
+
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 0 );
 
       lazy ( true );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
+
+    });
+
+    it ( 'can not suspend an effect with suspense disabled', async t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+
+        $.effect ( () => {
+
+          calls += 1;
+
+          o ();
+
+        }, { suspense: false } );
+
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+      suspended ( false );
+
+      t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 2 );
 
     });
 
@@ -8943,42 +7974,9 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.suspense ( suspended, () => {
+      const memo = $.suspense ( suspended, () => {
 
-        $.memo ( () => {
-
-          calls += 1;
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 1 );
-
-      suspended ( true );
-
-      o ( 1 );
-
-      t.is ( calls, 2 );
-
-      suspended ( false );
-
-      t.is ( calls, 2 );
-
-    });
-
-    it ( 'can not suspend a reaction', t => {
-
-      const o = $(0);
-      const suspended = $(false);
-
-      let calls = 0;
-
-      $.suspense ( suspended, () => {
-
-        $.reaction ( () => {
+        return $.memo ( () => {
 
           calls += 1;
 
@@ -8988,16 +7986,22 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 1 );
 
       suspended ( true );
 
       o ( 1 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
       t.is ( calls, 2 );
 
       suspended ( false );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), undefined );
       t.is ( calls, 2 );
 
     });
@@ -9014,7 +8018,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'starts unsuspended with no parent and a false condition', t => {
+    it ( 'starts unsuspended with no parent and a false condition', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -9033,6 +8037,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( true );
@@ -9040,14 +8046,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
       suspended ( false );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'starts unsuspended with an unsuspended parent and a false condition', t => {
+    it ( 'starts unsuspended with an unsuspended parent and a false condition', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -9070,6 +8080,8 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       suspended ( true );
@@ -9077,14 +8089,18 @@ describe ( 'oby', () => {
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
       suspended ( false );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'starts suspended with a suspended parent and a false condition', t => {
+    it ( 'starts suspended with a suspended parent and a false condition', async t => {
 
       const o = $(0);
       const suspended = $(true);
@@ -9108,18 +8124,24 @@ describe ( 'oby', () => {
       });
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
+      t.is ( calls, 1 );
+      await tick ();
       t.is ( calls, 2 );
 
     });
 
-    it ( 'starts suspended with an unuspended parent and a true condition', t => {
+    it ( 'starts suspended with an unuspended parent and a true condition', async t => {
 
       const o = $(0);
       const suspended = $(false);
@@ -9143,14 +8165,18 @@ describe ( 'oby', () => {
       });
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
     });
 
-    it ( 'starts suspended with a suspended parent and a true condition', t => {
+    it ( 'starts suspended with a suspended parent and a true condition', async t => {
 
       const o = $(0);
       const suspended = $(true);
@@ -9174,20 +8200,24 @@ describe ( 'oby', () => {
       });
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
       suspended ( false );
 
       t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 0 );
 
     });
 
-    it ( 'supports cleaning up suspended, but executed, effects', t => {
+    it ( 'supports cleaning up suspended, but executed, effects', async t => {
 
       const suspended = $(false);
 
       let calls = 0;
 
-      $.root ( dispose => {
+      await $.root ( async dispose => {
 
         $.suspense ( suspended, () => {
 
@@ -9202,6 +8232,8 @@ describe ( 'oby', () => {
           });
 
         });
+
+        await tick ();
 
         suspended ( true );
 
@@ -9215,13 +8247,13 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports not cleaning suspended, and never executed, effects', t => {
+    it ( 'supports not cleaning suspended, and never executed, effects', async t => {
 
       const suspended = $(true);
 
       let calls = 0;
 
-      $.root ( dispose => {
+      await $.root ( async dispose => {
 
         $.suspense ( suspended, () => {
 
@@ -9237,6 +8269,8 @@ describe ( 'oby', () => {
 
         });
 
+        await tick ();
+
         dispose ();
 
         t.is ( calls, 0 );
@@ -9245,15 +8279,15 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports unsuspending with a disposed always-suspended effect without causing the effect to be executed', t => {
+    it ( 'supports unsuspending with a disposed always-suspended effect without causing the effect to be executed', async t => {
 
       const suspended = $(true);
 
       let calls = 0;
 
-      $.suspense ( suspended, () => {
+      await $.suspense ( suspended, () => {
 
-        $.root ( dispose => {
+        return $.root ( async dispose => {
 
           $.effect ( () => {
 
@@ -9261,9 +8295,13 @@ describe ( 'oby', () => {
 
           });
 
+          await tick ();
+
           dispose ();
 
           suspended ( false );
+
+          await tick ();
 
           t.is ( calls, 0 );
 
@@ -9295,19 +8333,31 @@ describe ( 'oby', () => {
         sequence += 'd';
       };
 
-      $.switch ( condition, [[0, value0], [1, value1], [valueDefault]] );
+      const memo = $.switch ( condition, [[0, value0], [1, value1], [valueDefault]] );
+
+      t.is ( memo ()(), undefined );
 
       condition ( 0 );
 
       t.is ( sequence, '0' );
 
       condition ( 1 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 1 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, '01' );
 
       condition ( 2 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 3 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, '01d' );
 
@@ -9355,18 +8405,26 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.switch ( o, [[1, '1']], () => () => {
+      const memo = $.switch ( o, [[1, '1']], () => () => {
         calls += 1;
         return 321;
       });
+
+      t.is ( calls, 0 );
+
+      t.is ( memo ()()(), 321 );
 
       t.is ( calls, 1 );
 
       o ( 3 );
 
+      t.is ( memo ()()(), 321 );
+
       t.is ( calls, 1 );
 
       o ( 4 );
+
+      t.is ( memo ()()(), 321 );
 
       t.is ( calls, 1 );
 
@@ -9458,20 +8516,35 @@ describe ( 'oby', () => {
         sequence += 'f';
       };
 
-      $.ternary ( condition, valueTrue, valueFalse );
+      const memo = $.ternary ( condition, valueTrue, valueFalse );
 
       condition ( 2 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 3 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 't' );
 
       condition ( 0 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( false );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 'tf' );
 
       condition ( 4 );
+
+      t.is ( memo ()(), undefined );
+
       condition ( 5 );
+
+      t.is ( memo ()(), undefined );
 
       t.is ( sequence, 'tft' );
 
@@ -9537,11 +8610,14 @@ describe ( 'oby', () => {
 
   describe ( 'tryCatch', it => {
 
+    //TODO: These "settle" calls look a bit ugly, but maybe no way around them with a lazy system?
+
     it ( 'can catch and recover from errors', t => {
 
       const o = $(false);
 
-      let err, recover;
+      let err;
+      let recover;
 
       const fallback = ({ error, reset }) => {
         err = error;
@@ -9556,20 +8632,19 @@ describe ( 'oby', () => {
 
       const memo = $.tryCatch ( regular, fallback );
 
-      t.is ( memo ()(), 'regular' );
+      t.is ( settle ( memo ), 'regular' );
 
       o ( true );
 
+      t.is ( settle ( memo ), 'fallback' );
       t.true ( err instanceof Error );
       t.is ( err.message, 'whoops' );
-
-      t.is ( memo (), 'fallback' );
 
       o ( false );
 
       recover ();
 
-      t.is ( memo ()(), 'regular' );
+      t.is ( settle ( memo ), 'regular' );
 
     });
 
@@ -9584,13 +8659,17 @@ describe ( 'oby', () => {
         throw 'err';
       };
 
-      $.tryCatch ( regular, fallback );
+      const memo = $.tryCatch ( regular, fallback );
+
+      settle ( memo );
 
     });
 
     it ( 'resolves the fallback before returning it', t => {
 
       const result = $.tryCatch ( () => { throw 'err' }, () => () => () => 123 );
+
+      settle ( result );
 
       isReadable ( t, result );
       isReadable ( t, result () );
@@ -9604,11 +8683,47 @@ describe ( 'oby', () => {
 
       const result = $.tryCatch ( () => () => 123, () => {} );
 
+      settle ( result );
+
       isReadable ( t, result );
       isReadable ( t, result () );
       isReadable ( t, result ()() );
 
       t.is ( result ()()(), 123 );
+
+    });
+
+    it ( 'suppors error handlers that throw', t => {
+
+      let calls = '';
+
+      const result = $.tryCatch ( () => {
+
+        return $.tryCatch ( () => {
+
+          return $.memo ( () => {
+
+            throw new Error ();
+
+          });
+
+        }, () => {
+
+          calls += 'b';
+          throw new Error ();
+          calls += 'c';
+
+        });
+
+      }, () => {
+
+        calls += 'a';
+
+      });
+
+      settle ( result );
+
+      t.is ( calls, 'ba' );
 
     });
 
@@ -9636,13 +8751,13 @@ describe ( 'oby', () => {
 
       let cleaned = false;
 
-      $.memo ( () => {
+      const memo1 = $.memo ( () => {
 
         o ();
 
         $.untrack ( () => {
 
-          $.memo ( () => {
+          const memo2 = $.memo ( () => {
 
             $.cleanup ( () => {
 
@@ -9652,19 +8767,23 @@ describe ( 'oby', () => {
 
           });
 
+          memo2 ();
+
         });
 
       });
 
+      t.is ( memo1 (), undefined );
       t.is ( cleaned, false );
 
       o ( 2 );
 
+      t.is ( memo1 (), undefined );
       t.is ( cleaned, true );
 
     });
 
-    it ( 'does not leak effects', t => {
+    it ( 'does not leak effects', async t => {
 
       const o = $(1);
 
@@ -9690,43 +8809,13 @@ describe ( 'oby', () => {
 
       });
 
-      t.is ( cleaned, false );
-
-      o ( 2 );
-
-      t.is ( cleaned, true );
-
-    });
-
-    it ( 'does not leak reactions', t => {
-
-      const o = $(1);
-
-      let cleaned = false;
-
-      $.reaction ( () => {
-
-        o ();
-
-        $.untrack ( () => {
-
-          $.reaction ( () => {
-
-            $.cleanup ( () => {
-
-              cleaned = true;
-
-            });
-
-          });
-
-        });
-
-      });
+      await tick ();
 
       t.is ( cleaned, false );
 
       o ( 2 );
+
+      await tick ();
 
       t.is ( cleaned, true );
 
@@ -9753,7 +8842,7 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
         calls += 1;
         a ();
         a ();
@@ -9762,23 +8851,29 @@ describe ( 'oby', () => {
         c ();
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
       t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       b ( 4 );
 
       t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       a ( 5 );
       c ( 6 );
 
-      t.is ( calls, 3 );
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 2 );
       t.is ( d (), 4 );
 
     });
 
-    it ( 'supports getting without creating dependencies in an effect', t => {
+    it ( 'supports getting without creating dependencies in an effect', async t => {
 
       const a = $(1);
       const b = $(2);
@@ -9796,57 +8891,29 @@ describe ( 'oby', () => {
         c ();
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       b ( 4 );
 
       t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      a ( 5 );
-      c ( 6 );
-
-      t.is ( calls, 3 );
-      t.is ( d (), 4 );
-
-    });
-
-    it ( 'supports getting without creating dependencies in a reaction', t => {
-
-      const a = $(1);
-      const b = $(2);
-      const c = $(3);
-      const d = $(0);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-        calls += 1;
-        a ();
-        a ();
-        d ( $.untrack ( () => b () ) );
-        c ();
-        c ();
-      });
-
-      t.is ( calls, 1 );
-      t.is ( d (), 2 );
-
-      b ( 4 );
-
+      await tick ();
       t.is ( calls, 1 );
       t.is ( d (), 2 );
 
       a ( 5 );
       c ( 6 );
 
-      t.is ( calls, 3 );
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
       t.is ( d (), 4 );
 
     });
 
-    it ( 'works with functions containing a memo', t => {
+    it ( 'works with functions containing a memo', async t => {
 
       const o = $(0);
 
@@ -9860,11 +8927,13 @@ describe ( 'oby', () => {
 
           o ();
 
-          $.memo ( () => {
+          const memo = $.memo ( () => {
 
             o ();
 
           });
+
+          memo ();
 
           o ();
 
@@ -9872,15 +8941,19 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'works with functions containing an effect', t => {
+    it ( 'works with functions containing an effect', async t => {
 
       const o = $(0);
 
@@ -9906,49 +8979,19 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
       t.is ( calls, 1 );
-
-    });
-
-    it ( 'works with functions containing a reaction', t => {
-
-      const o = $(0);
-
-      let calls = 0;
-
-      $.reaction ( () => {
-
-        calls += 1;
-
-        $.untrack ( () => {
-
-          o ();
-
-          $.reaction ( () => {
-
-            o ();
-
-          });
-
-          o ();
-
-        });
-
-      });
-
-      t.is ( calls, 1 );
-
-      o ( 1 );
-
+      await tick ();
       t.is ( calls, 1 );
 
     });
 
-    it ( 'works with functions containing a root', t => {
+    it ( 'works with functions containing a root', async t => {
 
       const o = $(0);
 
@@ -9974,15 +9017,20 @@ describe ( 'oby', () => {
 
       });
 
+
+      t.is ( calls, 0 );
+      await tick ();
       t.is ( calls, 1 );
 
       o ( 1 );
 
       t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
 
     });
 
-    it ( 'works on the top-level computation', t => {
+    it ( 'works on the top-level computation', async t => {
 
       const o = $(0);
 
@@ -10008,10 +9056,14 @@ describe ( 'oby', () => {
 
       });
 
+      t.is ( sequence, '' );
+      await tick ();
       t.is ( sequence, 'pc' );
 
       o ( 1 );
 
+      t.is ( sequence, 'pc' );
+      await tick ();
       t.is ( sequence, 'pcc' );
 
     });
@@ -10040,9 +9092,9 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can execute a function as if it happend inside another owner', t => {
+    it ( 'can execute a function as if it happend inside another owner', async t => {
 
-      $.root ( () => {
+      await $.root ( async () => {
 
         const token = Symbol ();
 
@@ -10068,6 +9120,8 @@ describe ( 'oby', () => {
 
         });
 
+        await tick ();
+
       });
 
     });
@@ -10082,15 +9136,15 @@ describe ( 'oby', () => {
 
   describe ( 'S-like propagation', it => {
 
-    it ( 'only propagates in topological order', t => {
+    it ( 'only propagates in topological order, diamond', t => {
 
-      //    c1
+      //    a1
       //   /  \
       //  /    \
       // b1     b2
       //  \    /
       //   \  /
-      //    a1
+      //    c1
 
       let sequence = '';
 
@@ -10098,8 +9152,7 @@ describe ( 'oby', () => {
 
       const b1 = $.memo ( () => {
         sequence += 'b1';
-        const val = a1 () + 1;
-        return val;
+        return a1 () + 1;
       });
 
       const b2 = $.memo ( () => {
@@ -10113,11 +9166,15 @@ describe ( 'oby', () => {
         sequence += 'c1';
       });
 
-      sequence = '';
+      t.is ( sequence, '' );
+      t.is ( c1 (), undefined );
+      t.is ( sequence, 'b1b2c1' );
 
       a1 ( 1 );
 
       t.is ( sequence, 'b1b2c1' );
+      t.is ( c1 (), undefined );
+      t.is ( sequence, 'b1b2c1b1b2c1' );
 
     });
 
@@ -10162,11 +9219,15 @@ describe ( 'oby', () => {
         return f1 () + f2 () + f3 () + f4 () + f5 ();
       });
 
-      calls = 0;
+      t.is ( calls, 0 );
+      t.is ( g (), 0 );
+      t.is ( calls, 1 );
 
       d ( 1 );
 
       t.is ( calls, 1 );
+      t.is ( g (), 5 )
+      t.is ( calls, 2 );
 
     });
 
@@ -10219,81 +9280,15 @@ describe ( 'oby', () => {
         return g1 () + g2 () + g3 ();
       });
 
-      calls = 0;
+      t.is ( calls, 0 );
+      t.is ( h (), 0 );
+      t.is ( calls, 1 );
 
       d ( 1 );
 
       t.is ( calls, 1 );
-
-    });
-
-    it ( 'parent cleans up inner subscriptions', t => {
-
-      const o = $(null);
-      const cache = $(false);
-
-      let calls = 0;
-      let childValue;
-      let childValue2;
-
-      const child = o => {
-        $.memo ( () => {
-          childValue = o ();
-          calls += 1;
-        });
-      };
-
-      const child2 = o => {
-        $.memo ( () => {
-          childValue2 = o ();
-        });
-      };
-
-      $.memo ( () => {
-        const value = !!o ();
-        cache ( value );
-        return value;
-      });
-
-      // 1st
-
-      $.memo ( () => {
-        cache ();
-        child2 ( o );
-        child ( o );
-      });
-
-      t.is ( childValue, null );
-      t.is ( childValue2, null );
-
-      t.is ( calls, 1 );
-
-      // 2nd
-
-      o ( 'name' );
-
-      t.is ( childValue, 'name' );
-      t.is ( childValue2, 'name' );
-
+      t.is ( h (), 9 );
       t.is ( calls, 2 );
-
-      // 3rd
-
-      o ( null );
-
-      t.is ( childValue, null );
-      t.is ( childValue2, null );
-
-      t.is ( calls, 3 );
-
-      // 4th
-
-      o ( 'name2' );
-
-      t.is ( childValue, 'name2' );
-      t.is ( childValue2, 'name2' );
-
-      t.is ( calls, 4 );
 
     });
 
@@ -10304,92 +9299,39 @@ describe ( 'oby', () => {
 
       let calls = 0;
 
-      $.memo ( () => {
+      const memo = $.memo ( () => {
 
         calls += 1;
 
-        if ( !a () ) return;
+        if ( !a () ) return 1;
 
         b ();
 
+        return 2;
+
       });
 
+      t.is ( calls, 0 );
+      t.is ( memo (), 1 );
       t.is ( calls, 1 );
 
       a ( 1 );
 
+      t.is ( calls, 1 );
+      t.is ( memo (), 2 );
       t.is ( calls, 2 );
 
       a ( 2 );
 
+      t.is ( calls, 2 );
+      t.is ( memo (), 2 );
       t.is ( calls, 3 );
 
       b ( 1 );
 
+      t.is ( calls, 3 );
+      t.is ( memo (), 2 );
       t.is ( calls, 4 );
-
-    });
-
-    it ( 'parent cleans up inner conditional subscriptions', t => {
-
-      const o = $(null);
-      const cache = $(false);
-
-      let calls = 0;
-      let childValue;
-
-      const child = o => {
-        $.memo ( () => {
-          childValue = o ();
-          calls += 1;
-        });
-        return 'Hi';
-      };
-
-      $.memo ( () => {
-        const value = !!o ();
-        cache ( value );
-        return value;
-      });
-
-      const memo = $.memo ( () => {
-        const cached = cache ();
-        return cached ? child ( o ) : undefined;
-      });
-
-      let view;
-
-      $.memo ( () => {
-        view = memo ();
-        return view;
-      });
-
-      t.is ( view, undefined );
-
-      // 1st
-
-      o ( 'name' );
-
-      t.is ( childValue, 'name' );
-
-      t.is ( view, 'Hi' );
-
-      // 2nd
-
-      o ( 'name2' );
-
-      t.is ( childValue, 'name2' );
-
-      // 3rd
-      // data is null -> cache is false -> child is not run here
-
-      o ( null );
-
-      t.is ( childValue, 'name2' );
-
-      t.is ( view, undefined );
-
-      t.is ( calls, 2 );
 
     });
 

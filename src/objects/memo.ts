@@ -1,22 +1,21 @@
 
 /* IMPORT */
 
-import Computation from '~/objects/computation';
+import {DIRTY_MAYBE_YES} from '~/constants';
 import Observable from '~/objects/observable';
-import {getExecution, setExecution, getCount} from '~/status';
-import {castError, max, noop} from '~/utils';
+import Observer from '~/objects/observer';
+import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
 
-//TODO: Do something about erroring memos, for memos it's probably incorrect to just swallow the error and set the value to "undefined"
-
-class Memo<T = unknown> extends Computation {
+class Memo<T = unknown> extends Observer {
 
   /* VARIABLES */
 
   fn: MemoFunction<T>;
   observable: IObservable<T>;
+  sync?: false;
 
   /* CONSTRUCTOR */
 
@@ -25,122 +24,29 @@ class Memo<T = unknown> extends Computation {
     super ();
 
     this.fn = fn;
-    this.observable = new Observable ( undefined as any, options, this ); //TSC
-
-    this.parent.registerObserver ( this );
-
-    this.update ( true, true );
+    this.observable = new Observable<T> ( SYMBOL_VALUE_INITIAL as any, options, this ); //TSC: Maybe implement the initial value more cleanly, without an assertion
 
   }
 
   /* API */
 
-  dispose ( deep?: boolean, immediate?: boolean ): void {
+  run (): void {
 
-    if ( deep && !this.signal.disposed ) {
+    this.dispose ();
 
-      this.observable.dispose ();
+    const value = this.wrap ( this.fn, this, this );
 
-    }
-
-    super.dispose ( deep, immediate );
+    this.observable.set ( value );
 
   }
 
-  emit ( change: -1 | 1, fresh: boolean ): void {
+  stale ( status: number ): void {
 
-    if ( change > 0 && !getCount ( this.status ) ) {
+    if ( this.status === status ) return;
 
-      this.observable.emit ( change, false );
+    this.status = status;
 
-    }
-
-    super.emit ( change, fresh );
-
-  }
-
-  update ( fresh: boolean, first?: boolean ): void {
-
-    if ( fresh && !this.observable.signal.disposed ) { // The resulting value might change
-
-      const status = getExecution ( this.status );
-
-      if ( status ) { // Currently executing or pending
-
-        this.status = setExecution ( this.status, fresh ? 3 : max ( status, 2 ) );
-
-        if ( status > 1 ) {
-
-          this.observable.emit ( -1, false );
-
-        }
-
-      } else { // Currently sleeping
-
-        this.status = setExecution ( this.status, 1 );
-
-        this.dispose ();
-
-        try {
-
-          const value = this.wrap ( this.fn );
-
-          this.postdispose ();
-
-          if ( this.observable.signal.disposed ) { // Maybe a memo disposed of itself via a root before returning, or caused itself to re-execute
-
-            this.observable.emit ( -1, false );
-
-          } else if ( first ) {
-
-            this.observable.value = value;
-
-          } else {
-
-            this.observable.write ( value );
-
-          }
-
-          if ( !this.observers && !this.observables && !this.cleanups ) { // Auto-disposable
-
-            this.dispose ( true, true );
-
-          }
-
-        } catch ( error: unknown ) {
-
-          this.postdispose ();
-
-          this.catch ( castError ( error ), false );
-
-          this.observable.emit ( -1, false );
-
-        } finally {
-
-          const status = getExecution ( this.status );
-
-          this.status = setExecution ( status, 0 );
-
-          if ( status > 1 ) {
-
-            this.update ( status === 3 );
-
-          } else if ( !this.observables ) { // It can never run again, freeing up some memory
-
-            this.fn = noop as any; //TSC
-            this.observable.dispose ();
-
-          }
-
-        }
-
-      }
-
-    } else { // The resulting value could/should not possibly change
-
-      this.observable.emit ( -1, false );
-
-    }
+    this.observable.stale ( DIRTY_MAYBE_YES );
 
   }
 

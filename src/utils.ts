@@ -38,27 +38,15 @@ const isEqual = ( a: unknown[], b: unknown[] ): boolean => {
 
 };
 
-const isFunction = ( value: unknown ): value is (( ...args: unknown[] ) => unknown) => {
+const isFunction = ( value: unknown ): value is Function => {
 
   return typeof value === 'function';
-
-};
-
-const isNumber = ( value: unknown ): boolean => {
-
-  return typeof value === 'number';
 
 };
 
 const isObject = ( value: unknown ): value is Record<number | string | symbol, unknown> => {
 
   return ( value !== null ) && ( typeof value === 'object' );
-
-};
-
-const max = <T extends number, U extends number> ( a: T, b: U ): T | U => {
-
-  return ( a > b ) ? a : b;
 
 };
 
@@ -76,4 +64,4 @@ const nope = (): false => {
 
 /* EXPORT */
 
-export {castArray, castError, is, isArray, isEqual, isFunction, isNumber, isObject, max, noop, nope};
+export {castArray, castError, is, isArray, isEqual, isFunction, isObject, noop, nope};

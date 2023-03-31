@@ -9,27 +9,28 @@ import type {Resolvable, Resolved} from '../types';
 
 /* MAIN */
 
-//TODO: This function is really ugly, maybe it can be written decently?
+//TODO: This function is pretty ugly, maybe it can be written better?
 
-const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never => {
+function resolve <T> ( value: T ): T extends Resolvable ? Resolved<T> : never;
+function resolve <T> ( value: T ): any { //TSC
 
   if ( isFunction ( value ) ) {
 
     if ( SYMBOL_UNTRACKED_UNWRAPPED in value ) {
 
-      return resolve ( value () ) as any; //TSC
+      return resolve ( value () );
 
     } else if ( SYMBOL_UNTRACKED in value ) {
 
-      return frozen ( resolve ( value () ) ) as any; //TSC
+      return frozen ( resolve ( value () ) );
 
     } else if ( SYMBOL_OBSERVABLE in value ) {
 
-      return value as any; //TSC
+      return value;
 
     } else {
 
-      return memo ( () => resolve ( value () ) ) as any; //TSC
+      return memo ( () => resolve ( value () ) );
 
     }
 
@@ -45,15 +46,15 @@ const resolve = <T> ( value: T ): T extends Resolvable ? Resolved<T> : never => 
 
     }
 
-    return resolved as any; //TSC
+    return resolved;
 
   } else {
 
-    return value as any; //TSC
+    return value;
 
   }
 
-};
+}
 
 /* EXPORT */
 

@@ -1,10 +1,9 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/context';
-import batch from '~/methods/batch';
+import {OWNER, SUSPENSE_ENABLED} from '~/context';
+import {lazySetAdd, lazySetDelete} from '~/lazy';
 import cleanup from '~/methods/cleanup';
-import CacheAbstract from '~/methods/for_abstract.cache';
 import get from '~/methods/get';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
@@ -12,7 +11,7 @@ import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
 import {SYMBOL_CACHED, SYMBOL_UNCACHED} from '~/symbols';
-import type {IObservable, IObserver, MapValueFunction, Indexed, Resolved} from '~/types';
+import type {IObservable, IOwner, MapValueFunction, Indexed, Resolved} from '~/types';
 
 /* HELPERS */
 
@@ -28,24 +27,27 @@ class MappedRoot<T = unknown, R = unknown> extends Root { // This saves some mem
 
 //TODO: Optimize this more
 
-class Cache<T, R> extends CacheAbstract<T, R> {
+class CacheUnkeyed<T, R> {
 
   /* VARIABLES */
 
+  private parent: IOwner = OWNER;
   private fn: MapValueFunction<T, R>;
   private fnWithIndex: boolean;
   private cache: Map<T, MappedRoot<T, Resolved<R>>> = new Map ();
-  private parent: IObserver = OWNER;
 
   /* CONSTRUCTOR */
 
   constructor ( fn: MapValueFunction<T, R> ) {
 
-    super ( fn );
-
     this.fn = fn;
     this.fnWithIndex = ( fn.length > 1 );
-    this.parent.registerRoot ( this.roots );
+
+    if ( SUSPENSE_ENABLED ) {
+
+      lazySetAdd ( this.parent, 'roots', this.roots );
+
+    }
 
   }
 
@@ -55,7 +57,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
     this.cache.forEach ( mapped => {
 
-      mapped.dispose ( true, true );
+      mapped.dispose ();
 
     });
 
@@ -63,7 +65,11 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
   dispose = (): void => {
 
-    this.parent.unregisterRoot ( this.roots );
+    if ( SUSPENSE_ENABLED ) {
+
+      lazySetDelete ( this.parent, 'roots', this.roots );
+
+    }
 
     this.cleanup ();
 
@@ -93,7 +99,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
           cache.delete ( value );
           cacheNext.set ( value, cached );
 
-          cached.index?.write ( i );
+          cached.index?.set ( i );
 
           results[i] = cached.result!; //TSC
 
@@ -125,19 +131,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
           cache.delete ( key );
           cacheNext.set ( value, mapped );
 
-          if ( fnWithIndex ) {
-
-            batch ( () => {
-              mapped.index?.write ( index );
-              mapped.value?.write ( value );
-            });
-
-          } else {
-
-            mapped.index?.write ( index );
-            mapped.value?.write ( value );
-
-          }
+          mapped.index?.set ( index );
+          mapped.value?.set ( value );
 
           results[index] = mapped.result!; //TSC
 
@@ -149,7 +144,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
       resultsCached = false;
 
-      const mapped = new MappedRoot<T, R> ();
+      const mapped = new MappedRoot<T, R> ( false );
 
       if ( isDuplicate ) {
 
@@ -169,7 +164,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
         }
 
         const observable = mapped.value = new Observable ( value );
-        const $value = memo ( () => get ( observable.read () ) ) as Indexed<T>; //TSC
+        const $value = memo ( () => get ( observable.get () ) ) as Indexed<T>; //TSC
         const result = results[index] = resolve ( fn ( $value, $index ) );
 
         mapped.value = observable;
@@ -211,8 +206,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
   };
 
-};
+}
 
 /* EXPORT */
 
-export default Cache;
+export default CacheUnkeyed;

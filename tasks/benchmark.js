@@ -42,18 +42,20 @@ const cellx = layers => {
             })
           };
 
-          $.memo ( () => {
-            return s.prop1 ();
-          });
-          $.memo ( () => {
-            return s.prop2 ();
-          });
-          $.memo ( () => {
-            return s.prop3 ();
-          });
-          $.memo ( () => {
-            return s.prop4 ();
-          });
+          // $.effect ( s.prop1, { sync: true } );
+          // $.effect ( s.prop2, { sync: true } );
+          // $.effect ( s.prop3, { sync: true } );
+          // $.effect ( s.prop4, { sync: true } );
+
+          // $.effect ( s.prop1 );
+          // $.effect ( s.prop2 );
+          // $.effect ( s.prop3 );
+          // $.effect ( s.prop4 );
+
+          // $.memo ( s.prop1 );
+          // $.memo ( s.prop2 );
+          // $.memo ( s.prop3 );
+          // $.memo ( s.prop4 );
 
           s.prop1 ();
           s.prop2 ();

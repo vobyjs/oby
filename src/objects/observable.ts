@@ -1,11 +1,12 @@
 
 /* IMPORT */
 
-import {BATCH, OWNER, ROOT, ROOT_DISPOSED, TRACKING} from '~/context';
-import {lazySetAdd, lazySetDelete, lazySetHas} from '~/lazy';
-import {getExecution, getCount} from '~/status';
+import {DIRTY_YES} from '~/constants';
+import {OBSERVER} from '~/context';
+import Scheduler from '~/objects/scheduler.sync';
+import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import {is, nope} from '~/utils';
-import type {IComputation, IMemo, IObservable, IObserver, EqualsFunction, ListenerFunction, UpdateFunction, ObservableOptions, Callable, LazySet, Signal} from '~/types';
+import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
 
@@ -14,11 +15,9 @@ class Observable<T = unknown> {
   /* VARIABLES */
 
   parent?: IMemo<T>;
-  signal: Signal = ROOT;
   value: T;
   equals?: EqualsFunction<T>;
-  listeners?: LazySet<Callable<ListenerFunction<T>>>;
-  observers?: LazySet<IObserver>;
+  observers: Set<IObserver> = new Set ();
 
   /* CONSTRUCTOR */
 
@@ -40,116 +39,52 @@ class Observable<T = unknown> {
 
   }
 
-  /* REGISTRATION API */
-
-  registerListener ( listener: Callable<ListenerFunction<T>> ): void {
-
-    if ( lazySetHas ( this.listeners, listener ) ) return;
-
-    lazySetAdd ( this, 'listeners', listener );
-
-  }
-
-  registerObserver ( observer: IObserver ): void {
-
-    lazySetAdd ( this, 'observers', observer );
-
-  }
-
-  registerSelf (): void {
-
-    if ( this.signal.disposed ) return;
-
-    if ( TRACKING ) {
-
-      const owner = OWNER;
-
-      if ( owner.observables !== this ) {
-
-        this.registerObserver ( owner );
-
-        owner.registerObservable ( this as IObservable<any> ); //TSC
-
-      }
-
-    }
-
-    if ( this.parent && getCount ( this.parent.status ) ) { // Potentially stale value, forcing a refresh
-
-      this.parent.status = getExecution ( this.parent.status );
-
-      this.parent.update ( true );
-
-    }
-
-  }
-
-  unregisterListener ( listener: Callable<ListenerFunction<T>> ): void {
-
-    lazySetDelete ( this, 'listeners', listener );
-
-  }
-
-  unregisterObserver ( observer: IObserver ): void {
-
-    lazySetDelete ( this, 'observers', observer );
-
-  }
-
   /* API */
 
-  read (): T {
+  get (): T {
 
-    this.registerSelf ();
+    this.parent?.update ();
+
+    OBSERVER?.link ( this );
 
     return this.value;
 
   }
 
-  write ( value: T ): T {
+  set ( value: T ): T {
 
-    if ( this.signal === ROOT_DISPOSED ) throw new Error ( 'A disposed Observable can not be updated' );
+    const equals = this.equals || is;
+    const fresh = ( this.value === SYMBOL_VALUE_INITIAL ) || !equals ( value, this.value );
 
-    if ( BATCH ) {
+    if ( !fresh ) return value;
 
-      BATCH.set ( this, value );
+    this.value = value;
 
-      return value;
+    Scheduler.counter += 1;
 
-    } else {
+    this.stale ( DIRTY_YES );
 
-      const equals = this.equals || is;
-      const fresh = !equals ( value, this.value );
+    Scheduler.counter -= 1;
 
-      if ( !this.parent ) {
+    Scheduler.flush ();
 
-        if ( !fresh ) return value;
+    return value;
 
-        if ( !this.signal.disposed ) {
+  }
 
-          this.emit ( 1, fresh );
+  stale ( status: number ): void {
 
-        }
+    for ( const observer of this.observers ) {
 
-      }
+      if ( observer.sync ) {
 
-      if ( fresh ) {
+        Scheduler.schedule ( observer );
 
-        const valuePrev = this.value;
+      } else {
 
-        this.value = value;
-
-        this.listened ( valuePrev );
+        observer.stale ( status );
 
       }
-
-      if ( !this.signal.disposed ) {
-
-        this.emit ( -1, fresh );
-
-      }
-
-      return value;
 
     }
 
@@ -157,67 +92,9 @@ class Observable<T = unknown> {
 
   update ( fn: UpdateFunction<T> ): T {
 
-    const valueNext = fn ( this.value );
+    const value = fn ( this.value );
 
-    return this.write ( valueNext );
-
-  }
-
-  emit ( change: -1 | 1, fresh: boolean ): void {
-
-    if ( this.signal.disposed ) return;
-
-    const computations = this.observers as LazySet<IComputation>; //TSC
-
-    if ( computations ) {
-
-      if ( computations instanceof Set ) {
-
-        for ( const computation of computations ) {
-
-          computation.emit ( change, fresh );
-
-        }
-
-      } else {
-
-        computations.emit ( change, fresh );
-
-      }
-
-    }
-
-  }
-
-  listened ( valuePrev?: T ): void {
-
-    if ( this.signal.disposed ) return;
-
-    const {listeners} = this;
-
-    if ( listeners ) {
-
-      if ( listeners instanceof Set ) {
-
-        for ( const listener of listeners ) {
-
-          listener.call ( listener, this.value, valuePrev );
-
-        }
-
-      } else {
-
-        listeners.call ( listeners, this.value, valuePrev );
-
-      }
-
-    }
-
-  }
-
-  dispose (): void {
-
-    this.signal = ROOT_DISPOSED;
+    return this.set ( value );
 
   }
 

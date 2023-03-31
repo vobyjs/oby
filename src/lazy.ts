@@ -7,7 +7,9 @@ import type {LazyArray, LazySet} from '~/types';
 
 const lazyArrayEach = <T> ( arr: LazyArray<T>, fn: ( value: T ) => void ): void => {
   if ( arr instanceof Array ) {
-    arr.forEach ( fn );
+    for ( let i = 0, l = arr.length; i < l; i++ ) {
+      fn ( arr[i] );
+    }
   } else if ( arr ) {
     fn ( arr );
   }
@@ -69,15 +71,7 @@ const lazySetEach = <T> ( set: LazySet<T>, fn: ( value: T ) => void ): void => {
   }
 };
 
-const lazySetHas = <T> ( set: LazySet<T>, value: T ): boolean => {
-  if ( set instanceof Set ) {
-    return set.has ( value );
-  } else {
-    return set === value;
-  }
-};
-
 /* EXPORT */
 
 export {lazyArrayEach, lazyArrayEachRight, lazyArrayPush};
-export {lazySetAdd, lazySetDelete, lazySetEach, lazySetHas};
+export {lazySetAdd, lazySetDelete, lazySetEach};

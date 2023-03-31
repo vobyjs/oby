@@ -1,11 +1,10 @@
 
 /* IMPORT */
 
-import {OBSERVABLE_FALSE, OBSERVABLE_TRUE} from '~/constants';
 import cleanup from '~/methods/cleanup';
-import isObservableFrozen from '~/methods/is_observable_frozen';
+import effect from '~/methods/effect';
 import memo from '~/methods/memo';
-import reaction from '~/methods/reaction';
+import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import {is} from '~/utils';
@@ -26,7 +25,6 @@ class SelectedObservable extends Observable<boolean> { // This saves some memory
     if ( this.selecteds.disposed ) return;
     this.count -= 1;
     if ( this.count ) return;
-    this.dispose ();
     this.selecteds.delete ( this.source );
   }
 }
@@ -39,30 +37,12 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   source = memo ( source );
 
-  /* FROZEN SOURCE */
-
-  if ( isObservableFrozen ( source ) ) {
-
-    const sourceValue = source ();
-
-    return ( value: T ): ObservableReadonly<boolean> => {
-
-      return value === sourceValue ? OBSERVABLE_TRUE : OBSERVABLE_FALSE;
-
-    };
-
-  }
-
-  /* SIGNAL */
-
-  const signal = { disposed: false };
-
   /* SELECTEDS */
 
   let selecteds = new DisposableMap<unknown, SelectedObservable> ();
-  let selectedValue: T | undefined;
+  let selectedValue: T = untrack ( source );
 
-  reaction ( () => {
+  effect ( () => {
 
     const valuePrev = selectedValue;
     const valueNext = source ();
@@ -71,16 +51,15 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
     selectedValue = valueNext;
 
-    selecteds.get ( valuePrev )?.write ( false );
-    selecteds.get ( valueNext )?.write ( true );
+    selecteds.get ( valuePrev )?.set ( false );
+    selecteds.get ( valueNext )?.set ( true );
 
-  });
+  }, { suspense: false, sync: true } );
 
   /* CLEANUP ALL */
 
   const cleanupAll = (): void => {
 
-    signal.disposed = true;
     selecteds.disposed = true;
 
   };
@@ -90,10 +69,6 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
   /* SELECTOR */
 
   return ( value: T ): ObservableReadonly<boolean> => {
-
-    /* DISPOSED? */
-
-    if ( signal.disposed ) throw new Error ( 'A disposed Selector can not be used anymore' );
 
     /* INIT */
 
@@ -108,7 +83,6 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
       selected = new SelectedObservable ( value === selectedValue );
       selected.selecteds = selecteds;
       selected.source = value;
-      selected.signal = signal;
 
       selecteds.set ( value, selected );
 

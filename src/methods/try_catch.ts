@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import handle from '~/methods/error';
+import {OWNER} from '~/context';
 import memo from '~/methods/memo';
 import $ from '~/methods/observable';
 import resolve from '~/methods/resolve';
@@ -26,7 +26,7 @@ const tryCatch = <T, F> ( value: T, fn: TryCatchFunction<F> ): ObservableReadonl
 
     } else {
 
-      handle ( observable );
+      OWNER.errorHandler = observable;
 
       return resolve ( value );
 

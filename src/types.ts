@@ -1,8 +1,6 @@
 
 /* OBJECTS */
 
-type IComputation = import ( '~/objects/computation' ).default;
-
 type IEffect = import ( '~/objects/effect' ).default;
 
 type IMemo<T = unknown> = import ( '~/objects/memo' ).default<T>;
@@ -11,9 +9,13 @@ type IObservable<T = unknown> = import ( '~/objects/observable' ).default<T>;
 
 type IObserver = import ( '~/objects/observer' ).default;
 
-type IReaction = import ( '~/objects/reaction' ).default;
+type IOwner = import ( '~/objects/owner' ).default;
 
 type IRoot = import ( '~/objects/root' ).default;
+
+type ISchedulerAsync = typeof import ( '~/objects/scheduler.async' ).default;
+
+type ISchedulerSync = typeof import ( '~/objects/scheduler.sync' ).default;
 
 type ISuperRoot = import ( '~/objects/superroot' ).default;
 
@@ -21,7 +23,7 @@ type ISuspense = import ( '~/objects/suspense' ).default;
 
 /* FUNCTIONS */
 
-type BatchFunction<T = unknown> = () => T;
+type BatchFunction<T = unknown> = () => PromiseMaybe<T>;
 
 type CallbackFunction = () => void;
 
@@ -35,21 +37,11 @@ type ErrorFunction = ( error: Error ) => void;
 
 type EqualsFunction<T = unknown> = ( value: T, valuePrev: T ) => boolean;
 
-type ListenerFunction<T = unknown> = ( value: T, valuePrev?: T ) => void;
-
 type MapFunction<T = unknown, R = unknown> = ( value: T, index: ObservableReadonly<number> ) => R;
-
-type MapIndexFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: number ) => R;
 
 type MapValueFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: ObservableReadonly<number> ) => R;
 
 type MemoFunction<T = unknown> = () => T;
-
-type ObservedFunction<T = unknown> = () => T;
-
-type ObservedDisposableFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
-
-type ReactionFunction = () => CleanupFunction | void;
 
 type SelectorFunction<T = unknown> = ( value: T ) => ObservableReadonly<boolean>;
 
@@ -62,6 +54,23 @@ type UntrackFunction<T = unknown> = () => T;
 type UpdateFunction<T = unknown> = ( value: T ) => T;
 
 type WithFunction<T = unknown> = () => T;
+
+type WrappedFunction<T = unknown> = () => T;
+
+type WrappedDisposableFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
+
+/* EFFECT */
+
+type EffectOptions = {
+  suspense?: boolean,
+  sync?: boolean
+};
+
+/* FOR */
+
+type ForOptions = {
+  unkeyed?: boolean
+};
 
 /* OBSERVABLE */
 
@@ -112,8 +121,6 @@ type Constructor<T = unknown, Arguments extends unknown[] = []> = { new ( ...arg
 
 type Contexts = Record<symbol, any>;
 
-type Frozen = <T = unknown> ( value: T ) => ObservableReadonly<T>;
-
 type FunctionMaybe<T = unknown> = (() => T) | T;
 
 type Indexed<T = unknown> = T extends ObservableReadonly<infer U> ? ObservableReadonly<U> : ObservableReadonly<T>;
@@ -124,11 +131,7 @@ type LazySet<T = unknown> = Set<T> | T | undefined;
 
 type LazyValue<T = unknown> = T | undefined;
 
-type Mapped<T = unknown> = { bool: boolean, result: T, root: IObserver };
-
 type PromiseMaybe<T = unknown> = T | Promise<T>;
-
-type Readable = <T = unknown> ( observable: IObservable<T> ) => ObservableReadonly<T>;
 
 type ResolvablePrimitive = null | undefined | boolean | number | bigint | string | symbol;
 type ResolvableArray = Resolvable[];
@@ -138,15 +141,15 @@ type Resolvable = ResolvablePrimitive | ResolvableObject | ResolvableArray | Res
 
 type Resolved<T = unknown> = T;
 
-type Signal = { disposed?: boolean };
-
-type Writable = <T = unknown> ( observable: IObservable<T> ) => Observable<T>;
+type Signal = { disposed: boolean };
 
 /* EXPORT */
 
-export type {IComputation, IEffect, IMemo, IObservable, IObserver, IReaction, IRoot, ISuperRoot, ISuspense};
-export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, ListenerFunction, MapFunction, MapIndexFunction, MapValueFunction, MemoFunction, ObservedFunction, ObservedDisposableFunction, ReactionFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction};
+export type {IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
+export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
+export type {EffectOptions};
+export type {ForOptions};
 export type {Observable, ObservableReadonly, ObservableOptions};
 export type {Owner};
 export type {StoreOptions};
-export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, Frozen, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, Mapped, PromiseMaybe, Readable, Resolvable, Resolved, Signal, Writable};
+export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, PromiseMaybe, Resolvable, Resolved, Signal};

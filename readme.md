@@ -1,6 +1,6 @@
 # Oby
 
-A tiny Observable implementation, the brilliant primitive you need to build a powerful reactive system.
+A rich Observable/Signal implementation, the brilliant primitive you need to build a powerful reactive system.
 
 ## Install
 
@@ -12,20 +12,16 @@ npm install --save oby
 
 | [Core](#core)                     | [Flow](#flow)             | [Utilities](#utilities)   | [Types](#types)                             |
 | --------------------------------- | ------------------------- | ------------------------- | ------------------------------------------- |
-| [`$()`](#core)                    | [`$.if`](#if)             | [`$.boolean`](#boolean)   | [`Observable`](#observable)                 |
-| [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.disposed`](#disposed) | [`ObservableReadonly`](#observablereadonly) |
-| [`$.cleanup`](#cleanup)           | [`$.forIndex`](#forindex) | [`$.get`](#get)           | [`ObservableOptions`](#observableoptions)   |
-| [`$.context`](#context)           | [`$.forValue`](#forvalue) | [`$.readonly`](#readonly) | [`StoreOptions`](#storeoptions)             |
-| [`$.effect`](#effect)             | [`$.suspense`](#suspense) | [`$.resolve`](#resolve)   |                                             |
-| [`$.error`](#error)               | [`$.switch`](#switch)     | [`$.selector`](#selector) |                                             |
-| [`$.isBatching`](#isbatching)     | [`$.ternary`](#ternary)   |                           |                                             |
-| [`$.isObservable`](#isobservable) | [`$.tryCatch`](#trycatch) |                           |                                             |
+| [`$()`](#core)                    | [`$.if`](#if)             | [`$.boolean`](#boolean)   | [`EffectOptions`](#effectoptions)           |
+| [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.disposed`](#disposed) | [`ForOptions`](#foroptions)                 |
+| [`$.cleanup`](#cleanup)           | [`$.suspense`](#suspense) | [`$.get`](#get)           | [`Observable`](#observable)                 |
+| [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.readonly`](#readonly) | [`ObservableReadonly`](#observablereadonly) |
+| [`$.effect`](#effect)             | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)   | [`ObservableOptions`](#observableoptions)   |
+| [`$.isBatching`](#isbatching)     | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector) | [`StoreOptions`](#storeoptions)             |
+| [`$.isObservable`](#isobservable) |                           |                           |                                             |
 | [`$.isStore`](#isstore)           |                           |                           |                                             |
 | [`$.memo`](#memo)                 |                           |                           |                                             |
-| [`$.on`](#on)                     |                           |                           |                                             |
-| [`$.off`](#off)                   |                           |                           |                                             |
 | [`$.owner`](#owner)               |                           |                           |                                             |
-| [`$.reaction`](#reaction)         |                           |                           |                                             |
 | [`$.root`](#root)                 |                           |                           |                                             |
 | [`$.store`](#store)               |                           |                           |                                             |
 | [`$.untrack`](#untrack)           |                           |                           |                                             |
@@ -33,7 +29,7 @@ npm install --save oby
 
 ## Usage
 
-The following functions are provided. They are just grouped and ordered alphabetically, the documentation for this library is fairly dry at the moment.
+The following functions are provided. They are just grouped and ordered alphabetically, the documentation for this library is relatively dry at the moment.
 
 ### Core
 
@@ -88,7 +84,7 @@ const equals = ( value, valuePrev ) => Object.is ( value, valuePrev );
 
 const o = $( 1, { equals } );
 
-// Create an Observable with an initial value and a special "false" equality function, which is a shorthand for `() => false`, which causes the Observable to always emit when its setter is called
+// Create an Observable with an initial value and a special "false" equality function, which is a shorthand for `() => false`, which causes the Observable to always notify its observers when its setter is called
 
 const oFalse = $( 1, { equals: false } );
 
@@ -113,14 +109,17 @@ o ( () => noop );
 
 #### `$.batch`
 
-This function holds onto updates within its scope and flushes them out once it exits. It is useful as a performance optimizations when updating Observables multiple times whitin its scope while causing other Observables/computations/effects that depend on them to be re-evaluated only once.
+Synchronous calls to Observables' setters are batched automatically for you, so unless you explicitly call a memo, or you explicitly use a synchronous effect, no computations will be re-executed until the next microtask, providing you with a pretty convenient performance guarantee. So 99.9% of the time you don't really have think about batching updates at all.
 
-- **Note**: Async batching is supported too, if the function that you pass to `$.batch` returns a promise that promise is awaited, and until it settles batching stays active.
+Asynchronous calls to Observable's setters though are not batched automatically, so in the niche use case where you want to pause re-executions of effects for an arbitrary period of time, until the provided function resolves, that's when you will want to use this function.
+
+- **Note**: Calling this function with a function that doesn't return a Promise is pointless, but that's supported for convenience too, it will just not do anything special.
+- **Note**: This is an advanced function that you may very well never need to call, and at most may just improve performance in some edge cases.
 
 Interface:
 
 ```ts
-function batch <T> ( fn: () => T ): T;
+function batch <T> ( fn: () => Promise<T> | T ): Promise<Awaited<T>>;
 ```
 
 Usage:
@@ -128,26 +127,36 @@ Usage:
 ```ts
 import $ from 'oby';
 
-// Batch updates
+// Batch updates until the provided async function resolves
 
 const o = $(0);
 
-$.batch ( () => {
+$.effect ( () => {
+
+  console.log ( o () );
+
+});
+
+$.batch ( async () => {
 
   o ( 1 );
   o ( 2 );
   o ( 3 );
 
-  o (); // => 0, updates have not been flushed out yet
+  // Here the effect has not been called yet, because setters were called synchronously
+  // Even without explicitly batching, synchronous calls to setters will be batched for you automatically
+
+  await someAsyncAction ();
+
+  // Here the effect has still not been called, because we are explicitly batching on an async function
+  // Without batching the effect would have been called by now
 
 });
-
-o (); // => 3, now the latest update for this observable has been flushed out
 ```
 
 #### `$.cleanup`
 
-This function allows you to register cleanup functions, which are executed automatically whenever the parent computation/effect/root is disposed of, which also happens before re-evaluating it.
+This function allows you to register cleanup functions, which are executed automatically whenever the parent memo/effect/root is disposed of, which also happens before re-executing it.
 
 Interface:
 
@@ -160,17 +169,17 @@ Usage:
 ```ts
 import $ from 'oby';
 
-// Attach some cleanup functions to a memo
+// Attaching some cleanup functions to an effect
 
 const callback = $( () => {} );
 
-$.memo ( () => {
+$.effect ( () => {
 
   const cb = callback ();
 
   document.body.addEventListener ( 'click', cb );
 
-  $.cleanup ( () => {
+  $.cleanup ( () => { // Registering a cleanup function with the parent
 
     document.body.removeEventListener ( 'click', cb );
 
@@ -184,7 +193,11 @@ $.memo ( () => {
 
 });
 
-callback ( () => () => {} ); // Cleanups called and memo re-evaluated
+await nextTask (); // Giving the effect a chance to run
+
+callback ( () => () => {} ); // Causing the effect to be scheduled for re-execution
+
+await nextTask (); // Giving the effect a chance to run. Once it runs it will call the previous cleanup functions and register new ones
 ```
 
 #### `$.context`
@@ -219,7 +232,7 @@ $.root ( () => {
 
     $.effect ( () => {
 
-      $.context ( token, { foo: 321 } ); // Overriding some context
+      $.context ( token, { foo: 321 } ); // Overriding some context, inside the parent computation only
 
       const value = $.context ( token ); // Reading again
 
@@ -236,12 +249,23 @@ $.root ( () => {
 
 An effect is similar to a memo, but it returns a function for manually disposing of it instead of an Observable, and if you return a function from inside it that's automatically registered as a cleanup function.
 
-- **Note**: this function is inteded for side effects that interact with the outside world, if you need to derive some value out of some Observables or if you need to update Observables it's recommended to instead use `$.reaction`.
+Also effects are asynchronous by default, they will be re-executed automatically on the next microtask, when necessary. It's possible to make an effect synchronous also, but you are strongly discouraged to do that, because synchronous effects bypass any form of batching and are easy to misuse.
+
+Also effects can be paused inside a `$.suspense` boundary by default. It's possible to make an effect that won't be paused inside a `$.suspense` boundary also, which is mostly useful if the effect is synchronous also, but you are discouraged to do that, unless you really need that.
+
+There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
+
+- **Note**: Effects are intended for encapsulating functions that interact with the outside world, or for writing to Observables in response to a user input, which is strongly discouraged to do inside memos instead.
 
 Interface:
 
 ```ts
-function effect ( fn: () => (() => void) | void ): (() => void);
+type EffectOptions = {
+  suspense?: boolean,
+  sync?: boolean
+};
+
+function effect ( fn: () => (() => void) | void, options?: EffectOptions ): (() => void);
 ```
 
 Usage:
@@ -249,7 +273,7 @@ Usage:
 ```ts
 import $ from 'oby';
 
-// Create an effect with an automatically registered cleanup function
+// Create an asynchronous effect with an automatically registered cleanup function
 
 const callback = $( () => {} );
 
@@ -267,55 +291,28 @@ $.effect ( () => {
 
 });
 
-callback ( () => () => {} ); // Cleanups called and effect re-evaluated
-```
+// Creating a synchronous effect, which is executed and re-executed immediately when needed
 
-#### `$.error`
+$.effect ( () => {
 
-This function allows you to register error handler functions, which are executed automatically whenever the parent computation/effect/root throws. If any error handlers are present the error is caught automatically and is passed to error handlers. Errors bubble up across computations.
+  // Do something...
 
-Remember to register your error handlers before doing anything else, or the computation may throw before error handlers are registered, in which case you won't be able to catch the error with that.
+}, { sync: true } );
 
-Interface:
+// Creating an effect that will not be paused by suspense
 
-```ts
-function error ( fn: ( error: Error ) => void ): void;
-```
+$.effect ( () => {
 
-Usage:
+  // Do something...
 
-```ts
-import $ from 'oby';
-
-// Register an error handler function to a memo
-
-const o = $( 0 );
-
-$.memo ( () => {
-
-  $.error ( error => {
-
-    console.log ( 'Error caught!' );
-    console.log ( error );
-
-  });
-
-  if ( o () === 2 ) {
-
-    throw new Error ( 'Some error' );
-
-  }
-
-});
-
-o ( 1 ); // No error is thrown, error handlers are not called
-
-o ( 2 ); // An error is thrown, so it's caught and passed to the registered error handlers
+}, { suspense: false } );
 ```
 
 #### `$.isBatching`
 
-This function tells you if batching is currently active, which could be especially useful to know when batching asynchronous functions.
+This function tells you if explicit batching is currently active, or if there are any effects currently scheduled for execution via other means.
+
+- **Note**: This is an advanced function that you may very well never need to call.
 
 Interface:
 
@@ -332,7 +329,7 @@ import $ from 'oby';
 
 $.isBatching (); // => false
 
-$.batch ( () => {
+await $.batch ( async () => {
 
   $.isBatching (); // => true
 
@@ -344,6 +341,8 @@ $.isBatching (); // => false
 #### `$.isObservable`
 
 This function allows you to tell apart Observables from other values.
+
+- **Note**: This function is intended mostly for internal usage, in user code you'll almost always want to unwrap whatever value you get with `$.get` instead, abstracting away the checks needed for understanding if something is an Observable or not.
 
 Interface:
 
@@ -366,6 +365,8 @@ $.isObservable ( {} ); // => false
 
 This function allows you to tell apart Stores from other values.
 
+- **Note**: This function is intended mostly for internal usage, in user code it's almost always better to not treat objects differently if they are stores or not, you can just treat them the same way and let the reactive system react to changes when needed.
+
 Interface:
 
 ```ts
@@ -385,20 +386,18 @@ $.isStore ( {} ); // => false
 
 #### `$.memo`
 
-This is the function where the magic happens, it generates a new read-only Observable with the result of the function passed to it, the function is automatically re-executed whenever it's dependencies change, and dependencies are tracked automatically.
+This is the function where most of the magic happens, it generates a new read-only Observable with the result of the function passed to it, the function is automatically marked as stale whenever its dependencies change, and its dependencies are tracked automatically. The value of the Observable is refreshed, if needed, by re-executing the memo when you ask the returned Observale for its current value, by calling it, or when any other computation depends on this memo.
 
-Usually you can just pass a plain function around, if that's the case the only thing you'll get out of `$.memo` is memoization, which is a performance optimization, hence the name.
+Usually you can just pass a plain function around, in those cases the only thing you'll get out of `$.memo` is memoization, which is a performance optimization, hence the name.
 
 There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
 
-- **Note**: the Observable returned by a memo could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
-- **Note**: this function should not have side effects, the function is expected to be pure, for side effects you should use `$.effect`.
-- **Note**: if you want to update some Observables inside a computation you should probably first of all try to avoid doing that in the first place if you can, but if you can't avoid it you should use `$.reaction` for that instead.
+- **Note**: The provided function is expected to be pure. For side effects, including for writing to other Observables, you should use `$.effect` instead.
 
 Interface:
 
 ```ts
-function memo <T> ( fn: () => T, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T>;
+function memo <T> ( fn: () => T, options?: ObservableOptions<T> ): ObservableReadonly<T>;
 ```
 
 Usage:
@@ -431,70 +430,11 @@ c ( 4 );
 sum (); // => 9
 ```
 
-#### `$.on`
-
-This function allows you to register a listener for a single Observable, directly, without using wrapper memos/effects/reactions.
-
-- **Note**: this is an advanced function intended mostly for internal usage.
-
-Interface:
-
-```ts
-function on <T> ( observable: Observable<T> | ObservableReadonly<T>, listener: (( value: T, valuePrev?: T ) => void) ): (() => void);
-```
-
-Usage:
-
-```ts
-import $ from 'oby';
-
-// Register a listener for an Observable
-
-const o = $(0);
-
-$.on ( o, ( value, valuePrev ) => {
-
-  console.log ( value, valuePrev ); // This function is called immediately upon registration
-
-});
-
-o ( 1 ); // Changing the value, causing the listener to be called again
-```
-
-#### `$.off`
-
-This function allows you to unregister a previously registered listener from a single Observable.
-
-- **Note**: this is an advanced function intended mostly for internal usage.
-
-Interface:
-
-```ts
-function off <T> ( observable: Observable<T> | ObservableReadonly<T>, listener: (( value: T, valuePrev?: T ) => void) ): void;
-```
-
-Usage:
-
-```ts
-import $ from 'oby';
-
-// Unregistering a listener for an Observable
-
-const o = $(0);
-
-const onChange = ( value, valuePrev ) => console.log ( value, valuePrev );
-
-$.on ( o, onChange ); // Registering
-$.off ( o, onChange ); // Unregistering
-
-o ( 1 ); // Listener not called, because it got unregistered
-```
-
 #### `$.owner`
 
 This function tells you some metadata about the current owner/observer. There's always an owner.
 
-- **Note**: this is an advanced function intended mostly for internal usage, you almost certainly don't have a use case for using this function.
+- **Note**: This is an advanced function intended mostly for internal usage, you almost certainly don't have a use case for using this function.
 
 Interface:
 
@@ -503,7 +443,7 @@ type Owner = {
   isSuperRoot: boolean, // This tells you if the nearest owner of your current code is a super root, which is kind of a default root that everything gets wrapped with
   isRoot: boolean, // This tells you if the nearest owner of your current code is a root
   isSuspense: boolean, // This tells you if the nearest owner of your current code is a suspense
-  isComputation: boolean // This tells you if the nearest owner of your current code is an effect or a memo or a reaction
+  isComputation: boolean // This tells you if the nearest owner of your current code is an effect or a memo
 };
 
 function owner (): Owner;
@@ -514,61 +454,24 @@ Usage:
 ```ts
 import $ from 'oby';
 
-// Check if you are right below the super root
+// Check if you are right below the super root or an effect
 
 $.owner ().isSuperRoot; // => true
+$.owner ().isComputation; // => false
 
 $.effect ( () => {
 
   $.owner ().isSuperRoot; // => false
+  $.owner ().isComputation; // => true
 
 });
-```
-
-#### `$.reaction`
-
-A reaction is similar to an effect, except that it's not affected by suspense.
-
-- **Note**: this is an advanced function intended mostly for internal usage, you'd almost always want to simply either use a memo or an effect.
-
-Interface:
-
-```ts
-function reaction ( fn: () => (() => void) | void ): (() => void);
-```
-
-Usage:
-
-```ts
-import $ from 'oby';
-
-// Create a reaction with an automatically registered cleanup function
-
-const callback = $( () => {} );
-
-$.reaction ( () => {
-
-  const cb = callback ();
-
-  document.body.addEventListener ( 'click', cb );
-
-  return () => { // Automatically-registered cleanup function
-
-    document.body.removeEventListener ( 'click', cb );
-
-  };
-
-});
-
-callback ( () => () => {} ); // Cleanups called and reaction re-evaluated
 ```
 
 #### `$.root`
 
-This function creates a computation root, computation roots are detached from parent roots/memos/effects and will outlive them, so they must be manually disposed of, disposing them ends all the reactvity inside them, except for any eventual nested root.
-The value returned by the function is returned by the root itself.
+This function creates a computation root, computation roots are detached from parent roots/memos/effects and will outlive them, so they must be manually disposed of, disposing them ends all the reactvity inside them, except for any eventual nested roots.
 
-- **Note**: the value returned by the root could always potentially resolve to `undefined` if an error is thrown inside the function but it's caught by an error handler inside it. In that scenario you should account for `undefined` in the return type yourself.
+The value returned by the function is returned by the root itself.
 
 Interface:
 
@@ -593,20 +496,23 @@ $.root ( dispose => {
     return a ();
   });
 
-  console.log ( calls ); // => 1
+  console.log ( calls ); // => 0, memos are not refreshed until necessary
   b (); // => 0
+  console.log ( calls ); // => 1, now the memo got refreshed, because we asked for its value and it didn't have a fresh value
 
   a ( 1 );
 
-  console.log ( calls ); // => 2
+  console.log ( calls ); // => 1, not refreshed, because we don't need the new value yet
   b (); // => 1
+  console.log ( calls ); // => 2, refreshed, because we asked for a new value
 
   dispose (); // Now all the reactivity inside this root stops
 
   a ( 2 );
 
-  console.log ( calls ); // => 2
+  console.log ( calls ); // => 2, not refreshed, because we don't need the new value yet
   b (); // => 1
+  console.log ( calls ); // => 2, still not refreshed, because we disposed of the memo so its value will never change anymore
 
 });
 ```
@@ -618,15 +524,10 @@ This function returns a deeply reactive version of the passed object, where prop
 You can just use the reactive object like you would with a regular non-reactive one, every aspect of the reactivity is handled for you under the hood, just remember to perform reads in a computation if you want to subscribe to them.
 
 - **Note**: Only the following types of values will be handled automatically by the reactivity system: plain objects, plain arrays, primitives.
-
 - **Note**: Assignments to the following properties won't be reactive, as making those reactive would have more cons than pros: `__proto__`, `prototype`, `constructor`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `toSource`, `toString`, `valueOf`, all `Array` methods.
-
 - **Note**: Getters and setters that are properties of arrays, if for whatever reason you have those, won't be reactive.
-
 - **Note**: Getters and setters that are assigned to symbols, if for whatever reason you have those, won't be reactive.
-
 - **Note**: A powerful function is provided, `$.store.on`, for listening to any changes happening _inside_ a store. Changes are batched automatically within a microtask for you. If you use this function it's advisable to not have multiple instances of the same object inside a single store, or you may hit some edge cases where a listener doesn't fire because another path where the same object is available, and where it was edited from, hasn't been discovered yet, since discovery is lazy as otherwise it would be expensive.
-
 - **Note**: A powerful function is provided, `$.store.reoncile`, that basically merges the content of the second argument into the first one, preserving wrapper objects in the first argument as much as possible, which can avoid many unnecessary re-renderings down the line. Currently getters/setters/symbols from the second argument are ignored, as supporting those would make this function significantly slower, and you most probably don't need them anyway if you are using this function.
 
 Interface:
@@ -662,7 +563,9 @@ $.effect ( () => {
 
 });
 
-obj.foo.deep = 321; // Cause the effect to re-run
+await nextTask (); // Giving the effect a chance to run
+
+obj.foo.deep = 321; // Cause the effect to re-run, eventually
 
 // Make a reactive array
 
@@ -676,7 +579,9 @@ $.effect ( () => {
 
 });
 
-arr.push ( 123 ); // Cause the effect to re-run
+await nextTask (); // Giving the effect a chance to run
+
+arr.push ( 123 ); // Cause the effect to re-run, eventually
 
 // Make a reactive object, with a custom equality function, which is inherited by children also
 
@@ -735,6 +640,8 @@ $.store.on ( [obj, arr], () => {
 
 This function allows for reading Observables without creating dependencies on them, temporarily turning off tracking basically.
 
+- **Note**: This function turns off tracking for any arbitrary function, the function doesn't have to be an Observable necessarily.
+
 Interface:
 
 ```ts
@@ -747,7 +654,7 @@ Usage:
 ```ts
 import $ from 'oby';
 
-// Untracking a single Observable
+// Untracking a single Obseryvable
 
 const o = $(0);
 
@@ -778,9 +685,9 @@ $.untrack ( 123 ); // => 123
 
 #### `$.with`
 
-This function allows you to create a function for executing code as if it was a child of the computation active when the function was originally created.
+This function allows you to create a function for executing code as if it was a child of the owner/computation active when the function was originally created.
 
-- **Note**: this is an advanced function intended mostly for internal usage.
+- **Note**: This is an advanced function intended mostly for internal usage.
 
 Interface:
 
@@ -811,7 +718,7 @@ $.root ( () => {
 
     console.log ( value.foo ); // => 321
 
-    runWithRoot ( () => {
+    runWithRoot ( () => { // Executing the function as if it had the root as its owner
 
       const value = $.context ( token ); // Reading the context
 
@@ -826,7 +733,7 @@ $.root ( () => {
 
 ### Flow
 
-The following flow functions are provided. These functions are like the reactive versions of native constructs in the language.
+The following control flow functions are provided. These functions are like the reactive versions of native constructs in the language.
 
 #### `$.if`
 
@@ -858,14 +765,24 @@ result (); // => 123
 
 #### `$.for`
 
-This is the reactive version of the native `Array.prototype.map`, it maps over an array of values while caching results for values that didn't change.
+This is the reactive version of the native `Array.prototype.map`, it maps over an array of values while caching results when possible.
 
-This is recommended over `$.forIndex` if the array contains no duplicates. It will still work with duplicates, but performance will degrade.
+This function is crucial for achieving great performance when mapping over an array, as just calling `Array.prototype.map` inside a memo can be super expensive.
+
+There are multiple strategies that this function may use internally for caching results:
+
+- **Keyed**: with the default options results are cached for values that didn't change, and thrown away when those values are no longer used. So for example when going from mapping over `[1, 2, 3]` to mapping over `[1, 2, 4]` the results for `1` and `2` are entirely cached, the old result for `3` is discarded, and an entirely new result for `4` is created. This is the easiest and safest strategy to use (especially in a DOM context, read [this](https://www.stefankrause.net/wp/?p=342) for more info). It's strongly recommended that the array of values to map over doesn't contain dulicates though.
+- **Unkeyed**: with the `unkeyed` option set to `true` results are cached for values that didn't change, and results for old values are transformed into results for new values, if possibile, or otherwise thrown away. So for example when going from mapping over `[1, 2, 3]` to mapping over `[1, 2, 4]` the results for `1` and `2` are entirely cached, and the result for `3` is transformed into the result for `4`. Basically the function that you pass `$.for` receives a signal to the value rather than the value itself, so it can update itself, it's no longer necessary to dispose of the old result and make an entirely new result. This option is the recommended one if your array may contain duplicated primitive values, or if you want to achieve maximum performance, though it's harder to use because you will receive a signal to the value rather than the value itself, and it can be easy to misuse (especially in a DOM context, read [this](https://www.stefankrause.net/wp/?p=342) for more info).
 
 Interface:
 
 ```ts
-function for <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: T, index: ObservableReadonly<number> ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
+type ForOptions = {
+  unkeyed?: boolean
+};
+
+function for <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: T, index: ObservableReadonly<number> ) => R), fallback?: F | [], options?: { unkeyed?: false } ): ObservableReadonly<R[] | F>;
+function for <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: ObservableReadonly<T>, index: ObservableReadonly<number> ) => R), fallback?: F | [], options?: { unkeyed?: true } ): ObservableReadonly<R[] | F>;
 ```
 
 Usage:
@@ -890,97 +807,11 @@ const mapped = $.for ( os, o => {
 os ([ o1, o2, o3 ]);
 ```
 
-#### `$.forIndex`
-
-This is an alternative reactive version of the native `Array.prototype.map`, it maps over an array of values while caching results for values _whose position in the array_ didn't change.
-
-This is an alternative to `$.for` that uses the index of the value in the array for caching, rather than the value itself.
-
-It's recommended to use `$.forIndex` for arrays containing duplicate values and/or arrays containing primitive values, and `$.for` for everything else.
-
-The passed function will always be called with a read-only Observable containing the current value at the index being mapped.
-
-Interface:
-
-```ts
-type Value<T = unknown> = T extends ObservableReadonly<infer U> ? ObservableReadonly<U> : ObservableReadonly<T>;
-
-function forIndex <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: Value<T>, index: number ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
-```
-
-Usage:
-
-```ts
-import $ from 'oby';
-
-// Map over an array of primitive values, containing duplicates
-
-const values = $([ 1, 1, 2, 2, 3 ]);
-
-const mapped = $.for ( values, value => {
-
-  return $.memo ( () => { // Wrapping in a memo to listen to changes in "value"
-
-    return `Double: ${value () ** 2}`;
-
-  });
-
-});
-
-// Update the values Observable
-
-values ([ 1, 2, 2 ]); // Only the value at index "1" changed, so only the mapped value for that will be refreshed
-```
-
-#### `$.forValue`
-
-This is an alternative reactive version of the native `Array.prototype.map`, it maps over an array of values while caching results for values that didn't change, _and_ repurposing computations for items that got discarded for new items that need to be mapped.
-
-This is an alternative to `$.for` and `$.forIndex` that enables reusing the same computation for different items, when possible. Reusing the same computation means also reusing everything in it, which could mean expensive DOM nodes to generate, or something else.
-
-Basically `Array.prototype.map` doesn't wrap the value nor the index in an observable, `$.for` wraps the index only in an observable, `$.forIndex` wraps the value only in an observable, and `$.forValue` wraps both the value and the index in observables.
-
-This is useful for use cases like virtualized rendering, where `$.for` would cause some nodes to be discarded and others to be created, `$.forIndex` would cause _all_ nodes to be repurposed, but `$.forValue` allows you to only repurpose the nodes that would have been discareded by `$.for`, not all of them.
-
-This is a more advanced method, it's recommended to simply use `$.for` or `$.forIndex`, until you really understand how to squeeze extra performance with this, and you actually need that performance.
-
-Interface:
-
-```ts
-type Value<T = unknown> = T extends ObservableReadonly<infer U> ? ObservableReadonly<U> : ObservableReadonly<T>;
-
-function forValue <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: Value<T>, index: ObservableReadonly<number> ) => R), fallback: F | [] = [] ): ObservableReadonly<R[] | F>;
-```
-
-Usage:
-
-```ts
-import $ from 'oby';
-
-// Map over an array of primitive values
-
-const values = $([ 1, 2, 3 ]);
-
-const mapped = $.forValue ( values, value => {
-
-  return $.memo ( () => { // Wrapping in a memo to listen to changes in "value"
-
-    return `Double: ${value () ** 2}`;
-
-  });
-
-});
-
-// Update the values Observable
-
-values ([ 1, 4, 2 ]); // Now the computation that handled `3` will receive `4` as the new value of the "value" observable, the old memo is not disposed and a new one is not created, the old one is simply refreshed because one of its dependencies changed
-```
-
 #### `$.suspense`
 
-This function allows you to recursively pause and resume the execution of all, current and future, effects created inside it.
+This function allows you to recursively pause and resume the execution of all, current and future, effects created inside it. Unless they are explicitly created with `suspense: false`.
 
-This is very useful in some scenarios, for example you may want to keep a particular branch of computation around, if it'd be expensive to dispose of it and re-create it again, but you don't want its effects to be executing as they would probably interact with the rest of your application.
+This is very useful in some scenarios, for example you may want to keep a particular branch of computation around, if it'd be expensive to dispose of it and re-create it again, but you may not want its effects to be executing as they would probably interact with the rest of your application.
 
 A parent suspense boundary will also recursively pause children suspense boundaries.
 
@@ -1023,7 +854,7 @@ suspended ( false ); // This will cause the effect to be re-executed, as it had 
 
 #### `$.switch`
 
-This is the reactive version of the native `switch` statement. It returns a read-only Observable that resolves to the value of the first matching case, or the value of the default condition, or undefined otherwise.
+This is the reactive version of the native `switch` statement. It returns a read-only Observable that resolves to the value of the first matching case, or the value of the default condition, or `undefined` otherwise.
 
 Interface:
 
@@ -1208,6 +1039,8 @@ $.effect ( () => {
 
 });
 
+await nextTask (); // Giving the effect a chance to run
+
 url ( 'https://my.api2' ); // This causes the effect to be re-executed, and the previous `disposed` Observable will be set to `true`
 ```
 
@@ -1338,7 +1171,7 @@ $.resolve ( { foo: () => 123 } ); // => { foo: () => 123 }
 
 This function is useful for optimizing performance when you need to, for example, know when an item within a set is the selected one.
 
-If you use this function then when a new item should be the selected one the old one is unselected, and the new one is selected, directly, without checking if each element in the set is the currently selected one. This turns a `O(n)` operation into an `O(2)` one.
+If you use this function then when a new item should be the selected one the old one is unselected, and the new one is selected, directly, without checking if each element in the set is the currently selected one. This turns a `O(n)` operation into an `O(1)` one.
 
 Interface:
 
@@ -1375,13 +1208,43 @@ values.forEach ( value => {
 
 });
 
+await nextTask (); // Giving the effects a chance to run
+
 select ( 1 ); // It causes only 2 effect to re-execute, not 5 or however many there are
+
+await nextTask (); // Giving the effects a chance to run
+
 select ( 5 ); // It causes only 2 effect to re-execute, not 5 or however many there are
 ```
 
 ### Types
 
 The following TypeScript types are provided.
+
+#### `EffectOptions`
+
+This type describes the options object that effects can accept to tweak how they work.
+
+Interface:
+
+```ts
+type EffectOptions = {
+  suspense?: boolean,
+  sync?: boolean
+};
+```
+
+#### `ForOptions`
+
+This type describes the options object that `$.for` can accept to tweak how it works.
+
+Interface:
+
+```ts
+type ForOptions = {
+  unkeyed?: boolean
+};
+```
 
 #### `Observable`
 
@@ -1435,6 +1298,7 @@ type StoreOptions = {
 
 ## Thanks
 
+- **[reactively](https://github.com/modderme123/reactively)**: for teaching me the awesome push/pull hybrid algorithm that this library is currently using.
 - **[S](https://github.com/adamhaile/S)**: for paving the way to this awesome reactive way of writing software.
 - **[sinuous/observable](https://github.com/luwes/sinuous/tree/master/packages/sinuous/observable)**: for making me fall in love with Observables and providing a good implementation that this library was originally based on.
 - **[solid](https://www.solidjs.com)**: for being a great sort of reference implementation, popularizing Signal-based reactivity, and having built a great community.

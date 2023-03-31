@@ -2,14 +2,14 @@
 /* IMPORT */
 
 import Effect from '~/objects/effect';
-import type {DisposeFunction, EffectFunction} from '~/types';
+import type {DisposeFunction, EffectFunction, EffectOptions} from '~/types';
 
 /* MAIN */
 
-const effect = ( fn: EffectFunction ): DisposeFunction => {
+const effect = ( fn: EffectFunction, options?: EffectOptions ): DisposeFunction => {
 
-  const effect = new Effect ( fn );
-  const dispose = effect.dispose.bind ( effect, true, true );
+  const effect = new Effect ( fn, options );
+  const dispose = () => effect.dispose ();
 
   return dispose;
 

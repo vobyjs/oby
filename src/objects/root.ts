@@ -1,33 +1,36 @@
 
 /* IMPORT */
 
-import {OWNER, ROOT, setRoot} from '~/context';
-import suspended from '~/methods/suspended';
-import Observer from '~/objects/observer';
-import {isNumber} from '~/utils';
-import type {IObserver, ObservedDisposableFunction} from '~/types';
+import {OWNER, ROOT, SUSPENSE_ENABLED, setRoot} from '~/context';
+import {lazySetAdd, lazySetDelete} from '~/lazy';
+import Owner from '~/objects/owner';
+import type {IOwner, WrappedDisposableFunction, Signal} from '~/types';
 
 /* MAIN */
 
-class Root extends Observer {
+class Root extends Owner {
 
   /* VARIABLES */
 
-  parent: IObserver = OWNER;
-  disposed?: boolean;
-  pausable?: boolean;
+  parent: IOwner = OWNER;
+  signal: Signal = { disposed: false };
+  suspense?: true;
 
   /* CONSTRUCTOR */
 
-  constructor ( pausable?: boolean ) {
+  constructor ( suspense: boolean ) {
 
     super ();
 
-    if ( pausable && isNumber ( suspended () ) ) {
+    if ( suspense ) {
 
-      this.pausable = true;
+      this.suspense = true;
 
-      this.parent.registerRoot ( this );
+    }
+
+    if ( this.suspense && SUSPENSE_ENABLED ) {
+
+      lazySetAdd ( this.parent, 'roots', this );
 
     }
 
@@ -35,24 +38,24 @@ class Root extends Observer {
 
   /* API */
 
-  dispose ( deep?: boolean, immediate?: boolean ): void {
+  dispose (): void {
 
-    this.disposed = true;
+    if ( this.suspense && SUSPENSE_ENABLED ) {
 
-    if ( this.pausable ) {
-
-      this.parent.unregisterRoot ( this );
+      lazySetDelete ( this.parent, 'roots', this );
 
     }
 
-    super.dispose ( deep, immediate );
+    this.signal.disposed = true;
+
+    super.dispose ();
 
   }
 
-  wrap <T> ( fn: ObservedDisposableFunction<T> ): T {
+  wrap <T> ( fn: WrappedDisposableFunction<T> ): T {
 
-    const dispose = this.dispose.bind ( this, true, true );
-    const fnWithDispose = fn.bind ( undefined, dispose );
+    const dispose = () => this.dispose ();
+    const fnWithDispose = () => fn ( dispose );
 
     const rootPrev = ROOT;
 
@@ -60,7 +63,7 @@ class Root extends Observer {
 
     try {
 
-      return super.wrap ( fnWithDispose );
+      return super.wrap ( fnWithDispose, this, undefined );
 
     } finally {
 

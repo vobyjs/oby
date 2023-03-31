@@ -1,15 +1,15 @@
 
 /* IMPORT */
 
-import {OWNER} from '~/context';
+import {OWNER, SUSPENSE_ENABLED} from '~/context';
+import {lazySetAdd, lazySetDelete} from '~/lazy';
 import cleanup from '~/methods/cleanup';
-import CacheAbstract from '~/methods/for_abstract.cache';
 import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
 import {SYMBOL_CACHED, SYMBOL_UNCACHED} from '~/symbols';
-import type {IObservable, IObserver, MapFunction, Resolved} from '~/types';
+import type {IObservable, IOwner, MapFunction, Resolved} from '~/types';
 
 /* HELPERS */
 
@@ -23,10 +23,11 @@ class MappedRoot<T = unknown> extends Root { // This saves some memory compared 
 
 /* MAIN */
 
-class Cache<T, R> extends CacheAbstract<T, R> {
+class CacheKeyed<T, R> {
 
   /* VARIABLES */
 
+  private parent: IOwner = OWNER;
   private fn: MapFunction<T, R>;
   private fnWithIndex: boolean;
   private cache: Map<T, MappedRoot<Resolved<R>>> = new Map ();
@@ -34,17 +35,19 @@ class Cache<T, R> extends CacheAbstract<T, R> {
   private prevCount: number = 0; // Number of previous items
   private reuseCount: number = 0; // Number of previous items that got reused
   private nextCount: number = 0; // Number of next items
-  private parent: IObserver = OWNER;
 
   /* CONSTRUCTOR */
 
   constructor ( fn: MapFunction<T, R> ) {
 
-    super ( fn );
-
     this.fn = fn;
     this.fnWithIndex = ( fn.length > 1 );
-    this.parent.registerRoot ( this.roots );
+
+    if ( SUSPENSE_ENABLED ) {
+
+      lazySetAdd ( this.parent, 'roots', this.roots );
+
+    }
 
   }
 
@@ -66,7 +69,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
         if ( mapped.bool === bool ) return;
 
-        mapped.dispose ( true, true );
+        mapped.dispose ();
 
         cache.delete ( value );
 
@@ -76,7 +79,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
       this.cache.forEach ( mapped => {
 
-        mapped.dispose ( true, true );
+        mapped.dispose ();
 
       });
 
@@ -88,7 +91,11 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
   dispose = (): void => {
 
-    this.parent.unregisterRoot ( this.roots );
+    if ( SUSPENSE_ENABLED ) {
+
+      lazySetDelete ( this.parent, 'roots', this.roots );
+
+    }
 
     this.prevCount = this.cache.size;
     this.reuseCount = 0;
@@ -98,7 +105,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
   };
 
-  before = ( values: readonly T[] ): void => {
+  before = (): void => {
 
     this.bool = !this.bool;
     this.reuseCount = 0;
@@ -119,7 +126,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
   map = ( values: readonly T[] ): Resolved<R>[] => {
 
-    this.before ( values );
+    this.before ();
 
     const {cache, bool, fn, fnWithIndex} = this;
     const results: Resolved<R>[] = new Array ( values.length );
@@ -139,7 +146,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
         reuseCount += 1;
 
         cached.bool = bool;
-        cached.index?.write ( i );
+        cached.index?.set ( i );
 
         results[i] = cached.result!; //TSC
 
@@ -147,7 +154,7 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
         resultsCached = false;
 
-        const mapped = new MappedRoot<R> ();
+        const mapped = new MappedRoot<R> ( false );
 
         if ( cached ) {
 
@@ -209,8 +216,8 @@ class Cache<T, R> extends CacheAbstract<T, R> {
 
   };
 
-};
+}
 
 /* EXPORT */
 
-export default Cache;
+export default CacheKeyed;

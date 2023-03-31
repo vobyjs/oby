@@ -1,16 +1,17 @@
 
 /* IMPORT */
 
-import Observer from '~/objects/observer';
+import Owner from '~/objects/owner';
+import type {Signal} from '~/types';
 
 /* MAIN */
 
-class SuperRoot extends Observer {
+class SuperRoot extends Owner {
 
   /* VARIABLES */
 
   parent: undefined;
-  disposed: false = false;
+  signal: Signal = { disposed: false };
 
 }
 

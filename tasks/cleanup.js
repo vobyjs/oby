@@ -52,14 +52,14 @@ $.root ( dispose => {
         items[i]();
         memo ();
         memoVoid ();
-      });
+      }, { sync: true } );
 
       $.effect ( () => {
         global ();
         items[i]();
         memo ();
         memoVoid ();
-      });
+      }, { sync: true } );
 
     });
 

@@ -1,19 +1,18 @@
 
 /* IMPORT */
 
-import {ROOT, TRACKING} from '~/context';
+import {BATCH, OBSERVER} from '~/context';
 import {lazySetAdd, lazySetDelete, lazySetEach} from '~/lazy';
-import batch from '~/methods/batch';
 import cleanup from '~/methods/cleanup';
+import effect from '~/methods/effect';
 import isBatching from '~/methods/is_batching';
 import isStore from '~/methods/is_store';
-import reaction from '~/methods/reaction';
 import untrack from '~/methods/untrack';
 import {readable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
 import {SYMBOL_STORE, SYMBOL_STORE_KEYS, SYMBOL_STORE_OBSERVABLE, SYMBOL_STORE_TARGET, SYMBOL_STORE_VALUES, SYMBOL_STORE_UNTRACKED} from '~/symbols';
 import {castArray, is, isArray, isFunction, isObject, noop, nope} from '~/utils';
-import type {IObservable, CallbackFunction, DisposeFunction, EqualsFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet, Signal} from '~/types';
+import type {IObservable, CallbackFunction, DisposeFunction, EqualsFunction, Observable, ObservableOptions, StoreOptions, ArrayMaybe, LazySet} from '~/types';
 
 /* TYPES */
 
@@ -34,7 +33,6 @@ type StoreListenerRoots<T = unknown> = ( roots: T[] ) => void;
 type StoreNode = {
   parents: LazySet<StoreNode>,
   store: StoreTarget,
-  signal: Signal,
   listenersRegular?: LazySet<StoreListenerRegular>,
   listenersRoots?: LazySet<StoreListenerRoots>,
   getters?: StoreMap<StoreKey, Function>,
@@ -198,7 +196,11 @@ const StoreScheduler = {
   },
   flushIfNotBatching: (): void => {
     if ( isBatching () ) {
-      setTimeout ( StoreScheduler.flushIfNotBatching, 0 );
+      if ( BATCH ) {
+        BATCH.finally ( StoreScheduler.flushIfNotBatching );
+      } else {
+        setTimeout ( StoreScheduler.flushIfNotBatching, 0 );
+      }
     } else {
       StoreScheduler.flush ();
     }
@@ -243,7 +245,7 @@ const STORE_TRAPS = {
 
           node.keys ||= getNodeKeys ( node );
           node.keys.listen ();
-          node.keys.observable.read ();
+          node.keys.observable.get ();
 
         }
 
@@ -259,7 +261,7 @@ const STORE_TRAPS = {
 
           node.values ||= getNodeValues ( node );
           node.values.listen ();
-          node.values.observable.read ();
+          node.values.observable.get ();
 
         }
 
@@ -320,7 +322,7 @@ const STORE_TRAPS = {
 
       property.listen ();
       property.observable ||= getNodeObservable ( node, value, options );
-      property.observable.read ();
+      property.observable.get ();
 
     }
 
@@ -332,7 +334,7 @@ const STORE_TRAPS = {
 
       if ( typeof value === 'function' && value === Array.prototype[key] ) {
         return function () {
-          return batch ( () => value.apply ( node.store, arguments ) );
+          return value.apply ( node.store, arguments );
         };
       }
 
@@ -351,7 +353,7 @@ const STORE_TRAPS = {
 
     if ( setter ) {
 
-      batch ( () => setter.call ( node.store, value ) );
+      setter.call ( node.store, value );
 
     } else {
 
@@ -363,39 +365,35 @@ const STORE_TRAPS = {
 
       target[key] = value;
 
-      batch ( () => {
+      node.values?.observable.set ( 0 );
 
-        node.values?.observable.write ( 0 );
+      if ( !hadProperty ) {
+        node.keys?.observable.set ( 0 );
+        node.has?.get ( key )?.observable.set ( true );
+      }
 
-        if ( !hadProperty ) {
-          node.keys?.observable.write ( 0 );
-          node.has?.get ( key )?.observable.write ( true );
-        }
+      const property = node.properties?.get ( key );
 
-        const property = node.properties?.get ( key );
+      if ( property?.node ) {
+        lazySetDelete ( property.node, 'parents', node );
+      }
 
-        if ( property?.node ) {
-          lazySetDelete ( property.node, 'parents', node );
-        }
+      if ( property ) {
+        property.observable?.set ( value );
+        property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
+      }
 
-        if ( property ) {
-          property.observable?.write ( value );
-          property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
-        }
+      if ( property?.node ) {
+        lazySetAdd ( property.node, 'parents', node );
+      }
 
-        if ( property?.node ) {
-          lazySetAdd ( property.node, 'parents', node );
-        }
+      if ( StoreListenersRoots.active ) {
+        StoreListenersRoots.registerWith ( property?.node, node, key );
+      }
 
-        if ( StoreListenersRoots.active ) {
-          StoreListenersRoots.registerWith ( property?.node, node, key );
-        }
-
-        if ( StoreListenersRegular.active ) {
-          StoreListenersRegular.register ( node );
-        }
-
-      });
+      if ( StoreListenersRegular.active ) {
+        StoreListenersRegular.register ( node );
+      }
 
     }
 
@@ -415,32 +413,28 @@ const STORE_TRAPS = {
 
     const node = getNodeExisting ( target );
 
-    batch ( () => {
+    node.keys?.observable.set ( 0 );
+    node.values?.observable.set ( 0 );
+    node.has?.get ( key )?.observable.set ( false );
 
-      node.keys?.observable.write ( 0 );
-      node.values?.observable.write ( 0 );
-      node.has?.get ( key )?.observable.write ( false );
+    const property = node.properties?.get ( key );
 
-      const property = node.properties?.get ( key );
+    if ( StoreListenersRoots.active ) {
+      StoreListenersRoots.registerWith ( property?.node, node, key );
+    }
 
-      if ( StoreListenersRoots.active ) {
-        StoreListenersRoots.registerWith ( property?.node, node, key );
-      }
+    if ( property?.node ) {
+      lazySetDelete ( property.node, 'parents', node );
+    }
 
-      if ( property?.node ) {
-        lazySetDelete ( property.node, 'parents', node );
-      }
+    if ( property ) {
+      property.observable?.set ( undefined );
+      property.node = undefined;
+    }
 
-      if ( property ) {
-        property.observable?.write ( undefined );
-        property.node = undefined;
-      }
-
-      if ( StoreListenersRegular.active ) {
-        StoreListenersRegular.register ( node );
-      }
-
-    });
+    if ( StoreListenersRegular.active ) {
+      StoreListenersRegular.register ( node );
+    }
 
     return true;
 
@@ -460,61 +454,57 @@ const STORE_TRAPS = {
 
     if ( !defined ) return false;
 
-    batch ( () => {
+    if ( !descriptor.get ) {
+      node.getters?.delete ( key );
+    } else if ( descriptor.get ) {
+      node.getters ||= new StoreMap ();
+      node.getters.set ( key, descriptor.get );
+    }
 
-      if ( !descriptor.get ) {
-        node.getters?.delete ( key );
-      } else if ( descriptor.get ) {
-        node.getters ||= new StoreMap ();
-        node.getters.set ( key, descriptor.get );
+    if ( !descriptor.set ) {
+      node.setters?.delete ( key );
+    } else if ( descriptor.set ) {
+      node.setters ||= new StoreMap ();
+      node.setters.set ( key, descriptor.set );
+    }
+
+    if ( hadProperty !== !!descriptor.enumerable ) {
+      node.keys?.observable.set ( 0 );
+      node.has?.get ( key )?.observable.set ( !!descriptor.enumerable );
+    }
+
+    const property = node.properties?.get ( key );
+
+    if ( StoreListenersRoots.active ) {
+      StoreListenersRoots.registerWith ( property?.node, node, key );
+    }
+
+    if ( property?.node ) {
+      lazySetDelete ( property.node, 'parents', node );
+    }
+
+    if ( property ) {
+      if ( 'get' in descriptor ) {
+        property.observable?.set ( descriptor.get );
+        property.node = undefined;
+      } else {
+        const value = descriptor.value;
+        property.observable?.set ( value );
+        property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
       }
+    }
 
-      if ( !descriptor.set ) {
-        node.setters?.delete ( key );
-      } else if ( descriptor.set ) {
-        node.setters ||= new StoreMap ();
-        node.setters.set ( key, descriptor.set );
-      }
+    if ( property?.node ) {
+      lazySetAdd ( property.node, 'parents', node );
+    }
 
-      if ( hadProperty !== !!descriptor.enumerable ) {
-        node.keys?.observable.write ( 0 );
-        node.has?.get ( key )?.observable.write ( !!descriptor.enumerable );
-      }
+    if ( StoreListenersRoots.active ) {
+      StoreListenersRoots.registerWith ( property?.node, node, key );
+    }
 
-      const property = node.properties?.get ( key );
-
-      if ( StoreListenersRoots.active ) {
-        StoreListenersRoots.registerWith ( property?.node, node, key );
-      }
-
-      if ( property?.node ) {
-        lazySetDelete ( property.node, 'parents', node );
-      }
-
-      if ( property ) {
-        if ( 'get' in descriptor ) {
-          property.observable?.write ( descriptor.get );
-          property.node = undefined;
-        } else {
-          const value = descriptor['val' + 'ue']; //UGLY: Bailing out of mangling
-          property.observable?.write ( value );
-          property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
-        }
-      }
-
-      if ( property?.node ) {
-        lazySetAdd ( property.node, 'parents', node );
-      }
-
-      if ( StoreListenersRoots.active ) {
-        StoreListenersRoots.registerWith ( property?.node, node, key );
-      }
-
-      if ( StoreListenersRegular.active ) {
-        StoreListenersRegular.register ( node );
-      }
-
-    });
+    if ( StoreListenersRegular.active ) {
+      StoreListenersRegular.register ( node );
+    }
 
     return true;
 
@@ -537,7 +527,7 @@ const STORE_TRAPS = {
       const has = node.has.get ( key ) || node.has.insert ( key, getNodeHas ( node, key, value ) );
 
       has.listen ();
-      has.observable.read ();
+      has.observable.get ();
 
     }
 
@@ -555,7 +545,7 @@ const STORE_TRAPS = {
 
       node.keys ||= getNodeKeys ( node );
       node.keys.listen ();
-      node.keys.observable.read ();
+      node.keys.observable.get ();
 
     }
 
@@ -584,9 +574,8 @@ const STORE_UNTRACK_TRAPS = {
 const getNode = <T extends StoreTarget> ( value: T, parent?: StoreNode, equals?: EqualsFunction<unknown> | false ): StoreNode => {
 
   const store = new Proxy ( value, STORE_TRAPS );
-  const signal = parent?.signal || ROOT;
   const gettersAndSetters = getGettersAndSetters ( value );
-  const node: StoreNode = { parents: parent, store, signal };
+  const node: StoreNode = { parents: parent, store };
 
   if ( gettersAndSetters ) {
     const {getters, setters} = gettersAndSetters;
@@ -653,11 +642,7 @@ const getNodeHas = ( node: StoreNode, key: StoreKey, value: boolean ): StoreHas 
 
 const getNodeObservable = <T> ( node: StoreNode, value: T, options?: ObservableOptions ): IObservable<T> => {
 
-  const observable = new ObservableClass ( value, options );
-
-  observable.signal = node.signal;
-
-  return observable;
+  return new ObservableClass ( value, options );
 
 };
 
@@ -740,13 +725,13 @@ const getUntracked = <T> ( value: T ): T => {
 
 const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor, equals: EqualsFunction<unknown> ): boolean => {
 
-  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a['writ' + 'able'] === !!b['writ' + 'able'] && equals ( a['val' + 'ue'], b['val' + 'ue'] ) && a.get === b.get && a.set === b.set ); //UGLY: Bailing out of mangling
+  return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a.writable === !!b.writable && equals ( a.value, b.value ) && a.get === b.get && a.set === b.set );
 
 };
 
 const isListenable = (): boolean => { // Checks whether the current owner can listen for observables
 
-  return TRACKING;
+  return !!OBSERVER;
 
 };
 
@@ -808,14 +793,14 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
 
   const disposers = selectors.map ( selector => {
     let inited = false;
-    return reaction ( () => {
+    return effect ( () => {
       if ( inited ) {
         StoreListenersRegular.listeners.add ( listener );
         StoreScheduler.schedule ();
       }
       inited = true;
       selector ();
-    });
+    }, { suspense: false, sync: true } );
   });
 
   nodes.forEach ( node => {
@@ -961,13 +946,9 @@ store.reconcile = (() => {
 
   const reconcile = <T extends StoreReconcileable> ( prev: T, next: T ): T => {
 
-    return batch ( () => {
+    return untrack ( () => {
 
-      return untrack ( () => {
-
-        return reconcileOuter ( prev, next );
-
-      });
+      return reconcileOuter ( prev, next );
 
     });
 

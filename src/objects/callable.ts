@@ -1,58 +1,63 @@
 
 /* IMPORT */
 
-import {ROOT_DISPOSED} from '~/context';
 import {SYMBOL_OBSERVABLE, SYMBOL_OBSERVABLE_FROZEN, SYMBOL_OBSERVABLE_READABLE, SYMBOL_OBSERVABLE_WRITABLE} from '~/symbols';
 import {isFunction} from '~/utils';
-import type {IObservable, UpdateFunction, Frozen, Readable, Writable} from '~/types';
+import type {IObservable, UpdateFunction, Observable, ObservableReadonly} from '~/types';
 
-/* MAIN */
+/* MAIN - FUNCTIONS */
 
 function frozenFunction <T> ( this: T ): T {
-  if ( arguments.length ) throw new Error ( 'A readonly Observable can not be updated' );
-  return this;
-}
-
-function readableFunction <T> ( this: IObservable<T>, symbol: symbol ): IObservable<T>;
-function readableFunction <T> ( this: IObservable<T>, symbol?: symbol ): T | IObservable<T> {
   if ( arguments.length ) {
-    if ( symbol === SYMBOL_OBSERVABLE ) return this;
     throw new Error ( 'A readonly Observable can not be updated' );
+  } else {
+    return this;
   }
-  return this.read ();
 }
 
-function writableFunction <T> ( this: IObservable<T>, symbol: symbol ): IObservable<T>;
-function writableFunction <T> ( this: IObservable<T>, fn?: UpdateFunction<T> | T | symbol ): T | IObservable<T> {
+function readableFunction <T> ( this: IObservable<T> ): T {
   if ( arguments.length ) {
-    if ( fn === SYMBOL_OBSERVABLE ) return this;
-    if ( isFunction ( fn ) ) return this.update ( fn as UpdateFunction<T> ); //TSC
-    return this.write ( fn as T ); //TSC
+    throw new Error ( 'A readonly Observable can not be updated' );
+  } else {
+    return this.get ();
   }
-  return this.read ();
 }
 
-const frozen = (<T> ( value: T ) => {
-  const fn = frozenFunction.bind ( value );
+function writableFunction <T> ( this: IObservable<T>, fn?: UpdateFunction<T> | T ): T {
+  if ( arguments.length ) {
+    if ( isFunction ( fn ) ) {
+      return this.update ( fn );
+    } else {
+      return this.set ( fn! ); //TSC
+    }
+  } else {
+    return this.get ();
+  }
+}
+
+/* MAIN - GENERATORS */
+
+const frozen = <T> ( value: T ): ObservableReadonly<T> => {
+  const fn = frozenFunction.bind ( value ) as ObservableReadonly<T>; //TSC
   fn[SYMBOL_OBSERVABLE] = true;
   fn[SYMBOL_OBSERVABLE_FROZEN] = true;
   return fn;
-}) as Frozen; //TSC
+};
 
-const readable = (<T> ( value: IObservable<T> ) => {
-  if ( value.signal === ROOT_DISPOSED ) return frozen ( value.value );
-  const fn = readableFunction.bind ( value as any ); //TSC
+const readable = <T> ( value: IObservable<T> ): ObservableReadonly<T> => {
+  //TODO: Make a frozen one instead if disposed
+  const fn = readableFunction.bind ( value as any ) as ObservableReadonly<T>; //TSC
   fn[SYMBOL_OBSERVABLE] = true;
-  fn[SYMBOL_OBSERVABLE_READABLE] = true;
+  fn[SYMBOL_OBSERVABLE_READABLE] = value;
   return fn;
-}) as Readable; //TSC
+};
 
-const writable = (<T> ( value: IObservable<T> ) => {
-  const fn = writableFunction.bind ( value as any ); //TSC
+const writable = <T> ( value: IObservable<T> ): Observable<T> => {
+  const fn = writableFunction.bind ( value as any ) as ObservableReadonly<T>; //TSC
   fn[SYMBOL_OBSERVABLE] = true;
-  fn[SYMBOL_OBSERVABLE_WRITABLE] = true;
+  fn[SYMBOL_OBSERVABLE_WRITABLE] = value;
   return fn;
-}) as Writable; //TSC
+};
 
 /* EXPORT */
 

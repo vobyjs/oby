@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {TRACKING, setTracking} from '~/context';
+import {OBSERVER, setObserver} from '~/context';
 import {isFunction} from '~/utils';
 import type {UntrackFunction} from '~/types';
 
@@ -13,17 +13,17 @@ function untrack <T> ( fn: UntrackFunction<T> | T ) {
 
   if ( isFunction ( fn ) ) {
 
-    const trackingPrev = TRACKING;
+    const observerPrev = OBSERVER;
 
     try {
 
-      setTracking ( false );
+      setObserver ( undefined );
 
       return fn ();
 
     } finally {
 
-      setTracking ( trackingPrev );
+      setObserver ( observerPrev );
 
     }
 
