@@ -1,10 +1,16 @@
 
+/* IMPORT */
+
+import {frozen} from '~/objects/callable';
+
 /* MAIN */
 
 const DIRTY_NO: number = 0; // The observer is not dirty, for sure
 const DIRTY_MAYBE_NO: number = 1; // The observer is not dirty, possibly
 const DIRTY_MAYBE_YES: number = 2; // The observer is dirty, possibly
 const DIRTY_YES: number = 3; // The observer is dirty, for sure
+
+const OBSERVABLE_UNDEFINED = frozen ( undefined );
 
 const OBSERVER_DISPOSED = { observables: [], update () {} };
 
@@ -14,5 +20,6 @@ const UNAVAILABLE: any = undefined; //FIXME: We should really return the explodi
 /* EXPORT */
 
 export {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES};
+export {OBSERVABLE_UNDEFINED};
 export {OBSERVER_DISPOSED};
 export {UNAVAILABLE};

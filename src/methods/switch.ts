@@ -1,9 +1,13 @@
 
 /* IMPORT */
 
+import {OBSERVABLE_UNDEFINED} from '~/constants';
 import get from '~/methods/get';
+import isObservableFrozen from '~/methods/is_observable_frozen';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
+import untrack from '~/methods/untrack';
+import warmup from '~/methods/warmup';
 import {is} from '~/utils';
 import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
@@ -15,7 +19,7 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: [T, R][], fallback?: u
 function _switch <T, R, F> ( when: FunctionMaybe<T>, values: [T, R][], fallback: F ): ObservableReadonly<Resolved<R | F>>;
 function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], fallback?: F ): ObservableReadonly<Resolved<R | F | undefined>> {
 
-  const value = memo ( () => {
+  const value = warmup ( memo ( () => {
 
     const condition = get ( when );
 
@@ -31,13 +35,35 @@ function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], f
 
     return fallback;
 
-  });
+  }));
 
-  return memo ( () => {
+  if ( isObservableFrozen ( value ) ) {
 
-    return resolve ( get ( value ) );
+    const valueUnwrapped = untrack ( value );
 
-  });
+    if ( valueUnwrapped === undefined ) {
+
+      return OBSERVABLE_UNDEFINED;
+
+    } else {
+
+      return memo ( () => {
+
+        return resolve ( valueUnwrapped );
+
+      });
+
+    }
+
+  } else {
+
+    return memo ( () => {
+
+      return resolve ( get ( value ) );
+
+    });
+
+  }
 
 }
 

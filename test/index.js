@@ -3234,6 +3234,36 @@ describe ( 'oby', () => {
 
   describe ( 'memo', it => {
 
+    it ( 'can return frozen observables, statically', t => {
+
+      const memo = $.memo ( () => 123 );
+
+      isReadable ( t, memo );
+
+      memo ();
+
+      isFrozen ( t, memo );
+
+    });
+
+    it ( 'can return frozen observables, dynamically', t => {
+
+      const o = $(1);
+      const memo = $.memo ( () => $.untrack ( o ) ? o () : 123 );
+
+      isReadable ( t, memo );
+
+      memo ();
+
+      isReadable ( t, memo );
+
+      o ( 0 );
+      memo ();
+
+      isFrozen ( t, memo );
+
+    });
+
     it ( 'bypasses the comparator function on first run', t => {
 
       const o1 = $.memo ( () => 123, { equals: () => true } );
