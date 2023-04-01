@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {DIRTY_MAYBE_YES} from '~/constants';
+import {DIRTY_MAYBE_YES, OBSERVER_DISPOSED} from '~/constants';
 import Observable from '~/objects/observable';
 import Observer from '~/objects/observer';
 import {SYMBOL_VALUE_INITIAL} from '~/symbols';
@@ -35,6 +35,12 @@ class Memo<T = unknown> extends Observer {
     this.dispose ();
 
     const value = this.wrap ( this.fn, this, this );
+
+    if ( this.signal.disposed || !this.observables.length ) {
+
+      this.observable.parent = OBSERVER_DISPOSED;
+
+    }
 
     this.observable.set ( value );
 

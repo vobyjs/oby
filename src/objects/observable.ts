@@ -1,12 +1,12 @@
 
 /* IMPORT */
 
-import {DIRTY_YES} from '~/constants';
+import {DIRTY_YES, OBSERVER_DISPOSED} from '~/constants';
 import {OBSERVER} from '~/context';
 import Scheduler from '~/objects/scheduler.sync';
 import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import {is, nope} from '~/utils';
-import type {IObserver, IMemo, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
+import type {IObservableParent, IObserver, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
 
@@ -14,14 +14,14 @@ class Observable<T = unknown> {
 
   /* VARIABLES */
 
-  parent?: IMemo<T>;
+  parent?: IObservableParent;
   value: T;
   equals?: EqualsFunction<T>;
   observers: Set<IObserver> = new Set ();
 
   /* CONSTRUCTOR */
 
-  constructor ( value: T, options?: ObservableOptions<T>, parent?: IMemo<T> ) {
+  constructor ( value: T, options?: ObservableOptions<T>, parent?: IObservableParent ) {
 
     this.value = value;
 
@@ -43,9 +43,13 @@ class Observable<T = unknown> {
 
   get (): T {
 
-    this.parent?.update ();
+    if ( this.parent !== OBSERVER_DISPOSED ) {
 
-    OBSERVER?.link ( this );
+      this.parent?.update ();
+
+      OBSERVER?.link ( this );
+
+    }
 
     return this.value;
 
