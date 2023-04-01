@@ -1,10 +1,13 @@
 
 /* IMPORT */
 
+import {OBSERVABLE_FALSE, OBSERVABLE_TRUE} from '~/constants';
 import cleanup from '~/methods/cleanup';
 import effect from '~/methods/effect';
+import isObservableFrozen from '~/methods/is_observable_frozen';
 import memo from '~/methods/memo';
 import untrack from '~/methods/untrack';
+import warmup from '~/methods/warmup';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import {is} from '~/utils';
@@ -35,7 +38,21 @@ const selector = <T> ( source: () => T ): SelectorFunction<T> => {
 
   /* NORMALIZING SOURCE */
 
-  source = memo ( source );
+  source = warmup ( memo ( source ) );
+
+  /* FROZEN SOURCE */
+
+  if ( isObservableFrozen ( source ) ) {
+
+    const sourceValue = untrack ( source );
+
+    return ( value: T ): ObservableReadonly<boolean> => {
+
+      return ( value === sourceValue ) ? OBSERVABLE_TRUE : OBSERVABLE_FALSE;
+
+    };
+
+  }
 
   /* SELECTEDS */
 
