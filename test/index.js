@@ -4,14 +4,32 @@
 import {describe} from 'fava';
 import {setTimeout as delay} from 'node:timers/promises';
 import $ from '../dist/index.js';
+import isObservableFrozen from '../dist/methods/is_observable_frozen.js';
+import isObservableReadable from '../dist/methods/is_observable_readable.js';
+import isObservableWritable from '../dist/methods/is_observable_writable.js';
 import {SYMBOL_STORE_VALUES} from '../dist/symbols.js';
 import {observable} from '../dist/index.js';
 
 /* HELPERS */
 
+const isFrozen = ( t, value ) => {
+
+  t.true ( $.isObservable ( value ) );
+  t.true ( isObservableFrozen ( value ) );
+  t.true ( typeof value.read === 'undefined' );
+  t.true ( typeof value.write === 'undefined' );
+  t.true ( typeof value.value === 'undefined' );
+  t.true ( typeof value.bind === 'function' );
+  t.true ( typeof value.apply === 'function' );
+
+  t.throws ( () => value ( Math.random () ), { message: 'A readonly Observable can not be updated' } );
+
+};
+
 const isReadable = ( t, value ) => {
 
   t.true ( $.isObservable ( value ) );
+  t.true ( isObservableReadable ( value ) );
   t.true ( typeof value.read === 'undefined' );
   t.true ( typeof value.write === 'undefined' );
   t.true ( typeof value.value === 'undefined' );
@@ -25,6 +43,7 @@ const isReadable = ( t, value ) => {
 const isWritable = ( t, value ) => {
 
   t.true ( $.isObservable ( value ) );
+  t.true ( isObservableWritable ( value ) );
   t.true ( typeof value.read === 'undefined' );
   t.true ( typeof value.write === 'undefined' );
   t.true ( typeof value.value === 'undefined' );
