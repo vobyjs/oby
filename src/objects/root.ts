@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER, ROOT, SUSPENSE_ENABLED, setRoot} from '~/context';
+import {OWNER, SUSPENSE_ENABLED} from '~/context';
 import {lazySetAdd, lazySetDelete} from '~/lazy';
 import Owner from '~/objects/owner';
 import type {IOwner, WrappedDisposableFunction, Signal} from '~/types';
@@ -57,19 +57,7 @@ class Root extends Owner {
     const dispose = () => this.dispose ();
     const fnWithDispose = () => fn ( dispose );
 
-    const rootPrev = ROOT;
-
-    setRoot ( this );
-
-    try {
-
-      return super.wrap ( fnWithDispose, this, undefined );
-
-    } finally {
-
-      setRoot ( rootPrev );
-
-    }
+    return super.wrap ( fnWithDispose, this, undefined );
 
   }
 
