@@ -48,9 +48,13 @@ class Memo<T = unknown> extends Observer {
 
   stale ( status: number ): void {
 
-    if ( this.status === status ) return;
+    const statusPrev = this.status;
+
+    if ( statusPrev === status ) return;
 
     this.status = status;
+
+    if ( statusPrev === DIRTY_MAYBE_YES ) return;
 
     this.observable.stale ( DIRTY_MAYBE_YES );
 
