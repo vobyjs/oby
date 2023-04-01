@@ -13,12 +13,9 @@ const suspense = <T> ( when: FunctionMaybe<unknown>, fn: SuspenseFunction<T> ): 
 
   const suspense = new Suspense ();
   const condition = boolean ( when );
+  const toggle = () => suspense.toggle ( get ( condition ) );
 
-  effect ( () => {
-
-    suspense.toggle ( get ( condition ) );
-
-  }, { sync: true } );
+  effect ( toggle, { sync: true } );
 
   return suspense.wrap ( fn );
 
