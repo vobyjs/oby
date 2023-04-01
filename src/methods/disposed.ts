@@ -11,12 +11,9 @@ import type {ObservableReadonly} from '~/types';
 const disposed = (): ObservableReadonly<boolean> => {
 
   const observable = new Observable ( false );
+  const toggle = () => observable.set ( true );
 
-  cleanup ( () => {
-
-    observable.set ( true );
-
-  });
+  cleanup ( toggle );
 
   return readable ( observable );
 
