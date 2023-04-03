@@ -250,7 +250,7 @@ $.root ( () => {
 
 An effect is similar to a memo, but it returns a function for manually disposing of it instead of an Observable, and if you return a function from inside it that's automatically registered as a cleanup function.
 
-Also effects are asynchronous by default, they will be re-executed automatically on the next microtask, when necessary. It's possible to make an effect synchronous also, but you are strongly discouraged to do that, because synchronous effects bypass any form of batching and are easy to misuse.
+Also effects are asynchronous by default, they will be re-executed automatically on the next microtask, when necessary. It's possible to make an effect synchronous also, but you are strongly discouraged to do that, because synchronous effects bypass any form of batching and are easy to misuse. It's also possible to make an effect that's asynchronous but executed immediately when created, that's way less problematic, but you probably still won't need it.
 
 Also effects can be paused inside a `$.suspense` boundary by default. It's possible to make an effect that won't be paused inside a `$.suspense` boundary also, which is mostly useful if the effect is synchronous also, but you are discouraged to do that, unless you really need that.
 
@@ -299,6 +299,14 @@ $.effect ( () => {
   // Do something...
 
 }, { sync: true } );
+
+// Creating an asynchronous effect, but that is executed immediately on creation
+
+$.effect ( () => {
+
+  // Do something...
+
+}, { sync: 'init' } );
 
 // Creating an effect that will not be paused by suspense
 

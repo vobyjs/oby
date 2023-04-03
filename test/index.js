@@ -1940,6 +1940,46 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports synchronous effects', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        o ();
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'supports synchronous effects only on init', async t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        o ();
+      }, { sync: 'init' } );
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+    });
+
     it ( 'updates when the dependencies change', async t => {
 
       const a = $(1);

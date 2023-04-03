@@ -65,7 +65,7 @@ type WrappedDisposableFunction<T = unknown> = ( dispose: DisposeFunction ) => T;
 
 type EffectOptions = {
   suspense?: boolean,
-  sync?: boolean
+  sync?: boolean | 'init'
 };
 
 /* FOR */

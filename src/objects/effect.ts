@@ -39,13 +39,21 @@ class Effect extends Observer {
 
     }
 
-    if ( options?.sync ) {
+    if ( options?.sync === true ) {
 
       this.sync = true;
 
     }
 
-    this.schedule ();
+    if ( options?.sync === 'init' ) {
+
+      this.update ();
+
+    } else {
+
+      this.schedule ();
+
+    }
 
   }
 
