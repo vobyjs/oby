@@ -22,22 +22,28 @@ class Scheduler {
 
   flush = (): void => {
 
+    if ( this.locked ) return;
+
     if ( !this.waiting.size ) return;
 
     try {
 
       this.locked = true;
 
-      this.running = this.waiting;
-      this.waiting = new Set ();
+      while ( this.waiting.size ) {
 
-      for ( const effect of this.running ) {
+        this.running = this.waiting;
+        this.waiting = new Set ();
 
-        effect.update ();
+        for ( const effect of this.running ) {
+
+          effect.update ();
+
+        }
+
+        this.running = undefined;
 
       }
-
-      this.running = undefined;
 
     } finally {
 
