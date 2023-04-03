@@ -8697,6 +8697,58 @@ describe ( 'oby', () => {
 
   });
 
+  describe ( 'tick', it => {
+
+    it ( 'flushes any scheduled effects immediately', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        o ();
+      });
+
+      t.is ( calls, 0 );
+      $.tick ();
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+      $.tick ();
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'flushes any scheduled effects recursively', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+        calls += 1;
+        if ( $.untrack ( b ) >= 5 ) return;
+        b ( a () + 1 );
+      });
+
+      $.effect ( () => {
+        calls += 1;
+        if ( $.untrack ( a ) >= 5 ) return;
+        a ( b () + 1 );
+      });
+
+      t.is ( calls, 0 );
+      $.tick ();
+      t.is ( calls, 7 );
+
+    });
+
+  });
+
   describe ( 'tryCatch', it => {
 
     //TODO: These "settle" calls look a bit ugly, but maybe no way around them with a lazy system?
