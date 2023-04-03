@@ -9,7 +9,7 @@
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "all": "scex -sb compile compile:mangle test benchmark cleanup creation memory read store store:creation updates",
+    "all": "scex -sb compile compile:mangle test benchmark cleanup creation kairo memory read store store:creation updates",
     "benchmark": "tsex benchmark",
     "benchmark:watch": "tsex benchmark --watch",
     "clean": "tsex clean",
@@ -18,6 +18,7 @@
     "compile:mangle": "mangler --folder dist --ext js --props 'active,after,before,bool,cache,cleanups,contexts,count,counter,dispose,errorHandler,flush,flushIfNotBatching,fnWithIndex,getters,insert,link,listeners,listenersRegular,listenersRoots,locked,nextCount,node,nodes,observables,observers,onRoots,parent,parents,prevCount,prepare,properties,queued,register,registerWith,result,reuseCount,roots,running,schedule,selecteds,setters,signal,source,stale,status,suspended,suspenses,toggle,unschedule,update,waiting,wrap'",
     "compile:watch": "tsex compile --watch",
     "creation": "node tasks/creation.js",
+    "kairo": "node tasks/kairo.js",
     "memory": "node tasks/memory.js",
     "read": "node tasks/read.js",
     "store": "node tasks/store.js",
