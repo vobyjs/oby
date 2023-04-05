@@ -5,7 +5,7 @@ import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants'
 import {OWNER} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import Owner from '~/objects/owner';
-import type {IObservable, IOwner, WrappedFunction, Signal} from '~/types';
+import type {IObservable, IOwner, Signal} from '~/types';
 
 /* MAIN */
 
@@ -52,6 +52,8 @@ class Observer extends Owner {
       }
 
     }
+
+    this.observablesIndex = 0;
 
     super.dispose ();
 
@@ -132,24 +134,6 @@ class Observer extends Owner {
     observable.observers.add ( this );
 
     observables[this.observablesIndex++] = observable;
-
-  }
-
-  wrap <T> ( fn: WrappedFunction<T> ): T {
-
-    this.dispose ( true );
-
-    this.observablesIndex = 0;
-
-    try {
-
-      return super.wrap ( fn, this, this );
-
-    } finally {
-
-      this.postdispose ();
-
-    }
 
   }
 

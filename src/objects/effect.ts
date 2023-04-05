@@ -69,7 +69,9 @@ class Effect extends Observer {
 
   run (): void {
 
-    const cleanup = this.wrap ( this.fn );
+    this.dispose ();
+
+    const cleanup = this.wrap ( this.fn, this, this );
 
     if ( isFunction ( cleanup ) ) {
 

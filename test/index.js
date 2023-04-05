@@ -9273,6 +9273,68 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'does not override pre-exiting dependencies of effects', async t => {
+
+      const o = $(0);
+
+      let calls = 0;
+      let runWith;
+
+      $.effect ( () => {
+        calls += 1;
+        o ();
+        runWith = $.with ();
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      runWith ( () => {} );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'does not override pre-exiting dependencies of effects', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+      let runWith;
+
+      const memo = $.memo ( () => {
+        calls += 1;
+        o ();
+        runWith = $.with ();
+      });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
+
+      runWith ( () => {} );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 2 );
+
+    });
+
   });
 
   describe ( 'S-like propagation', it => {
