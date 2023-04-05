@@ -32,9 +32,7 @@ class Memo<T = unknown> extends Observer {
 
   run (): void {
 
-    this.dispose ();
-
-    const value = this.wrap ( this.fn, this, this );
+    const value = this.wrap ( this.fn );
 
     if ( this.signal.disposed || !this.observables.length ) {
 

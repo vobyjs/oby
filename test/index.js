@@ -170,7 +170,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'creates a single dependency in a memo even if getting multiple times', t => {
+  it ( 'creates a single dependency in a memo even if getting multiple times', t => {
 
       const o = $(1);
 
@@ -9277,7 +9277,7 @@ describe ( 'oby', () => {
 
   describe ( 'S-like propagation', it => {
 
-    it ( 'only propagates in topological order, diamond', t => {
+    it ( 'only propagates in topological order', t => {
 
       //    a1
       //   /  \

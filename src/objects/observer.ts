@@ -5,7 +5,7 @@ import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants'
 import {OWNER} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import Owner from '~/objects/owner';
-import type {IObservable, IOwner, Signal} from '~/types';
+import type {IObservable, IOwner, WrappedFunction, Signal} from '~/types';
 
 /* MAIN */
 
@@ -17,6 +17,7 @@ class Observer extends Owner {
   signal: Signal = OWNER.signal;
   status: number = DIRTY_YES;
   observables: IObservable[] = [];
+  observablesIndex: number = 0;
   sync?: boolean;
 
   /* CONSTRUCTOR */
@@ -31,20 +32,24 @@ class Observer extends Owner {
 
   /* API */
 
-  dispose (): void {
+  dispose ( shallow?: boolean ): void {
 
-    const observables = this.observables;
-    const observablesLength = observables.length;
+    if ( !shallow ) {
 
-    if ( observablesLength ) {
+      const observables = this.observables;
+      const observablesLength = observables.length;
 
-      for ( let i = 0, l = observables.length; i < l; i++ ) {
+      if ( observablesLength ) {
 
-        observables[i].observers.delete ( this );
+        for ( let i = 0; i < observablesLength; i++ ) {
+
+          observables[i].observers.delete ( this );
+
+        }
+
+        this.observables = [];
 
       }
-
-      this.observables = [];
 
     }
 
@@ -52,18 +57,67 @@ class Observer extends Owner {
 
   }
 
+  postdispose (): void {
+
+    const observables = this.observables;
+    const observablesIndex = this.observablesIndex;
+    const observablesLength = observables.length;
+
+    if ( observablesIndex < observablesLength ) {
+
+      for ( let i = observablesIndex; i < observablesLength; i++ ) {
+
+        observables[i].observers.delete ( this );
+
+      }
+
+      observables.length = observablesIndex;
+
+    }
+
+  }
+
   link ( observable: IObservable<any> ): void {
 
-    const observers = observable.observers;
-    const sizePrev = observers.size;
+    const observables = this.observables;
+    const observablesIndex = this.observablesIndex;
+    const observablesLength = observables.length;
 
-    observers.add ( this );
+    if ( observablesIndex < observablesLength ) {
 
-    const sizeNext = observers.size;
+      if ( observable === observables[observablesIndex] ) {
 
-    if ( sizePrev === sizeNext ) return; // Quicker alternative to "Set.has" + "Set.add"
+        this.observablesIndex += 1;
 
-    this.observables.push ( observable );
+        return;
+
+      }
+
+      this.postdispose ();
+
+    }
+
+    observable.observers.add ( this );
+
+    observables[this.observablesIndex++] = observable;
+
+  }
+
+  wrap <T> ( fn: WrappedFunction<T> ): T {
+
+    this.dispose ( true );
+
+    this.observablesIndex = 0;
+
+    try {
+
+      return super.wrap ( fn, this, this );
+
+    } finally {
+
+      this.postdispose ();
+
+    }
 
   }
 
@@ -91,7 +145,7 @@ class Observer extends Owner {
 
         observables[i].parent?.update ();
 
-        if ( this.status === DIRTY_YES ) break; // We are dirty, no need to check the rest
+        // if ( this.status === DIRTY_YES ) break; // We are dirty, no need to check the rest //TODO: This line makes the system lazier, but it conflicts with synchronous computations and optimized disposal
 
       }
 

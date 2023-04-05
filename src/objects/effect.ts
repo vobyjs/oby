@@ -63,15 +63,13 @@ class Effect extends Observer {
 
     this.unschedule ();
 
-    super.dispose ();
+    super.dispose ( false ); //TODO: Somehow optimize disposal also for effects, which can update other observables
 
   }
 
   run (): void {
 
-    this.dispose ();
-
-    const cleanup = this.wrap ( this.fn, this, this );
+    const cleanup = this.wrap ( this.fn );
 
     if ( isFunction ( cleanup ) ) {
 
