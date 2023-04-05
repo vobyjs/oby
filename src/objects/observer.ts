@@ -83,15 +83,47 @@ class Observer extends Owner {
     const observablesIndex = this.observablesIndex;
     const observablesLength = observables.length;
 
-    if ( observablesIndex < observablesLength ) {
+    if ( observablesIndex <= observablesLength ) {
 
-      if ( observable === observables[observablesIndex] ) {
+      if ( observablesLength <= 64 ) { // Exact deduplication with a linear search, O(n)
 
-        this.observablesIndex += 1;
+        const idx = observables.indexOf ( observable );
 
-        return;
+        if ( idx >= 0 && idx < observablesIndex ) {
+
+          return;
+
+        }
+
+        if ( idx === observablesIndex ) {
+
+          this.observablesIndex += 1;
+
+          return;
+
+        }
+
+      } else { // Approximate deduplication with a constant lookbehind, O(1)
+
+        if ( observablesIndex > 0 && observable === observables[observablesIndex - 1] ) {
+
+          return;
+
+        }
+
+        if ( observable === observables[observablesIndex] ) {
+
+          this.observablesIndex += 1;
+
+          return;
+
+        }
 
       }
+
+    }
+
+    if ( observablesIndex < observablesLength ) {
 
       this.postdispose ();
 

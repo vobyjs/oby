@@ -170,7 +170,7 @@ describe ( 'oby', () => {
 
     });
 
-  it ( 'creates a single dependency in a memo even if getting multiple times', t => {
+    it ( 'creates a single dependency in a memo even if getting multiple times', t => {
 
       const o = $(1);
 
