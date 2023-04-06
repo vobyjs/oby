@@ -5,7 +5,7 @@ import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants'
 import {OWNER} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import Owner from '~/objects/owner';
-import type {IObservable, IOwner, Signal} from '~/types';
+import type {IObservable, IOwner, ObserverFunction, Signal} from '~/types';
 
 /* MAIN */
 
@@ -134,6 +134,24 @@ class Observer extends Owner {
     observable.observers.add ( this );
 
     observables[this.observablesIndex++] = observable;
+
+  }
+
+  refresh <T> ( fn: ObserverFunction<T> ): T {
+
+    this.dispose ( true );
+
+    this.status = DIRTY_MAYBE_NO; // Resetting trip flag, we didn't re-execute yet
+
+    try {
+
+      return this.wrap ( fn, this, this );
+
+    } finally {
+
+      this.postdispose ();
+
+    }
 
   }
 

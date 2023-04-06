@@ -63,19 +63,17 @@ class Effect extends Observer {
 
     this.unschedule ();
 
-    super.dispose ( false ); //TODO: Somehow optimize disposal also for effects, which can update other observables
+    super.dispose ();
 
   }
 
   run (): void {
 
-    this.dispose ();
+    const result = super.refresh ( this.fn );
 
-    const cleanup = this.wrap ( this.fn, this, this );
+    if ( isFunction ( result ) ) {
 
-    if ( isFunction ( cleanup ) ) {
-
-      lazyArrayPush ( this, 'cleanups', cleanup );
+      lazyArrayPush ( this, 'cleanups', result );
 
     }
 

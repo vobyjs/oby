@@ -45,6 +45,8 @@ type MapValueFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: Ob
 
 type MemoFunction<T = unknown> = () => T;
 
+type ObserverFunction<T = unknown> = () => T;
+
 type SelectorFunction<T = unknown> = ( value: T ) => ObservableReadonly<boolean>;
 
 type SuspenseFunction<T = unknown> = () => T;
@@ -148,7 +150,7 @@ type Signal = { disposed: boolean };
 /* EXPORT */
 
 export type {IEffect, IMemo, IObservable, IObservableParent, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
-export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
+export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, ObserverFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
 export type {EffectOptions};
 export type {ForOptions};
 export type {Observable, ObservableReadonly, ObservableOptions};
