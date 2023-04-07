@@ -16,12 +16,12 @@ const OBSERVABLE_UNDEFINED = frozen ( undefined );
 
 const OBSERVER_DISPOSED = { observables: [], update () {} };
 
-// const UNAVAILABLE: any = new Proxy ( function () {}, new Proxy ( {}, { get () { throw new Error ( 'Unavailable value' ) } } ) );
-const UNAVAILABLE: any = undefined; //FIXME: We should really return the exploding proxy, but it probably messes with error boundaries...
+const UNAVAILABLE: any = new Proxy ( function () {}, new Proxy ( {}, { get () { throw new Error ( 'Unavailable value' ) } } ) ); //TSC
+const UNINITIALIZED: any = function () {}; //TSC
 
 /* EXPORT */
 
 export {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES};
 export {OBSERVABLE_FALSE, OBSERVABLE_TRUE, OBSERVABLE_UNDEFINED};
 export {OBSERVER_DISPOSED};
-export {UNAVAILABLE};
+export {UNAVAILABLE, UNINITIALIZED};

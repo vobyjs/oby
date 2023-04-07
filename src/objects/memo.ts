@@ -1,10 +1,9 @@
 
 /* IMPORT */
 
-import {DIRTY_MAYBE_YES, OBSERVER_DISPOSED} from '~/constants';
+import {DIRTY_MAYBE_YES, OBSERVER_DISPOSED, UNAVAILABLE, UNINITIALIZED} from '~/constants';
 import Observable from '~/objects/observable';
 import Observer from '~/objects/observer';
-import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
@@ -24,7 +23,7 @@ class Memo<T = unknown> extends Observer {
     super ();
 
     this.fn = fn;
-    this.observable = new Observable<T> ( SYMBOL_VALUE_INITIAL as any, options, this ); //TSC: Maybe implement the initial value more cleanly, without an assertion
+    this.observable = new Observable<T> ( UNINITIALIZED, options, this );
 
   }
 
@@ -40,7 +39,11 @@ class Memo<T = unknown> extends Observer {
 
     }
 
-    this.observable.set ( result );
+    if ( result !== UNAVAILABLE ) {
+
+      this.observable.set ( result );
+
+    }
 
   }
 

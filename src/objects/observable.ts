@@ -1,10 +1,9 @@
 
 /* IMPORT */
 
-import {DIRTY_YES, OBSERVER_DISPOSED} from '~/constants';
+import {DIRTY_YES, OBSERVER_DISPOSED, UNINITIALIZED} from '~/constants';
 import {OBSERVER} from '~/context';
 import Scheduler from '~/objects/scheduler.sync';
-import {SYMBOL_VALUE_INITIAL} from '~/symbols';
 import {is, nope} from '~/utils';
 import type {IObservableParent, IObserver, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
 
@@ -58,7 +57,7 @@ class Observable<T = unknown> {
   set ( value: T ): T {
 
     const equals = this.equals || is;
-    const fresh = ( this.value === SYMBOL_VALUE_INITIAL ) || !equals ( value, this.value );
+    const fresh = ( this.value === UNINITIALIZED ) || !equals ( value, this.value );
 
     if ( !fresh ) return value;
 
