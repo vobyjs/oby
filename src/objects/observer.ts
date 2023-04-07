@@ -141,7 +141,7 @@ class Observer extends Owner {
 
     this.dispose ( true );
 
-    this.status = DIRTY_MAYBE_NO; // Resetting trip flag, we didn't re-execute yet
+    this.status = DIRTY_MAYBE_NO; // Resetting the trip flag, we didn't re-execute just yet
 
     try {
 

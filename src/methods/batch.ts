@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {BATCH, setBatch} from '~/context';
+import {setBatch} from '~/context';
 import {noop} from '~/utils';
 import type {BatchFunction, CallbackFunction} from '~/types';
 
@@ -14,7 +14,7 @@ let resolve: CallbackFunction = noop;
 
 const batch = async <T> ( fn: BatchFunction<T> ): Promise<Awaited<T>> => {
 
-  if ( !BATCH ) {
+  if ( !counter ) {
 
     setBatch ( new Promise ( r => resolve = r ) );
 
