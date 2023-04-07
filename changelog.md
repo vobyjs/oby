@@ -1,3 +1,6 @@
+### Version 13.1.1
+- Fixed a typo
+
 ### Version 13.1.0
 
 - Readme: documented the "observable" function
