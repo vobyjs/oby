@@ -1,3 +1,24 @@
+### Version 13.1.0
+
+- Readme: documented the "observable" function
+- Observable: marking it as disposed, and avoiding registering it as a dependency, when the parent memo, if any, will never be re-executed
+- Observable: considering disposed ones as frozen
+- `$.switch`: optimized for static cases
+- `$.selector`: optimized for a static source
+- `$.disposed`: slightly cleaner implementation
+- Memo: slightly optimized stale propagation
+- `$.suspense`: slightly cleaner implementation
+- `$.effect`: added another tier of synchronousness, "init"
+- Scheduler: ensuring all queued effects get executed, even if scheduled while flushing
+- New method: `$.tick`, for manually forcefully flushing the effects queue
+- Improved mangling, mangling more names
+- Optimized disposal performance for memos
+- Observer: deduplicating dependencies exactly up to 64 dependencies
+- `$.with`: ensuring it doesn't dispose of pre-existing dependencies
+- `$.observable`: ensuring it's attached to the default export also, for consistency
+- Optimized disposal performance for effects also
+- Improved handling of uninitialized observables and throwing owners
+
 ### Version 13.0.0
 
 Lots of big fundamental changes:
