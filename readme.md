@@ -121,6 +121,7 @@ Interface:
 
 ```ts
 function batch <T> ( fn: () => Promise<T> | T ): Promise<Awaited<T>>;
+function batch <T> ( fn: T ): Promise<Awaited<T>>;
 ```
 
 Usage:
