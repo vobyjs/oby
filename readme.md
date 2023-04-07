@@ -25,6 +25,7 @@ npm install --save oby
 | [`$.owner`](#owner)               |                           |                           |                                             |
 | [`$.root`](#root)                 |                           |                           |                                             |
 | [`$.store`](#store)               |                           |                           |                                             |
+| [`$.tick`](#tick)                 |                           |                           |                                             |
 | [`$.untrack`](#untrack)           |                           |                           |                                             |
 | [`$.with`](#with)                 |                           |                           |                                             |
 
@@ -670,6 +671,32 @@ $.store.on ( obj.foo, () => {
 $.store.on ( [obj, arr], () => {
   console.log ( 'Something inside "obj" and/or "arr" changed!' );
 });
+```
+
+#### `$.tick`
+
+This function forces effects scheduled for execution to be executed immediately, bypassing automatic or manual batching.
+
+Interface:
+
+```ts
+function tick (): void;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+$.effect ( () => {
+  console.log ( 'effect called' );
+});
+
+// Here the effect has not been called yet
+
+$.tick ();
+
+// Here the effect has been called
 ```
 
 #### `$.untrack`
