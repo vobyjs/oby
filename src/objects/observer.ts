@@ -87,7 +87,7 @@ class Observer extends Owner {
 
     if ( observablesIndex <= observablesLength ) {
 
-      if ( observablesLength <= 64 ) { // Exact deduplication with a linear search, O(n)
+      if ( observablesLength > 2 && observablesLength <= 64 ) { // Exact deduplication with a linear search, O(n)
 
         const idx = observables.indexOf ( observable );
 
