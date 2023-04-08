@@ -17,6 +17,7 @@ class Effect extends Observer {
 
   fn: EffectFunction;
   suspense?: ISuspense;
+  init?: true;
   sync?: true;
 
   /* CONSTRUCTOR */
@@ -46,6 +47,8 @@ class Effect extends Observer {
     }
 
     if ( options?.sync === 'init' ) {
+
+      this.init = true;
 
       this.update ();
 

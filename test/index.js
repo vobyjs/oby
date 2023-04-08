@@ -8095,6 +8095,70 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'does not call immediately an unsuspended async effect', async t => {
+
+      const suspended = $(true);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+        $.effect ( () => {
+          calls += 1;
+        });
+      });
+
+      t.is ( calls, 0 );
+
+      suspended ( false );
+
+      t.is ( calls, 0 );
+
+      await tick ();
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'does call immediately a sync effect', async t => {
+
+      const suspended = $(true);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+        $.effect ( () => {
+          calls += 1;
+        }, { sync: true } );
+      });
+
+      t.is ( calls, 0 );
+
+      suspended ( false );
+
+      t.is ( calls, 1 );
+
+    });
+
+    it ( 'does call immediately an init effect', async t => {
+
+      const suspended = $(true);
+
+      let calls = 0;
+
+      $.suspense ( suspended, () => {
+        $.effect ( () => {
+          calls += 1;
+        }, { sync: 'init' } );
+      });
+
+      t.is ( calls, 0 );
+
+      suspended ( false );
+
+      t.is ( calls, 1 );
+
+    });
+
     it ( 'returns whatever the function returns', t => {
 
       const result = $.suspense ( false, () => {

@@ -59,7 +59,11 @@ class Suspense extends Owner {
     const notifyObserver = ( observer: IObserver ): void => {
       if ( observer instanceof Effect ) {
         if ( observer.status === DIRTY_MAYBE_YES || observer.status === DIRTY_YES ) {
-          observer.schedule ();
+          if ( observer.init ) {
+            observer.update ();
+          } else {
+            observer.schedule ();
+          }
         }
       }
       notifyOwner ( observer );
