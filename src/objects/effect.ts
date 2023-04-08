@@ -61,7 +61,11 @@ class Effect extends Observer {
 
   dispose ( shallow?: boolean ): void {
 
-    this.unschedule ();
+    if ( !shallow ) {
+
+      this.unschedule ();
+
+    }
 
     super.dispose ( shallow );
 
