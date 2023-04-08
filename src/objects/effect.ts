@@ -85,6 +85,8 @@ class Effect extends Observer {
 
   schedule (): void {
 
+    if ( this.suspense?.suspended ) return;
+
     if ( this.sync ) {
 
       this.update ();
