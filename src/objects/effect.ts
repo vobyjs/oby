@@ -62,18 +62,6 @@ class Effect extends Observer {
 
   /* API */
 
-  dispose ( shallow?: boolean ): void {
-
-    if ( !shallow ) {
-
-      this.unschedule ();
-
-    }
-
-    super.dispose ( shallow );
-
-  }
-
   run (): void {
 
     const result = super.refresh ( this.fn );
@@ -113,16 +101,6 @@ class Effect extends Observer {
     if ( !this.sync || ( statusPrev !== 2 && statusPrev !== 3 ) ) { // It isn't currently executing, so let's schedule it
 
       this.schedule ();
-
-    }
-
-  }
-
-  unschedule (): void {
-
-    if ( !this.sync ) {
-
-      Scheduler.unschedule ( this );
 
     }
 

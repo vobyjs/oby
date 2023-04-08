@@ -97,13 +97,6 @@ class Scheduler {
 
   }
 
-  unschedule = ( effect: IEffect ): void => {
-
-    this.running?.delete ( effect );
-    this.waiting.delete ( effect );
-
-  }
-
 }
 
 /* EXPORT */

@@ -9,6 +9,7 @@ const DIRTY_NO: number = 0; // The observer is not dirty, for sure
 const DIRTY_MAYBE_NO: number = 1; // The observer is not dirty, possibly
 const DIRTY_MAYBE_YES: number = 2; // The observer is dirty, possibly
 const DIRTY_YES: number = 3; // The observer is dirty, for sure
+const DIRTY_DISPOSED: number = 4; // The observer got disposed
 
 const OBSERVABLE_FALSE = frozen ( false );
 const OBSERVABLE_TRUE = frozen ( true );
@@ -21,7 +22,7 @@ const UNINITIALIZED: any = function () {}; //TSC
 
 /* EXPORT */
 
-export {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES};
+export {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES, DIRTY_DISPOSED};
 export {OBSERVABLE_FALSE, OBSERVABLE_TRUE, OBSERVABLE_UNDEFINED};
 export {OBSERVER_DISPOSED};
 export {UNAVAILABLE, UNINITIALIZED};

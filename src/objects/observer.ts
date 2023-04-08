@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants';
+import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES, DIRTY_DISPOSED} from '~/constants';
 import {OWNER} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import Owner from '~/objects/owner';
@@ -35,6 +35,8 @@ class Observer extends Owner {
   dispose ( shallow?: boolean ): void {
 
     if ( !shallow ) {
+
+      this.status = DIRTY_DISPOSED;
 
       const observables = this.observables;
       const observablesLength = observables.length;
@@ -170,6 +172,8 @@ class Observer extends Owner {
   update (): void {
 
     if ( this.signal.disposed ) return; // Disposed, it shouldn't be updated again
+
+    if ( this.status === DIRTY_DISPOSED ) return; // Disposed, it shouldn't be updated again
 
     if ( this.status === DIRTY_MAYBE_YES ) { // Maybe we are dirty, let's check with our observables, to be sure
 
