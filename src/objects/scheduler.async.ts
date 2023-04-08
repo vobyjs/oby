@@ -12,8 +12,7 @@ class Scheduler {
 
   /* VARIABLES */
 
-  running?: Set<IEffect> = new Set ();
-  waiting: Set<IEffect> = new Set ();
+  waiting: IEffect[] = [];
 
   locked: boolean = false;
   queued: boolean = false;
@@ -24,24 +23,25 @@ class Scheduler {
 
     if ( this.locked ) return;
 
-    if ( !this.waiting.size ) return;
+    if ( !this.waiting.length ) return;
 
     try {
 
       this.locked = true;
 
-      while ( this.waiting.size ) {
+      while ( true ) {
 
-        this.running = this.waiting;
-        this.waiting = new Set ();
+        const queue = this.waiting;
 
-        for ( const effect of this.running ) {
+        if ( !queue.length ) break;
 
-          effect.update ();
+        this.waiting = [];
+
+        for ( let i = 0, l = queue.length; i < l; i++ ) {
+
+          queue[i].update ();
 
         }
-
-        this.running = undefined;
 
       }
 
@@ -91,7 +91,7 @@ class Scheduler {
 
   schedule = ( effect: IEffect ): void => {
 
-    this.waiting.add ( effect );
+    this.waiting.push ( effect );
 
     this.queue ();
 
