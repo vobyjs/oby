@@ -12,8 +12,7 @@ class Scheduler {
 
   /* VARIABLES */
 
-  running?: Set<IObserver> = new Set ();
-  waiting: Set<IObserver> = new Set ();
+  waiting: IObserver[] = [];
 
   counter: number = 0;
   locked: boolean = false;
@@ -26,28 +25,25 @@ class Scheduler {
 
     if ( this.counter ) return;
 
-    if ( !this.waiting.size ) return;
+    if ( !this.waiting.length ) return;
 
     try {
 
       this.locked = true;
 
-      while ( this.waiting.size ) {
+      while ( true ) {
 
-        this.running = this.waiting;
-        this.waiting = new Set ();
+        const queue = this.waiting;
 
-        const current = this.running;
+        if ( !queue.length ) break;
 
-        for ( const observer of current ) {
+        this.waiting = [];
 
-          current.delete ( observer );
+        for ( let i = 0, l = queue.length; i < l; i++ ) {
 
-          observer.stale ( DIRTY_YES );
+          queue[i].stale ( DIRTY_YES );
 
         }
-
-        this.running = undefined;
 
       }
 
@@ -75,9 +71,7 @@ class Scheduler {
 
   schedule = ( observer: IObserver ): void => {
 
-    if ( this.running?.has ( observer ) ) return;
-
-    this.waiting.add ( observer );
+    this.waiting.push ( observer );
 
   }
 
