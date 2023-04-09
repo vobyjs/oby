@@ -1,3 +1,16 @@
+### Version 13.1.2
+- Readme: updated signature for $.batch
+- Readme: ensuring $.tick is documented
+- $.effect: ensuring the disposal optimization is actually performed on effects
+- $.effect: optimized re-execution, skippung unnecessary unscheduling
+- Observer: slightly optimized deduplication of observables
+- $.effect: avoiding scheduling it if under a suspended suspense
+- $.suspense: ensuring dirty effects with sync: init are refreshed immediately too when the boundary unsuspends
+- Ensuring disposed effects are not re-executed more efficiently
+- Async scheduler: optimized, since we don't actually need the deduplication that Sets provide
+- Sync scheduler: optimized, since we don't actually need the deduplication that Sets provide
+- $.for: added a "pooled" option for the unkeyed strategy
+
 ### Version 13.1.1
 - Fixed a typo
 
