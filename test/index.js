@@ -2906,6 +2906,51 @@ describe ( 'oby', () => {
 
       });
 
+      it ( 'supports pooling', t => {
+
+        const array = $([1, 2, 3]);
+        const args = [];
+
+        const count = $(0);
+        let calls = 0;
+
+        const memo = $.for ( array, value => {
+          args.push ( value () );
+          $.effect ( () => {
+            calls += 1;
+            count ();
+          }, { sync: true } );
+          return value;
+        }, [], { unkeyed: true, pooled: true } );
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+        t.is ( calls, 3 );
+        count ( prev => prev + 1 );
+        t.is ( calls, 6 );
+
+        array ([]);
+
+        t.deepEqual ( memo ().map ( call ), [] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+        t.is ( calls, 6 );
+        debugger;
+        count ( prev => prev + 1 );
+        t.is ( calls, 6 );
+
+        array ([ 1, 2, 3 ]);
+
+        t.deepEqual ( memo ().map ( call ), [1, 2, 3] );
+        t.deepEqual ( args, [1, 2, 3] );
+
+        t.is ( calls, 9 );
+        count ( prev => prev + 1 );
+        t.is ( calls, 12 );
+
+      });
+
       it ( 'works with an array of non-unique values', t => {
 
         const array = $([ 1, 1, 2 ]);

@@ -73,6 +73,7 @@ type EffectOptions = {
 /* FOR */
 
 type ForOptions = {
+  pooled?: boolean,
   unkeyed?: boolean
 };
 

@@ -7,6 +7,7 @@ import cleanup from '~/methods/cleanup';
 import get from '~/methods/get';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
+import suspense from '~/methods/suspense';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
@@ -20,6 +21,7 @@ const DUMMY_INDEX = frozen ( -1 );
 class MappedRoot<T = unknown, R = unknown> extends Root { // This saves some memory compared to making a dedicated standalone object for metadata
   index?: IObservable<number>;
   value?: IObservable<T>;
+  suspended?: IObservable<boolean>;
   result?: R;
 }
 
@@ -35,13 +37,17 @@ class CacheUnkeyed<T, R> {
   private fn: MapValueFunction<T, R>;
   private fnWithIndex: boolean;
   private cache: Map<T, MappedRoot<T, Resolved<R>>> = new Map ();
+  private pool: MappedRoot<T, Resolved<R>>[] = [];
+  private poolMaxSize: number = 0;
+  private pooled: boolean;
 
   /* CONSTRUCTOR */
 
-  constructor ( fn: MapValueFunction<T, R> ) {
+  constructor ( fn: MapValueFunction<T, R>, pooled: boolean ) {
 
     this.fn = fn;
     this.fnWithIndex = ( fn.length > 1 );
+    this.pooled = pooled;
 
     if ( SUSPENSE_ENABLED ) {
 
@@ -55,9 +61,22 @@ class CacheUnkeyed<T, R> {
 
   cleanup = (): void => {
 
+    let pooled = 0;
+    let poolable = Math.max ( 0, this.pooled ? this.poolMaxSize - this.pool.length : 0 );
+
     this.cache.forEach ( mapped => {
 
-      mapped.dispose ();
+      if ( poolable > 0 && pooled++ < poolable ) {
+
+        mapped.suspended?.set ( true );
+
+        this.pool.push ( mapped );
+
+      } else {
+
+        mapped.dispose ();
+
+      }
 
     });
 
@@ -71,7 +90,17 @@ class CacheUnkeyed<T, R> {
 
     }
 
-    this.cleanup ();
+    this.cache.forEach ( mapped => {
+
+      mapped.dispose ();
+
+    });
+
+    this.pool.forEach ( mapped => {
+
+      mapped.dispose ();
+
+    });
 
   };
 
@@ -80,6 +109,8 @@ class CacheUnkeyed<T, R> {
     const {cache, fn, fnWithIndex} = this;
     const cacheNext: Map<T, MappedRoot<T, Resolved<R>>> = new Map ();
     const results: Resolved<R>[] = new Array ( values.length );
+    const pool = this.pool;
+    const pooled = this.pooled;
 
     let resultsCached = true; // Whether all results are cached, if so this enables an optimization
     let resultsUncached = true; // Whether all results are anew, if so this enables an optimization in Voby
@@ -144,41 +175,59 @@ class CacheUnkeyed<T, R> {
 
       resultsCached = false;
 
-      const mapped = new MappedRoot<T, R> ( false );
+      let mapped: MappedRoot<T, R>;
 
-      if ( isDuplicate ) {
+      if ( pooled && pool.length ) {
 
-        cleanup ( () => mapped.dispose () );
+        mapped = pool.pop ()!; //TSC
+
+        mapped.index?.set ( index );
+        mapped.value?.set ( value );
+        mapped.suspended?.set ( false );
+
+        results[index] = mapped.result!; //TSC
+
+      } else {
+
+        mapped = new MappedRoot<T, R> ( false );
+
+        mapped.wrap ( () => {
+
+          let $index = DUMMY_INDEX;
+
+          if ( fnWithIndex ) {
+
+            mapped.index = new Observable ( index );
+            $index = readable ( mapped.index );
+
+          }
+
+          const observable = mapped.value = new Observable ( value );
+          const suspended = pooled ? new Observable ( false ) : undefined;
+          const $value = memo ( () => get ( observable.get () ) ) as Indexed<T>; //TSC
+          const result = results[index] = suspended ? suspense ( () => suspended.get (), () => resolve ( fn ( $value, $index ) ) ) : resolve ( fn ( $value, $index ) );
+
+          mapped.value = observable;
+          mapped.result = result;
+          mapped.suspended = suspended;
+
+        });
 
       }
 
-      mapped.wrap ( () => {
+      if ( isDuplicate ) { // Expensive, not reusable
 
-        let $index = DUMMY_INDEX;
+        cleanup ( () => mapped.dispose () );
 
-        if ( fnWithIndex ) {
+      } else { // Cheap, reusable
 
-          mapped.index = new Observable ( index );
-          $index = readable ( mapped.index );
+        cacheNext.set ( value, mapped );
 
-        }
-
-        const observable = mapped.value = new Observable ( value );
-        const $value = memo ( () => get ( observable.get () ) ) as Indexed<T>; //TSC
-        const result = results[index] = resolve ( fn ( $value, $index ) );
-
-        mapped.value = observable;
-        mapped.result = result;
-
-        if ( !isDuplicate ) {
-
-          cacheNext.set ( value, mapped );
-
-        }
-
-      });
+      }
 
     }
+
+    this.poolMaxSize = Math.max ( this.poolMaxSize, results.length );
 
     this.cleanup ();
 
