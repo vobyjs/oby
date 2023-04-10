@@ -9,9 +9,8 @@
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "all": "scex -sb compile compile:mangle test benchmark cleanup creation kairo memory read store store:creation updates",
-    "benchmark": "tsex benchmark",
-    "benchmark:watch": "tsex benchmark --watch",
+    "all": "scex -sb compile compile:mangle test cellx cleanup creation kairo memory read store store:creation updates",
+    "cellx": "node tasks/cellx.js",
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
     "compile": "tsex compile",
