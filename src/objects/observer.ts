@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES, DIRTY_DISPOSED} from '~/constants';
-import {OWNER} from '~/context';
+import {OWNER, SUPER_OWNER} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import Owner from '~/objects/owner';
 import type {IObservable, IOwner, ObserverFunction, Signal} from '~/types';
@@ -26,7 +26,11 @@ class Observer extends Owner {
 
     super ();
 
-    lazyArrayPush ( this.parent, 'observers', this );
+    if ( OWNER !== SUPER_OWNER ) {
+
+      lazyArrayPush ( this.parent, 'observers', this );
+
+    }
 
   }
 

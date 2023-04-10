@@ -25,5 +25,5 @@ const setSuspenseEnabled = ( value: boolean ) => SUSPENSE_ENABLED = value;
 
 /* EXPORT */
 
-export {BATCH, OBSERVER, OWNER, SUSPENSE_ENABLED};
+export {BATCH, OBSERVER, OWNER, SUPER_OWNER, SUSPENSE_ENABLED};
 export {setBatch, setObserver, setOwner, setSuspenseEnabled};
