@@ -16,7 +16,7 @@ class Observer extends Owner {
   parent: IOwner = OWNER;
   signal: Signal = OWNER.signal;
   status: number = DIRTY_YES;
-  observables: IObservable[] = [];
+  observables: IObservable<any>[] = [];
   observablesIndex: number = 0;
   sync?: boolean;
 

@@ -1655,7 +1655,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'cleans up dependencies properly when causing itself to re-execute', async t => {
+    it ( 'cleans up dependencies properly when causing itself to re-execute, scenario 1', async t => {
 
       const a = $(0);
       const b = $(0);
@@ -1689,6 +1689,36 @@ describe ( 'oby', () => {
       t.is ( calls, 3 );
 
     });
+
+    it ( 'cleans up dependencies properly when causing itself to re-execute, scenario 2', async t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        a ();
+        b ( Math.random () );
+        b ();
+
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      a ( 2 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+    });
+
 
     it ( 'cleans up inner effects', async t => {
 
@@ -3393,7 +3423,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'cleans up dependencies properly when causing itself to re-execute', t => {
+    it ( 'cleans up dependencies properly when causing itself to re-execute, scenario 1', t => {
 
       const a = $(0);
       const b = $(0);
@@ -3425,6 +3455,35 @@ describe ( 'oby', () => {
       t.is ( calls, 2 );
       t.is ( memo (), undefined );
       t.is ( calls, 3 );
+
+    });
+
+    it ( 'cleans up dependencies properly when causing itself to re-execute, scenario 2', t => {
+
+      const a = $(0);
+      const b = $(0);
+
+      let calls = 0;
+
+      const memo = $.memo ( () => {
+
+        calls += 1;
+
+        a ();
+        b ( Math.random () );
+        b ();
+
+      });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
+
+      a ( 2 );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 2 );
 
     });
 

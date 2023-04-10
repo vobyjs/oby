@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {DIRTY_YES, OBSERVER_DISPOSED, UNINITIALIZED} from '~/constants';
+import {DIRTY_MAYBE_NO, DIRTY_YES, OBSERVER_DISPOSED, UNINITIALIZED} from '~/constants';
 import {OBSERVER} from '~/context';
 import Scheduler from '~/objects/scheduler.sync';
 import {is, nope} from '~/utils';
@@ -79,13 +79,17 @@ class Observable<T = unknown> {
 
     for ( const observer of this.observers ) {
 
-      if ( observer.sync ) {
+      if ( observer.status !== DIRTY_MAYBE_NO || observer.observables.lastIndexOf ( this, observer.observablesIndex - 1 ) >= 0 ) { // Maybe this is a potential future dependency we haven't re-read yet //TODO: This "lastIndexOf" call looks like a red flag, it seems potentially expensive
 
-        Scheduler.schedule ( observer );
+        if ( observer.sync ) {
 
-      } else {
+          Scheduler.schedule ( observer );
 
-        observer.stale ( status );
+        } else {
+
+          observer.stale ( status );
+
+        }
 
       }
 
