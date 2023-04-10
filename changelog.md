@@ -1,3 +1,10 @@
+### Version 13.1.3
+- Updated changelog
+- Renamed "benchmark" task to "cellx"
+- Observer: avoiding registering on the parent if the parent is the super root
+- Kairo: added a "createComputations1to1" test
+- Observer: ensuring the disposal optimization doesn't cause erroneous over-executions in edge cases
+
 ### Version 13.1.2
 - Readme: updated signature for `$.batch`
 - Readme: ensuring `$.tick` is documented
