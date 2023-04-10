@@ -28,6 +28,11 @@ const avoidablePropagation = () => {
 
 };
 
+const createComputations1to1 = () => {
+  const o = $(0);
+  $.memo ( () => o () );
+};
+
 /* RUNNING */
 
 console.time ( 'avoidablePropagation' );
@@ -35,3 +40,9 @@ for ( let i = 0; i < 1000; i++ ) {
   avoidablePropagation ();
 }
 console.timeEnd ( 'avoidablePropagation' );
+
+console.time ( 'createComputations1to1' );
+for ( let i = 0; i < 100_000; i++ ) {
+  createComputations1to1 ();
+}
+console.timeEnd ( 'createComputations1to1' );
