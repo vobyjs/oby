@@ -16,7 +16,7 @@ class Observer extends Owner {
   parent: IOwner = OWNER;
   signal: Signal = OWNER.signal;
   status: number = DIRTY_YES;
-  observables: IObservable<any>[] = [];
+  observables: IObservable<any>[] | Set<IObservable<any>> = [];
   observablesIndex: number = 0;
   sync?: boolean;
 
@@ -43,17 +43,22 @@ class Observer extends Owner {
       this.status = DIRTY_DISPOSED;
 
       const observables = this.observables;
-      const observablesLength = observables.length;
 
-      if ( observablesLength ) {
+      if ( observables instanceof Array ) {
 
-        for ( let i = 0; i < observablesLength; i++ ) {
+        for ( let i = 0; i < observables.length; i++ ) {
 
           observables[i].observers.delete ( this );
 
         }
 
-        this.observables = [];
+      } else {
+
+        for ( const observable of observables ) {
+
+          observable.observers.delete ( this );
+
+        }
 
       }
 
@@ -68,18 +73,23 @@ class Observer extends Owner {
   postdispose (): void {
 
     const observables = this.observables;
-    const observablesIndex = this.observablesIndex;
-    const observablesLength = observables.length;
 
-    if ( observablesIndex < observablesLength ) {
+    if ( observables instanceof Array ) {
 
-      for ( let i = observablesIndex; i < observablesLength; i++ ) {
+      const observablesIndex = this.observablesIndex;
+      const observablesLength = observables.length;
 
-        observables[i].observers.delete ( this );
+      if ( observablesIndex < observablesLength ) {
+
+        for ( let i = observablesIndex; i < observablesLength; i++ ) {
+
+          observables[i].observers.delete ( this );
+
+        }
+
+        observables.length = observablesIndex;
 
       }
-
-      observables.length = observablesIndex;
 
     }
 
@@ -88,12 +98,13 @@ class Observer extends Owner {
   link ( observable: IObservable<any> ): void {
 
     const observables = this.observables;
-    const observablesIndex = this.observablesIndex;
-    const observablesLength = observables.length;
 
-    if ( observablesIndex <= observablesLength ) {
+    if ( observables instanceof Array ) {
 
-      if ( observablesLength > 2 && observablesLength <= 64 ) { // Exact deduplication with a linear search, O(n)
+      const observablesIndex = this.observablesIndex;
+      const observablesLength = observables.length;
+
+      if ( observablesIndex <= observablesLength ) {
 
         const idx = observables.indexOf ( observable );
 
@@ -111,35 +122,37 @@ class Observer extends Owner {
 
         }
 
-      } else { // Approximate deduplication with a constant lookbehind, O(1)
+        if ( observablesIndex < observablesLength ) {
 
-        if ( observablesIndex > 0 && observable === observables[observablesIndex - 1] ) {
-
-          return;
+          this.postdispose ();
 
         }
 
-        if ( observable === observables[observablesIndex] ) {
+        observable.observers.add ( this );
 
-          this.observablesIndex += 1;
+        observables[this.observablesIndex++] = observable;
 
-          return;
+        if ( observablesIndex === 128 ) {
+
+          this.observables = new Set ( observables );
 
         }
 
       }
 
+    } else {
+
+      const sizePrev = observables.size;
+
+      observable.observers.add ( this );
+
+      const sizeNext = observables.size;
+
+      if ( sizePrev === sizeNext ) return; // Cheaper than Set.has+Set.add
+
+      observables.add ( observable );
+
     }
-
-    if ( observablesIndex < observablesLength ) {
-
-      this.postdispose ();
-
-    }
-
-    observable.observers.add ( this );
-
-    observables[this.observablesIndex++] = observable;
 
   }
 
@@ -183,11 +196,25 @@ class Observer extends Owner {
 
       const observables = this.observables;
 
-      for ( let i = 0, l = observables.length; i < l; i++ ) {
+      if ( observables instanceof Array ) {
 
-        observables[i].parent?.update ();
+        for ( let i = 0, l = observables.length; i < l; i++ ) {
 
-        // if ( this.status === DIRTY_YES ) break; // We are dirty, no need to check the rest //TODO: This line makes the system lazier, but it conflicts with synchronous computations and optimized disposal
+          observables[i].parent?.update ();
+
+          // if ( this.status === DIRTY_YES ) break; // We are dirty, no need to check the rest //TODO: This line makes the system lazier, but it conflicts with synchronous computations and optimized disposal
+
+        }
+
+      } else {
+
+        for ( const observable of observables ) {
+
+          observable.parent?.update ();
+
+          // if ( this.status === DIRTY_YES ) break; // We are dirty, no need to check the rest //TODO: This line makes the system lazier, but it conflicts with synchronous computations and optimized disposal
+
+        }
 
       }
 

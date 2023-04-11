@@ -1719,6 +1719,44 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'cleans up dependencies properly when causing itself to re-execute, scenario 3', async t => {
+
+      const branch = $(false);
+      const o = new Array ( 100 ).fill ( 0 ).map ( () => $(0) );
+      const oo = [...o, ...o];
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        oo.forEach ( o => o () );
+
+        if ( $.untrack ( branch ) ) return;
+
+        oo.forEach ( o => o () );
+
+      });
+
+      t.is ( calls, 0 );
+      await tick ();
+      t.is ( calls, 1 );
+
+      branch ( true );
+      o[0]( 1 );
+
+      t.is ( calls, 1 );
+      await tick ();
+      t.is ( calls, 2 );
+
+      o[0]( 2 );
+
+      t.is ( calls, 2 );
+      await tick ();
+      t.is ( calls, 3 );
+
+    });
 
     it ( 'cleans up inner effects', async t => {
 
@@ -3484,6 +3522,45 @@ describe ( 'oby', () => {
       t.is ( calls, 1 );
       t.is ( memo (), undefined );
       t.is ( calls, 2 );
+
+    });
+
+    it ( 'cleans up dependencies properly when causing itself to re-execute, scenario 3', t => {
+
+      const branch = $(false);
+      const o = new Array ( 100 ).fill ( 0 ).map ( () => $(0) );
+      const oo = [...o, ...o];
+
+      let calls = 0;
+
+      const memo = $.memo ( () => {
+
+        calls += 1;
+
+        oo.forEach ( o => o () );
+
+        if ( $.untrack ( branch ) ) return;
+
+        oo.forEach ( o => o () );
+
+      });
+
+      t.is ( calls, 0 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 1 );
+
+      branch ( true );
+      o[0]( 1 );
+
+      t.is ( calls, 1 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 2 );
+
+      o[0]( 2 );
+
+      t.is ( calls, 2 );
+      t.is ( memo (), undefined );
+      t.is ( calls, 3 );
 
     });
 
