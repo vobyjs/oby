@@ -122,9 +122,13 @@ class Observer extends Owner {
 
         }
 
-        if ( observablesIndex < observablesLength ) {
+        if ( observablesIndex < observablesLength - 1 ) {
 
           this.postdispose ();
+
+        } else if ( observablesIndex === observablesLength - 1 ) {
+
+          observables[observablesIndex].observers.delete ( this );
 
         }
 
