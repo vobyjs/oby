@@ -46,7 +46,7 @@ class Observable<T = unknown> {
 
       this.parent?.update ();
 
-      OBSERVER?.link ( this );
+      OBSERVER?.observables.link ( this );
 
     }
 
@@ -79,7 +79,7 @@ class Observable<T = unknown> {
 
     for ( const observer of this.observers ) {
 
-      if ( observer.status !== DIRTY_MAYBE_NO || !( observer.observables instanceof Array ) || observer.observables.lastIndexOf ( this, observer.observablesIndex - 1 ) >= 0 ) { // Maybe this is a potential future dependency we haven't re-read yet //TODO: This "lastIndexOf" call looks like a red flag, it seems potentially expensive
+      if ( observer.status !== DIRTY_MAYBE_NO || observer.observables.has ( this ) ) { // Maybe this is a potential future dependency we haven't re-read yet //TODO: This "lastIndexOf" call looks like a red flag, it seems potentially expensive
 
         if ( observer.sync ) {
 

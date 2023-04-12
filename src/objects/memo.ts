@@ -33,7 +33,7 @@ class Memo<T = unknown> extends Observer {
 
     const result = super.refresh ( this.fn );
 
-    if ( this.signal.disposed || ( this.observables instanceof Array ? !this.observables.length : !this.observables.size ) ) {
+    if ( this.signal.disposed || this.observables.empty () ) {
 
       this.observable.parent = OBSERVER_DISPOSED;
 

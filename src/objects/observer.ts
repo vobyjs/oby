@@ -4,8 +4,9 @@
 import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES, DIRTY_DISPOSED} from '~/constants';
 import {OWNER, SUPER_OWNER} from '~/context';
 import {lazyArrayPush} from '~/lazy';
+import {ObservablesArray, ObservablesSet} from '~/objects/observables';
 import Owner from '~/objects/owner';
-import type {IObservable, IOwner, ObserverFunction, Signal} from '~/types';
+import type {IOwner, ObserverFunction, Signal} from '~/types';
 
 /* MAIN */
 
@@ -16,8 +17,7 @@ class Observer extends Owner {
   parent: IOwner = OWNER;
   signal: Signal = OWNER.signal;
   status: number = DIRTY_YES;
-  observables: IObservable<any>[] | Set<IObservable<any>> = [];
-  observablesIndex: number = 0;
+  observables: ObservablesArray | ObservablesSet;
   sync?: boolean;
 
   /* CONSTRUCTOR */
@@ -25,6 +25,8 @@ class Observer extends Owner {
   constructor () {
 
     super ();
+
+    this.observables = new ObservablesArray ( this );
 
     if ( OWNER !== SUPER_OWNER ) {
 
@@ -38,125 +40,10 @@ class Observer extends Owner {
 
   dispose ( shallow?: boolean ): void {
 
-    if ( !shallow ) {
-
-      this.status = DIRTY_DISPOSED;
-
-      const observables = this.observables;
-
-      if ( observables instanceof Array ) {
-
-        for ( let i = 0; i < observables.length; i++ ) {
-
-          observables[i].observers.delete ( this );
-
-        }
-
-      } else {
-
-        for ( const observable of observables ) {
-
-          observable.observers.delete ( this );
-
-        }
-
-      }
-
-    }
-
-    this.observablesIndex = 0;
+    this.status = shallow ? this.status : DIRTY_DISPOSED;
+    this.observables.dispose ( shallow );
 
     super.dispose ();
-
-  }
-
-  postdispose (): void {
-
-    const observables = this.observables;
-
-    if ( observables instanceof Array ) {
-
-      const observablesIndex = this.observablesIndex;
-      const observablesLength = observables.length;
-
-      if ( observablesIndex < observablesLength ) {
-
-        for ( let i = observablesIndex; i < observablesLength; i++ ) {
-
-          observables[i].observers.delete ( this );
-
-        }
-
-        observables.length = observablesIndex;
-
-      }
-
-    }
-
-  }
-
-  link ( observable: IObservable<any> ): void {
-
-    const observables = this.observables;
-
-    if ( observables instanceof Array ) {
-
-      const observablesIndex = this.observablesIndex;
-      const observablesLength = observables.length;
-
-      if ( observablesLength > 0 ) {
-
-        if ( observables[observablesIndex] === observable ) {
-
-          this.observablesIndex += 1;
-
-          return;
-
-        }
-
-        const idx = observables.lastIndexOf ( observable, observablesIndex );
-
-        if ( idx >= 0 && idx < observablesIndex ) {
-
-          return;
-
-        }
-
-        if ( observablesIndex < observablesLength - 1 ) {
-
-          this.postdispose ();
-
-        } else if ( observablesIndex === observablesLength - 1 ) {
-
-          observables[observablesIndex].observers.delete ( this );
-
-        }
-
-      }
-
-      observable.observers.add ( this );
-
-      observables[this.observablesIndex++] = observable;
-
-      if ( observablesIndex === 128 ) { // Switching to a Set, as indexOf checks may get artbirarily expensive otherwise
-
-        this.observables = new Set ( observables );
-
-      }
-
-    } else {
-
-      const sizePrev = observables.size;
-
-      observable.observers.add ( this );
-
-      const sizeNext = observables.size;
-
-      if ( sizePrev === sizeNext ) return; // Cheaper than Set.has+Set.add
-
-      observables.add ( observable );
-
-    }
 
   }
 
@@ -172,7 +59,7 @@ class Observer extends Owner {
 
     } finally {
 
-      this.postdispose ();
+      this.observables.postdispose ();
 
     }
 
@@ -198,27 +85,7 @@ class Observer extends Owner {
 
     if ( this.status === DIRTY_MAYBE_YES ) { // Maybe we are dirty, let's check with our observables, to be sure
 
-      const observables = this.observables;
-
-      //TODO: Breaking from iteration as soon as "this.status === DIRTY_YES" would be lazier, but we can't do that with if a computation can cause itself be re-executed immediately
-
-      if ( observables instanceof Array ) {
-
-        for ( let i = 0, l = observables.length; i < l; i++ ) {
-
-          observables[i].parent?.update ();
-
-        }
-
-      } else {
-
-        for ( const observable of observables ) {
-
-          observable.parent?.update ();
-
-        }
-
-      }
+      this.observables.update ();
 
     }
 
