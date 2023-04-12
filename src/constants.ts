@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {frozen} from '~/objects/callable';
+import type {IObservableParent} from '~/types';
 
 /* MAIN */
 
@@ -15,7 +16,7 @@ const OBSERVABLE_FALSE = frozen ( false );
 const OBSERVABLE_TRUE = frozen ( true );
 const OBSERVABLE_UNDEFINED = frozen ( undefined );
 
-const OBSERVER_DISPOSED = { observables: [], signal: { disposed: true }, update () {} };
+const OBSERVER_DISPOSED: IObservableParent = { signal: { disposed: true }, update () {} };
 
 const UNAVAILABLE: any = new Proxy ( function () {}, new Proxy ( {}, { get () { throw new Error ( 'Unavailable value' ) } } ) ); //TSC
 const UNINITIALIZED: any = function () {}; //TSC

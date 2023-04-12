@@ -104,19 +104,19 @@ class Observer extends Owner {
       const observablesIndex = this.observablesIndex;
       const observablesLength = observables.length;
 
-      if ( observablesIndex <= observablesLength ) {
+      if ( observablesLength > 0 ) {
 
-        const idx = observables.indexOf ( observable );
+        if ( observables[observablesIndex] === observable ) {
 
-        if ( idx >= 0 && idx < observablesIndex ) {
+          this.observablesIndex += 1;
 
           return;
 
         }
 
-        if ( idx === observablesIndex ) {
+        const idx = observables.lastIndexOf ( observable, observablesIndex );
 
-          this.observablesIndex += 1;
+        if ( idx >= 0 && idx < observablesIndex ) {
 
           return;
 
@@ -132,15 +132,15 @@ class Observer extends Owner {
 
         }
 
-        observable.observers.add ( this );
+      }
 
-        observables[this.observablesIndex++] = observable;
+      observable.observers.add ( this );
 
-        if ( observablesIndex === 128 ) {
+      observables[this.observablesIndex++] = observable;
 
-          this.observables = new Set ( observables );
+      if ( observablesIndex === 128 ) { // Switching to a Set, as indexOf checks may get artbirarily expensive otherwise
 
-        }
+        this.observables = new Set ( observables );
 
       }
 
@@ -200,13 +200,13 @@ class Observer extends Owner {
 
       const observables = this.observables;
 
+      //TODO: Breaking from iteration as soon as "this.status === DIRTY_YES" would be lazier, but we can't do that with if a computation can cause itself be re-executed immediately
+
       if ( observables instanceof Array ) {
 
         for ( let i = 0, l = observables.length; i < l; i++ ) {
 
           observables[i].parent?.update ();
-
-          // if ( this.status === DIRTY_YES ) break; // We are dirty, no need to check the rest //TODO: This line makes the system lazier, but it conflicts with synchronous computations and optimized disposal
 
         }
 
@@ -215,8 +215,6 @@ class Observer extends Owner {
         for ( const observable of observables ) {
 
           observable.parent?.update ();
-
-          // if ( this.status === DIRTY_YES ) break; // We are dirty, no need to check the rest //TODO: This line makes the system lazier, but it conflicts with synchronous computations and optimized disposal
 
         }
 

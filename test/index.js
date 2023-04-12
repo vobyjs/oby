@@ -1722,7 +1722,7 @@ describe ( 'oby', () => {
     it ( 'cleans up dependencies properly when causing itself to re-execute, scenario 3', async t => {
 
       const branch = $(false);
-      const o = new Array ( 100 ).fill ( 0 ).map ( () => $(0) );
+      const o = new Array ( 500 ).fill ( 0 ).map ( () => $(0) );
       const oo = [...o, ...o];
 
       let calls = 0;

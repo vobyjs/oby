@@ -7,7 +7,7 @@ type IMemo<T = unknown> = import ( '~/objects/memo' ).default<T>;
 
 type IObservable<T = unknown> = import ( '~/objects/observable' ).default<T>;
 
-type IObservableParent = Pick<IObserver, 'observables' | 'update'>;
+type IObservableParent = Pick<IObserver, 'signal' | 'update'>;
 
 type IObserver = import ( '~/objects/observer' ).default;
 
