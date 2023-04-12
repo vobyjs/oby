@@ -1,3 +1,9 @@
+### Version 13.1.4
+- Observer: always deduplicating observers exactly, as otherwise it's just buggy
+- Observer: optimized disposal when just replacing the last observable in the list with another
+- Minor changes
+- Reorganized observables collection, making the code more manageable
+
 ### Version 13.1.3
 - Updated changelog
 - Renamed "benchmark" task to "cellx"
