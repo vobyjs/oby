@@ -15,15 +15,23 @@ function untrack <T> ( fn: UntrackFunction<T> | T ) {
 
     const observerPrev = OBSERVER;
 
-    try {
+    if ( observerPrev ) {
 
-      setObserver ( undefined );
+      try {
+
+        setObserver ( undefined );
+
+        return fn ();
+
+      } finally {
+
+        setObserver ( observerPrev );
+
+      }
+
+    } else {
 
       return fn ();
-
-    } finally {
-
-      setObserver ( observerPrev );
 
     }
 
