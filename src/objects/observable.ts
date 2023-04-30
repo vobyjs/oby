@@ -79,7 +79,7 @@ class Observable<T = unknown> {
 
     for ( const observer of this.observers ) {
 
-      if ( observer.status !== DIRTY_MAYBE_NO || observer.observables.has ( this ) ) { // Maybe this is a potential future dependency we haven't re-read yet //TODO: This "lastIndexOf" call looks like a red flag, it seems potentially expensive
+      if ( observer.status !== DIRTY_MAYBE_NO || observer.observables.has ( this ) ) { // Maybe this is a potential future dependency we haven't re-read yet
 
         if ( observer.sync ) {
 
