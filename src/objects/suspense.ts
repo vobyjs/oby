@@ -8,7 +8,7 @@ import Effect from '~/objects/effect';
 import Owner from '~/objects/owner';
 import {SYMBOL_SUSPENSE} from '~/symbols';
 import {isFunction} from '~/utils';
-import type {IObserver, IOwner, IRoot, ISuspense, SuspenseFunction, Contexts, Signal} from '~/types';
+import type {IObservable, IObserver, IOwner, IRoot, ISuspense, SuspenseFunction, Contexts, Signal} from '~/types';
 
 /* MAIN */
 
@@ -19,6 +19,7 @@ class Suspense extends Owner {
   parent: IOwner = OWNER;
   signal: Signal = OWNER.signal;
   contexts: Contexts = { [SYMBOL_SUSPENSE]: this };
+  observable?: IObservable<boolean>;
   suspended: number;
 
   /* CONSTRUCTOR */
@@ -49,6 +50,8 @@ class Suspense extends Owner {
     if ( !!suspendedPrev === !!suspendedNext ) return; // Same state, nothing to pause or resume
 
     /* NOTIFYING OBSERVERS, ROOTS AND SUSPENSES */
+
+    this.observable?.set ( !!suspendedNext );
 
     const notifyOwner = ( owner: IOwner ): void => {
       lazyArrayEach ( owner.observers, notifyObserver );

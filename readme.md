@@ -10,24 +10,24 @@ npm install --save oby
 
 ## APIs
 
-| [Core](#core)                     | [Flow](#flow)             | [Utilities](#utilities)   | [Types](#types)                             |
-| --------------------------------- | ------------------------- | ------------------------- | ------------------------------------------- |
-| [`$()`](#core)                    | [`$.if`](#if)             | [`$.boolean`](#boolean)   | [`EffectOptions`](#effectoptions)           |
-| [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.disposed`](#disposed) | [`ForOptions`](#foroptions)                 |
-| [`$.cleanup`](#cleanup)           | [`$.suspense`](#suspense) | [`$.get`](#get)           | [`Observable`](#observable)                 |
-| [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.readonly`](#readonly) | [`ObservableReadonly`](#observablereadonly) |
-| [`$.effect`](#effect)             | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)   | [`ObservableOptions`](#observableoptions)   |
-| [`$.isBatching`](#isbatching)     | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector) | [`StoreOptions`](#storeoptions)             |
-| [`$.isObservable`](#isobservable) |                           |                           |                                             |
-| [`$.isStore`](#isstore)           |                           |                           |                                             |
-| [`$.memo`](#memo)                 |                           |                           |                                             |
-| [`$.observable`](#observable)     |                           |                           |                                             |
-| [`$.owner`](#owner)               |                           |                           |                                             |
-| [`$.root`](#root)                 |                           |                           |                                             |
-| [`$.store`](#store)               |                           |                           |                                             |
-| [`$.tick`](#tick)                 |                           |                           |                                             |
-| [`$.untrack`](#untrack)           |                           |                           |                                             |
-| [`$.with`](#with)                 |                           |                           |                                             |
+| [Core](#core)                     | [Flow](#flow)             | [Utilities](#utilities)     | [Types](#types)                             |
+| --------------------------------- | ------------------------- | --------------------------- | ------------------------------------------- |
+| [`$()`](#core)                    | [`$.if`](#if)             | [`$.boolean`](#boolean)     | [`EffectOptions`](#effectoptions)           |
+| [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.disposed`](#disposed)   | [`ForOptions`](#foroptions)                 |
+| [`$.cleanup`](#cleanup)           | [`$.suspense`](#suspense) | [`$.get`](#get)             | [`Observable`](#observable)                 |
+| [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.readonly`](#readonly)   | [`ObservableReadonly`](#observablereadonly) |
+| [`$.effect`](#effect)             | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)     | [`ObservableOptions`](#observableoptions)   |
+| [`$.isBatching`](#isbatching)     | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector)   | [`StoreOptions`](#storeoptions)             |
+| [`$.isObservable`](#isobservable) |                           | [`$.suspended`](#suspended) |                                             |
+| [`$.isStore`](#isstore)           |                           |                             |                                             |
+| [`$.memo`](#memo)                 |                           |                             |                                             |
+| [`$.observable`](#observable)     |                           |                             |                                             |
+| [`$.owner`](#owner)               |                           |                             |                                             |
+| [`$.root`](#root)                 |                           |                             |                                             |
+| [`$.store`](#store)               |                           |                             |                                             |
+| [`$.tick`](#tick)                 |                           |                             |                                             |
+| [`$.untrack`](#untrack)           |                           |                             |                                             |
+| [`$.with`](#with)                 |                           |                             |                                             |
 
 ## Usage
 
@@ -1275,6 +1275,42 @@ select ( 1 ); // It causes only 2 effect to re-execute, not 5 or however many th
 await nextTask (); // Giving the effects a chance to run
 
 select ( 5 ); // It causes only 2 effect to re-execute, not 5 or however many there are
+```
+
+#### `$.suspended`
+
+This function returns a read-only Observable that tells you if the closest suspense boundary is currently suspended or not.
+
+You may never need this function, but it's useful to pause or skip the execution of effectfull code scheduled outside of effects while suspense is active, since you shouldn't execute any side effects while the computation you are on is suspended, and in general you want suspended computations to stay as idle as possible.
+
+Interface:
+
+```ts
+function suspended (): ObservableReadonly<boolean>;
+```
+
+Usage:
+
+```ts
+import {$} from 'oby';
+
+// Scheduling an interval that won't be executed while the nearest suspense boundary is suspended
+
+const suspended = $.suspended ();
+
+$.effect ( () => {
+
+  if ( suspended () ) return; // Do nothing while suspended
+
+  const intervalId = setInterval ( doSomething, 1000 );
+
+  return () => {
+
+    clearInterval ( intervalId );
+
+  };
+
+}, { suspense: false } );
 ```
 
 ### Types
