@@ -1,7 +1,6 @@
 ### Version 13.2.0
-- Updated some todos
-- $.untrack: optimized slightly, mainly simplifying call stacks in some cases
-- $.suspended: a new method that tells you if you are undera suspended computation or not
+- `$.untrack`: optimized slightly, mainly simplifying call stacks in some cases
+- `$.suspended`: a new method that tells you if you are under a suspended computation or not
 
 ### Version 13.1.4
 - Observer: always deduplicating observers exactly, as otherwise it's just buggy
