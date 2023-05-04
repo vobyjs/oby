@@ -9,7 +9,7 @@
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "all": "scex -sb compile compile:mangle test cellx cleanup creation kairo memory read store store:creation updates",
+    "all": "scex -sb compile compile:mangle test cellx cleanup creation kairo if memory read store store:creation updates",
     "cellx": "node tasks/cellx.js",
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
@@ -17,6 +17,7 @@
     "compile:mangle": "mangler --folder dist --ext js --props 'active,after,before,bool,cache,cleanups,contexts,count,counter,dispose,errorHandler,flush,flushIfNotBatching,fnWithIndex,getters,insert,link,listeners,listenersRegular,listenersRoots,locked,nextCount,node,nodes,observables,observablesIndex,observers,onRoots,parent,parents,pool,poolMaxSize,postdispose,prevCount,prepare,properties,queued,refresh,register,registerWith,result,reuseCount,roots,running,schedule,selecteds,setters,signal,source,stale,status,suspenses,toggle,unschedule,update,waiting,wrap'",
     "compile:watch": "tsex compile --watch",
     "creation": "node tasks/creation.js",
+    "if": "node tasks/if.js",
     "kairo": "node tasks/kairo.js",
     "memory": "node tasks/memory.js",
     "read": "node tasks/read.js",
