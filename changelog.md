@@ -1,3 +1,11 @@
+### Version 14.0.0
+- Changelog: updated
+- $.switch: optimized to create as few memos as possible, which sometimes mean 0 memos, rather than 2
+- New bench: if
+- New bench: context
+- $.context: rewritten to make lookups basically free, but the API for setting it is different now
+- Granularly check if Suspense is enabled for the given computation, rather than having just a global flag
+
 ### Version 13.2.0
 - `$.untrack`: optimized slightly, mainly simplifying call stacks in some cases
 - `$.suspended`: a new method that tells you if you are under a suspended computation or not
