@@ -61,6 +61,10 @@ function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], f
 
       return OBSERVABLE_UNDEFINED;
 
+    } else if ( !isFunction ( valueUnwrapped ) && !isArray ( valueUnwrapped ) ) {
+
+      return frozen ( valueUnwrapped );
+
     } else {
 
       return memo ( () => {
