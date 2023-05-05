@@ -1,10 +1,11 @@
 
 /* IMPORT */
 
-import {OWNER, SUSPENSE_ENABLED} from '~/context';
+import {OWNER} from '~/context';
 import {lazySetAdd, lazySetDelete} from '~/lazy';
 import Owner from '~/objects/owner';
-import type {IOwner, WrappedDisposableFunction, Contexts, Signal} from '~/types';
+import {SYMBOL_SUSPENSE} from '~/symbols';
+import type {IOwner, ISuspense, WrappedDisposableFunction, Contexts, Signal} from '~/types';
 
 /* MAIN */
 
@@ -15,23 +16,25 @@ class Root extends Owner {
   parent: IOwner = OWNER;
   contexts: Contexts = OWNER.contexts;
   signal: Signal = { disposed: false };
-  suspense?: true;
+  registered?: true;
 
   /* CONSTRUCTOR */
 
-  constructor ( suspense: boolean ) {
+  constructor ( register: boolean ) {
 
     super ();
 
-    if ( suspense ) {
+    if ( register ) {
 
-      this.suspense = true;
+      const suspense: ISuspense | undefined = this.get ( SYMBOL_SUSPENSE );
 
-    }
+      if ( suspense ) {
 
-    if ( this.suspense && SUSPENSE_ENABLED ) {
+        this.registered = true;
 
-      lazySetAdd ( this.parent, 'roots', this );
+        lazySetAdd ( this.parent, 'roots', this );
+
+      }
 
     }
 
@@ -41,7 +44,7 @@ class Root extends Owner {
 
   dispose (): void {
 
-    if ( this.suspense && SUSPENSE_ENABLED ) {
+    if ( this.registered ) {
 
       lazySetDelete ( this.parent, 'roots', this );
 

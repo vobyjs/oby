@@ -1,15 +1,15 @@
 
 /* IMPORT */
 
-import {OWNER, SUSPENSE_ENABLED} from '~/context';
+import {OWNER} from '~/context';
 import {lazySetAdd, lazySetDelete} from '~/lazy';
 import cleanup from '~/methods/cleanup';
 import resolve from '~/methods/resolve';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
-import {SYMBOL_CACHED, SYMBOL_UNCACHED} from '~/symbols';
-import type {IObservable, IOwner, MapFunction, Resolved} from '~/types';
+import {SYMBOL_CACHED, SYMBOL_SUSPENSE, SYMBOL_UNCACHED} from '~/symbols';
+import type {IObservable, IOwner, ISuspense, MapFunction, Resolved} from '~/types';
 
 /* HELPERS */
 
@@ -28,6 +28,7 @@ class CacheKeyed<T, R> {
   /* VARIABLES */
 
   private parent: IOwner = OWNER;
+  private suspense: ISuspense | undefined = OWNER.get ( SYMBOL_SUSPENSE );
   private fn: MapFunction<T, R>;
   private fnWithIndex: boolean;
   private cache: Map<T, MappedRoot<Resolved<R>>> = new Map ();
@@ -43,7 +44,7 @@ class CacheKeyed<T, R> {
     this.fn = fn;
     this.fnWithIndex = ( fn.length > 1 );
 
-    if ( SUSPENSE_ENABLED ) {
+    if ( this.suspense ) {
 
       lazySetAdd ( this.parent, 'roots', this.roots );
 
@@ -91,7 +92,7 @@ class CacheKeyed<T, R> {
 
   dispose = (): void => {
 
-    if ( SUSPENSE_ENABLED ) {
+    if ( this.suspense ) {
 
       lazySetDelete ( this.parent, 'roots', this.roots );
 

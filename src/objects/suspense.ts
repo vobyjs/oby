@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants';
-import {OWNER, setSuspenseEnabled} from '~/context';
+import {OWNER} from '~/context';
 import {lazyArrayEach, lazyArrayPush, lazySetEach} from '~/lazy';
 import Effect from '~/objects/effect';
 import Owner from '~/objects/owner';
@@ -28,11 +28,9 @@ class Suspense extends Owner {
 
     super ();
 
-    setSuspenseEnabled ( true );
-
     lazyArrayPush ( this.parent, 'suspenses', this );
 
-    this.suspended = ( OWNER.contexts[SYMBOL_SUSPENSE]?.suspended || 0 );
+    this.suspended = ( OWNER.get ( SYMBOL_SUSPENSE )?.suspended || 0 );
 
   }
 

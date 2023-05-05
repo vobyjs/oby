@@ -5,6 +5,7 @@ import {UNAVAILABLE} from '~/constants';
 import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
 import {lazyArrayEachRight} from '~/lazy';
 import {castError} from '~/utils';
+import type {SYMBOL_SUSPENSE} from '~/symbols';
 import type {IContext, IObserver, IOwner, IRoot, ISuperRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue, Signal} from '~/types';
 
 /* HELPERS */
@@ -65,6 +66,14 @@ class Owner {
     this.errorHandler = undefined;
     this.observers = undefined;
     this.suspenses = undefined;
+
+  }
+
+  get ( symbol: typeof SYMBOL_SUSPENSE ): ISuspense | undefined;
+  get ( symbol: symbol ): any;
+  get ( symbol: symbol ) {
+
+    return this.contexts?.[symbol];
 
   }
 

@@ -1,7 +1,6 @@
 
 /* IMPORT */
 
-import {SUSPENSE_ENABLED} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import Observer from '~/objects/observer';
 import Scheduler from '~/objects/scheduler.async';
@@ -28,9 +27,9 @@ class Effect extends Observer {
 
     this.fn = fn;
 
-    if ( SUSPENSE_ENABLED && options?.suspense !== false ) {
+    if ( options?.suspense !== false ) {
 
-      const suspense: ISuspense | undefined = this.contexts[SYMBOL_SUSPENSE];
+      const suspense = this.get ( SYMBOL_SUSPENSE );
 
       if ( suspense ) {
 

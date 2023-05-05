@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {OWNER, SUSPENSE_ENABLED} from '~/context';
+import {OWNER} from '~/context';
 import {lazySetAdd, lazySetDelete} from '~/lazy';
 import cleanup from '~/methods/cleanup';
 import get from '~/methods/get';
@@ -11,8 +11,8 @@ import suspense from '~/methods/suspense';
 import {frozen, readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import Root from '~/objects/root';
-import {SYMBOL_CACHED, SYMBOL_UNCACHED} from '~/symbols';
-import type {IObservable, IOwner, MapValueFunction, Indexed, Resolved} from '~/types';
+import {SYMBOL_CACHED, SYMBOL_SUSPENSE, SYMBOL_UNCACHED} from '~/symbols';
+import type {IObservable, IOwner, ISuspense, MapValueFunction, Indexed, Resolved} from '~/types';
 
 /* HELPERS */
 
@@ -34,6 +34,7 @@ class CacheUnkeyed<T, R> {
   /* VARIABLES */
 
   private parent: IOwner = OWNER;
+  private suspense: ISuspense | undefined = OWNER.get ( SYMBOL_SUSPENSE );
   private fn: MapValueFunction<T, R>;
   private fnWithIndex: boolean;
   private cache: Map<T, MappedRoot<T, Resolved<R>>> = new Map ();
@@ -49,7 +50,7 @@ class CacheUnkeyed<T, R> {
     this.fnWithIndex = ( fn.length > 1 );
     this.pooled = pooled;
 
-    if ( SUSPENSE_ENABLED ) {
+    if ( this.suspense ) {
 
       lazySetAdd ( this.parent, 'roots', this.roots );
 
@@ -84,7 +85,7 @@ class CacheUnkeyed<T, R> {
 
   dispose = (): void => {
 
-    if ( SUSPENSE_ENABLED ) {
+    if ( this.suspense ) {
 
       lazySetDelete ( this.parent, 'roots', this.roots );
 

@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import {OBSERVABLE_FALSE} from '~/constants';
-import {OWNER, SUSPENSE_ENABLED} from '~/context';
+import {OWNER} from '~/context';
 import {readable} from '~/objects/callable';
 import Observable from '~/objects/observable';
 import {SYMBOL_SUSPENSE} from '~/symbols';
@@ -12,9 +12,7 @@ import type {ISuspense, ObservableReadonly} from '~/types';
 
 const suspended = (): ObservableReadonly<boolean> => {
 
-  if ( !SUSPENSE_ENABLED ) return OBSERVABLE_FALSE;
-
-  const suspense: ISuspense | undefined = OWNER.contexts[SYMBOL_SUSPENSE];
+  const suspense: ISuspense | undefined = OWNER.get ( SYMBOL_SUSPENSE );
 
   if ( !suspense ) return OBSERVABLE_FALSE;
 
