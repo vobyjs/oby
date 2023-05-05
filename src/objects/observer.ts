@@ -6,7 +6,7 @@ import {OWNER, SUPER_OWNER} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import {ObservablesArray, ObservablesSet} from '~/objects/observables';
 import Owner from '~/objects/owner';
-import type {IOwner, ObserverFunction, Signal} from '~/types';
+import type {IOwner, ObserverFunction, Contexts, Signal} from '~/types';
 
 /* MAIN */
 
@@ -15,6 +15,7 @@ class Observer extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
+  contexts: Contexts = OWNER.contexts;
   signal: Signal = OWNER.signal;
   status: number = DIRTY_YES;
   observables: ObservablesArray | ObservablesSet;

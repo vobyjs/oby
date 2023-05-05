@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import SuperRoot from '~/objects/superroot';
-import type {IObserver, IRoot, ISuperRoot, ISuspense} from '~/types';
+import type {IContext, IObserver, IRoot, ISuperRoot, ISuspense} from '~/types';
 
 /* MAIN - READ */
 
@@ -11,7 +11,7 @@ import type {IObserver, IRoot, ISuperRoot, ISuspense} from '~/types';
 let BATCH: Promise<void> | undefined;
 let SUPER_OWNER: ISuperRoot = new SuperRoot ();
 let OBSERVER: IObserver | undefined;
-let OWNER: IObserver | IRoot | ISuperRoot | ISuspense = SUPER_OWNER;
+let OWNER: IContext | IObserver | IRoot | ISuperRoot | ISuspense = SUPER_OWNER;
 let SUSPENSE_ENABLED: boolean = false;
 
 /* MAIN - WRITE */
@@ -20,7 +20,7 @@ let SUSPENSE_ENABLED: boolean = false;
 
 const setBatch = ( value: Promise<void> | undefined ) => BATCH = value;
 const setObserver = ( value: IObserver | undefined ) => OBSERVER = value;
-const setOwner = ( value: IObserver | IRoot | ISuperRoot | ISuspense ) => OWNER = value;
+const setOwner = ( value: IContext | IObserver | IRoot | ISuperRoot | ISuspense ) => OWNER = value;
 const setSuspenseEnabled = ( value: boolean ) => SUSPENSE_ENABLED = value;
 
 /* EXPORT */

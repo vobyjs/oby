@@ -17,8 +17,8 @@ class Suspense extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
+  contexts: Contexts = { ...OWNER.contexts, [SYMBOL_SUSPENSE]: this };
   signal: Signal = OWNER.signal;
-  contexts: Contexts = { [SYMBOL_SUSPENSE]: this };
   observable?: IObservable<boolean>;
   suspended: number;
 
@@ -32,7 +32,7 @@ class Suspense extends Owner {
 
     lazyArrayPush ( this.parent, 'suspenses', this );
 
-    this.suspended = ( OWNER.get<ISuspense> ( SYMBOL_SUSPENSE )?.suspended || 0 );
+    this.suspended = ( OWNER.contexts[SYMBOL_SUSPENSE]?.suspended || 0 );
 
   }
 

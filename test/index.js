@@ -1317,12 +1317,15 @@ describe ( 'oby', () => {
 
       $.effect ( () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        $.context ( ctx, value );
+        $.context ( context, () => {
 
-        t.is ( $.context ( ctx ), value );
+          t.is ( $.context ( name ), value );
+
+        });
 
       });
 
@@ -1334,12 +1337,15 @@ describe ( 'oby', () => {
 
       const memo = $.memo ( () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        $.context ( ctx, value );
+        $.context ( context, () => {
 
-        t.is ( $.context ( ctx ), value );
+          t.is ( $.context ( name ), value );
+
+        });
 
       });
 
@@ -1351,12 +1357,15 @@ describe ( 'oby', () => {
 
       $.root ( () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        $.context ( ctx, value );
+        $.context ( context, () => {
 
-        t.is ( $.context ( ctx ), value );
+          t.is ( $.context ( name ), value );
+
+        });
 
       });
 
@@ -1366,12 +1375,15 @@ describe ( 'oby', () => {
 
       $.suspense ( false, () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        $.context ( ctx, value );
+        $.context ( context, () => {
 
-        t.is ( $.context ( ctx ), value );
+          t.is ( $.context ( name ), value );
+
+        });
 
       });
 
@@ -1381,14 +1393,17 @@ describe ( 'oby', () => {
 
       $.effect ( () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        $.context ( ctx, value );
+        $.context ( context, () => {
 
-        $.effect ( () => {
+          $.effect ( () => {
 
-          t.is ( $.context ( ctx ), value );
+            t.is ( $.context ( name ), value );
+
+          });
 
         });
 
@@ -1402,18 +1417,21 @@ describe ( 'oby', () => {
 
       const memo1 = $.memo ( () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        $.context ( ctx, value );
+        $.context ( context, () => {
 
-        const memo2 = $.memo ( () => {
+          const memo2 = $.memo ( () => {
 
-          t.is ( $.context ( ctx ), value );
+            t.is ( $.context ( name ), value );
+
+          });
+
+          memo2 ();
 
         });
-
-        memo2 ();
 
       });
 
@@ -1425,14 +1443,17 @@ describe ( 'oby', () => {
 
       $.root ( () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        $.context ( ctx, value );
+        $.context ( context, () => {
 
-        $.root ( () => {
+          $.root ( () => {
 
-          t.is ( $.context ( ctx ), value );
+            t.is ( $.context ( name ), value );
+
+          });
 
         });
 
@@ -1444,14 +1465,17 @@ describe ( 'oby', () => {
 
       $.suspense ( false, () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        $.context ( ctx, value );
+        $.context ( context, () => {
 
-        $.suspense ( false, () => {
+          $.suspense ( false, () => {
 
-          t.is ( $.context ( ctx ), value );
+            t.is ( $.context ( name ), value );
+
+          });
 
         });
 
@@ -1459,16 +1483,17 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'returns undefined when setting', async t => {
+    it ( 'returns whatever the function returns when setting', async t => {
 
       $.effect ( () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        const ret = $.context ( ctx, value );
+        const ret = $.context ( context, () => 123 );
 
-        t.is ( ret, undefined );
+        t.is ( ret, 123 );
 
       });
 
@@ -1490,30 +1515,38 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'supports overriding the outer context', async t => {
+    it ( 'supports overriding the outer context', t => {
 
-      $.effect ( () => {
+      $.root ( () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const context = { [name]: value };
 
-        $.context ( ctx, value );
+        $.context ( context, () => {
 
-        $.effect ( () => {
+          t.is ( $.context ( name ), value );
 
-          const value2 = { foo: 321 };
+          $.root ( () => {
 
-          $.context ( ctx, value2 );
+            const name2 = Symbol ();
+            const value2 = { foo: 321 };
+            const context2 = { [name2]: value2 };
 
-          t.is ( $.context ( ctx ), value2 );
+            $.context ( context2, () => {
+
+              t.is ( $.context ( name ), value );
+              t.is ( $.context ( name2 ), value2 );
+
+            });
+
+          });
+
+          t.is ( $.context ( name ), value );
 
         });
 
-        t.is ( $.context ( ctx ), value );
-
       });
-
-      await tick ();
 
     });
 
@@ -1521,44 +1554,24 @@ describe ( 'oby', () => {
 
       $.effect ( () => {
 
-        const ctx = Symbol ();
+        const name = Symbol ();
         const value = { foo: 123 };
+        const contextYes = { [name]: value };
+        const contextNo = { [name]: undefined };
 
-        $.context ( ctx, value );
-        $.context ( ctx, undefined );
+        $.context ( contextYes, () => {
 
-        t.is ( $.context ( ctx ), undefined );
+          $.context ( contextNo, () => {
 
-      });
+            t.is ( $.context ( name ), undefined );
 
-      await tick ();
+          });
 
-    });
-
-    it ( 'works even outside a manually created owner', async t => {
-
-      const ctx = Symbol ();
-      const value = { foo: 123 };
-
-      $.context ( ctx, value );
-
-      t.is ( $.context ( ctx ), value );
-
-      $.effect ( () => {
-
-        t.is ( $.context ( ctx ), value );
-
-        const value2 = { foo: 321 };
-
-        $.context ( ctx, value2 );
-
-        t.is ( $.context ( ctx ), value2 );
+        });
 
       });
 
       await tick ();
-
-      t.is ( $.context ( ctx ), value );
 
     });
 
@@ -9505,10 +9518,6 @@ describe ( 'oby', () => {
 
       $.root ( () => {
 
-        const token = Symbol ();
-
-        $.context ( token, 123 );
-
         const runWithRoot = $.with ();
 
         runWithRoot ( ( ...args ) => {
@@ -9521,35 +9530,38 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'can execute a function as if it happend inside another owner', async t => {
+    it ( 'can execute a function as if it happend inside another owner', t => {
 
-      await $.root ( async () => {
+      $.root ( () => {
 
-        const token = Symbol ();
+        const name = Symbol ();
+        const value = { value: 123 };
+        const context = { [name]: value };
 
-        $.context ( token, 123 );
+        $.context ( context, () => {
 
-        const runWithRoot = $.with ();
+          const runWithOuter = $.with ();
 
-        $.effect ( () => {
+          $.root ( () => {
 
-          $.context ( token, 321 );
+            const value2 = { value: 321 };
+            const context2 = { [name]: value2 };
 
-          const value = $.context ( token );
+            $.context ( context2, () => {
 
-          t.is ( value, 321 );
+              t.is ( $.context ( name ), value2 );
 
-          runWithRoot ( () => {
+              runWithOuter ( () => {
 
-            const value = $.context ( token );
+                t.is ( $.context ( name ), value );
 
-            t.is ( value, 123 );
+              });
+
+            });
 
           });
 
         });
-
-        await tick ();
 
       });
 

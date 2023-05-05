@@ -14,7 +14,7 @@ const suspended = (): ObservableReadonly<boolean> => {
 
   if ( !SUSPENSE_ENABLED ) return OBSERVABLE_FALSE;
 
-  const suspense = OWNER.get<ISuspense> ( SYMBOL_SUSPENSE );
+  const suspense: ISuspense | undefined = OWNER.contexts[SYMBOL_SUSPENSE];
 
   if ( !suspense ) return OBSERVABLE_FALSE;
 

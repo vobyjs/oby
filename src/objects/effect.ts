@@ -30,7 +30,7 @@ class Effect extends Observer {
 
     if ( SUSPENSE_ENABLED && options?.suspense !== false ) {
 
-      const suspense = this.get<ISuspense> ( SYMBOL_SUSPENSE );
+      const suspense: ISuspense | undefined = this.contexts[SYMBOL_SUSPENSE];
 
       if ( suspense ) {
 

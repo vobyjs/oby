@@ -5,7 +5,7 @@ import {UNAVAILABLE} from '~/constants';
 import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
 import {lazyArrayEachRight} from '~/lazy';
 import {castError} from '~/utils';
-import type {IObserver, IOwner, IRoot, ISuperRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue, Signal} from '~/types';
+import type {IContext, IObserver, IOwner, IRoot, ISuperRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue, Signal} from '~/types';
 
 /* HELPERS */
 
@@ -21,9 +21,9 @@ class Owner {
   /* VARIABLES */
 
   parent?: IOwner;
+  contexts?: Contexts;
   signal?: Signal;
   cleanups: LazyArray<Callable<CleanupFunction>> = undefined;
-  contexts: LazyValue<Contexts> = undefined;
   errorHandler: LazyValue<ErrorFunction> = undefined;
   observers: LazyArray<IObserver> = undefined;
   roots: LazySet<IRoot | (() => IRoot[])> = undefined;
@@ -62,31 +62,13 @@ class Owner {
     lazyArrayEachRight ( this.cleanups, onCleanup );
 
     this.cleanups = undefined;
-    this.contexts = undefined;
     this.errorHandler = undefined;
     this.observers = undefined;
     this.suspenses = undefined;
 
   }
 
-  get <T> ( symbol: symbol ): T | undefined {
-
-    const {contexts, parent} = this;
-
-    if ( contexts && symbol in contexts ) return contexts[symbol];
-
-    return parent?.get<T> ( symbol );
-
-  }
-
-  set <T> ( symbol: symbol, value: T ): void {
-
-    this.contexts ||= {};
-    this.contexts[symbol] = value;
-
-  }
-
-  wrap <T> ( fn: WrappedFunction<T>, owner: IObserver | IRoot | ISuperRoot | ISuspense, observer: IObserver | undefined ): T {
+  wrap <T> ( fn: WrappedFunction<T>, owner: IContext | IObserver | IRoot | ISuperRoot | ISuspense, observer: IObserver | undefined ): T {
 
     const ownerPrev = OWNER;
     const observerPrev = OBSERVER;

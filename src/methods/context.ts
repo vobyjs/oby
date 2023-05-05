@@ -2,20 +2,23 @@
 /* IMPORT */
 
 import {OWNER} from '~/context';
+import Context from '~/objects/context';
+import {isSymbol, noop} from '~/utils';
+import type {ContextFunction, Contexts} from '~/types';
 
 /* MAIN */
 
 function context <T> ( symbol: symbol ): T | undefined;
-function context <T> ( symbol: symbol, value: T ): undefined;
-function context <T> ( symbol: symbol, value?: T ) {
+function context <T> ( context: Contexts, fn: ContextFunction<T> ): T;
+function context <T> ( symbolOrContext: symbol | Contexts, fn?: ContextFunction<T> ) {
 
-  if ( arguments.length < 2 ) {
+  if ( isSymbol ( symbolOrContext ) ) {
 
-    return OWNER.get<T> ( symbol );
+    return OWNER.contexts[symbolOrContext];
 
   } else {
 
-    return OWNER.set ( symbol, value );
+    return new Context ( symbolOrContext ).wrap ( fn || noop );
 
   }
 

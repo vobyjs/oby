@@ -1,6 +1,8 @@
 
 /* OBJECTS */
 
+type IContext = import ( '~/objects/context' ).default;
+
 type IEffect = import ( '~/objects/effect' ).default;
 
 type IMemo<T = unknown> = import ( '~/objects/memo' ).default<T>;
@@ -30,6 +32,8 @@ type BatchFunction<T = unknown> = () => PromiseMaybe<T>;
 type CallbackFunction = () => void;
 
 type CleanupFunction = () => void;
+
+type ContextFunction<T = unknown> = () => T;
 
 type DisposeFunction = () => void;
 
@@ -150,8 +154,8 @@ type Signal = { disposed: boolean };
 
 /* EXPORT */
 
-export type {IEffect, IMemo, IObservable, IObservableParent, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
-export type {BatchFunction, CallbackFunction, CleanupFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, ObserverFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
+export type {IContext, IEffect, IMemo, IObservable, IObservableParent, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
+export type {BatchFunction, CallbackFunction, CleanupFunction, ContextFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, ObserverFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
 export type {EffectOptions};
 export type {ForOptions};
 export type {Observable, ObservableReadonly, ObservableOptions};

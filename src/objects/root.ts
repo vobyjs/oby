@@ -4,7 +4,7 @@
 import {OWNER, SUSPENSE_ENABLED} from '~/context';
 import {lazySetAdd, lazySetDelete} from '~/lazy';
 import Owner from '~/objects/owner';
-import type {IOwner, WrappedDisposableFunction, Signal} from '~/types';
+import type {IOwner, WrappedDisposableFunction, Contexts, Signal} from '~/types';
 
 /* MAIN */
 
@@ -13,6 +13,7 @@ class Root extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
+  contexts: Contexts = OWNER.contexts;
   signal: Signal = { disposed: false };
   suspense?: true;
 

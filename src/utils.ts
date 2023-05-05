@@ -50,6 +50,12 @@ const isObject = ( value: unknown ): value is Record<number | string | symbol, u
 
 };
 
+const isSymbol = ( value: unknown ): value is symbol => {
+
+  return typeof value === 'symbol';
+
+};
+
 const noop = (): void => {
 
   return;
@@ -64,4 +70,4 @@ const nope = (): false => {
 
 /* EXPORT */
 
-export {castArray, castError, is, isArray, isEqual, isFunction, isObject, noop, nope};
+export {castArray, castError, is, isArray, isEqual, isFunction, isObject, isSymbol, noop, nope};

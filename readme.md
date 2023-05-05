@@ -205,13 +205,13 @@ await nextTask (); // Giving the effect a chance to run. Once it runs it will ca
 
 #### `$.context`
 
-This function provides a dependency injection mechanism, you can use it to register arbitrary values with the parent computation, and those values can be read, or overridden, at any point inside that computation.
+This function provides a dependency injection mechanism, you can use it to provide arbitrary values to its inner scope, and those values can be read, or overridden, at any point inside that inner scope.
 
 Interface:
 
 ```ts
-function context <T> ( symbol: symbol ): T | undefined;
-function context <T> ( symbol: symbol, value: T ): undefined;
+function context <T> ( symbol: symbol ): T | undefined; // Read
+function context <T> ( context: Record<symbol, any>, fn: () => T ): T; // Write
 ```
 
 Usage:
@@ -221,27 +221,19 @@ import $ from 'oby';
 
 // Reading and writing some values in the context
 
-$.root ( () => {
+const token = Symbol ( 'Some Context Key' );
 
-  const token = Symbol ( 'Some Context' );
+$.context ( { [token]: 123 }, () => { // Writing a value to the context for the inner scope
 
-  $.context ( token, { foo: 123 } ); // Writing some context
+  const value = $.context ( token ); // Reading a value from the context
 
-  $.effect ( () => {
+  console.log ( value ); // => 123
 
-    const value = $.context ( token ); // Reading some context
+  $.context ( { [token]: 321 }, () => { // Overriding some context for the inner scope
 
-    console.log ( value.foo ); // => 123
+    const value = $.context ( token ); // Reading again
 
-    $.effect ( () => {
-
-      $.context ( token, { foo: 321 } ); // Overriding some context, inside the parent computation only
-
-      const value = $.context ( token ); // Reading again
-
-      console.log ( value.foo ); // => 321
-
-    });
+    console.log ( value ); // => 321
 
   });
 
