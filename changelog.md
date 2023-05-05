@@ -1,6 +1,5 @@
 ### Version 14.0.1
-- Changelog: updated
-- $.switch: ensuring every case where the condition is not actually reactive and neither is the return value is optimized
+- `$.switch`: ensuring every case where the condition is not actually reactive and neither is the return value is optimized
 
 ### Version 14.0.0
 - `$.switch`: optimized to create as few memos as possible, which sometimes mean 0 memos, rather than 2
