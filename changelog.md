@@ -1,3 +1,7 @@
+### Version 14.0.2
+- Changelog: updated
+- Keeping track of whether each owner is permanently disposed or not, simplifying some code
+
 ### Version 14.0.1
 - `$.switch`: ensuring every case where the condition is not actually reactive and neither is the return value is optimized
 
