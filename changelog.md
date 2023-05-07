@@ -1,5 +1,4 @@
 ### Version 14.0.3
-- Changelog: updated
 - Simplified some logic around memo disposal
 - Refined mangling, avoiding mangling properties used by Voby
 
