@@ -75,7 +75,7 @@ class CacheUnkeyed<T, R> {
 
       } else {
 
-        mapped.dispose ();
+        mapped.dispose ( true );
 
       }
 
@@ -93,13 +93,13 @@ class CacheUnkeyed<T, R> {
 
     this.cache.forEach ( mapped => {
 
-      mapped.dispose ();
+      mapped.dispose ( true );
 
     });
 
     this.pool.forEach ( mapped => {
 
-      mapped.dispose ();
+      mapped.dispose ( true );
 
     });
 
@@ -218,7 +218,7 @@ class CacheUnkeyed<T, R> {
 
       if ( isDuplicate ) { // Expensive, not reusable
 
-        cleanup ( () => mapped.dispose () );
+        cleanup ( () => mapped.dispose ( true ) );
 
       } else { // Cheap, reusable
 

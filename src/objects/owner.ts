@@ -6,12 +6,12 @@ import {OBSERVER, OWNER, setObserver, setOwner} from '~/context';
 import {lazyArrayEachRight} from '~/lazy';
 import {castError} from '~/utils';
 import type {SYMBOL_SUSPENSE} from '~/symbols';
-import type {IContext, IObserver, IOwner, IRoot, ISuperRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue, Signal} from '~/types';
+import type {IContext, IObserver, IOwner, IRoot, ISuperRoot, ISuspense, CleanupFunction, ErrorFunction, WrappedFunction, Callable, Contexts, LazyArray, LazySet, LazyValue} from '~/types';
 
 /* HELPERS */
 
 const onCleanup = ( cleanup: Callable<CleanupFunction> ): void => cleanup.call ( cleanup );
-const onDispose = ( owner: IOwner ): void => owner.dispose ();
+const onDispose = ( owner: IOwner ): void => owner.dispose ( true );
 
 /* MAIN */
 
@@ -23,7 +23,7 @@ class Owner {
 
   parent?: IOwner;
   contexts?: Contexts;
-  signal?: Signal;
+  disposed: boolean = false;
   cleanups: LazyArray<Callable<CleanupFunction>> = undefined;
   errorHandler: LazyValue<ErrorFunction> = undefined;
   observers: LazyArray<IObserver> = undefined;
@@ -56,13 +56,14 @@ class Owner {
 
   }
 
-  dispose (): void {
+  dispose ( deep: boolean ): void {
 
     lazyArrayEachRight ( this.observers, onDispose );
     lazyArrayEachRight ( this.suspenses, onDispose );
     lazyArrayEachRight ( this.cleanups, onCleanup );
 
     this.cleanups = undefined;
+    this.disposed = deep;
     this.errorHandler = undefined;
     this.observers = undefined;
     this.suspenses = undefined;

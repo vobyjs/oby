@@ -5,7 +5,7 @@ import {OWNER} from '~/context';
 import {lazySetAdd, lazySetDelete} from '~/lazy';
 import Owner from '~/objects/owner';
 import {SYMBOL_SUSPENSE} from '~/symbols';
-import type {IOwner, ISuspense, WrappedDisposableFunction, Contexts, Signal} from '~/types';
+import type {IOwner, ISuspense, WrappedDisposableFunction, Contexts} from '~/types';
 
 /* MAIN */
 
@@ -15,7 +15,6 @@ class Root extends Owner {
 
   parent: IOwner = OWNER;
   contexts: Contexts = OWNER.contexts;
-  signal: Signal = { disposed: false };
   registered?: true;
 
   /* CONSTRUCTOR */
@@ -42,7 +41,7 @@ class Root extends Owner {
 
   /* API */
 
-  dispose (): void {
+  dispose ( deep: boolean ): void {
 
     if ( this.registered ) {
 
@@ -50,15 +49,13 @@ class Root extends Owner {
 
     }
 
-    this.signal.disposed = true;
-
-    super.dispose ();
+    super.dispose ( deep );
 
   }
 
   wrap <T> ( fn: WrappedDisposableFunction<T> ): T {
 
-    const dispose = () => this.dispose ();
+    const dispose = () => this.dispose ( true );
     const fnWithDispose = () => fn ( dispose );
 
     return super.wrap ( fnWithDispose, this, undefined );

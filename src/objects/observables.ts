@@ -28,9 +28,9 @@ class ObservablesArray {
 
   /* API */
 
-  dispose ( shallow?: boolean ): void {
+  dispose ( deep: boolean ): void {
 
-    if ( !shallow ) {
+    if ( deep ) {
 
       const {observer, observables} = this;
 
@@ -158,7 +158,7 @@ class ObservablesSet {
 
   /* API */
 
-  dispose ( shallow?: boolean ): void {
+  dispose ( deep: boolean ): void {
 
     for ( const observable of this.observables ) {
 

@@ -3,7 +3,7 @@
 
 import {OWNER} from '~/context';
 import Owner from '~/objects/owner';
-import type {IOwner, ContextFunction, Contexts, Signal} from '~/types';
+import type {IOwner, ContextFunction, Contexts} from '~/types';
 
 /* MAIN */
 
@@ -13,7 +13,6 @@ class Context extends Owner {
 
   parent: IOwner = OWNER;
   contexts: Contexts;
-  signal: Signal = OWNER.signal;
 
   /* CONSTRUCTOR */
 

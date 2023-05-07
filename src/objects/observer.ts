@@ -1,12 +1,12 @@
 
 /* IMPORT */
 
-import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES, DIRTY_DISPOSED} from '~/constants';
+import {DIRTY_NO, DIRTY_MAYBE_NO, DIRTY_MAYBE_YES, DIRTY_YES} from '~/constants';
 import {OWNER, SUPER_OWNER} from '~/context';
 import {lazyArrayPush} from '~/lazy';
 import {ObservablesArray, ObservablesSet} from '~/objects/observables';
 import Owner from '~/objects/owner';
-import type {IOwner, ObserverFunction, Contexts, Signal} from '~/types';
+import type {IOwner, ObserverFunction, Contexts} from '~/types';
 
 /* MAIN */
 
@@ -16,7 +16,6 @@ class Observer extends Owner {
 
   parent: IOwner = OWNER;
   contexts: Contexts = OWNER.contexts;
-  signal: Signal = OWNER.signal;
   status: number = DIRTY_YES;
   observables: ObservablesArray | ObservablesSet;
   sync?: boolean;
@@ -39,18 +38,17 @@ class Observer extends Owner {
 
   /* API */
 
-  dispose ( shallow?: boolean ): void {
+  dispose ( deep: boolean ): void {
 
-    this.status = shallow ? this.status : DIRTY_DISPOSED;
-    this.observables.dispose ( shallow );
+    this.observables.dispose ( deep );
 
-    super.dispose ();
+    super.dispose ( deep );
 
   }
 
   refresh <T> ( fn: ObserverFunction<T> ): T {
 
-    this.dispose ( true );
+    this.dispose ( false );
 
     this.status = DIRTY_MAYBE_NO; // Resetting the trip flag, we didn't re-execute just yet
 
@@ -80,9 +78,7 @@ class Observer extends Owner {
 
   update (): void {
 
-    if ( this.signal.disposed ) return; // Disposed, it shouldn't be updated again
-
-    if ( this.status === DIRTY_DISPOSED ) return; // Disposed, it shouldn't be updated again
+    if ( this.disposed ) return; // Disposed, it shouldn't be updated again
 
     if ( this.status === DIRTY_MAYBE_YES ) { // Maybe we are dirty, let's check with our observables, to be sure
 

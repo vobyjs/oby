@@ -8,7 +8,7 @@ import Effect from '~/objects/effect';
 import Owner from '~/objects/owner';
 import {SYMBOL_SUSPENSE} from '~/symbols';
 import {isFunction} from '~/utils';
-import type {IObservable, IObserver, IOwner, IRoot, ISuspense, SuspenseFunction, Contexts, Signal} from '~/types';
+import type {IObservable, IObserver, IOwner, IRoot, ISuspense, SuspenseFunction, Contexts} from '~/types';
 
 /* MAIN */
 
@@ -18,7 +18,6 @@ class Suspense extends Owner {
 
   parent: IOwner = OWNER;
   contexts: Contexts = { ...OWNER.contexts, [SYMBOL_SUSPENSE]: this };
-  signal: Signal = OWNER.signal;
   observable?: IObservable<boolean>;
   suspended: number;
 

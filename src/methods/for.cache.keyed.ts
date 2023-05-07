@@ -70,7 +70,7 @@ class CacheKeyed<T, R> {
 
         if ( mapped.bool === bool ) return;
 
-        mapped.dispose ();
+        mapped.dispose ( true );
 
         cache.delete ( value );
 
@@ -80,7 +80,7 @@ class CacheKeyed<T, R> {
 
       this.cache.forEach ( mapped => {
 
-        mapped.dispose ();
+        mapped.dispose ( true );
 
       });
 
@@ -159,7 +159,7 @@ class CacheKeyed<T, R> {
 
         if ( cached ) {
 
-          cleanup ( () => mapped.dispose () );
+          cleanup ( () => mapped.dispose ( true ) );
 
         }
 

@@ -2,7 +2,7 @@
 /* IMPORT */
 
 import Owner from '~/objects/owner';
-import type {Contexts, Signal} from '~/types';
+import type {Contexts} from '~/types';
 
 /* MAIN */
 
@@ -12,7 +12,6 @@ class SuperRoot extends Owner {
 
   parent: undefined;
   contexts: Contexts = {};
-  signal: Signal = { disposed: false };
 
 }
 
