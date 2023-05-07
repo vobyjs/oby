@@ -9,8 +9,6 @@ type IMemo<T = unknown> = import ( '~/objects/memo' ).default<T>;
 
 type IObservable<T = unknown> = import ( '~/objects/observable' ).default<T>;
 
-type IObservableParent = Pick<IObserver, 'disposed' | 'update'>;
-
 type IObserver = import ( '~/objects/observer' ).default;
 
 type IOwner = import ( '~/objects/owner' ).default;
@@ -152,7 +150,7 @@ type Resolved<T = unknown> = T;
 
 /* EXPORT */
 
-export type {IContext, IEffect, IMemo, IObservable, IObservableParent, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
+export type {IContext, IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
 export type {BatchFunction, CallbackFunction, CleanupFunction, ContextFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, ObserverFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
 export type {EffectOptions};
 export type {ForOptions};

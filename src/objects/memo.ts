@@ -1,7 +1,7 @@
 
 /* IMPORT */
 
-import {DIRTY_MAYBE_YES, OBSERVER_DISPOSED, UNAVAILABLE, UNINITIALIZED} from '~/constants';
+import {DIRTY_MAYBE_YES, UNAVAILABLE, UNINITIALIZED} from '~/constants';
 import Observable from '~/objects/observable';
 import Observer from '~/objects/observer';
 import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
@@ -33,9 +33,9 @@ class Memo<T = unknown> extends Observer {
 
     const result = super.refresh ( this.fn );
 
-    if ( this.disposed || this.observables.empty () ) {
+    if ( !this.disposed && this.observables.empty () ) {
 
-      this.observable.parent = OBSERVER_DISPOSED;
+      this.disposed = true;
 
     }
 

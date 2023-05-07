@@ -1,11 +1,11 @@
 
 /* IMPORT */
 
-import {DIRTY_MAYBE_NO, DIRTY_YES, OBSERVER_DISPOSED, UNINITIALIZED} from '~/constants';
+import {DIRTY_MAYBE_NO, DIRTY_YES, UNINITIALIZED} from '~/constants';
 import {OBSERVER} from '~/context';
 import Scheduler from '~/objects/scheduler.sync';
 import {is, nope} from '~/utils';
-import type {IObservableParent, IObserver, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
+import type {IObserver, EqualsFunction, UpdateFunction, ObservableOptions} from '~/types';
 
 /* MAIN */
 
@@ -13,14 +13,14 @@ class Observable<T = unknown> {
 
   /* VARIABLES */
 
-  parent?: IObservableParent;
+  parent?: IObserver;
   value: T;
   equals?: EqualsFunction<T>;
   observers: Set<IObserver> = new Set ();
 
   /* CONSTRUCTOR */
 
-  constructor ( value: T, options?: ObservableOptions<T>, parent?: IObservableParent ) {
+  constructor ( value: T, options?: ObservableOptions<T>, parent?: IObserver ) {
 
     this.value = value;
 
@@ -42,7 +42,7 @@ class Observable<T = unknown> {
 
   get (): T {
 
-    if ( this.parent !== OBSERVER_DISPOSED ) {
+    if ( !this.parent?.disposed ) {
 
       this.parent?.update ();
 
