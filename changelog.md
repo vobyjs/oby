@@ -1,3 +1,8 @@
+### Version 14.0.3
+- Changelog: updated
+- Simplified some logic around memo disposal
+- Refined mangling, avoiding mangling properties used by Voby
+
 ### Version 14.0.2
 - Keeping track of whether each owner is permanently disposed or not, simplifying some code
 
