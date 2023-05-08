@@ -1,7 +1,6 @@
 
 /* IMPORT */
 
-import {OBSERVABLE_UNDEFINED} from '~/constants';
 import get from '~/methods/get';
 import isObservable from '~/methods/is_observable';
 import isObservableFrozen from '~/methods/is_observable_frozen';
@@ -58,13 +57,9 @@ function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], f
 
     const valueUnwrapped = untrack ( value );
 
-    if ( valueUnwrapped === undefined ) {
+    if ( !isFunction ( valueUnwrapped ) && !isArray ( valueUnwrapped ) ) {
 
-      return OBSERVABLE_UNDEFINED;
-
-    } else if ( !isFunction ( valueUnwrapped ) && !isArray ( valueUnwrapped ) ) {
-
-      return frozen ( valueUnwrapped );
+      return value;
 
     } else {
 
