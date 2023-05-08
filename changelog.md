@@ -1,6 +1,5 @@
 ### Version 14.1.1
-- Changelog: updated
-- $.untracked: ensuring it supports functions with arguments too
+- `$.untracked`: ensuring it supports functions with arguments too
 
 ### Version 14.1.0
 - `$.untracked`: a new method for creating an untracked function, in an optimized way
