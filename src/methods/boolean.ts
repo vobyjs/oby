@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import isObservableFrozen from '~/methods/is_observable_frozen';
 import isUntracked from '~/methods/is_untracked';
 import memo from '~/methods/memo';
 import {isFunction} from '~/utils';
@@ -12,7 +13,7 @@ const boolean = ( value: FunctionMaybe<unknown> ): FunctionMaybe<boolean> => {
 
   if ( isFunction ( value ) ) {
 
-    if ( isUntracked ( value ) ) {
+    if ( isObservableFrozen ( value ) || isUntracked ( value ) ) {
 
       return !!value ();
 
