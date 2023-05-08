@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import isUntracked from '~/methods/is_untracked';
 import memo from '~/methods/memo';
 import {isFunction} from '~/utils';
 import type {FunctionMaybe} from '~/types';
@@ -11,7 +12,15 @@ const boolean = ( value: FunctionMaybe<unknown> ): FunctionMaybe<boolean> => {
 
   if ( isFunction ( value ) ) {
 
-    return memo ( () => !!value () );
+    if ( isUntracked ( value ) ) {
+
+      return !!value ();
+
+    } else {
+
+      return memo ( () => !!value () );
+
+    }
 
   } else {
 
