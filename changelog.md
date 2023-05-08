@@ -1,10 +1,8 @@
 ### Version 14.1.0
-- Changelog: updated
-- $.untracked: a new method for creating an untracked function, in an optimized way
-- New internal method: isUntracked
-- $.boolean: optimized for untracked functions, 7x faster for them
-- $.memo: optimized for untracked functions, 4x faster for them
-- $.memo: optimized for untracked functions and frozen observables, 4x faster for them
+- `$.untracked`: a new method for creating an untracked function, in an optimized way
+- `$.boolean`: optimized for untracked functions, 7x faster for them
+- `$.memo`: optimized for untracked functions, 4x faster for them
+- `$.switch`: optimized for untracked functions and frozen observables, 4x faster for them
 
 ### Version 14.0.3
 - Simplified some logic around memo disposal
