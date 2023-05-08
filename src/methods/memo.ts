@@ -1,7 +1,8 @@
 
 /* IMPORT */
 
-import {readable} from '~/objects/callable';
+import isUntracked from '~/methods/is_untracked';
+import {frozen, readable} from '~/objects/callable';
 import Memo from '~/objects/memo';
 import type {MemoFunction, ObservableReadonly, ObservableOptions} from '~/types';
 
@@ -9,10 +10,18 @@ import type {MemoFunction, ObservableReadonly, ObservableOptions} from '~/types'
 
 const memo = <T> ( fn: MemoFunction<T>, options?: ObservableOptions<T | undefined> ): ObservableReadonly<T> => {
 
-  const memo = new Memo ( fn, options );
-  const observable = readable ( memo.observable );
+  if ( isUntracked ( fn ) ) {
 
-  return observable;
+    return frozen ( fn () );
+
+  } else {
+
+    const memo = new Memo ( fn, options );
+    const observable = readable ( memo.observable );
+
+    return observable;
+
+  }
 
 };
 
