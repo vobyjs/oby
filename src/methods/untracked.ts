@@ -3,15 +3,16 @@
 
 import untrack from '~/methods/untrack';
 import {SYMBOL_UNTRACKED} from '~/symbols';
-import type {UntrackFunction} from '~/types';
+import {isFunction} from '~/utils';
+import type {UntrackedFunction} from '~/types';
 
 /* MAIN */
 
-function untracked <T> ( fn: UntrackFunction<T> ): (() => T);
+function untracked <Arguments extends unknown[], T> ( fn: UntrackedFunction<Arguments, T> ): (( ...args: Arguments ) => T);
 function untracked <T> ( fn: T ): (() => T);
-function untracked <T> ( fn: UntrackFunction<T> | T ) {
+function untracked <Arguments extends unknown[], T> ( fn: UntrackedFunction<Arguments, T> | T ) {
 
-  const untracked = () => untrack ( fn );
+  const untracked = isFunction ( fn ) ? ( ...args: Arguments ): T => untrack ( () => fn ( ...args ) ) : () => fn;
 
   untracked[SYMBOL_UNTRACKED] = true;
 

@@ -57,6 +57,8 @@ type TryCatchFunction<T = unknown> = ({ error, reset }: { error: Error, reset: D
 
 type UntrackFunction<T = unknown> = () => T;
 
+type UntrackedFunction<Arguments extends unknown[], T = unknown> = ( ...args: Arguments ) => T;
+
 type UpdateFunction<T = unknown> = ( value: T ) => T;
 
 type WithFunction<T = unknown> = () => T;
@@ -151,7 +153,7 @@ type Resolved<T = unknown> = T;
 /* EXPORT */
 
 export type {IContext, IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, ISchedulerAsync, ISchedulerSync, ISuperRoot, ISuspense};
-export type {BatchFunction, CallbackFunction, CleanupFunction, ContextFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, ObserverFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
+export type {BatchFunction, CallbackFunction, CleanupFunction, ContextFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, ObserverFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UntrackedFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
 export type {EffectOptions};
 export type {ForOptions};
 export type {Observable, ObservableReadonly, ObservableOptions};

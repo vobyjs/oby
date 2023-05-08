@@ -9624,6 +9624,14 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports functions with arguments', t => {
+
+      const sum = $.untracked ( ( a, b ) => a + b );
+
+      t.is ( sum ( 1, 2 ), 3 );
+
+    });
+
     it ( 'supports getting without creating dependencies in a memo', t => {
 
       const a = $(1);
