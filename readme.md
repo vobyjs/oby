@@ -19,7 +19,7 @@ npm install --save oby
 | [`$.effect`](#effect)             | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)     | [`ObservableOptions`](#observableoptions)   |
 | [`$.isBatching`](#isbatching)     | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector)   | [`StoreOptions`](#storeoptions)             |
 | [`$.isObservable`](#isobservable) |                           | [`$.suspended`](#suspended) |                                             |
-| [`$.isStore`](#isstore)           |                           |                             |                                             |
+| [`$.isStore`](#isstore)           |                           | [`$.untracked`](#untracked) |                                             |
 | [`$.memo`](#memo)                 |                           |                             |                                             |
 | [`$.observable`](#observable)     |                           |                             |                                             |
 | [`$.owner`](#owner)               |                           |                             |                                             |
@@ -709,7 +709,7 @@ Usage:
 ```ts
 import $ from 'oby';
 
-// Untracking a single Obseryvable
+// Untracking a single Observable
 
 const o = $(0);
 
@@ -1303,6 +1303,43 @@ $.effect ( () => {
   };
 
 }, { suspense: false } );
+```
+
+#### `$.untracked`
+
+This function creates an untracked version of a value.
+
+It's functionally equivalent to a simple `() => untrack ( value )`, but the returned function is also marked as being untracked, which allows for some optimizations internally.
+
+Interface:
+
+```ts
+function untracked <T> ( fn: () => T ): () => T;
+function untracked <T> ( value: T ): () => T;
+```
+
+Usage:
+
+```ts
+import $ from 'oby';
+
+// Creating an untracked function
+
+const a = $(1);
+const b = $(2);
+const c = $(3);
+
+const sum = $.untracked ( () => {
+  return a () + b () + c ();
+});
+
+console.log ( sum () ); // => 6
+
+a ( 2 );
+b ( 3 );
+c ( 4 );
+
+console.log ( sum () ); // => 9
 ```
 
 ### Types

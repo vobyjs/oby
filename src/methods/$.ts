@@ -28,6 +28,7 @@ import ternary from '~/methods/ternary';
 import tick from '~/methods/tick';
 import tryCatch from '~/methods/try_catch';
 import untrack from '~/methods/untrack';
+import untracked from '~/methods/untracked';
 import _with from '~/methods/with';
 import {writable} from '~/objects/callable';
 import ObservableClass from '~/objects/observable';
@@ -73,6 +74,7 @@ $.ternary = ternary;
 $.tick = tick;
 $.tryCatch = tryCatch;
 $.untrack = untrack;
+$.untracked = untracked;
 $.with = _with;
 
 /* EXPORT */
