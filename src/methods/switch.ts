@@ -5,6 +5,7 @@ import {OBSERVABLE_UNDEFINED} from '~/constants';
 import get from '~/methods/get';
 import isObservable from '~/methods/is_observable';
 import isObservableFrozen from '~/methods/is_observable_frozen';
+import isUntracked from '~/methods/is_untracked';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
 import untrack from '~/methods/untrack';
@@ -39,7 +40,7 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: [T, R][], fallback?: u
 function _switch <T, R, F> ( when: FunctionMaybe<T>, values: [T, R][], fallback: F ): ObservableReadonly<Resolved<R | F>>;
 function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], fallback?: F ): ObservableReadonly<Resolved<R | F | undefined>> {
 
-  const value = isFunction ( when ) ? warmup ( memo ( () => match ( when (), values, fallback ) ) ) : match ( when, values, fallback );
+  const value = isFunction ( when ) && !isObservableFrozen ( when ) && !isUntracked ( when ) ? warmup ( memo ( () => match ( when (), values, fallback ) ) ) : match ( get ( when ), values, fallback );
 
   if ( !isFunction ( value ) && !isArray ( value ) ) {
 
