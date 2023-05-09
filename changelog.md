@@ -1,9 +1,7 @@
 ### Version 14.1.2
-- Changelog: updated
-- $.boolean: optimized for frozen observables too
-- $.memo: optimized for frozen observables too
-- $.switch: simplified implementation
-- $.switch: simplified and optimized
+- `$.boolean`: optimized for frozen observables too
+- `$.memo`: optimized for frozen observables too
+- `$.switch`: simplified and optimized
 
 ### Version 14.1.1
 - `$.untracked`: ensuring it supports functions with arguments too
