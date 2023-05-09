@@ -2,15 +2,13 @@
 /* IMPORT */
 
 import get from '~/methods/get';
-import isObservable from '~/methods/is_observable';
 import isObservableFrozen from '~/methods/is_observable_frozen';
 import isUntracked from '~/methods/is_untracked';
 import memo from '~/methods/memo';
 import resolve from '~/methods/resolve';
-import untrack from '~/methods/untrack';
 import warmup from '~/methods/warmup';
 import {frozen} from '~/objects/callable';
-import {is, isArray, isFunction} from '~/utils';
+import {is, isFunction} from '~/utils';
 import type {ObservableReadonly, FunctionMaybe, Resolved} from '~/types';
 
 /* HELPERS */
@@ -39,45 +37,27 @@ function _switch <T, R> ( when: FunctionMaybe<T>, values: [T, R][], fallback?: u
 function _switch <T, R, F> ( when: FunctionMaybe<T>, values: [T, R][], fallback: F ): ObservableReadonly<Resolved<R | F>>;
 function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], fallback?: F ): ObservableReadonly<Resolved<R | F | undefined>> {
 
-  const value = isFunction ( when ) && !isObservableFrozen ( when ) && !isUntracked ( when ) ? warmup ( memo ( () => match ( when (), values, fallback ) ) ) : match ( get ( when ), values, fallback );
+  const isDynamic = isFunction ( when ) && !isObservableFrozen ( when ) && !isUntracked ( when );
 
-  if ( !isFunction ( value ) && !isArray ( value ) ) {
+  if ( isDynamic ) {
 
-    return frozen ( value );
+    const value = warmup ( memo ( () => match ( when (), values, fallback ) ) );
 
-  } else if ( !isObservable ( value ) ) {
+    if ( isObservableFrozen ( value ) ) {
 
-    return memo ( () => {
-
-      return resolve ( value );
-
-    });
-
-  } else if ( isObservableFrozen ( value ) ) {
-
-    const valueUnwrapped = untrack ( value );
-
-    if ( !isFunction ( valueUnwrapped ) && !isArray ( valueUnwrapped ) ) {
-
-      return value;
+      return frozen ( resolve ( value () ) );
 
     } else {
 
-      return memo ( () => {
-
-        return resolve ( valueUnwrapped );
-
-      });
+      return memo ( () => resolve ( get ( value ) ) );
 
     }
 
   } else {
 
-    return memo ( () => {
+    const value = match ( get ( when ), values, fallback );
 
-      return resolve ( get ( value ) );
-
-    });
+    return frozen ( resolve ( value ) );
 
   }
 

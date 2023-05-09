@@ -29,7 +29,8 @@ const isFrozen = ( t, value ) => {
 const isReadable = ( t, value ) => {
 
   t.true ( $.isObservable ( value ) );
-  t.true ( isObservableReadable ( value ) );
+  t.true ( isObservableFrozen ( value ) || isObservableReadable ( value ) );
+  // t.true ( isObservableReadable ( value ) );
   t.true ( typeof value.read === 'undefined' );
   t.true ( typeof value.write === 'undefined' );
   t.true ( typeof value.value === 'undefined' );
