@@ -759,25 +759,29 @@ import $ from 'oby';
 
 $.root ( () => {
 
-  const token = Symbol ( 'Some Context' );
+  const token = Symbol ( 'Some Context Key' );
 
-  $.context ( token, { foo: 123 } ); // Writing some context
+  $.context ( { [token]: 123 }, () => { // Writing a value to the context for the inner scope
 
-  const runWithRoot = $.with ();
+    const runWithOuter = $.with ();
 
-  $.effect ( () => {
+    $.effect ( () => {
 
-    $.context ( token, { foo: 321 } ); // Overriding some context
+      $.context ( { [token]: 321 }, () => { // Overriding some context for the inner scope
 
-    const value = $.context ( token ); // Reading the context
+        const value = $.context ( token ); // Reading the context
 
-    console.log ( value.foo ); // => 321
+        console.log ( value ); // => 321
 
-    runWithRoot ( () => { // Executing the function as if it had the root as its owner
+        runWithOuter ( () => { // Executing the function as if it was where `$.with` was called
 
-      const value = $.context ( token ); // Reading the context
+          const value = $.context ( token ); // Reading the context
 
-      console.log ( value.foo ); // => 123
+          console.log ( value ); // => 123
+
+        });
+
+      });
 
     });
 
