@@ -1,7 +1,6 @@
 
 /* IMPORT */
 
-import {DIRTY_YES} from '~/constants';
 import type {IObserver} from '~/types';
 
 /* MAIN */
@@ -41,7 +40,7 @@ class Scheduler {
 
         for ( let i = 0, l = queue.length; i < l; i++ ) {
 
-          queue[i].stale ( DIRTY_YES );
+          queue[i].update ();
 
         }
 

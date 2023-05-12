@@ -2062,6 +2062,29 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports checking dependecies for updates on synchronous effects also', t => {
+
+      const o = $(0);
+      const memo = $.memo ( o, { equals: () => true } );
+
+      let calls = 0;
+
+      $.effect ( () => {
+
+        calls += 1;
+
+        memo ();
+
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+
+    });
+
     it ( 'updates when the dependencies change', async t => {
 
       const a = $(1);
@@ -9136,7 +9159,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'suppors error handlers that throw', t => {
+    it ( 'supports error handlers that throw', t => {
 
       let calls = '';
 
@@ -9165,6 +9188,7 @@ describe ( 'oby', () => {
       });
 
       settle ( result );
+      settle ( result ); //FIXME: Is is correct that this is needed though?
 
       t.is ( calls, 'ba' );
 

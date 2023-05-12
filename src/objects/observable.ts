@@ -83,6 +83,8 @@ class Observable<T = unknown> {
 
         if ( observer.sync ) {
 
+          observer.status = Math.max ( observer.status, status );
+
           Scheduler.schedule ( observer );
 
         } else {
