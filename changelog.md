@@ -1,3 +1,8 @@
+### Version 14.1.3
+- Changelog: updated
+- Readme: updated example for $.with
+- Ensuring synchronous effects are also refreshed only if some of their dependencies change
+
 ### Version 14.1.2
 - `$.boolean`: optimized for frozen observables too
 - `$.memo`: optimized for frozen observables too
