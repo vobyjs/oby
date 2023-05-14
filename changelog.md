@@ -1,3 +1,8 @@
+### Version 14.1.4
+- Changelog: updated
+- $.context: ensuring it gets disposed properly by its owner
+- $.context: ensuring effects created inside it can be suspended properly
+
 ### Version 14.1.3
 - Ensuring synchronous effects are also refreshed only if some of their dependencies change
 
