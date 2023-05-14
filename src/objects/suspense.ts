@@ -51,6 +51,7 @@ class Suspense extends Owner {
     this.observable?.set ( !!suspendedNext );
 
     const notifyOwner = ( owner: IOwner ): void => {
+      lazyArrayEach ( owner.contexts, notifyOwner );
       lazyArrayEach ( owner.observers, notifyObserver );
       lazyArrayEach ( owner.suspenses, notifySuspense );
       lazySetEach ( owner.roots, notifyRoot );

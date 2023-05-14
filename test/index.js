@@ -7951,6 +7951,51 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'can suspend and unsuspend the execution of an effect created in a context', async t => {
+
+      const o = $(0);
+      const suspended = $(false);
+
+      let sequence = '';
+
+      $.suspense ( suspended, () => {
+
+        $.context ( {}, () => {
+
+          sequence += 'a';
+
+          $.effect ( () => {
+
+            sequence += 'b';
+
+            o ();
+
+          });
+
+        });
+
+      });
+
+      t.is ( sequence, 'a' );
+      await tick ();
+      t.is ( sequence, 'ab' );
+
+      suspended ( true );
+
+      o ( 1 );
+
+      t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'ab' );
+
+      suspended ( false );
+
+      t.is ( sequence, 'ab' );
+      await tick ();
+      t.is ( sequence, 'abb' );
+
+    });
+
     it ( 'can suspend and unsuspend the execution of an effect created in an effect', async t => {
 
       const o = $(0);
