@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import {OWNER} from '~/context';
+import {lazyArrayPush} from '~/lazy';
 import Owner from '~/objects/owner';
 import type {IOwner, ContextFunction, Contexts} from '~/types';
 
@@ -12,15 +13,17 @@ class Context extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
-  contexts: Contexts;
+  context: Contexts;
 
   /* CONSTRUCTOR */
 
-  constructor ( contexts: Contexts ) {
+  constructor ( context: Contexts ) {
 
     super ();
 
-    this.contexts = { ...OWNER.contexts, ...contexts };
+    this.context = { ...OWNER.context, ...context };
+
+    lazyArrayPush ( this.parent, 'contexts', this );
 
   }
 

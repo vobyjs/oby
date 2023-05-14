@@ -15,7 +15,7 @@ class Observer extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
-  contexts: Contexts = OWNER.contexts;
+  context: Contexts = OWNER.context;
   status: number = DIRTY_YES;
   observables: ObservablesArray | ObservablesSet;
   sync?: boolean;

@@ -11,7 +11,7 @@ class SuperRoot extends Owner {
   /* VARIABLES */
 
   parent: undefined;
-  contexts: Contexts = {};
+  context: Contexts = {};
 
 }
 

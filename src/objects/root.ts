@@ -14,7 +14,7 @@ class Root extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
-  contexts: Contexts = OWNER.contexts;
+  context: Contexts = OWNER.context;
   registered?: true;
 
   /* CONSTRUCTOR */

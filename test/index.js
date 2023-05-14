@@ -1109,7 +1109,7 @@ describe ( 'oby', () => {
 
     });
 
-    it ( 'registers a function to be called when the parent computation is disposed', async t => {
+    it ( 'registers a function to be called when the parent effect is disposed', async t => {
 
       let sequence = '';
 
@@ -1134,6 +1134,110 @@ describe ( 'oby', () => {
         t.is ( sequence, 'ba' );
 
       });
+
+    });
+
+    it ( 'registers a function to be called when the parent init effect is disposed', t => {
+
+      let sequence = '';
+
+      $.root ( dispose => {
+
+        $.effect ( () => {
+
+          $.cleanup ( () => {
+            sequence += 'a';
+          });
+
+          $.cleanup ( () => {
+            sequence += 'b';
+          });
+
+        }, { sync: 'init' } );
+
+        dispose ();
+
+      });
+
+      t.is ( sequence, 'ba' );
+
+    });
+
+    it ( 'registers a function to be called when the parent sync effect is disposed', t => {
+
+      let sequence = '';
+
+      $.root ( dispose => {
+
+        $.effect ( () => {
+
+          $.cleanup ( () => {
+            sequence += 'a';
+          });
+
+          $.cleanup ( () => {
+            sequence += 'b';
+          });
+
+        }, { sync: true } );
+
+        dispose ();
+
+      });
+
+      t.is ( sequence, 'ba' );
+
+    });
+
+    it ( 'registers a function to be called when the parent context is disposed', t => {
+
+      let sequence = '';
+
+      $.root ( dispose => {
+
+        $.context ( {}, () => {
+
+          $.cleanup ( () => {
+            sequence += 'a';
+          });
+
+          $.cleanup ( () => {
+            sequence += 'b';
+          });
+
+        });
+
+        dispose ();
+
+      });
+
+      t.is ( sequence, 'ba' );
+
+    });
+
+    it ( 'registers a function to be called when the parent suspense is disposed', t => {
+
+      let sequence = '';
+
+      $.root ( dispose => {
+
+        $.suspense ( false, () => {
+
+          $.cleanup ( () => {
+            sequence += 'a';
+          });
+
+          $.cleanup ( () => {
+            sequence += 'b';
+          });
+
+        });
+
+        dispose ();
+
+      });
+
+      t.is ( sequence, 'ba' );
 
     });
 

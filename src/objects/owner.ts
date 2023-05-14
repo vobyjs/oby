@@ -22,10 +22,11 @@ class Owner {
   /* VARIABLES */
 
   parent?: IOwner;
-  contexts?: Contexts;
+  context?: Contexts;
   disposed: boolean = false;
   cleanups: LazyArray<Callable<CleanupFunction>> = undefined;
   errorHandler: LazyValue<ErrorFunction> = undefined;
+  contexts: LazyArray<IContext> = undefined;
   observers: LazyArray<IObserver> = undefined;
   roots: LazySet<IRoot | (() => IRoot[])> = undefined;
   suspenses: LazyArray<ISuspense> = undefined;
@@ -58,6 +59,7 @@ class Owner {
 
   dispose ( deep: boolean ): void {
 
+    lazyArrayEachRight ( this.contexts, onDispose );
     lazyArrayEachRight ( this.observers, onDispose );
     lazyArrayEachRight ( this.suspenses, onDispose );
     lazyArrayEachRight ( this.cleanups, onCleanup );
@@ -74,7 +76,7 @@ class Owner {
   get ( symbol: symbol ): any;
   get ( symbol: symbol ) {
 
-    return this.contexts?.[symbol];
+    return this.context?.[symbol];
 
   }
 

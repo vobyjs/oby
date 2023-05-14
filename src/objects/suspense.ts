@@ -17,7 +17,7 @@ class Suspense extends Owner {
   /* VARIABLES */
 
   parent: IOwner = OWNER;
-  contexts: Contexts = { ...OWNER.contexts, [SYMBOL_SUSPENSE]: this };
+  context: Contexts = { ...OWNER.context, [SYMBOL_SUSPENSE]: this };
   observable?: IObservable<boolean>;
   suspended: number;
 

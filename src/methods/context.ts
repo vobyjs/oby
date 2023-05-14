@@ -14,7 +14,7 @@ function context <T> ( symbolOrContext: symbol | Contexts, fn?: ContextFunction<
 
   if ( isSymbol ( symbolOrContext ) ) {
 
-    return OWNER.contexts[symbolOrContext];
+    return OWNER.context[symbolOrContext];
 
   } else {
 
