@@ -1,3 +1,7 @@
+### Version 14.2.0
+- Changelog: updated
+- New types: ObservableLike, ObservableReadonlyLike
+
 ### Version 14.1.4
 - `$.context`: ensuring it gets disposed properly by its owner
 - `$.context`: ensuring effects created inside it can be suspended properly
