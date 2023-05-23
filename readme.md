@@ -10,24 +10,24 @@ npm install --save oby
 
 ## APIs
 
-| [Core](#core)                     | [Flow](#flow)             | [Utilities](#utilities)     | [Types](#types)                             |
-| --------------------------------- | ------------------------- | --------------------------- | ------------------------------------------- |
-| [`$()`](#core)                    | [`$.if`](#if)             | [`$.boolean`](#boolean)     | [`EffectOptions`](#effectoptions)           |
-| [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.disposed`](#disposed)   | [`ForOptions`](#foroptions)                 |
-| [`$.cleanup`](#cleanup)           | [`$.suspense`](#suspense) | [`$.get`](#get)             | [`Observable`](#observable)                 |
-| [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.readonly`](#readonly)   | [`ObservableReadonly`](#observablereadonly) |
-| [`$.effect`](#effect)             | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)     | [`ObservableOptions`](#observableoptions)   |
-| [`$.isBatching`](#isbatching)     | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector)   | [`StoreOptions`](#storeoptions)             |
-| [`$.isObservable`](#isobservable) |                           | [`$.suspended`](#suspended) |                                             |
-| [`$.isStore`](#isstore)           |                           | [`$.untracked`](#untracked) |                                             |
-| [`$.memo`](#memo)                 |                           |                             |                                             |
-| [`$.observable`](#observable)     |                           |                             |                                             |
-| [`$.owner`](#owner)               |                           |                             |                                             |
-| [`$.root`](#root)                 |                           |                             |                                             |
-| [`$.store`](#store)               |                           |                             |                                             |
-| [`$.tick`](#tick)                 |                           |                             |                                             |
-| [`$.untrack`](#untrack)           |                           |                             |                                             |
-| [`$.with`](#with)                 |                           |                             |                                             |
+| [Core](#core)                     | [Flow](#flow)             | [Utilities](#utilities)     | [Types](#types)                                     |
+| --------------------------------- | ------------------------- | --------------------------- | --------------------------------------------------- |
+| [`$()`](#core)                    | [`$.if`](#if)             | [`$.boolean`](#boolean)     | [`EffectOptions`](#effectoptions)                   |
+| [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.disposed`](#disposed)   | [`ForOptions`](#foroptions)                         |
+| [`$.cleanup`](#cleanup)           | [`$.suspense`](#suspense) | [`$.get`](#get)             | [`Observable`](#observable)                         |
+| [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.readonly`](#readonly)   | [`ObservableLike`](#observablelike)                 |
+| [`$.effect`](#effect)             | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)     | [`ObservableReadonly`](#observablereadonly)         |
+| [`$.isBatching`](#isbatching)     | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector)   | [`ObservableReadonlyLike`](#observablereadonlylike) |
+| [`$.isObservable`](#isobservable) |                           | [`$.suspended`](#suspended) | [`ObservableOptions`](#observableoptions)           |
+| [`$.isStore`](#isstore)           |                           | [`$.untracked`](#untracked) | [`StoreOptions`](#storeoptions)                     |
+| [`$.memo`](#memo)                 |                           |                             |                                                     |
+| [`$.observable`](#observable)     |                           |                             |                                                     |
+| [`$.owner`](#owner)               |                           |                             |                                                     |
+| [`$.root`](#root)                 |                           |                             |                                                     |
+| [`$.store`](#store)               |                           |                             |                                                     |
+| [`$.tick`](#tick)                 |                           |                             |                                                     |
+| [`$.untrack`](#untrack)           |                           |                             |                                                     |
+| [`$.with`](#with)                 |                           |                             |                                                     |
 
 ## Usage
 
@@ -1386,6 +1386,21 @@ Interface:
 type Observable<T> = {
   (): T,
   ( value: T ): T,
+  ( fn: ( value: T ) => T ): T,
+  readonly [ObservableSymbol]: true
+};
+```
+
+#### `ObservableLike`
+
+This type describes an object with the same interface as a regular writable Observable, but which may not actually be an Observable.
+
+Interface:
+
+```ts
+type ObservableLike<T> = {
+  (): T,
+  ( value: T ): T,
   ( fn: ( value: T ) => T ): T
 };
 ```
@@ -1398,6 +1413,19 @@ Interface:
 
 ```ts
 type ObservableReadonly<T> = {
+  (): T,
+  readonly [ObservableSymbol]: true
+};
+```
+
+#### `ObservableReadonlyLike`
+
+This type describes an object with the same interface as a read-only Observable, but which may not actually be an Observable.
+
+Interface:
+
+```ts
+type ObservableReadonlyLike<T> = {
   (): T
 };
 ```

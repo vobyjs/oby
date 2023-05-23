@@ -90,9 +90,19 @@ type Observable<T = unknown> = {
   readonly [ObservableSymbol]: true
 };
 
+type ObservableLike<T = unknown> = {
+  (): T,
+  ( fn: ( value: T ) => T ): T,
+  ( value: T ): T
+};
+
 type ObservableReadonly<T = unknown> = {
   (): T,
   readonly [ObservableSymbol]: true
+};
+
+type ObservableReadonlyLike<T = unknown> = {
+  (): T
 };
 
 type ObservableOptions<T = unknown> = {
@@ -156,7 +166,7 @@ export type {IContext, IEffect, IMemo, IObservable, IObserver, IOwner, IRoot, IS
 export type {BatchFunction, CallbackFunction, CleanupFunction, ContextFunction, DisposeFunction, EffectFunction, ErrorFunction, EqualsFunction, MapFunction, MapValueFunction, MemoFunction, ObserverFunction, SelectorFunction, SuspenseFunction, TryCatchFunction, UntrackFunction, UntrackedFunction, UpdateFunction, WithFunction, WrappedFunction, WrappedDisposableFunction};
 export type {EffectOptions};
 export type {ForOptions};
-export type {Observable, ObservableReadonly, ObservableOptions};
+export type {Observable, ObservableLike, ObservableReadonly, ObservableReadonlyLike, ObservableOptions};
 export type {Owner};
 export type {StoreOptions};
 export type {ArrayMaybe, Callable, CallableFunction, Constructor, Contexts, FunctionMaybe, Indexed, LazyArray, LazySet, LazyValue, PromiseMaybe, Resolvable, Resolved};
