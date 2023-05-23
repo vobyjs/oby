@@ -1,5 +1,4 @@
 ### Version 14.2.0
-- Changelog: updated
 - New types: ObservableLike, ObservableReadonlyLike
 
 ### Version 14.1.4
