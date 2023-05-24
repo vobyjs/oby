@@ -13,7 +13,7 @@ const DIRTY_YES: number = 3; // The observer is dirty, for sure
 const OBSERVABLE_FALSE = frozen ( false );
 const OBSERVABLE_TRUE = frozen ( true );
 
-const UNAVAILABLE: any = new Proxy ( function () {}, new Proxy ( {}, { get () { throw new Error ( 'Unavailable value' ) } } ) ); //TSC
+const UNAVAILABLE: any = new Proxy ( {}, new Proxy ( {}, { get () { throw new Error ( 'Unavailable value' ) } } ) ); //TSC
 const UNINITIALIZED: any = function () {}; //TSC
 
 /* EXPORT */
