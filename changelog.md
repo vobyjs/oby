@@ -1,3 +1,7 @@
+### Version 14.2.1
+- Changelog: updated
+- Tweaked fallback "unavailable" value to be less prone to be misused
+
 ### Version 14.2.0
 - New types: ObservableLike, ObservableReadonlyLike
 
