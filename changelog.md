@@ -1,3 +1,6 @@
+### Version 14.2.2
+- `$.for`: ensuring pooled results can work with a parent suspense boundary too
+
 ### Version 14.2.1
 - Tweaked fallback "unavailable" value to be less prone to be misused
 
