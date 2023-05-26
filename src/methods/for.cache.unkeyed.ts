@@ -252,7 +252,7 @@ class CacheUnkeyed<T, R> {
 
   roots = (): MappedRoot<T, R>[] => {
 
-    return Array.from ( this.cache.values () );
+    return [...this.cache.values (), ...this.pool.values ()];
 
   };
 

@@ -3115,6 +3115,8 @@ describe ( 'oby', () => {
 
       });
 
+      //TODO: add a test for suspending pooled results
+
       it ( 'supports pooling', t => {
 
         const array = $([1, 2, 3]);
