@@ -1392,7 +1392,7 @@ Interface:
 
 ```ts
 type MemoOptions<T = unknown> = {
-  equals?: EqualsFunction<T> | false,
+  equals?: (( value: T, valuePrev: T ) => boolean) | false
   sync?: boolean
 };
 ```
