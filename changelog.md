@@ -1,3 +1,6 @@
+### Version 14.2.3
+- Fixed a huge bug where effects and memos could fail to refresh themselves in some cases
+
 ### Version 14.2.2
 - `$.for`: ensuring pooled results can work with a parent suspense boundary too
 
