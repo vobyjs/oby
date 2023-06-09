@@ -1,3 +1,6 @@
+### Version 14.3.0
+- `$.memo`: added support for making a synchronous one
+
 ### Version 14.2.3
 - Fixed a huge bug where effects and memos could fail to refresh themselves in some cases
 
