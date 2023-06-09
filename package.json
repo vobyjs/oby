@@ -10,6 +10,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "all": "scex -sb compile compile:mangle test cellx cleanup context creation kairo if memory read store store:creation updates",
+    "bench": "node tasks/bench.js",
     "cellx": "node tasks/cellx.js",
     "clean": "tsex clean",
     "cleanup": "node tasks/cleanup.js",
