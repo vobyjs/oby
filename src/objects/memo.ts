@@ -4,7 +4,7 @@
 import {DIRTY_MAYBE_YES, UNAVAILABLE, UNINITIALIZED} from '~/constants';
 import Observable from '~/objects/observable';
 import Observer from '~/objects/observer';
-import type {IObservable, MemoFunction, ObservableOptions} from '~/types';
+import type {IObservable, MemoFunction, MemoOptions} from '~/types';
 
 /* MAIN */
 
@@ -14,16 +14,24 @@ class Memo<T = unknown> extends Observer {
 
   fn: MemoFunction<T>;
   observable: IObservable<T>;
-  sync?: false;
+  sync?: boolean;
 
   /* CONSTRUCTOR */
 
-  constructor ( fn: MemoFunction<T>, options?: ObservableOptions<T> ) {
+  constructor ( fn: MemoFunction<T>, options?: MemoOptions<T> ) {
 
     super ();
 
     this.fn = fn;
     this.observable = new Observable<T> ( UNINITIALIZED, options, this );
+
+    if ( options?.sync === true ) {
+
+      this.sync = true;
+
+      this.update ();
+
+    }
 
   }
 

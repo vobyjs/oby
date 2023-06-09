@@ -711,6 +711,31 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'does not batch synchronous changes implicitly, for a synchronous memo', t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.memo ( () => {
+        calls += 1;
+        a ();
+        b ();
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      a ( 10 );
+
+      t.is ( calls, 2 );
+
+      b ( 100 );
+
+      t.is ( calls, 3 );
+
+    });
+
     it ( 'does not batch synchronous changes manually, for a synchronous effect', async t => {
 
       const a = $(0);
@@ -719,6 +744,29 @@ describe ( 'oby', () => {
       let calls = 0;
 
       $.effect ( () => {
+        calls += 1;
+        a ();
+        b ();
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      await $.batch ( () => {
+        a ( 10 );
+        b ( 100 );
+        t.is ( calls, 3 );
+      });
+
+    });
+
+    it ( 'does not batch synchronous changes manually, for a synchronous memo', async t => {
+
+      const a = $(0);
+      const b = $(1);
+
+      let calls = 0;
+
+      $.memo ( () => {
         calls += 1;
         a ();
         b ();
@@ -1170,6 +1218,32 @@ describe ( 'oby', () => {
       $.root ( dispose => {
 
         $.effect ( () => {
+
+          $.cleanup ( () => {
+            sequence += 'a';
+          });
+
+          $.cleanup ( () => {
+            sequence += 'b';
+          });
+
+        }, { sync: true } );
+
+        dispose ();
+
+      });
+
+      t.is ( sequence, 'ba' );
+
+    });
+
+    it ( 'registers a function to be called when the parent sync memo is disposed', t => {
+
+      let sequence = '';
+
+      $.root ( dispose => {
+
+        $.memo ( () => {
 
           $.cleanup ( () => {
             sequence += 'a';
@@ -3955,6 +4029,48 @@ describe ( 'oby', () => {
       t.is ( calls, 1 );
       t.is ( memo2 (), undefined );
       t.is ( calls, 2 );
+
+    });
+
+    it ( 'supports synchronous memos', t => {
+
+      const o = $(0);
+
+      let calls = 0;
+
+      $.memo ( () => {
+        calls += 1;
+        o ();
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 2 );
+
+    });
+
+    it ( 'supports checking dependecies for updates on synchronous memos also', t => {
+
+      const o = $(0);
+      const memo = $.memo ( o, { equals: () => true } );
+
+      let calls = 0;
+
+      $.memo ( () => {
+
+        calls += 1;
+
+        memo ();
+
+      }, { sync: true } );
+
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
 
     });
 

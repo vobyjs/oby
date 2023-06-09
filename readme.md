@@ -14,13 +14,13 @@ npm install --save oby
 | --------------------------------- | ------------------------- | --------------------------- | --------------------------------------------------- |
 | [`$()`](#core)                    | [`$.if`](#if)             | [`$.boolean`](#boolean)     | [`EffectOptions`](#effectoptions)                   |
 | [`$.batch`](#batch)               | [`$.for`](#for)           | [`$.disposed`](#disposed)   | [`ForOptions`](#foroptions)                         |
-| [`$.cleanup`](#cleanup)           | [`$.suspense`](#suspense) | [`$.get`](#get)             | [`Observable`](#observable)                         |
-| [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.readonly`](#readonly)   | [`ObservableLike`](#observablelike)                 |
-| [`$.effect`](#effect)             | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)     | [`ObservableReadonly`](#observablereadonly)         |
-| [`$.isBatching`](#isbatching)     | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector)   | [`ObservableReadonlyLike`](#observablereadonlylike) |
-| [`$.isObservable`](#isobservable) |                           | [`$.suspended`](#suspended) | [`ObservableOptions`](#observableoptions)           |
-| [`$.isStore`](#isstore)           |                           | [`$.untracked`](#untracked) | [`StoreOptions`](#storeoptions)                     |
-| [`$.memo`](#memo)                 |                           |                             |                                                     |
+| [`$.cleanup`](#cleanup)           | [`$.suspense`](#suspense) | [`$.get`](#get)             | [`MemoOptions`](#memooptions)                       |
+| [`$.context`](#context)           | [`$.switch`](#switch)     | [`$.readonly`](#readonly)   | [`Observable`](#observable)                         |
+| [`$.effect`](#effect)             | [`$.ternary`](#ternary)   | [`$.resolve`](#resolve)     | [`ObservableLike`](#observablelike)                 |
+| [`$.isBatching`](#isbatching)     | [`$.tryCatch`](#trycatch) | [`$.selector`](#selector)   | [`ObservableReadonly`](#observablereadonly)         |
+| [`$.isObservable`](#isobservable) |                           | [`$.suspended`](#suspended) | [`ObservableReadonlyLike`](#observablereadonlylike) |
+| [`$.isStore`](#isstore)           |                           | [`$.untracked`](#untracked) | [`ObservableOptions`](#observableoptions)           |
+| [`$.memo`](#memo)                 |                           |                             | [`StoreOptions`](#storeoptions)                     |
 | [`$.observable`](#observable)     |                           |                             |                                                     |
 | [`$.owner`](#owner)               |                           |                             |                                                     |
 | [`$.root`](#root)                 |                           |                             |                                                     |
@@ -391,6 +391,8 @@ $.isStore ( {} ); // => false
 
 This is the function where most of the magic happens, it generates a new read-only Observable with the result of the function passed to it, the function is automatically marked as stale whenever its dependencies change, and its dependencies are tracked automatically. The value of the Observable is refreshed, if needed, by re-executing the memo when you ask the returned Observale for its current value, by calling it, or when any other computation depends on this memo.
 
+Memos are asynchronous by default, they will be re-executed automatically only when/if needed. It's possible to make a memo synchronous also, but you are strongly discouraged to do that, because synchronous memos can use over-executions and are easy to misuse. Though in some edge cases they could have their usefulness, hence why they are supported.
+
 Usually you can just pass a plain function around, in those cases the only thing you'll get out of `$.memo` is memoization, which is a performance optimization, hence the name.
 
 There are no restrictions, you can nest these freely, create new Observables inside them, whatever you want.
@@ -400,7 +402,7 @@ There are no restrictions, you can nest these freely, create new Observables ins
 Interface:
 
 ```ts
-function memo <T> ( fn: () => T, options?: ObservableOptions<T> ): ObservableReadonly<T>;
+function memo <T> ( fn: () => T, options?: MemoOptions<T> ): ObservableReadonly<T>;
 ```
 
 Usage:
@@ -431,6 +433,12 @@ sum (); // => 8
 c ( 4 );
 
 sum (); // => 9
+
+// Make a new synchronous memo, which is executed and re-executed immediately when needed
+
+const sumSync = $.memo ( () => {
+  return a () + b () + c ();
+}, { sync: true } );
 ```
 
 #### `$.observable`
@@ -1373,6 +1381,19 @@ Interface:
 type ForOptions = {
   pooled?: boolean,
   unkeyed?: boolean
+};
+```
+
+#### `MemoOptions`
+
+This type describes the options object that memos can accept to tweak how they work.
+
+Interface:
+
+```ts
+type MemoOptions<T = unknown> = {
+  equals?: EqualsFunction<T> | false,
+  sync?: boolean
 };
 ```
 
