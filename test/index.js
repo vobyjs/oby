@@ -2189,6 +2189,31 @@ describe ( 'oby', () => {
 
     });
 
+    it ( 'supports refreshing itself even if its last dependency did not actually change', t => {
+
+      const o = $(0);
+      const memo = $.memo ( () => Math.min ( 0, o () ) );
+
+      let calls = 0;
+
+      $.effect ( () => {
+        o ();
+        memo ();
+        calls += 1;
+      });
+
+      t.is ( calls, 0 );
+      $.tick ();
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+      $.tick ();
+      t.is ( calls, 2 );
+
+    });
+
     it ( 'updates when the dependencies change', async t => {
 
       const a = $(1);
@@ -3905,6 +3930,31 @@ describe ( 'oby', () => {
 
       t.is ( memo (), undefined );
       t.is ( sequence, 'bababa' );
+
+    });
+
+    it ( 'supports refreshing itself even if its last dependency did not actually change', t => {
+
+      const o = $(0);
+      const memo = $.memo ( () => Math.min ( 0, o () ) );
+
+      let calls = 0;
+
+      const memo2 = $.memo ( () => {
+        o ();
+        memo ();
+        calls += 1;
+      });
+
+      t.is ( calls, 0 );
+      t.is ( memo2 (), undefined );
+      t.is ( calls, 1 );
+
+      o ( 1 );
+
+      t.is ( calls, 1 );
+      t.is ( memo2 (), undefined );
+      t.is ( calls, 2 );
 
     });
 

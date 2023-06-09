@@ -93,7 +93,7 @@ class Effect extends Observer {
 
     const statusPrev = this.status;
 
-    if ( statusPrev === status ) return;
+    if ( statusPrev >= status ) return;
 
     this.status = status;
 
