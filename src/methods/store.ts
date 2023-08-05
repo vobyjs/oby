@@ -470,8 +470,9 @@ const STORE_TRAPS = {
 
     if ( hadProperty !== !!descriptor.enumerable ) {
       node.keys?.observable.set ( 0 );
-      node.has?.get ( key )?.observable.set ( !!descriptor.enumerable );
     }
+
+    node.has?.get ( key )?.observable.set ( true );
 
     const property = node.properties?.get ( key );
 

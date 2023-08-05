@@ -6094,7 +6094,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports batching deletations automatically', async t => {
+        it ( 'supports batching deletions automatically', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );
 
@@ -6633,7 +6633,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to changes of in caused by Object.defineProperty, deleting enumerable property', async t => {
+        it ( 'supports not reacting to changes of in caused by Object.defineProperty, making the property non-enumerable', async t => {
 
           const o = $.store ( { value: 1 } );
 
@@ -6656,7 +6656,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
           await tick ();
-          t.is ( calls, 2 );
+          t.is ( calls, 1 );
           t.is ( o.value, 123 );
 
         });
@@ -6689,7 +6689,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports not reacting to changes of in caused by Object.defineProperty, adding non-enumerable property', async t => {
+        it ( 'supports reacting to changes of in caused by Object.defineProperty, adding non-enumerable property', async t => {
 
           const o = $.store ( {} );
 
@@ -6712,7 +6712,7 @@ describe ( 'oby', () => {
 
           t.is ( calls, 1 );
           await tick ();
-          t.is ( calls, 1 );
+          t.is ( calls, 2 );
           t.is ( o.value, 123 );
 
         });
