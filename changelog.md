@@ -1,3 +1,7 @@
+### Version 14.3.1
+- Readme: avoiding mentioning the EqualsFunction internal type
+- $.store: fixed handling of changes in "in" checks when defining properties on the store
+
 ### Version 14.3.0
 - `$.memo`: added support for making a synchronous one
 
