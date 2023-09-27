@@ -448,6 +448,10 @@ const STORE_TRAPS = {
     const hadProperty = ( key in target );
     const descriptorPrev = Reflect.getOwnPropertyDescriptor ( target, key );
 
+    if ( 'value' in descriptor && isStore ( descriptor.value ) ) {
+      descriptor = { ...descriptor, value: getTarget ( descriptor.value ) };
+    }
+
     if ( descriptorPrev && isEqualDescriptor ( descriptorPrev, descriptor, equals ) ) return true;
 
     const defined = Reflect.defineProperty ( target, key, descriptor );

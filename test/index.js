@@ -7842,6 +7842,34 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'supports unwrapping properly after setting a store into the other, directly', t => {
+
+          const store1 = $.store ({ foo: 1 });
+          const store2 = $.store ({ bar: 1 });
+
+          store1.deep = store2;
+
+          t.true ( $.isStore ( store1.deep ) );
+          t.false ( $.isStore ( $.store.unwrap ( store1 ).deep ) );
+
+        });
+
+        it ( 'supports unwrapping properly after setting a store into the other, with defineProperty', t => {
+
+          const store1 = $.store ({ foo: 1 });
+          const store2 = $.store ({ bar: 1 });
+
+          Object.defineProperty ( store1, 'deep', {
+            enumerable: true,
+            configurable: true,
+            value: store2
+          });
+
+          t.true ( $.isStore ( store1.deep ) );
+          t.false ( $.isStore ( $.store.unwrap ( store1 ).deep ) );
+
+        });
+
       });
 
     });
