@@ -1,3 +1,7 @@
+### Version 14.3.2
+- untrack: improved types, accounting for FunctionMaybe types explicitly, which TS seems to need
+- store: fixed an issue where setting a property pointing to a store with defineProperty set the store itself, rather than the object it points to
+
 ### Version 14.3.1
 - Readme: avoiding mentioning the EqualsFunction internal type
 - $.store: fixed handling of changes in "in" checks when defining properties on the store
