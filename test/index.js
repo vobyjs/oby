@@ -7271,7 +7271,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports listening to a single store', async t => {
+        it ( 'supports listening to a single store, object', async t => {
 
           const o = $.store ( { foo: 1, bar: 1 } );
 
@@ -7288,6 +7288,72 @@ describe ( 'oby', () => {
           t.is ( calls, 1 );
 
           o.bar = 2;
+
+          t.is ( calls, 1 );
+
+          await tick ();
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports listening to a single store, array', async t => {
+
+          const o = $.store ([1, 2]);
+
+          let calls = 0;
+
+          $.store.on ( o, () => calls += 1 );
+
+          o[2] = 3;
+
+          t.is ( calls, 0 );
+
+          await tick ();
+
+          t.is ( calls, 1 );
+
+          o[2] = 3;
+
+          t.is ( calls, 1 );
+
+          await tick ();
+
+          o.length = 2;
+
+          t.is ( calls, 1 );
+
+          await tick ();
+
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports listening to a single store, deep array', async t => {
+
+          const o = $.store ({ value: [1, 2] });
+
+          let calls = 0;
+
+          $.store.on ( o, () => calls += 1 );
+
+          o.value[2] = 3;
+
+          t.is ( calls, 0 );
+
+          await tick ();
+
+          t.is ( calls, 1 );
+
+          o.value[2] = 3;
+
+          t.is ( calls, 1 );
+
+          await tick ();
+
+          t.is ( calls, 1 );
+
+          o.length = 2;
 
           t.is ( calls, 1 );
 

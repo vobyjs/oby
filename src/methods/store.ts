@@ -788,7 +788,7 @@ store.on = ( target: ArrayMaybe<StoreListenableTarget>, listener: CallbackFuncti
 
   /* VARIABLES */
 
-  const targets = castArray ( target );
+  const targets = isStore ( target ) ? [target] : castArray ( target );
   const selectors = targets.filter ( isFunction );
   const nodes = targets.filter ( isStore ).map ( getNodeFromStore );
 
