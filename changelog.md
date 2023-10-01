@@ -1,3 +1,6 @@
+### Version 14.3.3
+- `$.store`: fixed an issue with listening for top-level array stores
+
 ### Version 14.3.2
 - `$.untrack`: improved types, accounting for FunctionMaybe types explicitly, which TS seems to need
 - `$.store`: fixed an issue where setting a property pointing to a store with defineProperty set the store itself, rather than the object it points to
