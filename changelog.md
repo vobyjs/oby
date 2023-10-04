@@ -1,3 +1,6 @@
+### Version 14.3.4
+- Exporting the `SYMBOL_STORE_TARGET` symbol
+
 ### Version 14.3.3
 - `$.store`: fixed an issue with listening for top-level array stores
 
