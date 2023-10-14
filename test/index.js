@@ -2728,6 +2728,14 @@ describe ( 'oby', () => {
 
       });
 
+      it ( 'works with an undefined array', t => {
+
+        const memo = $.for ( undefined, t.fail );
+
+        t.deepEqual ( memo ().map ( call ), [] );
+
+      });
+
       it ( 'works with an array of non-unique values', t => {
 
         const array = $([ 1, 1, 2 ]);
@@ -3257,6 +3265,14 @@ describe ( 'oby', () => {
         t.is ( calls, 9 );
         count ( prev => prev + 1 );
         t.is ( calls, 12 );
+
+      });
+
+      it ( 'works with an undefined array', t => {
+
+        const memo = $.for ( undefined, t.fail, [], { unkeyed: true } );
+
+        t.deepEqual ( memo ().map ( call ), [] );
 
       });
 

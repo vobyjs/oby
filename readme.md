@@ -846,8 +846,8 @@ There are multiple strategies that this function may use internally for caching 
 Interface:
 
 ```ts
-function for <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: T, index: ObservableReadonly<number> ) => R), fallback?: F | [], options?: { pooled?: false, unkeyed?: false } ): ObservableReadonly<R[] | F>;
-function for <T, R, F> ( values: (() => readonly T[]) | readonly T[], fn: (( value: ObservableReadonly<T>, index: ObservableReadonly<number> ) => R), fallback?: F | [], options?: { pooled?: boolean, unkeyed?: true } ): ObservableReadonly<R[] | F>;
+function for <T, R, F> ( values: (() => readonly T[]) | readonly T[] | undefined, fn: (( value: T, index: ObservableReadonly<number> ) => R), fallback?: F | [], options?: { pooled?: false, unkeyed?: false } ): ObservableReadonly<R[] | F>;
+function for <T, R, F> ( values: (() => readonly T[]) | readonly T[] | undefined, fn: (( value: ObservableReadonly<T>, index: ObservableReadonly<number> ) => R), fallback?: F | [], options?: { pooled?: boolean, unkeyed?: true } ): ObservableReadonly<R[] | F>;
 ```
 
 Usage:

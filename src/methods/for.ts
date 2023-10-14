@@ -15,9 +15,9 @@ import type {MapFunction, MapValueFunction, ObservableReadonly, FunctionMaybe, R
 
 /* MAIN */
 
-function _for <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapFunction<T, R>, fallback?: F | [], options?: { pooled?: false, unkeyed?: false } ): ObservableReadonly<Resolved<R>[] | Resolved<F>>;
-function _for <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapValueFunction<T, R>, fallback?: F | [], options?: { pooled?: boolean, unkeyed?: true } ): ObservableReadonly<Resolved<R>[] | Resolved<F>>;
-function _for <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapFunction<T, R> | MapValueFunction<T, R>, fallback: F | [] = [], options?: { pooled?: boolean, unkeyed?: boolean } ): ObservableReadonly<Resolved<R>[] | Resolved<F>> {
+function _for <T, R, F> ( values: FunctionMaybe<readonly T[]> | undefined, fn: MapFunction<T, R>, fallback?: F | [], options?: { pooled?: false, unkeyed?: false } ): ObservableReadonly<Resolved<R>[] | Resolved<F>>;
+function _for <T, R, F> ( values: FunctionMaybe<readonly T[]> | undefined, fn: MapValueFunction<T, R>, fallback?: F | [], options?: { pooled?: boolean, unkeyed?: true } ): ObservableReadonly<Resolved<R>[] | Resolved<F>>;
+function _for <T, R, F> ( values: FunctionMaybe<readonly T[]> | undefined, fn: MapFunction<T, R> | MapValueFunction<T, R>, fallback: F | [] = [], options?: { pooled?: boolean, unkeyed?: boolean } ): ObservableReadonly<Resolved<R>[] | Resolved<F>> {
 
   const {dispose, map} = options?.unkeyed ? new CacheUnkeyed ( fn as MapValueFunction<T, R>, !!options.pooled ) : new CacheKeyed ( fn as MapFunction<T, R> ); //TSC
 
@@ -25,7 +25,7 @@ function _for <T, R, F> ( values: FunctionMaybe<readonly T[]>, fn: MapFunction<T
 
   const value = memo ( () => {
 
-    return get ( values );
+    return get ( values ) ?? [];
 
   }, {
 
