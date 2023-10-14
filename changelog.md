@@ -1,3 +1,7 @@
+### Version 14.3.5
+- Readme: aded a warning about `$.store.unwrap`
+- `$.for`: added support for receiving an undefined value, for convenience
+
 ### Version 14.3.4
 - Exporting the `SYMBOL_STORE_TARGET` symbol
 
