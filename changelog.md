@@ -1,3 +1,7 @@
+### Version 15.0.0
+- `$.ternary`: optimized some common cases, creating 1 fewer memo
+- `$.for`: added a fast path for plain arrays, where the index you receive is a raw number
+
 ### Version 14.3.5
 - Readme: aded a warning about `$.store.unwrap`
 - `$.for`: added support for receiving an undefined value, for convenience
