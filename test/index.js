@@ -2352,7 +2352,7 @@ describe ( 'oby', () => {
 
     describe ( 'keyed', it => {
 
-      it ( 'calls the mapper function with an observable to the index too', t => {
+      it ( 'calls the mapper function with an observable to the index', t => {
 
         const array = $([ 'a', 'b', 'c' ]);
         const argsRaw = [];
@@ -2380,6 +2380,21 @@ describe ( 'oby', () => {
         t.deepEqual ( memo (), ['d', 'c', 'a', 'b'] );
         t.deepEqual ( argsRaw.map ( call ), [2, 3, 1, 0] );
         t.deepEqual ( args, [0, 1, 2, 3] );
+
+      });
+
+      it ( 'calls the mapper function with the raw index in some simple cases', t => {
+
+        const array = ['a', 'b', 'c'];
+        const args = [];
+
+        const memo = $.for ( array, ( value, index ) => {
+          args.push ( index );
+          return value;
+        });
+
+        t.deepEqual ( memo (), ['a', 'b', 'c'] );
+        t.deepEqual ( args, [0, 1, 2] );
 
       });
 
@@ -2791,6 +2806,21 @@ describe ( 'oby', () => {
         t.deepEqual ( memo ().map ( call ), ['d', 'c', 'a', 'b'] );
         t.deepEqual ( argsRaw.map ( call ), [2, 3, 1, 0] );
         t.deepEqual ( args, [0, 1, 2, 3] );
+
+      });
+
+      it ( 'calls the mapper function with the raw index in some simple cases', t => {
+
+        const array = ['a', 'b', 'c'];
+        const args = [];
+
+        const memo = $.for ( array, ( value, index ) => {
+          args.push ( index );
+          return value;
+        }, { unkeyed: true });
+
+        t.deepEqual ( memo (), ['a', 'b', 'c'] );
+        t.deepEqual ( args, [0, 1, 2] );
 
       });
 

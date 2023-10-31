@@ -41,9 +41,9 @@ type ErrorFunction = ( error: Error ) => void;
 
 type EqualsFunction<T = unknown> = ( value: T, valuePrev: T ) => boolean;
 
-type MapFunction<T = unknown, R = unknown> = ( value: T, index: ObservableReadonly<number> ) => R;
+type MapFunction<T = unknown, R = unknown> = ( value: T, index: FunctionMaybe<number> ) => R;
 
-type MapValueFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: ObservableReadonly<number> ) => R;
+type MapValueFunction<T = unknown, R = unknown> = ( value: Indexed<T>, index: FunctionMaybe<number> ) => R;
 
 type MemoFunction<T = unknown> = () => T;
 
