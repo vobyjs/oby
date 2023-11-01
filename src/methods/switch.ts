@@ -2,6 +2,7 @@
 /* IMPORT */
 
 import get from '~/methods/get';
+import isObservableBoolean from '~/methods/is_observable_boolean';
 import isObservableFrozen from '~/methods/is_observable_frozen';
 import isUntracked from '~/methods/is_untracked';
 import memo from '~/methods/memo';
@@ -40,6 +41,12 @@ function _switch <T, R, F> ( when: FunctionMaybe<T>, values: ([T, R] | [R])[], f
   const isDynamic = isFunction ( when ) && !isObservableFrozen ( when ) && !isUntracked ( when );
 
   if ( isDynamic ) {
+
+    if ( isObservableBoolean ( when ) ) {
+
+      return memo ( () => resolve ( match ( when (), values, fallback ) ) );
+
+    }
 
     const value = warmup ( memo ( () => match ( when (), values, fallback ) ) );
 
