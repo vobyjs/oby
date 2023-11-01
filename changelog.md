@@ -1,3 +1,7 @@
+### Version 15.1.0
+- Readme: updated types for $.for
+- `$.boolean`: optimized when used in combination with `$.if`, `$.ternary` and `$.switch`
+
 ### Version 15.0.0
 - `$.ternary`: optimized some common cases, creating 1 fewer memo
 - `$.for`: added a fast path for plain arrays, where the index you receive is a raw number
