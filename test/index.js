@@ -5482,7 +5482,7 @@ describe ( 'oby', () => {
           const c = {};
           const sa = $.store ({ prototype: a });
           const sb = $.store ({ '__proto__': b });
-          const sc = $.store ({ constructr: c });
+          const sc = $.store ({ constructor: c });
 
           t.false ( $.isStore ( sa.__proto__ ) );
           t.false ( $.isStore ( sb.prototype ) );
