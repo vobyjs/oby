@@ -1368,7 +1368,7 @@ Interface:
 ```ts
 type EffectOptions = {
   suspense?: boolean,
-  sync?: boolean
+  sync?: boolean | 'init'
 };
 ```
 
