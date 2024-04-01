@@ -5263,6 +5263,29 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'does not access a getter when setting without a setter', t => {
+
+          t.plan ( 2 );
+
+          const o = $.store ({
+            get value () {
+              calls += 1;
+            }
+          });
+
+          let calls = 0;
+
+          try {
+            debugger;
+            o.value = 0;
+          } catch ( error ) {
+            t.is ( error instanceof Error, true );
+          }
+
+          t.is ( calls, 0 );
+
+        });
+
         it ( 'does not create a dependency in a memo when creating', t => {
 
           let o;

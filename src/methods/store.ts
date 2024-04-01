@@ -692,6 +692,11 @@ const getGettersAndSetters = ( value: StoreTarget ): { getters?: StoreMap<string
       setters.set ( key, set );
     }
 
+    if ( get && !set ) { // This ensures that settings throws without first reading the getter, very cheaply
+      setters ||= new StoreMap ();
+      setters.set ( key, throwNoSetterError );
+    }
+
   }
 
   if ( !getters && !setters ) return;
@@ -778,6 +783,12 @@ const isUntracked = ( value: unknown ): boolean => {
   if ( value === null || typeof value !== 'object' ) return false;
 
   return ( SYMBOL_STORE_UNTRACKED in value );
+
+};
+
+const throwNoSetterError = (): never => {
+
+  throw new TypeError ( 'Cannot set property value of #<Object> which has only a getter' );
 
 };
 
