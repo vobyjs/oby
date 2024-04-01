@@ -6636,6 +6636,8 @@ describe ( 'oby', () => {
 
         });
 
+        //TODO: add tests for reacting to all sorts of changes in property descriptors, inspectable via an "Object.getOwnPropertyDescriptor"
+
         it ( 'survives reading a value inside a discarded root', async t => {
 
           const o = $.store ({ value: 123 });
