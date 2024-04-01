@@ -5490,6 +5490,21 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'preserves references to existing stores, without re-proxying them', t => {
+
+          const obj = { foo: 123 };
+          const o1 = $.store ({ value: obj });
+          const o2 = $.store ({ value: obj });
+          const o3 = $.store ({ value: o1 });
+          const o4 = $.store ({ value: o2 });
+
+          t.true ( o1.value === o2.value );
+          t.true ( o2.value === o3.value.value );
+          t.true ( o3.value === o1 );
+          t.true ( o3.value.value === o4.value.value );
+
+        });
+
         it ( 'respects the get proxy trap invariant about non-writable non-configurable properties', t => {
 
           const object = Object.defineProperties ( {}, {
@@ -5699,7 +5714,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports a custom equality function, which can be overridden', t => {
+        it ( 'supports a custom equality function, which cannot be overridden', t => {
 
           const equals1 = ( next, prev ) => ( next % 10 ) === ( prev % 10 );
           const equals2 = ( next, prev ) => next === 'a';
@@ -5726,7 +5741,7 @@ describe ( 'oby', () => {
 
           o.other.value = 10;
 
-          t.is ( o.other.value, 0 );
+          t.is ( o.other.value, 10 );
 
           o.other.value = 11;
 
@@ -5735,6 +5750,10 @@ describe ( 'oby', () => {
           o.other.value = 'a';
 
           t.is ( o.other.value, 11 );
+
+          o.other.value = 'b'
+
+          t.is ( o.other.value, 'b' );
 
         });
 
