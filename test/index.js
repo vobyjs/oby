@@ -6578,7 +6578,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to hasOwnProperty property checks, deleting', async t => {
+        it.skip ( 'supports reacting to hasOwnProperty property checks, deleting', async t => { // This is problematic to support, too many built-ins read descriptors, with no intention of tracking
 
           const o = $.store ( { value: undefined } );
 
@@ -6607,7 +6607,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to hasOwnProperty property checks, adding', async t => {
+        it.skip ( 'supports reacting to hasOwnProperty property checks, adding', async t => { // This is problematic to support, too many built-ins read descriptors, with no intention of tracking
 
           const o = $.store ( {} );
 
@@ -6635,8 +6635,6 @@ describe ( 'oby', () => {
           t.is ( calls, 2 );
 
         });
-
-        //TODO: add tests for reacting to all sorts of changes in property descriptors, inspectable via an "Object.getOwnPropertyDescriptor"
 
         it ( 'survives reading a value inside a discarded root', async t => {
 
