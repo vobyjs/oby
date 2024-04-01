@@ -5467,6 +5467,34 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'returns a frozen object as is', t => {
+
+          const frozen = Object.freeze ({ user: { name: 'John' } });
+
+          let o = $.store ( frozen );
+
+          t.is ( Object.isFrozen ( o ), true );
+          t.is ( $.isStore ( o ), false );
+
+          t.is ( Object.isFrozen ( o.user ), false );
+          t.is ( $.isStore ( o.user ), false );
+
+        });
+
+        it ( 'returns a deep frozen object as is', t => {
+
+          const frozen = Object.freeze ({ user: { name: 'John' } });
+
+          let o = $.store ({ deep: frozen });
+
+          t.is ( Object.isFrozen ( o ), false );
+          t.is ( $.isStore ( o ), true );
+
+          t.is ( Object.isFrozen ( o.deep ), true );
+          t.is ( $.isStore ( o.deep ), false );
+
+        });
+
         it ( 'returns primitive values as is', t => {
 
           const o = $.store ( 123 );

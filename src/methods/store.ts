@@ -578,7 +578,7 @@ const STORE_UNTRACK_TRAPS = {
 
 const getNode = <T extends StoreTarget> ( value: T, parent?: StoreNode, equals?: EqualsFunction<unknown> | false ): StoreNode => {
 
-  const store = new Proxy ( value, STORE_TRAPS );
+  const store = Object.isFrozen ( value ) ? value : new Proxy ( value, STORE_TRAPS );
   const gettersAndSetters = getGettersAndSetters ( value );
   const node: StoreNode = { parents: parent, store };
 
