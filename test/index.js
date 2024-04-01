@@ -5467,6 +5467,34 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'respects the get proxy trap invariant about non-writable non-configurable properties', t => {
+
+          const object = Object.defineProperties ( {}, {
+            nonConfigurable: {
+              value: {},
+              configurable: false,
+              writable: true
+            },
+            nonWritable: {
+              value: {},
+              configurable: true,
+              writable: false
+            },
+            nonConfigurableNonWritable: {
+              value: {},
+              configurable: false,
+              writable: false
+            }
+          });
+
+          const o = $.store ( object );
+
+          t.is ( $.isStore ( o.nonConfigurable ), true );
+          t.is ( $.isStore ( o.nonWritable ), true );
+          t.is ( $.isStore ( o.nonConfigurableNonWritable ), false );
+
+        });
+
         it ( 'returns a frozen object as is', t => {
 
           const frozen = Object.freeze ({ user: { name: 'John' } });

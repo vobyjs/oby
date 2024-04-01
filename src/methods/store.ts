@@ -380,7 +380,7 @@ const STORE_TRAPS = {
 
       if ( property ) {
         property.observable?.set ( value );
-        property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
+        property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, key, node ) : undefined;
       }
 
       if ( property?.node ) {
@@ -495,7 +495,7 @@ const STORE_TRAPS = {
       } else {
         const value = descriptor.value;
         property.observable?.set ( value );
-        property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
+        property.node = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, key, node ) : undefined;
       }
     }
 
@@ -576,9 +576,9 @@ const STORE_UNTRACK_TRAPS = {
 
 /* HELPERS */
 
-const getNode = <T extends StoreTarget> ( value: T, parent?: StoreNode, equals?: EqualsFunction<unknown> | false ): StoreNode => {
+const getNode = <T extends StoreTarget> ( value: T, key?: StoreKey, parent?: StoreNode, equals?: EqualsFunction<unknown> | false ): StoreNode => {
 
-  const store = Object.isFrozen ( value ) ? value : new Proxy ( value, STORE_TRAPS );
+  const store = isFrozenLike ( value, key, parent ) ? value : new Proxy ( value, STORE_TRAPS );
   const gettersAndSetters = getGettersAndSetters ( value );
   const node: StoreNode = { parents: parent, store };
 
@@ -654,7 +654,7 @@ const getNodeObservable = <T> ( node: StoreNode, value: T, options?: ObservableO
 const getNodeProperty = ( node: StoreNode, key: StoreKey, value: unknown ): StoreProperty => {
 
   const observable = undefined;
-  const propertyNode = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, node ) : undefined;
+  const propertyNode = isProxiable ( value ) ? NODES.get ( value ) || getNode ( value, key, node ) : undefined;
   const property = new StoreProperty ( node, key, observable, propertyNode );
 
   node.properties ||= new StoreMap ();
@@ -704,7 +704,7 @@ const getStore = <T extends StoreTarget> ( value: T, options?: StoreOptions ): T
 
   if ( isStore ( value ) ) return value;
 
-  const node = NODES.get ( value ) || getNode ( value, undefined, options?.equals );
+  const node = NODES.get ( value ) || getNode ( value, undefined, undefined, options?.equals );
 
   return node.store;
 
@@ -731,6 +731,21 @@ const getUntracked = <T> ( value: T ): T => {
 const isEqualDescriptor = ( a: PropertyDescriptor, b: PropertyDescriptor, equals: EqualsFunction<unknown> ): boolean => {
 
   return ( !!a.configurable === !!b.configurable && !!a.enumerable === !!b.enumerable && !!a.writable === !!b.writable && equals ( a.value, b.value ) && a.get === b.get && a.set === b.set );
+
+};
+
+const isFrozenLike = <T extends StoreTarget> ( value: T, key?: StoreKey, parent?: StoreNode ): boolean => { // Some objects can't be proxied, to preserve a proxy trap invariant
+
+  if ( Object.isFrozen ( value ) ) return true;
+
+  if ( !parent || key === undefined ) return false;
+
+  const target = store.unwrap ( parent.store );
+  const descriptor = Reflect.getOwnPropertyDescriptor ( target, key );
+
+  if ( descriptor?.configurable || descriptor?.writable ) return false;
+
+  return true;
 
 };
 
