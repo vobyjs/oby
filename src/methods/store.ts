@@ -515,6 +515,14 @@ const STORE_TRAPS = {
 
   },
 
+  getOwnPropertyDescriptor: ( target: StoreTarget, key: StoreKey ): TypedPropertyDescriptor<unknown> | undefined => {
+
+    STORE_TRAPS.has ( target, key );
+
+    return Reflect.getOwnPropertyDescriptor ( target, key );
+
+  },
+
   has: ( target: StoreTarget, key: StoreKey ): boolean => {
 
     if ( key === SYMBOL_STORE ) return true;

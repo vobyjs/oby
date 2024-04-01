@@ -6520,7 +6520,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to property checks, deleting', async t => {
+        it ( 'supports reacting to in property checks, deleting', async t => {
 
           const o = $.store ( { value: undefined } );
 
@@ -6549,7 +6549,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to property checks, adding', async t => {
+        it ( 'supports reacting to in property checks, adding', async t => {
 
           const o = $.store ( {} );
 
@@ -6558,6 +6558,64 @@ describe ( 'oby', () => {
           $.effect ( () => {
             calls += 1;
             if ( 'value' in o ) {}
+          });
+
+          t.is ( calls, 0 );
+          await tick ();
+          t.is ( calls, 1 );
+
+          o.value = undefined;
+
+          t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 2 );
+
+          o.value = undefined;
+
+          t.is ( calls, 2 );
+          await tick ();
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports reacting to hasOwnProperty property checks, deleting', async t => {
+
+          const o = $.store ( { value: undefined } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            if ( o.hasOwnProperty ( 'value' ) ) {}
+          });
+
+          t.is ( calls, 0 );
+          await tick ();
+          t.is ( calls, 1 );
+
+          delete o.value;
+
+          t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 2 );
+
+          delete o.value;
+
+          t.is ( calls, 2 );
+          await tick ();
+          t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports reacting to hasOwnProperty property checks, adding', async t => {
+
+          const o = $.store ( {} );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            if ( o.hasOwnProperty ( 'value' ) ) {}
           });
 
           t.is ( calls, 0 );
