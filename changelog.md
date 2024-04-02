@@ -1,3 +1,9 @@
+### Version 15.1.1
+- `$.store`: ensuring frozen objects are returned as is, to respect a proxy trap invariant
+- `$.store`: ensuring non-configurable non-writable properties are returned as is, to respect a proxy trap invariant
+- `$.store`: ensuring the getter is not called when setting if there is no setter
+- `$.store`: ensuring already proxied objects don't get reproxied, and their equality function is not overridden
+
 ### Version 15.1.0
 - Readme: updated types for $.for
 - `$.boolean`: optimized when used in combination with `$.if`, `$.ternary` and `$.switch`
