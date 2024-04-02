@@ -5505,6 +5505,42 @@ describe ( 'oby', () => {
 
         });
 
+        it.skip ( 'preserves references to existing stores, without triggering dependents', async t => {
+
+          const inner = $.store ({ foo: 1 });
+          const outer = $.store ({ value: inner });
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            outer.value;
+          });
+
+          t.is ( calls, 0 );
+          await tick ();
+          t.is ( calls, 1 );
+
+          outer.value = inner;
+
+          t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
+
+          outer.value = outer.value;
+
+          t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
+
+          outer.value = $.store.unwrap ( inner );
+
+          t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 1 );
+
+        });
+
         it ( 'respects the get proxy trap invariant about non-writable non-configurable properties', t => {
 
           const object = Object.defineProperties ( {}, {
