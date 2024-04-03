@@ -6296,7 +6296,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to changes in length property of an array, when indirectly deleting values', async t => {
+        it ( 'supports reacting to changes in the length property of an array, when indirectly deleting values', async t => {
 
           const o = $.store ([ 1, 2, 3 ]);
 
@@ -6336,7 +6336,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to changes in length property of an array, when indirectly deleting the presence of properties', async t => {
+        it ( 'supports reacting to changes in the length property of an array, when indirectly deleting the presence of properties', async t => {
 
           const o = $.store ([ 1, 2, 3 ]);
 
@@ -6376,7 +6376,7 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to changes in length property of an array, when indirectly deleting some keys', async t => {
+        it ( 'supports reacting to changes in the length property of an array, when indirectly deleting some keys', async t => {
 
           const o = $.store ([ 1, 2, 3 ]);
 
@@ -6396,6 +6396,35 @@ describe ( 'oby', () => {
           t.is ( calls, 1 );
           await tick ();
           t.is ( calls, 2 );
+
+        });
+
+        it ( 'supports reacting to changes in the length property of an array, when it happens indiretly by inserting a new item', async t => {
+
+          const o = $.store (['foo']);
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.join ( ' ' );
+          });
+
+          t.is ( calls, 0 );
+          await tick ();
+          t.is ( calls, 1 );
+
+          o[1] = 'bar';
+
+          t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 2 );
+
+          o[3] = 'baz';
+
+          t.is ( calls, 2 );
+          await tick ();
+          t.is ( calls, 3 );
 
         });
 

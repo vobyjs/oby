@@ -357,13 +357,22 @@ const STORE_TRAPS = {
 
     } else {
 
+      const targetIsArray = isArray ( target );
       const valuePrev = target[key];
       const hadProperty = !!valuePrev || ( key in target );
       const equals = node.equals || is;
 
-      if ( hadProperty && equals ( value, valuePrev ) && ( key !== 'length' || !Array.isArray ( target ) ) ) return true; // Array.prototype.length is special, it gets updated before this trap is called, we need to special-case it...
+      if ( hadProperty && equals ( value, valuePrev ) && ( key !== 'length' || !targetIsArray ) ) return true; // Array.prototype.length is special, it gets updated before this trap is called, we need to special-case it...
+
+      const lengthPrev = targetIsArray && target['length'];
 
       target[key] = value;
+
+      const lengthNext = targetIsArray && target['length'];
+
+      if ( targetIsArray && key !== 'length' && lengthPrev !== lengthNext ) { // Inferring updating the length property, since it happens implicitly
+        node.properties?.get ( 'length' )?.observable?.set ( lengthNext );
+      }
 
       node.values?.observable.set ( 0 );
 
@@ -395,7 +404,7 @@ const STORE_TRAPS = {
         StoreListenersRegular.register ( node );
       }
 
-      if ( key === 'length' && Array.isArray ( target ) ) { // Inferring deleted keys
+      if ( targetIsArray && key === 'length' ) { // Inferring deleting keys, since it happens implicitly
         const lengthPrev = Number ( valuePrev );
         const lengthNext = Number ( value );
 
