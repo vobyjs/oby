@@ -1,3 +1,8 @@
+### Version 15.1.2
+- `$.store`: ensuring that when deleting a property the eventual getter and setter associated with it are fully forgotten
+- `$.store`: ensuring properties implicitly deleted by shrinking an array are handled too
+- `$.store`: ensuring it reacts when the length property is updated implicitly
+
 ### Version 15.1.1
 - `$.store`: ensuring frozen objects are returned as is, to respect a proxy trap invariant
 - `$.store`: ensuring non-configurable non-writable properties are returned as is, to respect a proxy trap invariant
