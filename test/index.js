@@ -5276,12 +5276,26 @@ describe ( 'oby', () => {
           let calls = 0;
 
           try {
-            debugger;
             o.value = 0;
           } catch ( error ) {
             t.is ( error instanceof Error, true );
           }
 
+          t.is ( calls, 0 );
+
+        });
+
+        it ( 'does not access a getter when performing an in property check', t => {
+
+          const o = $.store ({
+            get value () {
+              calls += 1;
+            }
+          });
+
+          let calls = 0;
+
+          t.is ( 'value' in o, true );
           t.is ( calls, 0 );
 
         });
