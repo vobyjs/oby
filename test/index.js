@@ -6296,6 +6296,109 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'supports reacting to changes in length property of an array, when indirectly deleting values', async t => {
+
+          const o = $.store ([ 1, 2, 3 ]);
+
+          let calls = '';
+
+          $.effect ( () => {
+            o[0];
+            calls += '0';
+          });
+
+          $.effect ( () => {
+            o[1];
+            calls += '1';
+          });
+
+          $.effect ( () => {
+            o[2];
+            calls += '2';
+          });
+
+          t.is ( calls, '' );
+          await tick ();
+          t.is ( calls, '012' );
+          t.is ( o[0], 1 );
+          t.is ( o[1], 2 );
+          t.is ( o[2], 3 );
+          t.is ( o.length, 3 );
+
+          o.length = 1;
+
+          await tick ();
+          t.is ( calls, '01212' );
+          t.is ( o[0], 1 );
+          t.is ( o[1], undefined );
+          t.is ( o[2], undefined );
+          t.is ( o.length, 1 );
+
+        });
+
+        it ( 'supports reacting to changes in length property of an array, when indirectly deleting the presence of properties', async t => {
+
+          const o = $.store ([ 1, 2, 3 ]);
+
+          let calls = '';
+
+          $.effect ( () => {
+            '0' in o;
+            calls += '0';
+          });
+
+          $.effect ( () => {
+            '1' in o;
+            calls += '1';
+          });
+
+          $.effect ( () => {
+            '2' in o;
+            calls += '2';
+          });
+
+          t.is ( calls, '' );
+          await tick ();
+          t.is ( calls, '012' );
+          t.is ( 0 in o, true );
+          t.is ( 1 in o, true );
+          t.is ( 2 in o, true );
+          t.is ( o.length, 3 );
+
+          o.length = 1;
+
+          await tick ();
+          t.is ( calls, '01212' );
+          t.is ( 0 in o, true );
+          t.is ( 1 in o, false );
+          t.is ( 2 in o, false );
+          t.is ( o.length, 1 );
+
+        });
+
+        it ( 'supports reacting to changes in length property of an array, when indirectly deleting some keys', async t => {
+
+          const o = $.store ([ 1, 2, 3 ]);
+
+          let calls = 0;
+
+          $.effect ( () => {
+            Object.keys ( o );
+            calls += 1;
+          });
+
+          t.is ( calls, 0 );
+          await tick ();
+          t.is ( calls, 1 );
+
+          o.length = 1;
+
+          t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 2 );
+
+        });
+
         it ( 'supports batching implicitly', async t => {
 
           const o = $.store ( { foo: 1, bar: 2 } );

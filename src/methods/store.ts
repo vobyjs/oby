@@ -395,17 +395,27 @@ const STORE_TRAPS = {
         StoreListenersRegular.register ( node );
       }
 
+      if ( key === 'length' && Array.isArray ( target ) ) { // Inferring deleted keys
+        const lengthPrev = Number ( valuePrev );
+        const lengthNext = Number ( value );
+
+        for ( let i = lengthNext; i < lengthPrev; i++ ) {
+          if ( i in target ) continue;
+          STORE_TRAPS.deleteProperty ( target, `${i}`, true );
+        }
+      }
+
     }
 
     return true;
 
   },
 
-  deleteProperty: ( target: StoreTarget, key: StoreKey ): boolean => {
+  deleteProperty: ( target: StoreTarget, key: StoreKey, _force?: boolean ): boolean => {
 
     const hasProperty = ( key in target );
 
-    if ( !hasProperty ) return true;
+    if ( !_force && !hasProperty ) return true;
 
     const deleted = Reflect.deleteProperty ( target, key );
 
