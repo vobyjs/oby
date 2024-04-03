@@ -6133,9 +6133,48 @@ describe ( 'oby', () => {
 
         });
 
-        it ( 'supports reacting to properties read by a getter', async t => {
+        it ( 'supports reacting to properties read by a getter, for plain objects', async t => {
 
           const o = $.store ( { foo: 1, bar: 2, get fn () { return this.foo + this.bar; } } );
+
+          let calls = 0;
+
+          $.effect ( () => {
+            calls += 1;
+            o.fn;
+          });
+
+          t.is ( calls, 0 );
+          await tick ();
+          t.is ( calls, 1 );
+
+          o.foo = 10;
+
+          t.is ( calls, 1 );
+          await tick ();
+          t.is ( calls, 2 );
+          t.is ( o.fn, 12 );
+
+          o.bar = 20;
+
+          t.is ( calls, 2 );
+          await tick ();
+          t.is ( calls, 3 );
+          t.is ( o.fn, 30 );
+
+        });
+
+        it.skip ( 'supports reacting to properties read by a getter, for a class', async t => {
+
+          class Class  {
+            foo = 1;
+            bar = 2;
+            get fn () {
+              return this.foo + this.bar;
+            }
+          }
+
+          const o = $.store ( new Class () );
 
           let calls = 0;
 
