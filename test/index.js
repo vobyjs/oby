@@ -5541,6 +5541,28 @@ describe ( 'oby', () => {
 
         });
 
+        it ( 'properly forgets about getters and setters when deleting them', t => {
+
+          let calls = 0;
+
+          const o = $.store ({
+            get b () {
+              calls += 1;
+            },
+            set b ( value ) {
+              calls += 1;
+            }
+          });
+
+          delete o.b;
+
+          o.b;
+          o.b = 3;
+
+          t.is ( calls, 0 );
+
+        });
+
         it ( 'respects the get proxy trap invariant about non-writable non-configurable properties', t => {
 
           const object = Object.defineProperties ( {}, {

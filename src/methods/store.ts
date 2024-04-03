@@ -413,6 +413,8 @@ const STORE_TRAPS = {
 
     const node = getNodeExisting ( target );
 
+    node.getters?.delete ( key );
+    node.setters?.delete ( key );
     node.keys?.observable.set ( 0 );
     node.values?.observable.set ( 0 );
     node.has?.get ( key )?.observable.set ( false );
