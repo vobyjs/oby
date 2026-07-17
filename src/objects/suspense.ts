@@ -37,7 +37,7 @@ class Suspense extends Owner {
 
   toggle ( force: boolean ): void {
 
-    if ( !this.suspended && !force ) return; // Already suspended, this can happen at instantion time
+    if ( !this.suspended && !force ) return; // Already suspended, this can happen at instantiation time
 
     const suspendedPrev = this.suspended;
     const suspendedNext = suspendedPrev + ( force ? 1 : -1 );

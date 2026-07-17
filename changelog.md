@@ -107,7 +107,7 @@
 - Readme: updated signature for `$.batch`
 - Readme: ensuring `$.tick` is documented
 - `$.effect`: ensuring the disposal optimization is actually performed on effects
-- `$.effect`: optimized re-execution, skippung unnecessary unscheduling
+- `$.effect`: optimized re-execution, skipping unnecessary unscheduling
 - Observer: slightly optimized deduplication of observables
 - `$.effect`: avoiding scheduling it if under a suspended suspense
 - `$.suspense`: ensuring dirty effects with sync: init are refreshed immediately too when the boundary unsuspends
@@ -535,8 +535,8 @@ Overall I think the API got way simpler in many cases, harder to misuse, we got 
 - Minor changes
 
 ### Version 8.0.3
-- Added a smokes test about the "observable" function
-- Moved teh default export to its own file, for better tree-shaking
+- Added a smoke test about the "observable" function
+- Moved the default export to its own file, for better tree-shaking
 
 ### Version 8.0.2
 - TS: set ES2018 as the target

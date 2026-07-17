@@ -118,7 +118,7 @@ class ObservablesArray {
 
     observables[this.observablesIndex++] = observable;
 
-    if ( observablesIndex === 128 ) { // Switching to a Set, as indexOf checks may get artbirarily expensive otherwise
+    if ( observablesIndex === 128 ) { // Switching to a Set, as indexOf checks may get arbitrarily expensive otherwise
 
       observer.observables = new ObservablesSet ( observer, observables );
 
