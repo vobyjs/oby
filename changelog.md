@@ -555,7 +555,7 @@ Overall I think the API got way simpler in many cases, harder to misuse, we got 
 - `$.selector`: ensuring internal observables inherit the abort signal available at the time when the selector was created
 - `$.suspense`: rewritten to instead be a mechanism for suspending the execution of effects inside it
 - `$.suspense`: using the existent observers tree, rather than keeping track of effects again
-- Ensuring the abort signal of the current owner takes proprity over the abort signal of the current root
+- Ensuring the abort signal of the current owner takes priority over the abort signal of the current root
 - `$.suspense`: ensuring it can handle lazily-created effects and suspenses
 - `$.suspense`: added a fast path for when this method is never called
 - Cached Object.is function lookup
